@@ -1,0 +1,64 @@
+#configuration
+
+# 是否是生产环境
+is_production = false
+
+#数据库同步任务 default: false
+sync_task = true
+
+#日志打印开关
+#["trace", "debug", "info", "warn", "error", "fatal"]  default: "error"
+log_level = "debug"
+
+#本地api监听地址
+http_addr = "0.0.0.0:3000"
+
+#远端的api地址
+api_addr = "http://127.0.0.1:8000"
+
+#代理api的源地址
+proxy_addr = "http://127.0.0.1:8000"
+
+#rpc监听地址
+grpc_addr = "127.0.0.1:8991"
+
+#solr地址
+solr_addr = "http:127.0.0.1:8991/solr"
+
+#mongo地址
+mongo_addr = "127.0.0.1:27017"
+
+#push地址
+push_addr = "http://push.thel-service.com/push/message/send"
+
+#message地址
+message_addr = "http://push.thel-service.com/push/message/send"
+
+#直播权限地址
+live_perm_addr = "http://test.thel-service.com/v1/live/perm"
+
+#本地cache最大内存  128*1024*1024
+memory_cache_size =  157810688
+
+# wink信息地址
+wink_rpc_addr = "127.0.0.1:3081"
+
+#rds
+[rds]
+redis_addr = "127.0.0.1:6379"
+ledis_addr = "127.0.0.1:6379"
+ledis_view_addr = "127.0.0.1:6379"
+redis_com_addr = "127.0.0.1:6379"
+
+#mysql
+[rdb]
+#address = "root:devchj@theL0805@tcp(localhost:3306)/stay?charset=utf8-mb4&loc=Asia/Shanghai"
+master_address = "root:@tcp(localhost:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
+slave_address = "root:@tcp(localhost:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
+wink_address = "root:@tcp(localhost:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
+# master_address = "root:devchj@theL0805@tcp(203.166.162.94:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
+# slave_address = "root:devchj@theL0805@tcp(203.166.162.94:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
+# wink_address = "root:devchj@theL0805@tcp(203.166.162.94:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
+
+[cassandra]
+addresses="127.0.0.1"
