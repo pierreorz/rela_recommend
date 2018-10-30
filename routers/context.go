@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"strings"
 
-	"theL_api_golang/utils/binding"
-	"theL_api_golang/utils/signature"
+	"rela_recommend/utils/binding"
+	"rela_recommend/utils/signature"
 )
 
 // MIME types

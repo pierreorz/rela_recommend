@@ -1,13 +1,13 @@
 package models
 
 import (
-	"time"
 	"errors"
+	"time"
 
-	"theL_api_golang/cache"
-	"theL_api_golang/help"
-	"theL_api_golang/log"
-	"theL_api_golang/utils"
+	"rela_recommend/cache"
+	"rela_recommend/help"
+	"rela_recommend/log"
+	"rela_recommend/utils"
 
 	"github.com/jinzhu/gorm"
 )
@@ -16,12 +16,13 @@ const (
 	PREFIX_USER_LOGIN = "login:"
 	PREFIX_USER_KEY   = "user:key:"
 	EXPIRE_USER_LOGIN = 3600 * 12
-	EXPIRE_NOT_FOUND = 300
+	EXPIRE_NOT_FOUND  = 300
 )
 
 const (
 	USER_LOGIN_ONLINE = 1
 )
+
 var ErrNoRows = errors.New("record not found or disable")
 
 type Login struct {

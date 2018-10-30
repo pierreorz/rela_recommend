@@ -8,6 +8,7 @@ import (
 func RegisterRouters(router *routers.Routers) {
 	router.GET("/recommend", controllers.IndexHTTP)
 	router.GET("/recommend/userCard", controllers.UserCardHTTP)
+	router.POST("/recommend/matchList", controllers.MatchRecommendListHTTP)
 	router.NotFound = NotFound
 }
 
