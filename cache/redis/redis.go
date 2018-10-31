@@ -16,7 +16,7 @@
 package redis
 
 import (
-	"theL_api_golang/cache"
+	"rela_recommend/cache"
 	"time"
 
 	"github.com/garyburd/redigo/redis"

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	. "theL_api_golang/i18n"
-	"theL_api_golang/utils/codec"
+	. "rela_recommend/i18n"
+	"rela_recommend/utils/codec"
 )
 
 type BaseResponse struct {

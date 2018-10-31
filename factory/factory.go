@@ -7,6 +7,7 @@ import (
 	"rela_recommend/log"
 	"rela_recommend/utils"
 	"rela_recommend/cache/redis"
+	"gopkg.in/mgo.v2"
 
 	"github.com/gocql/gocql"
 	"github.com/jinzhu/gorm"
@@ -24,6 +25,9 @@ var CacheRds cache.Cache
 // cassandra client
 var CassandraClient *gocql.Session
 
+// match mongo
+var MatchClusterMon *mgo.Session
+
 //配置相关
 var Cfg *conf.Config
 
@@ -40,6 +44,7 @@ func Init(cfg *conf.Config) {
 	}
 	initDB(cfg)
 	initCache(cfg)
+	initMongo(cfg)
 	initCassandraSession(cfg)
 }
 
@@ -91,6 +96,15 @@ func initCassandraSession(cfg *conf.Config) {
 func initCache(cfg *conf.Config) {
 	var err error
 	CacheRds, err = redis.NewRedisCache(cfg.Rds.RedisAddr, "", 0)
+	if err != nil {
+		log.Error(err.Error())
+	}
+}
+
+func initMongo(cfg *conf.Config) {
+	var err error
+	MatchClusterMon, err = mgo.Dial(cfg.MatchClusterMongoAddr)
+	MatchClusterMon.SetPoolLimit(100)
 	if err != nil {
 		log.Error(err.Error())
 	}
