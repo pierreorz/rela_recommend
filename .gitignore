@@ -2,3 +2,5 @@
 rela_recommend
 *.log
 .idea/
+temp.go
+*.bak
