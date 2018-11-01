@@ -38,19 +38,22 @@ func (tree *DecisionTree) Init(path string)  {
 	fr, oerr := os.Open(path)
 	defer fr.Close()
 	if oerr != nil {
-		fmt.Println("open tree file err", path, oerr.Error())
+		fmt.Println("tree:open tree file err", path, oerr.Error())
 	}
 	gzf, gerr := gzip.NewReader(fr)
 	defer gzf.Close()
 	if gerr != nil {
-		fmt.Println("read gzip file err", gerr.Error())
+		fmt.Println("tree:read gzip file err", gerr.Error())
 	}
 	data, rerr := ioutil.ReadAll(gzf)
 	if rerr != nil {
-		fmt.Println("read all err", rerr.Error())
+		fmt.Println("tree:read all err", rerr.Error())
 	}
 	jerr := json.Unmarshal(data, tree)
-	fmt.Println(jerr)
+	if jerr != nil {
+		fmt.Println("tree:load json err")
+	}
+	fmt.Println("tree:init ok")
 }
 
 func (tree *DecisionTree) PredictSingle(features []float32) float32 {
