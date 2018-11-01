@@ -37,17 +37,17 @@ type DecisionTree struct {
 func (tree *DecisionTree) Init(path string)  {
 	fr, oerr := os.Open(path)
 	defer fr.Close()
-	if oerr == nil {
-		fmt.Println("open tree file err", path)
+	if oerr != nil {
+		fmt.Println("open tree file err", path, oerr.Error())
 	}
 	gzf, gerr := gzip.NewReader(fr)
 	defer gzf.Close()
-	if gerr == nil {
-		fmt.Println("read gzip file err")
+	if gerr != nil {
+		fmt.Println("read gzip file err", gerr.Error())
 	}
 	data, rerr := ioutil.ReadAll(gzf)
-	if rerr == nil {
-		fmt.Println("read all err")
+	if rerr != nil {
+		fmt.Println("read all err", rerr.Error())
 	}
 	jerr := json.Unmarshal(data, tree)
 	fmt.Println(jerr)
@@ -71,13 +71,11 @@ func (tree *DecisionTree) PredictSingle(features []float32) float32 {
 
 func main() {
 	work_dir, _ := os.Getwd()
-	nodes := make([]Node, 5)
-	for i, _ := range nodes {
-		nodes[i].Id = 100
-	}
-	println(len(nodes))
 	tree := DecisionTree{}
-	tree.Init(work_dir + "/../../algo_files/quick_match_tree.model")
+	model_file := work_dir + "/../../algo_files/quick_match_tree.model"
+	// model_file = "/Users/rela/Documents/data/sp_analysis/mods4.dumps.gz"
+	fmt.Println(model_file)
+	tree.Init(model_file)
 	target := tree.PredictSingle([]float32{5.1, 3.5, 1.4, 0.2})
 	println("target:", target)
 }
