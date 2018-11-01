@@ -35,13 +35,20 @@ type DecisionTree struct {
 }
 
 func (tree *DecisionTree) Init(path string)  {
-	fr, _ := os.Open(path)
+	fr, oerr := os.Open(path)
 	defer fr.Close()
-
-	gzf, _ := gzip.NewReader(fr)
+	if oerr == nil {
+		fmt.Println("open tree file err", path)
+	}
+	gzf, gerr := gzip.NewReader(fr)
 	defer gzf.Close()
-
-	data, _ := ioutil.ReadAll(gzf)
+	if gerr == nil {
+		fmt.Println("read gzip file err")
+	}
+	data, rerr := ioutil.ReadAll(gzf)
+	if rerr == nil {
+		fmt.Println("read all err")
+	}
 	jerr := json.Unmarshal(data, tree)
 	fmt.Println(jerr)
 }
