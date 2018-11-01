@@ -47,7 +47,7 @@ type Config struct {
 
 	WorkerId        int8   `toml:"-"`
 	IsProduction    bool   `toml:"-"`
-	Port            int    `toml:"-"`
+	Port            int    `toml:"port"`
 	LogLevel        string `toml:"log_level"`
 	WebApiAddr      string `toml:"web_api_addr"`
 	NewWebApiAddr   string `toml:"new_web_api_addr"`
