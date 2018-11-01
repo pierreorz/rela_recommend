@@ -16,7 +16,7 @@ var userRatio = [][]float64{
 	{62.0, 77.0},
 	{77.0, 85.0},
 	{85.0, 92.0},
-	{92.0, 100.0},
+	{92.0, maxFloat64},
 }
 
 var receiverRatio = [][]float64{
@@ -26,7 +26,7 @@ var receiverRatio = [][]float64{
 	{75.0, 83.0},
 	{83.0, 85.0},
 	{85.0, 92.0},
-	{92.0, 100.0},
+	{92.0, maxFloat64},
 }
 
 var distanceBkt = [][]float64{
@@ -79,7 +79,7 @@ var userImageCountBkt = [][]float64{
 	{7.0, 8.0},
 	{8.0, 9.0},
 	{9.0, 10.0},
-	{10.0, 11.0},
+	{10.0, maxFloat64},
 }
 
 var receiverImageCountBkt = [][]float64{
@@ -89,7 +89,7 @@ var receiverImageCountBkt = [][]float64{
 	{4.0, 5.0},
 	{5.0, 7.0},
 	{7.0, 10.0},
-	{10.0, 12.0},
+	{10.0, maxFloat64},
 }
 
 var activeScores = []float64{0.0, 0.8, 0.9, 1.0, 1.2, 1.5}
@@ -227,8 +227,8 @@ func UserRow(user *models.ActiveUserLocation, receiver *models.ActiveUserLocatio
 		arr = append(arr, propBkt(ar[0], ar[1], receiver.Ratio))
 	}
 
+	var distance = calculateDistance(user.Loc.Coordinates[0], user.Loc.Coordinates[1], receiver.Loc.Coordinates[0], receiver.Loc.Coordinates[1]) / 1000
 	for _, ar := range distanceBkt {
-		var distance = calculateDistance(user.Loc.Coordinates[0], user.Loc.Coordinates[1], receiver.Loc.Coordinates[0], receiver.Loc.Coordinates[1]) / 1000
 		arr = append(arr, propFloatBkt(ar[0], ar[1], distance))
 	}
 
@@ -239,11 +239,14 @@ func UserRow(user *models.ActiveUserLocation, receiver *models.ActiveUserLocatio
 		arr = append(arr, propBkt(ar[0], ar[1], calculateCreateDays(receiver.CreateTime)))
 	}
 
+	var user_image_count = user.UserImageCount + user.NewImageCount
 	for _, ar := range userImageCountBkt {
-		arr = append(arr, propBkt(ar[0], ar[1], user.UserImageCount))
+		arr = append(arr, propBkt(ar[0], ar[1], user_image_count))
 	}
+	
+	var receiver_image_count = receiver.UserImageCount + receiver.NewImageCount
 	for _, ar := range receiverImageCountBkt {
-		arr = append(arr, propBkt(ar[0], ar[1], receiver.UserImageCount))
+		arr = append(arr, propBkt(ar[0], ar[1], receiver_image_count))
 	}
 
 	arr = append(arr, checkVip(user.IsVip, 0))
@@ -330,23 +333,24 @@ func createHour(createTime time.Time) int {
 }
 
 func createWeek(createTime time.Time) int {
-	var weekday = createTime.Weekday().String()
-	if weekday == "Sunday" {
-		return 0
-	} else if weekday == "Monday" {
-		return 1
-	} else if weekday == "Tuesday" {
-		return 2
-	} else if weekday == "Wednesday" {
-		return 3
-	} else if weekday == "Thursday" {
-		return 4
-	} else if weekday == "Friday" {
-		return 5
-	} else if weekday == "Saturday" {
-		return 6
-	}
-	return 0
+	// var weekday = createTime.Weekday().String()
+	// if weekday == "Sunday" {
+	// 	return 0
+	// } else if weekday == "Monday" {
+	// 	return 1
+	// } else if weekday == "Tuesday" {
+	// 	return 2
+	// } else if weekday == "Wednesday" {
+	// 	return 3
+	// } else if weekday == "Thursday" {
+	// 	return 4
+	// } else if weekday == "Friday" {
+	// 	return 5
+	// } else if weekday == "Saturday" {
+	// 	return 6
+	// }
+	// return 0
+	return int(createTime.Weekday()) + 1
 	//var now = time.Now().Unix()
 	//return int((now - createTime.Unix()) / (3600 * 24 * 7))
 }
