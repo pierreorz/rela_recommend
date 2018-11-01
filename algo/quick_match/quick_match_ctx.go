@@ -30,7 +30,7 @@ func (a UserInfoSortReverse) Len() int {
 // 以此按照：打分，资料完成度，
 func (a UserInfoSortReverse) Less(i, j int) bool {
 	if a[i].Score == a[j].Score {
-		return a[i].UserCache.Ratio < a[j].UserCache.Ratio
+		return a[i].UserCache.LastUpdateTime < a[j].UserCache.LastUpdateTime
 	}
 	return a[i].Score < a[j].Score
 }
