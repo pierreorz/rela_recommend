@@ -300,15 +300,18 @@ func UserRow(user *models.ActiveUserLocation, receiver *models.ActiveUserLocatio
 		arr = append(arr, ap)
 	}
 
+	var t = time.Unix(receiver.LastUpdateTime, 0)
+
 	for _, e := range activeScores {
-		arr = append(arr, propEqualFloat(activeScore(receiver.CreateTime), e))
+		arr = append(arr, propEqualFloat(activeScore(t), e))
 	}
 
+	var now = time.Now()
 	for i := 1; i <= 7; i++ {
-		arr = append(arr, propEqual(createWeek(receiver.CreateTime), i))
+		arr = append(arr, propEqual(createWeek(now), i))
 	}
 	for i := 1; i <= 23; i++ {
-		arr = append(arr, propEqual(createHour(receiver.CreateTime), i))
+		arr = append(arr, propEqual(createHour(now), i))
 	}
 	return arr
 }
@@ -321,13 +324,31 @@ func IsMatch(userWantRole string, receiverRole string) string {
 }
 
 func createHour(createTime time.Time) int {
-	var now = time.Now().Unix()
-	return int((now - createTime.Unix()) / 3600)
+	return createTime.Hour()
+	//var now = time.Now().Unix()
+	//return int((now - createTime.Unix()) / 3600)
 }
 
 func createWeek(createTime time.Time) int {
-	var now = time.Now().Unix()
-	return int((now - createTime.Unix()) / (3600 * 24 * 7))
+	var weekday = createTime.Weekday().String()
+	if weekday == "Sunday" {
+		return 0
+	} else if weekday == "Monday" {
+		return 1
+	} else if weekday == "Tuesday" {
+		return 2
+	} else if weekday == "Wednesday" {
+		return 3
+	} else if weekday == "Thursday" {
+		return 4
+	} else if weekday == "Friday" {
+		return 5
+	} else if weekday == "Saturday" {
+		return 6
+	}
+	return 0
+	//var now = time.Now().Unix()
+	//return int((now - createTime.Unix()) / (3600 * 24 * 7))
 }
 
 func propEqual(src int, dest int) float32 {
