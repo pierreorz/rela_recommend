@@ -167,11 +167,11 @@ var receiverMomentsCountRange = [][]float64{
 	{168.0, maxFloat64},
 }
 
-func userRow(user models.ActiveUserLocation, receiver models.ActiveUserLocation) {
+func UserRow(user models.ActiveUserLocation, receiver models.ActiveUserLocation) []int {
 	arr := make([]int, 0)
 	for i := 0; i <= 7; i++ {
 		jMax := 7
-		if i == 7 {
+		if i >= 6 {
 			jMax = 5
 		}
 		for j := 0; j <= jMax; j++ {
@@ -181,15 +181,10 @@ func userRow(user models.ActiveUserLocation, receiver models.ActiveUserLocation)
 
 	for i := -1; i <= 7; i++ {
 		for j := -1; j <= 7; j++ {
-			arr = append(arr, getUserReceiverRoleMatch(utils.GetString(user.Affection), utils.GetString(receiver.Affection), i, j))
+			arr = append(arr, getUserReceiverAffection(user.Affection, receiver.Affection, i, j))
 		}
 	}
 
-	for i := 0; i <= 1; i++ {
-		for j := 0; j <= 1; j++ {
-			// TODO isMatch
-		}
-	}
 	userMatchReceiver := IsMatch(user.WantRole, receiver.RoleName)
 	receiverMatchUser := IsMatch(receiver.WantRole, user.RoleName)
 	var res = userMatchReceiver + receiverMatchUser
@@ -315,6 +310,7 @@ func userRow(user models.ActiveUserLocation, receiver models.ActiveUserLocation)
 	for i := 1; i <= 23; i++ {
 		arr = append(arr, propEqual(createHour(receiver.CreateTime), i))
 	}
+	return arr
 }
 
 func IsMatch(userWantRole string, receiverRole string) string {
@@ -416,5 +412,15 @@ func propBkt(start float64, end float64, prop int) int {
 }
 
 func getUserReceiverRoleMatch(from string, to string, i int, j int) int {
-	return utils.GetInt(from == utils.GetString(i) && to == utils.GetString(j))
+	if from == utils.GetString(i) && to == utils.GetString(j) {
+		return 1
+	}
+	return 0
+}
+
+func getUserReceiverAffection(from int, to int, i int, j int) int {
+	if from == i && to == j {
+		return 1
+	}
+	return 0
 }
