@@ -1,7 +1,6 @@
 package quick_match
 
 import (
-	"fmt"
 	"os"
 )
 
