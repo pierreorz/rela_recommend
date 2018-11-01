@@ -4,57 +4,20 @@
 #["trace", "debug", "info", "warn", "error", "fatal"]  default: "error"
 log_level = "debug"
 
-#远端的web api地址
-web_api_addr  = "http://127.0.0.1:8000"
-
-#代理api的源地址
-proxy_addr = "http://127.0.0.1:8000"
-
-#rpc监听地址
-grpc_port = 8991
-
-#elastic地址
-elastic_addr = "http:127.0.0.1:9200"
-
-#live mongo地址
-live_cluster_mongo_addr = "mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]"
-
 #新mongo集群地址 https://docs.mongodb.com/manual/reference/connection-string/
-cluster_mongo_addr = "mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]"
 match_cluster_mongo_addr = "mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]"
-
-#match地址
-match_addr = "http://203.166.162.89/v1/chj/match/user"
-
-#内网域名地址
-internal_addr = "http://127.0.0.1"
-
-#nsq地址
-nsq_addr = "http://127.0.0.1"
 
 #本地cache最大内存  128*1024*1024
 memory_cache_size =  157810688
 
-#参数初始化使用
-web_base = "http://dev.rela.me"
-
 #rds
 [rds]
 redis_addr = "127.0.0.1:6379"
-ledis_addr = "127.0.0.1:6379"
-ledis_view_addr = "127.0.0.1:6379"
-redis_com_addr = "127.0.0.1:6379"
-redis_push_addr = "127.0.0.1:6379"
-pika_addr = "127.0.0.1:9221"
-
 
 #mysql
 [rdb]
 #address = "root:devchj@theL0805@tcp(localhost:3306)/stay?charset=utf8-mb4&loc=Asia/Shanghai"
 master_address = "root:qwe123@tcp(localhost:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
-slave_address = "root:qwe123@tcp(localhost:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
-wink_address = "root:qwe123@tcp(localhost:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
-live_address = "root:qwe123@tcp(localhost:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
 
 [cassandra]
 addresses="127.0.0.1"
