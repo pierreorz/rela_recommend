@@ -53,6 +53,17 @@ func (this *ActiveUserLocationModule) QueryOneByUserId(userId int64) (ActiveUser
 	return aul, err
 }
 
+func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveUserLocation, error) {
+	var aul ActiveUserLocation
+	var auls make([]ActiveUserLocation, 0)
+	c := this.session.DB("rela_match").C(aul.TableName())
+	err := c.Find(bson.M{
+		"userId": userIds,
+	}).All(&auls)
+	return auls, err
+}
+
+
 func (this *ActiveUserLocationModule) QueryNeighbors(lng, lat float64, notIn []int64, limit int) ([]ActiveUserLocation, error) {
 	var aul ActiveUserLocation
 	var auls = make([]ActiveUserLocation, 0)

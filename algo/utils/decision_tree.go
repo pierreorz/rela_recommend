@@ -1,4 +1,4 @@
-package algorithms
+package main
 
 import (
 	"os"
@@ -16,6 +16,7 @@ type ITree interface {
 type Node struct {
 	Id int `json:"id"`
 	Feature int `json:"feature"`
+	Column string `json:"column"`
 	Threshold float32 `json:"threshold"`
 	Impurity float32 `json:"impurity"`
 	Sample float32 `json:"sample"`
@@ -62,8 +63,14 @@ func (tree *DecisionTree) PredictSingle(features []float32) float32 {
 
 
 func main() {
+	work_dir, _ := os.Getwd()
+	nodes := make([]Node, 5)
+	for i, _ := range nodes {
+		nodes[i].Id = 100
+	}
+	println(len(nodes))
 	tree := DecisionTree{}
-	tree.Load("/Users/rela/Documents/data/sp_analysis/mods4.treedumps.gz")
+	tree.Load(work_dir + "/../../algo_files/quick_match_tree.model")
 	target := tree.PredictSingle([]float32{5.1, 3.5, 1.4, 0.2})
 	println("target:", target)
 }

@@ -8,6 +8,8 @@ import (
 
 type UserCardRes struct {
 	User models.User `json:"user"`
+	Score float32
+	Features []float32
 }
 
 func GetUserCard(userId int64) (UserCardRes, error) {

@@ -1,5 +1,5 @@
 
-package algorithm
+package algo
 
 import (
 	"fmt"
@@ -48,7 +48,7 @@ type IAlgorithm interface {
 
 // 算法基础类
 type BaseAlgorithm struct {
-
+	FilePath string
 }
 
 // 算法名称
