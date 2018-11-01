@@ -47,12 +47,13 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	// 结果排序
 	sr := sort.Reverse(quick_match.UserInfoSortReverse(ctx.UserList))
 	sort.Sort(sr)
-	// 返回结果
+	// 分页结果
 	maxIndex := int64(math.Min(float64(len(ctx.UserList)), float64(params.Offset + params.Limit)))
 	returnIds := make([]int64, maxIndex - params.Offset)
 	for i:=params.Offset; i <= maxIndex; i++ {
 		returnIds[i-params.Offset] =  ctx.UserList[i].UserId
 	}
+	// 返回
 	res := MatchRecommendResponse{UserIds: returnIds, Status: "ok"}
 	c.JSON(formatResponse(res, service.WarpError(nil, "", "")))
 }

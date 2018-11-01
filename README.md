@@ -9,6 +9,7 @@ go run rela_recommend.go --conf=conf/conf.toml
 ```bash
 git clone git@coding.net:rela/rela_recommend.git
 cd rela_recommend
-go build
+make build
+# 将algo_files目录copy到工作目录
 ./rela_recommend --conf=conf.toml  # conf.toml需要从服务器上拷贝
 ```
