@@ -30,10 +30,11 @@ func MatchRecommendListHTTP(c *routers.Context) {
 		return
 	}
 
-	// 加载用户缓存, 构建上下文
+	// 加载用户缓存
 	aulm := mongo.NewActiveUserLocationModule(factory.MatchClusterMon)
 	user, _ := aulm.QueryOneByUserId(params.UserId)
 	users, _ := aulm.QueryByUserIds(params.UserIds)
+	// 构建上下文
 	userInfo := &quick_match.UserInfo{UserId: user.UserId, UserCache: &user}
 	usersInfo := make([]quick_match.UserInfo, len(users))
 	for i, u := range users {
