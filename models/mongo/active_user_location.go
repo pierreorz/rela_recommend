@@ -55,7 +55,7 @@ func (this *ActiveUserLocationModule) QueryOneByUserId(userId int64) (ActiveUser
 
 func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveUserLocation, error) {
 	var aul ActiveUserLocation
-	var auls make([]ActiveUserLocation, 0)
+	auls := make([]ActiveUserLocation, 0)
 	c := this.session.DB("rela_match").C(aul.TableName())
 	err := c.Find(bson.M{
 		"userId": userIds,

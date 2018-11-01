@@ -1,13 +1,15 @@
-package algo
+package quick_match
 
 import(
 	"rela_recommend/algo"
+	"rela_recommend/algo/utils"
 	"rela_recommend/service"
 )
 
 type QuickMatchTree struct {
 	algo.BaseAlgorithm
-	tree *algo.DecisionTree
+	FilePath string
+	tree *utils.DecisionTree
 }
 
 func (model *QuickMatchTree) Name() string {
@@ -15,23 +17,23 @@ func (model *QuickMatchTree) Name() string {
 }
 
 func (model *QuickMatchTree) Init() {
-	tree := &DecisionTree{}
-	tree.Load(model.FilePath)
+	tree := &utils.DecisionTree{}
+	tree.Init(model.FilePath)
 	model.tree = tree
 }
 
-func (model *QuickMatchTree) Features(cxt *QuickMatchContext, user *UserInfo) []float32 {
-	return []float32{}
+func (model *QuickMatchTree) Features(ctx *QuickMatchContext, user *UserInfo) []float32 {
+	return service.UserRow(ctx.User.UserCache, user.UserCache)
 }
 
 func (model *QuickMatchTree) PredictSingle(features []float32) float32 {
 	return model.tree.PredictSingle(features)
 }
 
-func (model *QuickMatchTree) Predict(cxt *QuickMatchContext) {
-	for _, user := range cxt.UserList {
-		features := model.Features(ctx, user)
+func (model *QuickMatchTree) Predict(ctx *QuickMatchContext) {
+	for _, user := range ctx.UserList {
+		features := model.Features(ctx, &user)
 		user.Score = model.PredictSingle(features)
-		user.Features = feature
+		user.Features = algo.List2Features(features)
 	}
 }

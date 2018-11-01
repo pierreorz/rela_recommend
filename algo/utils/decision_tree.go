@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"os"
@@ -34,7 +34,7 @@ type DecisionTree struct {
 	RootNode *Node `json:"node"`
 }
 
-func (tree *DecisionTree) Load(path string)  {
+func (tree *DecisionTree) Init(path string)  {
 	fr, _ := os.Open(path)
 	defer fr.Close()
 
@@ -70,7 +70,7 @@ func main() {
 	}
 	println(len(nodes))
 	tree := DecisionTree{}
-	tree.Load(work_dir + "/../../algo_files/quick_match_tree.model")
+	tree.Init(work_dir + "/../../algo_files/quick_match_tree.model")
 	target := tree.PredictSingle([]float32{5.1, 3.5, 1.4, 0.2})
 	println("target:", target)
 }

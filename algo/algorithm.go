@@ -2,6 +2,7 @@
 package algo
 
 import (
+	"math"
 	"fmt"
 	"reflect"
 	"bytes"
@@ -35,6 +36,17 @@ func (features *Features) ToMap() map[int]float32 {
 		maps[feature.Index] = feature.Value
 	}
 	return maps
+}
+
+// list to Features
+func List2Features(arr []float32) []Feature {
+	fts := make([]Feature, 0)
+	for i, v := range arr {
+		if math.Abs(float64(v)) >= 0.00001 {
+			fts = append(fts, Feature{i, v})
+		}
+	}
+	return fts
 }
 
 // 算法接口

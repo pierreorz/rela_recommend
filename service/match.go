@@ -167,8 +167,8 @@ var receiverMomentsCountRange = [][]float64{
 	{168.0, maxFloat64},
 }
 
-func UserRow(user models.ActiveUserLocation, receiver models.ActiveUserLocation) []int {
-	arr := make([]int, 0)
+func UserRow(user *models.ActiveUserLocation, receiver *models.ActiveUserLocation) []float32 {
+	arr := make([]float32, 0)
 	for i := 0; i <= 7; i++ {
 		jMax := 7
 		if i >= 6 {
@@ -250,15 +250,15 @@ func UserRow(user models.ActiveUserLocation, receiver models.ActiveUserLocation)
 	arr = append(arr, checkVip(user.IsVip, 1))
 
 	for i := 0; i <= 7; i++ {
-		ap := 0
+		var ap float32 = 0.0
 		if strings.Contains(user.RoleName, utils.GetString(i)) {
-			ap = 1
+			ap = 1.0
 		}
 		arr = append(arr, ap)
 	}
 
 	for i := -1; i <= 7; i++ {
-		ap := 0
+		var ap float32 = 0.0
 		if user.Affection == i {
 			ap = 1
 		}
@@ -266,7 +266,7 @@ func UserRow(user models.ActiveUserLocation, receiver models.ActiveUserLocation)
 	}
 
 	for i := 0; i <= 11; i++ {
-		ap := 0
+		var ap float32 = 0.0
 		if user.Horoscope == i {
 			ap = 1
 		}
@@ -277,7 +277,7 @@ func UserRow(user models.ActiveUserLocation, receiver models.ActiveUserLocation)
 	arr = append(arr, checkVip(receiver.IsVip, 1))
 
 	for i := 0; i <= 7; i++ {
-		ap := 0
+		var ap float32 = 0.0
 		if strings.Contains(receiver.RoleName, utils.GetString(i)) {
 			ap = 1
 		}
@@ -285,7 +285,7 @@ func UserRow(user models.ActiveUserLocation, receiver models.ActiveUserLocation)
 	}
 
 	for i := -1; i <= 7; i++ {
-		ap := 0
+		var ap float32 = 0.0
 		if receiver.Affection == i {
 			ap = 1
 		}
@@ -293,7 +293,7 @@ func UserRow(user models.ActiveUserLocation, receiver models.ActiveUserLocation)
 	}
 
 	for i := 0; i <= 11; i++ {
-		ap := 0
+		var ap float32 = 0.0
 		if receiver.Horoscope == i {
 			ap = 1
 		}
@@ -330,14 +330,14 @@ func createWeek(createTime time.Time) int {
 	return int((now - createTime.Unix()) / (3600 * 24 * 7))
 }
 
-func propEqual(src int, dest int) int {
+func propEqual(src int, dest int) float32 {
 	if src == dest {
 		return 1
 	}
 	return 0
 }
 
-func propEqualFloat(src float64, desc float64) int {
+func propEqualFloat(src float64, desc float64) float32 {
 	if src == desc {
 		return 1
 	}
@@ -361,7 +361,7 @@ func activeScore(createTime time.Time) float64 {
 	return 0
 }
 
-func checkVip(isVip int, point int) int {
+func checkVip(isVip int, point int) float32 {
 	if isVip == point {
 		return 1
 	}
@@ -388,7 +388,7 @@ func calculateDistance(lng1, lat1, lng2, lat2 float64) float64 {
 	return dist * radius
 }
 
-func propFloatBkt(start float64, end float64, prop float64) int {
+func propFloatBkt(start float64, end float64, prop float64) float32 {
 	var fProp = utils.GetFloat64(prop)
 	if start <= fProp && end >= fProp {
 		return 1
@@ -396,14 +396,14 @@ func propFloatBkt(start float64, end float64, prop float64) int {
 	return 0
 }
 
-func propEqualString(src string, dest string) int {
+func propEqualString(src string, dest string) float32 {
 	if src == dest {
 		return 1
 	}
 	return 0
 }
 
-func propBkt(start float64, end float64, prop int) int {
+func propBkt(start float64, end float64, prop int) float32 {
 	var fProp = utils.GetFloat64(prop)
 	if start <= fProp && end >= fProp {
 		return 1
@@ -411,14 +411,14 @@ func propBkt(start float64, end float64, prop int) int {
 	return 0
 }
 
-func getUserReceiverRoleMatch(from string, to string, i int, j int) int {
+func getUserReceiverRoleMatch(from string, to string, i int, j int) float32 {
 	if from == utils.GetString(i) && to == utils.GetString(j) {
 		return 1
 	}
 	return 0
 }
 
-func getUserReceiverAffection(from int, to int, i int, j int) int {
+func getUserReceiverAffection(from int, to int, i int, j int) float32 {
 	if from == i && to == j {
 		return 1
 	}

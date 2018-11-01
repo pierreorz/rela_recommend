@@ -1,4 +1,4 @@
-package algo
+package quick_match
 
 import (
 	"rela_recommend/algo"
@@ -9,11 +9,11 @@ type UserInfo struct {
 	UserId int64
 	UserCache *mongo.ActiveUserLocation
 	Score float32
-	Features []Features
+	Features []algo.Feature
 }
 
 type QuickMatchContext struct {
-	User UserInfo
+	User *UserInfo
 	UserList []UserInfo
 }
 

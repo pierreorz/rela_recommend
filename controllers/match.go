@@ -7,15 +7,19 @@ import (
 	"rela_recommend/models/mongo"
 	"rela_recommend/factory"
 	"rela_recommend/log"
-	"rela_recommend/algo"
 	"rela_recommend/algo/quick_match"
 )
 
 type MatchRecommendReqParams struct {
-	Limit int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit int64 `json:"limit"`
+	Offset int64 `json:"offset"`
 	UserId int64 `json:"userId"`
-	UserIds string `json:"userIds"`
+	UserIds []int64 `json:"userIds"`
+}
+
+type MatchRecommendResponse struct {
+	Status string
+	UserIds []int64
 }
 
 func MatchRecommendListHTTP(c *routers.Context) {
@@ -28,26 +32,26 @@ func MatchRecommendListHTTP(c *routers.Context) {
 
 	// 加载用户缓存, 构建上下文
 	aulm := mongo.NewActiveUserLocationModule(factory.MatchClusterMon)
-	user, oerr := &aulm.QueryOneByUserId(params.UserId)
-	users, merr := &aulm.QueryByUserIds(params.UserIds)
-	userInfo := algo.UserInfo{UserId=user.UserId, UserCache=user}
-	usersInfo := make([]algo.UserInfo, len(users))
+	user, _ := aulm.QueryOneByUserId(params.UserId)
+	users, _ := aulm.QueryByUserIds(params.UserIds)
+	userInfo := &quick_match.UserInfo{UserId: user.UserId, UserCache: &user}
+	usersInfo := make([]quick_match.UserInfo, len(users))
 	for i, u := range users {
 		usersInfo[i].UserId = u.UserId
 		usersInfo[i].UserCache = &u
 	}
-	ctx := quick_match.QuickMatchContext{User=&userInfo, UserList=&usersInfo}
+	ctx := quick_match.QuickMatchContext{User: userInfo, UserList: usersInfo}
 	// 算法预测打分
-	matchAlgo.Predict(&ctx)
+	quick_match.MatchAlgo.Predict(&ctx)
 	// 结果排序
-	sort.Reverse(algo.UserInfoSortReverse(ctx.usersInfo))
+	sr := sort.Reverse(quick_match.UserInfoSortReverse(ctx.UserList))
+	sort.Sort(sr)
 	// 返回结果
-	maxIndex := math.Min(len(ctx.usersInfo), params.Offset + params.Limit)
+	maxIndex := int64(math.Min(float64(len(ctx.UserList)), float64(params.Offset + params.Limit)))
 	returnIds := make([]int64, maxIndex - params.Offset)
-	for i:=params.Offset; i<=maxIndex; i++ {
-		returnIds[i-params.Offset] =  ctx.usersInfo[i].UserId
+	for i:=params.Offset; i <= maxIndex; i++ {
+		returnIds[i-params.Offset] =  ctx.UserList[i].UserId
 	}
-	data["userIds"] = returnIds
-	data["status"] = "ok"
-	c.JSON(formatResponse(data, service.WarpError(nil, "", "")))
+	res := MatchRecommendResponse{UserIds: returnIds, Status: "ok"}
+	c.JSON(formatResponse(res, service.WarpError(nil, "", "")))
 }
