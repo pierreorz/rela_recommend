@@ -30,7 +30,7 @@ func (a UserInfoListSort) Len() int {
 // 以此按照：打分，最后登陆时间，
 func (a UserInfoListSort) Less(i, j int) bool {
 	if a[i].Score == a[j].Score {
-		return a[i].UserCache.LastUpdateTime < a[j].UserCache.LastUpdateTime
+		return a[i].UserCache.LastUpdateTime > a[j].UserCache.LastUpdateTime
 	}
-	return a[i].Score < a[j].Score
+	return a[i].Score > a[j].Score
 }
