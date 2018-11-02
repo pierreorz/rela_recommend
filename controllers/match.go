@@ -48,8 +48,10 @@ func MatchRecommendListHTTP(c *routers.Context) {
 		userIds = append(userIds, utils.GetInt64(uid))
 	}
 
+	var mongoClient = factory.MatchClusterMon.Copy()
+	defer mongoClient.Close()
 	// 加载用户缓存
-	aulm := mongo.NewActiveUserLocationModule(factory.MatchClusterMon)
+	aulm := mongo.NewActiveUserLocationModule(mongoClient)
 	user, _ := aulm.QueryOneByUserId(params.UserId)
 	users, _ := aulm.QueryByUserIds(userIds)
 	userLen := len(users)
