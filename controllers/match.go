@@ -78,7 +78,8 @@ func MatchRecommendListHTTP(c *routers.Context) {
 									Features: algo.Features2String(currUser.Features)}
 		log.Infof("%+v\n", logStr)
 	}
-	log.Infof("len %d,return %d,max %g,min %g\n", userLen, len(returnIds), ctx.UserList[0].Score, ctx.UserList[userLen-1].Score)
+	log.Infof("user %d,len %d,return %d,max %g,min %g\n",
+			  ctx.User.UserId, userLen, len(returnIds), ctx.UserList[0].Score, ctx.UserList[userLen-1].Score)
 	// 返回
 	res := MatchRecommendResponse{UserIds: returnIds, Status: "ok"}
 	c.JSON(formatResponse(res, service.WarpError(nil, "", "")))
