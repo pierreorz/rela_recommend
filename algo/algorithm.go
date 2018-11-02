@@ -14,7 +14,7 @@ type Feature struct {
 }
 
 func (feature *Feature) ToString() string {
-	return fmt.Sprintf("%d:%f", feature.Index, feature.Value)
+	return fmt.Sprintf("%d:%g", feature.Index, feature.Value)
 }
 
 // 特征列表
@@ -24,7 +24,10 @@ type Features struct {
 
 func (features *Features) ToString() string {
 	var buffer bytes.Buffer
-	for _, feature := range features.Features {
+	for i, feature := range features.Features {
+		if i != 0 {
+			buffer.WriteString(",")
+		}
 		buffer.WriteString(feature.ToString())
 	}
 	return buffer.String()
@@ -40,7 +43,10 @@ func (features *Features) ToMap() map[int]float32 {
 
 func Features2String(features []Feature) string {
 	var buffer bytes.Buffer
-	for _, feature := range features {
+	for i, feature := range features {
+		if i != 0 {
+			buffer.WriteString(",")
+		}
 		buffer.WriteString(feature.ToString())
 	}
 	return buffer.String()
