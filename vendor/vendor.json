@@ -1,0 +1,61 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "hqDDDpue/5363luidNMBS8z8eJU=",
+			"path": "github.com/BurntSushi/toml",
+			"revision": "99064174e013895bbd9b025c31100bd1d9b590ca",
+			"revisionTime": "2016-07-17T15:07:09Z"
+		},
+		{
+			"checksumSHA1": "R5M6oZd1Y0OG4NMkDNEnoiAQzfU=",
+			"path": "github.com/gocql/gocql",
+			"revision": "e06f8c1bcd787e6bf0608288b314522f08cc7848",
+			"revisionTime": "2018-06-17T11:57:10Z"
+		},
+		{
+			"checksumSHA1": "kBeNcaKk56FguvPSUCEaH6AxpRc=",
+			"path": "github.com/golang/protobuf/proto",
+			"revision": "c9c7427a2a70d2eb3bafa0ab2dc163e45f143317",
+			"revisionTime": "2017-03-07T00:15:33Z"
+		},
+		{
+			"checksumSHA1": "lYUMiQOLvV+Okxcm1RQnot+c0ho=",
+			"path": "github.com/jinzhu/gorm",
+			"revision": "52c5c8127cf4aeffde3e0aa9222640832075a90f",
+			"revisionTime": "2018-03-15T14:35:31Z"
+		},
+		{
+			"checksumSHA1": "eECxSkwh0WmhLwaxHfkvcLOWS08=",
+			"path": "github.com/jinzhu/gorm/dialects/mysql",
+			"revision": "52c5c8127cf4aeffde3e0aa9222640832075a90f",
+			"revisionTime": "2018-03-15T14:35:31Z"
+		},
+		{
+			"checksumSHA1": "+/DuBWJ5ArxaGKKkPyIlnwSJ18M=",
+			"path": "github.com/ssdb/gossdb/ssdb",
+			"revision": "a19fc4ae2aa1889d4d7a1e2279ed5907825c8215",
+			"revisionTime": "2016-07-20T09:31:05Z"
+		},
+		{
+			"checksumSHA1": "YzD9TiKGR11jUuNPGvpj3kTrTJY=",
+			"path": "gopkg.in/go-playground/validator.v9",
+			"revision": "077c3830f3971d4a44a94c2249b67ce8c53198fc",
+			"revisionTime": "2016-12-23T02:45:03Z"
+		},
+		{
+			"checksumSHA1": "1D8GzeoFGUs5FZOoyC2DpQg8c5Y=",
+			"path": "gopkg.in/mgo.v2",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "YsB2DChSV9HxdzHaKATllAUKWSI=",
+			"path": "gopkg.in/mgo.v2/bson",
+			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
+			"revisionTime": "2016-08-18T02:01:20Z"
+		}
+	],
+	"rootPath": "rela_recommend"
+}
