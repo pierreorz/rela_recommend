@@ -1,25 +1,26 @@
 package controllers
+
 import (
 	"fmt"
-	"sort"
 	"math"
-	"rela_recommend/routers"
-	"rela_recommend/service"
-	"rela_recommend/models/mongo"
+	"rela_recommend/algo/quick_match"
 	"rela_recommend/factory"
 	"rela_recommend/log"
-	"rela_recommend/algo/quick_match"
+	"rela_recommend/models/mongo"
+	"rela_recommend/routers"
+	"rela_recommend/service"
+	"sort"
 )
 
 type MatchRecommendReqParams struct {
-	Limit int64 `json:"limit"`
-	Offset int64 `json:"offset"`
-	UserId int64 `json:"userId"`
-	UserIds []int64 `json:"userIds"`
+	Limit   int64   `json:"limit" form:"limit"`
+	Offset  int64   `json:"offset" form:"offset"`
+	UserId  int64   `json:"userId" form:"userId"`
+	UserIds []int64 `json:"userIds" form:"userIds"`
 }
 
 type MatchRecommendResponse struct {
-	Status string
+	Status  string
 	UserIds []int64
 }
 
@@ -53,10 +54,10 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	sort.Sort(sr)
 	fmt.Println("sort users len:", len(ctx.UserList))
 	// 分页结果
-	maxIndex := int64(math.Min(float64(len(ctx.UserList)), float64(params.Offset + params.Limit)))
-	returnIds := make([]int64, maxIndex - params.Offset)
-	for i:=params.Offset; i < maxIndex; i++ {
-		returnIds[i-params.Offset] =  ctx.UserList[i].UserId
+	maxIndex := int64(math.Min(float64(len(ctx.UserList)), float64(params.Offset+params.Limit)))
+	returnIds := make([]int64, maxIndex-params.Offset)
+	for i := params.Offset; i < maxIndex; i++ {
+		returnIds[i-params.Offset] = ctx.UserList[i].UserId
 	}
 	fmt.Println("return users len:", len(returnIds))
 	// 返回
