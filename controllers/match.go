@@ -52,7 +52,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	usersInfo := make([]quick_match.UserInfo, userLen)
 	for i, u := range users {
 		usersInfo[i].UserId = u.UserId
-		usersInfo[i].UserCache = &u
+		usersInfo[i].UserCache = &users[i]
 	}
 	ctx := quick_match.QuickMatchContext{User: userInfo, UserList: usersInfo}
 	fmt.Println("ctx users len:", len(ctx.UserList))
