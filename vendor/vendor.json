@@ -27,6 +27,12 @@
 			"revisionTime": "2016-11-23T02:26:44Z"
 		},
 		{
+			"checksumSHA1": "7QFECKqCr78JnG3/+Tb9aCyqN8U=",
+			"path": "github.com/go-playground/locales/currency",
+			"revision": "273913d3b2ff7127452603d55dd3f6f888e4f268",
+			"revisionTime": "2016-11-23T02:26:44Z"
+		},
+		{
 			"checksumSHA1": "H1YEELoFLUs+3XMmhLI7GNyY3+E=",
 			"path": "github.com/go-playground/universal-translator",
 			"revision": "8bf00f2bdf7faea5c3583d41f57bf1eb15b743d7",
