@@ -1,6 +1,7 @@
 package quick_match
 
 import(
+	"fmt"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
 	"rela_recommend/service"
@@ -31,8 +32,11 @@ func (model *QuickMatchTree) PredictSingle(features []float32) float32 {
 }
 
 func (model *QuickMatchTree) Predict(ctx *QuickMatchContext) {
-	for _, user := range ctx.UserList {
+	for i, user := range ctx.UserList {
 		features := model.Features(ctx, &user)
+		if i<10{
+			fmt.Println(features)
+		}
 		user.Score = model.PredictSingle(features)
 		user.Features = algo.List2Features(features)
 	}
