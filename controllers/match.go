@@ -65,8 +65,9 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	maxIndex := int64(math.Min(float64(len(ctx.UserList)), float64(params.Offset+params.Limit)))
 	returnIds := make([]int64, maxIndex-params.Offset)
 	for i := params.Offset; i < maxIndex; i++ {
-		returnIds[i-params.Offset] = ctx.UserList[i].UserId
-		fmt.Println(ctx.User.UserId, ctx.UserList[i].UserId, algo.Features2String(ctx.UserList[i].Features))
+		currUser := ctx.UserList[i]
+		returnIds[i-params.Offset] = currUser.UserId
+		fmt.Println(ctx.User.UserId, currUser.UserId, currUser.Score, algo.Features2String(currUser.Features))
 	}
 	fmt.Println("return users len:", len(returnIds))
 	// 返回
