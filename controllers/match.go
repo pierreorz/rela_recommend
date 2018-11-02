@@ -9,14 +9,16 @@ import (
 	"rela_recommend/models/mongo"
 	"rela_recommend/routers"
 	"rela_recommend/service"
+	"rela_recommend/utils"
 	"sort"
+	"strings"
 )
 
 type MatchRecommendReqParams struct {
-	Limit   int64   `json:"limit" form:"limit"`
-	Offset  int64   `json:"offset" form:"offset"`
-	UserId  int64   `json:"userId" form:"userId"`
-	UserIds []int64 `json:"userIds" form:"userIds"`
+	Limit   int64  `json:"limit" form:"limit"`
+	Offset  int64  `json:"offset" form:"offset"`
+	UserId  int64  `json:"userId" form:"userId"`
+	UserIds string `json:"userIds" form:"userIds"`
 }
 
 type MatchRecommendResponse struct {
@@ -32,11 +34,16 @@ func MatchRecommendListHTTP(c *routers.Context) {
 		return
 	}
 	fmt.Println("params users len:", len(params.UserIds))
+	var userIds = make([]int64, 0)
+	var userIdsStrs = strings.Split(params.UserIds, ",")
+	for _, uid := range userIdsStrs {
+		userIds = append(userIds, utils.GetInt64(uid))
+	}
 
 	// 加载用户缓存
 	aulm := mongo.NewActiveUserLocationModule(factory.MatchClusterMon)
 	user, _ := aulm.QueryOneByUserId(params.UserId)
-	users, _ := aulm.QueryByUserIds(params.UserIds)
+	users, _ := aulm.QueryByUserIds(userIds)
 	fmt.Println("cache users len:", len(users))
 	// 构建上下文
 	userInfo := &quick_match.UserInfo{UserId: user.UserId, UserCache: &user}
