@@ -38,6 +38,14 @@ func (features *Features) ToMap() map[int]float32 {
 	return maps
 }
 
+func Features2String(features []Feature) string {
+	var buffer bytes.Buffer
+	for _, feature := range features {
+		buffer.WriteString(feature.ToString())
+	}
+	return buffer.String()
+}
+
 // list to Features
 func List2Features(arr []float32) []Feature {
 	fts := make([]Feature, 0)

@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"math"
+	"rela_recommend/algo"
 	"rela_recommend/algo/quick_match"
 	"rela_recommend/factory"
 	"rela_recommend/log"
@@ -33,12 +34,12 @@ func MatchRecommendListHTTP(c *routers.Context) {
 		c.JSON(formatResponse(nil, service.WarpError(service.ErrInvaPara, "", "")))
 		return
 	}
-	fmt.Println("params users len:", len(params.UserIds))
 	var userIds = make([]int64, 0)
 	var userIdsStrs = strings.Split(params.UserIds, ",")
 	for _, uid := range userIdsStrs {
 		userIds = append(userIds, utils.GetInt64(uid))
 	}
+	fmt.Println("params users len:", len(userIds))
 
 	// 加载用户缓存
 	aulm := mongo.NewActiveUserLocationModule(factory.MatchClusterMon)
@@ -65,6 +66,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	returnIds := make([]int64, maxIndex-params.Offset)
 	for i := params.Offset; i < maxIndex; i++ {
 		returnIds[i-params.Offset] = ctx.UserList[i].UserId
+		fmt.Println(ctx.User.UserId, ctx.UserList[i].UserId, algo.Features2String(ctx.UserList[i].Features))
 	}
 	fmt.Println("return users len:", len(returnIds))
 	// 返回
