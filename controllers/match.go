@@ -58,7 +58,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	for i:=params.Offset; i < maxIndex; i++ {
 		returnIds[i-params.Offset] =  ctx.UserList[i].UserId
 	}
-	fmt.Println("return users len:", len(ctx.returnIds))
+	fmt.Println("return users len:", len(returnIds))
 	// 返回
 	res := MatchRecommendResponse{UserIds: returnIds, Status: "ok"}
 	c.JSON(formatResponse(res, service.WarpError(nil, "", "")))
