@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"math"
 	"rela_recommend/algo"
 	"rela_recommend/algo/quick_match"
@@ -27,6 +26,15 @@ type MatchRecommendResponse struct {
 	UserIds []int64
 }
 
+type MatchRecommendLog struct {
+	RankId string
+	Index int64
+	UserId int64
+	ReceiverId int64
+	Score float32
+	Features string
+}
+
 func MatchRecommendListHTTP(c *routers.Context) {
 	var params MatchRecommendReqParams
 	if err := bind(c, &params); err != nil {
@@ -39,14 +47,12 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	for _, uid := range userIdsStrs {
 		userIds = append(userIds, utils.GetInt64(uid))
 	}
-	fmt.Println("params users len:", len(userIds))
 
 	// 加载用户缓存
 	aulm := mongo.NewActiveUserLocationModule(factory.MatchClusterMon)
 	user, _ := aulm.QueryOneByUserId(params.UserId)
 	users, _ := aulm.QueryByUserIds(userIds)
 	userLen := len(users)
-	fmt.Println("cache users len:", userLen)
 	// 构建上下文
 	userInfo := &quick_match.UserInfo{UserId: user.UserId, UserCache: &user}
 	usersInfo := make([]quick_match.UserInfo, userLen)
@@ -55,21 +61,24 @@ func MatchRecommendListHTTP(c *routers.Context) {
 		usersInfo[i].UserCache = &users[i]
 	}
 	ctx := quick_match.QuickMatchContext{User: userInfo, UserList: usersInfo}
-	fmt.Println("ctx users len:", len(ctx.UserList))
 	// 算法预测打分
 	quick_match.MatchAlgo.Predict(&ctx)
 	// 结果排序
 	sort.Sort(quick_match.UserInfoListSort(ctx.UserList))
-	fmt.Println("sort users len:", len(ctx.UserList), "min", ctx.UserList[0].Score, "max", ctx.UserList[userLen-1].Score)
 	// 分页结果
 	maxIndex := int64(math.Min(float64(len(ctx.UserList)), float64(params.Offset+params.Limit)))
 	returnIds := make([]int64, maxIndex-params.Offset)
 	for i := params.Offset; i < maxIndex; i++ {
 		currUser := ctx.UserList[i]
 		returnIds[i-params.Offset] = currUser.UserId
-		fmt.Println(ctx.User.UserId, currUser.UserId, currUser.Score, algo.Features2String(currUser.Features))
+		// 纪录日志
+		logStr := MatchRecommendLog{UserId: ctx.User.UserId,
+									ReceiverId: currUser.UserId,
+									Score: currUser.Score,
+									Features: algo.Features2String(currUser.Features)}
+		log.Infof("%+v\n", logStr)
 	}
-	fmt.Println("return users len:", len(returnIds))
+	log.Infof("len %d,return %d,max %g,min %g\n", userLen, len(returnIds), ctx.UserList[0].Score, ctx.UserList[userLen-1].Score)
 	// 返回
 	res := MatchRecommendResponse{UserIds: returnIds, Status: "ok"}
 	c.JSON(formatResponse(res, service.WarpError(nil, "", "")))
