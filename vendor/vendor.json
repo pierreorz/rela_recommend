@@ -9,6 +9,24 @@
 			"revisionTime": "2016-07-17T15:07:09Z"
 		},
 		{
+			"checksumSHA1": "r6Q02gDqUfS6vgI4NalT4njNdw8=",
+			"path": "github.com/gansidui/geohash",
+			"revision": "ebe5ba447f344b681c3bd96d2ca3e1ef5b43b7a8",
+			"revisionTime": "2014-10-19T08:02:35Z"
+		},
+		{
+			"checksumSHA1": "C34bY5tWukPvD91vL46VydZ7sLU=",
+			"path": "github.com/garyburd/redigo/redis",
+			"revision": "908534c8b97586a4597e3fa195875d2d26502b97",
+			"revisionTime": "2017-01-13T05:33:26Z"
+		},
+		{
+			"checksumSHA1": "H1YEELoFLUs+3XMmhLI7GNyY3+E=",
+			"path": "github.com/go-playground/universal-translator",
+			"revision": "8bf00f2bdf7faea5c3583d41f57bf1eb15b743d7",
+			"revisionTime": "2016-11-29T12:53:32Z"
+		},
+		{
 			"checksumSHA1": "R5M6oZd1Y0OG4NMkDNEnoiAQzfU=",
 			"path": "github.com/gocql/gocql",
 			"revision": "e06f8c1bcd787e6bf0608288b314522f08cc7848",
@@ -19,6 +37,12 @@
 			"path": "github.com/golang/protobuf/proto",
 			"revision": "c9c7427a2a70d2eb3bafa0ab2dc163e45f143317",
 			"revisionTime": "2017-03-07T00:15:33Z"
+		},
+		{
+			"checksumSHA1": "O0r0hj4YL+jSRNjnshkeH4GY+4s=",
+			"path": "github.com/hailocab/go-hostpool",
+			"revision": "e80d13ce29ede4452c43dea11e79b9bc8a15b478",
+			"revisionTime": "2016-01-25T11:53:50Z"
 		},
 		{
 			"checksumSHA1": "lYUMiQOLvV+Okxcm1RQnot+c0ho=",
