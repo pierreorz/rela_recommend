@@ -5,7 +5,6 @@ import(
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
 	"rela_recommend/service"
-	"rela_recommend/log"
 )
 
 type QuickMatchTree struct {
