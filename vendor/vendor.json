@@ -27,6 +27,12 @@
 			"revisionTime": "2016-11-29T12:53:32Z"
 		},
 		{
+			"checksumSHA1": "K6icEVf2CuBzhLm/MGpRd1btshM=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "1a676ac6e4dce68e9303a1800773861350374a9e",
+			"revisionTime": "2018-03-08T10:03:10Z"
+		},
+		{
 			"checksumSHA1": "R5M6oZd1Y0OG4NMkDNEnoiAQzfU=",
 			"path": "github.com/gocql/gocql",
 			"revision": "e06f8c1bcd787e6bf0608288b314522f08cc7848",
@@ -37,6 +43,12 @@
 			"path": "github.com/golang/protobuf/proto",
 			"revision": "c9c7427a2a70d2eb3bafa0ab2dc163e45f143317",
 			"revisionTime": "2017-03-07T00:15:33Z"
+		},
+		{
+			"checksumSHA1": "p/8vSviYF91gFflhrt5vkyksroo=",
+			"path": "github.com/golang/snappy",
+			"revision": "553a641470496b2327abcac10b36396bd98e45c9",
+			"revisionTime": "2017-02-15T23:32:05Z"
 		},
 		{
 			"checksumSHA1": "O0r0hj4YL+jSRNjnshkeH4GY+4s=",
@@ -57,6 +69,12 @@
 			"revisionTime": "2018-03-15T14:35:31Z"
 		},
 		{
+			"checksumSHA1": "4eelJOSLZoDzLuaJvgilOBVNovU=",
+			"path": "github.com/jinzhu/inflection",
+			"revision": "04140366298a54a039076d798123ffa108fff46c",
+			"revisionTime": "2018-03-08T03:36:59Z"
+		},
+		{
 			"checksumSHA1": "+/DuBWJ5ArxaGKKkPyIlnwSJ18M=",
 			"path": "github.com/ssdb/gossdb/ssdb",
 			"revision": "a19fc4ae2aa1889d4d7a1e2279ed5907825c8215",
@@ -67,6 +85,12 @@
 			"path": "gopkg.in/go-playground/validator.v9",
 			"revision": "077c3830f3971d4a44a94c2249b67ce8c53198fc",
 			"revisionTime": "2016-12-23T02:45:03Z"
+		},
+		{
+			"checksumSHA1": "COfXAfInbcFT/YRsvLUQnNKHzF0=",
+			"path": "gopkg.in/inf.v0",
+			"revision": "d2d2541c53f18d2a059457998ce2876cc8e67cbf",
+			"revisionTime": "2018-03-26T17:23:32Z"
 		},
 		{
 			"checksumSHA1": "1D8GzeoFGUs5FZOoyC2DpQg8c5Y=",
