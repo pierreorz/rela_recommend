@@ -32,12 +32,12 @@ func (model *QuickMatchTree) PredictSingle(features []float32) float32 {
 }
 
 func (model *QuickMatchTree) Predict(ctx *QuickMatchContext) {
-	for i, user := range ctx.UserList {
-		features := model.Features(ctx, &user)
-		user.Score = model.PredictSingle(features)
-		user.Features = algo.List2Features(features)
+	for i := 0; i < len(ctx.UserList); i++ {
+		features := model.Features(ctx, &ctx.UserList[i])
+		ctx.UserList[i].Score = model.PredictSingle(features)
+		ctx.UserList[i].Features = algo.List2Features(features)
 		if i<20{
-			fmt.Println(features, user.Score, user.Features)
+			fmt.Println(features, ctx.UserList[i].Score, ctx.UserList[i].Features)
 		}
 	}
 }
