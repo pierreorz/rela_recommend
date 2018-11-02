@@ -45,10 +45,11 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	aulm := mongo.NewActiveUserLocationModule(factory.MatchClusterMon)
 	user, _ := aulm.QueryOneByUserId(params.UserId)
 	users, _ := aulm.QueryByUserIds(userIds)
-	fmt.Println("cache users len:", len(users))
+	userLen := len(users)
+	fmt.Println("cache users len:", userLen)
 	// 构建上下文
 	userInfo := &quick_match.UserInfo{UserId: user.UserId, UserCache: &user}
-	usersInfo := make([]quick_match.UserInfo, len(users))
+	usersInfo := make([]quick_match.UserInfo, userLen)
 	for i, u := range users {
 		usersInfo[i].UserId = u.UserId
 		usersInfo[i].UserCache = &u
@@ -59,7 +60,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	quick_match.MatchAlgo.Predict(&ctx)
 	// 结果排序
 	sort.Sort(quick_match.UserInfoListSort(ctx.UserList))
-	fmt.Println("sort users len:", len(ctx.UserList))
+	fmt.Println("sort users len:", len(ctx.UserList), "min", ctx.UserList[0].Score, "max", ctx.UserList[userLen-1].Score)
 	// 分页结果
 	maxIndex := int64(math.Min(float64(len(ctx.UserList)), float64(params.Offset+params.Limit)))
 	returnIds := make([]int64, maxIndex-params.Offset)
