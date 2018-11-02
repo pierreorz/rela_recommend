@@ -37,7 +37,7 @@ func (model *QuickMatchTree) Predict(ctx *QuickMatchContext) {
 		ctx.UserList[i].Score = model.PredictSingle(features)
 		ctx.UserList[i].Features = algo.List2Features(features)
 		if i<20{
-			fmt.Println(features, ctx.UserList[i].Score, ctx.UserList[i].Features)
+			fmt.Println(ctx.UserList[i].UserId, ctx.UserList[i].Score, ctx.UserList[i].Features)
 		}
 	}
 }
