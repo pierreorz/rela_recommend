@@ -58,8 +58,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	// 算法预测打分
 	quick_match.MatchAlgo.Predict(&ctx)
 	// 结果排序
-	sr := sort.Reverse(quick_match.UserInfoSortReverse(ctx.UserList))
-	sort.Sort(sr)
+	sort.Sort(quick_match.UserInfoListSort(ctx.UserList))
 	fmt.Println("sort users len:", len(ctx.UserList))
 	// 分页结果
 	maxIndex := int64(math.Min(float64(len(ctx.UserList)), float64(params.Offset+params.Limit)))

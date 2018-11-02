@@ -18,17 +18,17 @@ type QuickMatchContext struct {
 }
 
 // 用户排序
-type UserInfoSortReverse []UserInfo
+type UserInfoListSort []UserInfo
 
-func (a UserInfoSortReverse) Swap(i, j int) {
+func (a UserInfoListSort) Swap(i, j int) {
 	a[i], a[j] = a[j], a[i]
 }
-func (a UserInfoSortReverse) Len() int {
+func (a UserInfoListSort) Len() int {
 	return len(a)
 }
 
-// 以此按照：打分，资料完成度，
-func (a UserInfoSortReverse) Less(i, j int) bool {
+// 以此按照：打分，最后登陆时间，
+func (a UserInfoListSort) Less(i, j int) bool {
 	if a[i].Score == a[j].Score {
 		return a[i].UserCache.LastUpdateTime < a[j].UserCache.LastUpdateTime
 	}
