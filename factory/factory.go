@@ -61,15 +61,15 @@ func initDB(cfg *conf.Config) {
 	}
 	//sqlCreate(DbW)
 
-	DbR, err = gorm.Open("mysql", cfg.Rdb.SlaveAddr)
-	if err != nil {
-		log.Error(err.Error())
-	}
-	DbR.DB().SetMaxIdleConns(1)
-	DbR.DB().SetMaxOpenConns(10)
-	if cfg.LogLevel == "debug" {
-		DbR.LogMode(true)
-	}
+	// DbR, err = gorm.Open("mysql", cfg.Rdb.SlaveAddr)
+	// if err != nil {
+	// 	log.Error(err.Error())
+	// }
+	// DbR.DB().SetMaxIdleConns(1)
+	// DbR.DB().SetMaxOpenConns(10)
+	// if cfg.LogLevel == "debug" {
+	// 	DbR.LogMode(true)
+	// }
 }
 
 func initIsProduction(cfg *conf.Config) {
