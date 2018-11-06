@@ -23,6 +23,7 @@ type MatchRecommendReqParams struct {
 
 type MatchRecommendResponse struct {
 	Status  string
+	RankId	string
 	UserIds []int64
 }
 
@@ -50,6 +51,8 @@ func MatchRecommendListHTTP(c *routers.Context) {
 
 	var mongoClient = factory.MatchClusterMon.Copy()
 	defer mongoClient.Close()
+
+	rank_id := utils.UniqueId()
 	// 加载用户缓存
 	aulm := mongo.NewActiveUserLocationModule(mongoClient)
 	user, _ := aulm.QueryOneByUserId(params.UserId)
@@ -74,7 +77,8 @@ func MatchRecommendListHTTP(c *routers.Context) {
 		currUser := ctx.UserList[i]
 		returnIds[i-params.Offset] = currUser.UserId
 		// 纪录日志
-		logStr := MatchRecommendLog{UserId: ctx.User.UserId,
+		logStr := MatchRecommendLog{RankId: rank_id,
+									UserId: ctx.User.UserId,
 									ReceiverId: currUser.UserId,
 									Score: currUser.Score,
 									Features: algo.Features2String(currUser.Features)}
@@ -84,6 +88,6 @@ func MatchRecommendListHTTP(c *routers.Context) {
 			  ctx.User.UserId, len(userIds), userLen, len(returnIds),
 			  ctx.UserList[0].Score, ctx.UserList[userLen-1].Score)
 	// 返回
-	res := MatchRecommendResponse{UserIds: returnIds, Status: "ok"}
+	res := MatchRecommendResponse{RankId: rank_id, UserIds: returnIds, Status: "ok"}
 	c.JSON(formatResponse(res, service.WarpError(nil, "", "")))
 }

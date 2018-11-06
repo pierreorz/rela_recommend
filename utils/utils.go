@@ -2,6 +2,7 @@ package utils
 
 import (
 	"crypto/md5"
+	crand "crypto/rand"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -14,7 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+	"io"
 	"encoding/binary"
 	"github.com/gansidui/geohash"
 	"net/url"
@@ -152,6 +153,15 @@ func byte16ToBytes(in [16]byte) []byte {
 		tmp = append(tmp, value)
 	}
 	return tmp[16:]
+}
+
+
+func UniqueId() string {
+	b := make([]byte, 48)
+	if _, err := io.ReadFull(crand.Reader, b); err != nil {
+		return ""
+	}
+	return Md5Sum(b)
 }
 
 const httpRegexp = "((http[s]{0,1}|ftp)://[a-zA-Z0-9\\.\\-]+\\.([a-zA-Z]{2,4})(:\\d+)?(/[a-zA-Z0-9\\.\\-~!@#$%^&*+?:_/=<>]*)?)|(www.[a-zA-Z0-9\\.\\-]+\\.([a-zA-Z]{2,4})(:\\d+)?(/[a-zA-Z0-9\\.\\-~!@#$%^&*+?:_/=<>]*)?)"
