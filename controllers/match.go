@@ -55,8 +55,14 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	rank_id := utils.UniqueId()
 	// 加载用户缓存
 	aulm := mongo.NewActiveUserLocationModule(mongoClient)
-	user, _ := aulm.QueryOneByUserId(params.UserId)
-	users, _ := aulm.QueryByUserIds(userIds)
+	user, err1 := aulm.QueryOneByUserId(params.UserId)
+	if err1 != nil {
+		log.Error(err1.Error())
+	}
+	users, err2 := aulm.QueryByUserIds(userIds)
+	if err2 != nil {
+		log.Error(err2.Error())
+	}
 	userLen := len(users)
 	// 构建上下文
 	userInfo := &quick_match.UserInfo{UserId: user.UserId, UserCache: &user}
