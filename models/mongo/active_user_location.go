@@ -73,13 +73,15 @@ func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds 
 	var resUser ActiveUserLocation
 	var resUsers []ActiveUserLocation
 	if err == nil {
+		j := 0
 		for i, user := range users {
 			if user.UserId == userId {
 				resUser = user
 				resUsers = append(users[:i], users[i+1:]...)
-				fmt.Print("findUser", i, userId, resUser.UserId, users[i].UserId)
+				fmt.Print("findUser", i, userId, resUser.UserId, users[i].UserId, users[j].UserId)
 				break
 			}
+			j++
 		}
 		if resUser.UserId == 0 {
 			err = errors.New("user is nil")
