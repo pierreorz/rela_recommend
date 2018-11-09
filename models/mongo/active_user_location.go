@@ -76,6 +76,7 @@ func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds 
 		j := 0
 		for i, user := range users {
 			if user.UserId == userId {
+				fmt.Print("findUser", i)
 				resUser = user
 				resUsers = append(users[:i], users[i+1:]...)
 				ii, jj := i, j
