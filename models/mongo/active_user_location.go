@@ -4,6 +4,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
+	"errors"
 )
 
 type ActiveUserLocationModule struct {
@@ -63,6 +64,25 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 		},
 	}).All(&auls)
 	return auls, err
+}
+
+func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds []int64) (*ActiveUserLocation, []ActiveUserLocation, error) {
+	allIds := append(userIds, userId)
+	users, err := this.QueryByUserIds(allIds)
+	var resUser *ActiveUserLocation
+	var resUsers []ActiveUserLocation
+	if err == nil {
+		for i := 0; i < len(users); i++ {
+			if users[i].UserId == userId {
+				resUser = &users[i]
+				resUsers = append(users[:i], users[i+1:]...)
+			}
+		}
+		if resUser == nil {
+			err = errors.New("redigo: closed")
+		}
+	}
+	return resUser, resUsers, err
 }
 
 func (this *ActiveUserLocationModule) QueryNeighbors(lng, lat float64, notIn []int64, limit int) ([]ActiveUserLocation, error) {

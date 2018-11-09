@@ -55,23 +55,27 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	rank_id := utils.UniqueId()
 	// 加载用户缓存
 	aulm := mongo.NewActiveUserLocationModule(mongoClient)
-	user, err1 := aulm.QueryOneByUserId(params.UserId)
-	if err1 != nil {
-		log.Error(err1.Error())
-	}
-	users, err2 := aulm.QueryByUserIds(userIds)
-	if err2 != nil {
-		log.Error(err2.Error())
+	// user, err1 := aulm.QueryOneByUserId(params.UserId)
+	// if err1 != nil {
+	// 	log.Error(err1.Error())
+	// }
+	// users, err2 := aulm.QueryByUserIds(userIds)
+	// if err2 != nil {
+	// 	log.Error(err2.Error())
+	// }
+	user, users, err := aulm.QueryByUserAndUsers(params.UserId, userIds)
+	if err != nil {
+		log.Error(err.Error())
 	}
 	userLen := len(users)
 	// 构建上下文
-	userInfo := &quick_match.UserInfo{UserId: user.UserId, UserCache: &user}
+	userInfo := &quick_match.UserInfo{UserId: user.UserId, UserCache: user}
 	usersInfo := make([]quick_match.UserInfo, userLen)
 	for i, u := range users {
 		usersInfo[i].UserId = u.UserId
 		usersInfo[i].UserCache = &users[i]
 	}
-	ctx := quick_match.QuickMatchContext{User: userInfo, UserList: usersInfo}
+	ctx := quick_match.QuickMatchContext{RankId: rank_id, User: userInfo, UserList: usersInfo}
 	// 算法预测打分
 	quick_match.MatchAlgo.Predict(&ctx)
 	// 结果排序
@@ -82,7 +86,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	for i := params.Offset; i < maxIndex; i++ {
 		currUser := ctx.UserList[i]
 		returnIds[i-params.Offset] = currUser.UserId
-		// 纪录日志
+		// 记录日志
 		logStr := MatchRecommendLog{RankId: rank_id,
 									UserId: ctx.User.UserId,
 									ReceiverId: currUser.UserId,
