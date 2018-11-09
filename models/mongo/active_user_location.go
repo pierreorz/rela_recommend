@@ -5,7 +5,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"time"
 	"errors"
-	"fmt"
 )
 
 type ActiveUserLocationModule struct {
