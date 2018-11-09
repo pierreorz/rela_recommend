@@ -76,6 +76,7 @@ func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds 
 			if users[i].UserId == userId {
 				resUser = &users[i]
 				resUsers = append(users[:i], users[i+1:]...)
+				break
 			}
 		}
 		if resUser == nil {
