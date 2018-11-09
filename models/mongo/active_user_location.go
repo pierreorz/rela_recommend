@@ -79,7 +79,7 @@ func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds 
 			}
 		}
 		if resUser == nil {
-			err = errors.New("redigo: closed")
+			err = errors.New("user is nil")
 		}
 	}
 	return resUser, resUsers, err
