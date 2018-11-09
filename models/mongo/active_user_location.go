@@ -77,7 +77,7 @@ func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds 
 			if users[i].UserId == userId {
 				resUser = &users[i]
 				resUsers = append(users[:i], users[i+1:]...)
-				fmt.Print("findUser", i, userId, resUser.UserId)
+				fmt.Print("findUser", i, userId, resUser.UserId, users[i].UserId)
 				break
 			}
 		}
