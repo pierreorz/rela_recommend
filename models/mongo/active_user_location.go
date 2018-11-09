@@ -5,6 +5,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"time"
 	"errors"
+	"fmt"
 )
 
 type ActiveUserLocationModule struct {
@@ -76,6 +77,7 @@ func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds 
 			if users[i].UserId == userId {
 				resUser = &users[i]
 				resUsers = append(users[:i], users[i+1:]...)
+				fmt.Print("findUser", i, userId, resUser.UserId)
 				break
 			}
 		}
