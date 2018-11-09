@@ -78,13 +78,11 @@ func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds 
 			if user.UserId == userId {
 				resUser = user
 
-				ii, jj := i, j
-				id1, id2 := users[ii].UserId, users[jj].UserId
-				fmt.Print("findUser", i, len(users), userId, resUser.UserId, users[i].UserId, users[j].UserId, users[ii].UserId, users[jj].UserId, id1, id2)
+				fmt.Println("findUser", i, len(users), userId, resUser.UserId, users[i].UserId, users[j].UserId)
 
 				resUsers = append(users[:i], users[i+1:]...)
 
-				fmt.Print("findUser", i, len(users))
+				fmt.Println("findUser", i, len(users), userId, resUser.UserId, users[i].UserId, users[j].UserId)
 				break
 			}
 			j++
