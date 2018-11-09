@@ -84,10 +84,11 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	maxIndex := int64(math.Min(float64(len(ctx.UserList)), float64(params.Offset+params.Limit)))
 	returnIds := make([]int64, maxIndex-params.Offset)
 	for i := params.Offset; i < maxIndex; i++ {
+		j := i - params.Offset
 		currUser := ctx.UserList[i]
-		returnIds[i-params.Offset] = currUser.UserId
+		returnIds[j] = currUser.UserId
 		// 记录日志
-		logStr := MatchRecommendLog{RankId: rank_id,
+		logStr := MatchRecommendLog{RankId: rank_id, Index: j,
 									UserId: ctx.User.UserId,
 									ReceiverId: currUser.UserId,
 									Score: currUser.Score,
