@@ -77,6 +77,7 @@ func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds 
 			if user.UserId == userId {
 				resUser = user
 				resUsers = append(users[:i], users[i+1:]...)
+				// users i后面的内容向前移动了一位，内容发上了改变，谨慎使用
 				break
 			}
 		}
