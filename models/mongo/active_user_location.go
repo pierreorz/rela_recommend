@@ -67,21 +67,21 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 	return auls, err
 }
 
-func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds []int64) (*ActiveUserLocation, []ActiveUserLocation, error) {
+func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds []int64) (ActiveUserLocation, []ActiveUserLocation, error) {
 	allIds := append(userIds, userId)
 	users, err := this.QueryByUserIds(allIds)
-	var resUser *ActiveUserLocation
+	var resUser ActiveUserLocation
 	var resUsers []ActiveUserLocation
 	if err == nil {
 		for i, user := range users {
 			if user.UserId == userId {
-				resUser = &user
+				resUser = user
 				resUsers = append(users[:i], users[i+1:]...)
 				fmt.Print("findUser", i, userId, resUser.UserId, users[i].UserId)
 				break
 			}
 		}
-		if resUser == nil {
+		if resUser.UserId == 0 {
 			err = errors.New("user is nil")
 		}
 	}

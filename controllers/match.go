@@ -69,7 +69,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	}
 	userLen := len(users)
 	// 构建上下文
-	userInfo := &quick_match.UserInfo{UserId: user.UserId, UserCache: user}
+	userInfo := &quick_match.UserInfo{UserId: user.UserId, UserCache: &user}
 	usersInfo := make([]quick_match.UserInfo, userLen)
 	for i, u := range users {
 		usersInfo[i].UserId = u.UserId
