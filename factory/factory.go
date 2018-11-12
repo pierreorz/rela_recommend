@@ -105,6 +105,9 @@ func initCache(cfg *conf.Config) {
 	}
 
 	CacheCluster, err = redis.NewRedisCache(cfg.Rds.ClusterAddr, "", 0)
+	if err != nil {
+		log.Error(err.Error())
+	}
 }
 
 func initMongo(cfg *conf.Config) {
