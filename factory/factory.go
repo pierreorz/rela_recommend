@@ -12,6 +12,7 @@ import (
 	"github.com/gocql/gocql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"rela_recommend/cache/redisCluster"
 )
 
 // mysql slave
@@ -105,7 +106,7 @@ func initCache(cfg *conf.Config) {
 	}
 
 	log.Infof("INIT ClusterAddr: %s ....", cfg.Rds.ClusterAddr)
-	CacheCluster, err = redis.NewRedisCache(cfg.Rds.ClusterAddr, "", 0)
+	CacheCluster, err = redisCluster.NewRedisCache(cfg.Rds.ClusterAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
