@@ -9,7 +9,6 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/utils"
-	"theL_api_golang/help"
 	"time"
 )
 
@@ -63,7 +62,7 @@ func (this *ActiveUserLocationModule) QueryOneByUserId(userId int64) (ActiveUser
 func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveUserLocation, error) {
 	var aul ActiveUserLocation
 	auls := make([]ActiveUserLocation, 0)
-	redisPool := help.GetRedisCluster(factory.CacheCluster)
+	redisPool := factory.CacheCluster.GetConn().(*redis2.Cluster)
 	rds := redisPool.NewBatch()
 	var userStrs = make([]interface{}, 0)
 	for _, id := range userIds {
