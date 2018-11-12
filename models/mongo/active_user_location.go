@@ -113,9 +113,11 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 
 	rds = redisPool.NewBatch()
 	for _, aul := range auls {
-		log.Infof("SET KEY: %s", "app_user_location:"+utils.GetString(aul.UserId))
 		if str, err := json.Marshal(&aul); err == nil {
+			log.Infof("SET KEY: %s", "app_user_location:"+utils.GetString(aul.UserId))
 			rds.Put("SET", 600, "app_user_location:"+utils.GetString(aul.UserId), str)
+		} else {
+			log.Error(err.Error())
 		}
 	}
 	_, err = redisPool.RunBatch(rds)
