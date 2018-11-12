@@ -1,13 +1,13 @@
 package factory
 
 import (
+	"gopkg.in/mgo.v2"
 	"rela_recommend/cache"
-	"strings"
+	"rela_recommend/cache/redis"
 	"rela_recommend/conf"
 	"rela_recommend/log"
 	"rela_recommend/utils"
-	"rela_recommend/cache/redis"
-	"gopkg.in/mgo.v2"
+	"strings"
 
 	"github.com/gocql/gocql"
 	"github.com/jinzhu/gorm"
@@ -16,11 +16,15 @@ import (
 
 // mysql slave
 var DbR *gorm.DB
+
 // mysql master
 var DbW *gorm.DB
 
 // redis cache
 var CacheRds cache.Cache
+
+// redis cache
+var CacheCluster cache.Cache
 
 // cassandra client
 var CassandraClient *gocql.Session
@@ -99,6 +103,8 @@ func initCache(cfg *conf.Config) {
 	if err != nil {
 		log.Error(err.Error())
 	}
+
+	CacheCluster, err = redis.NewRedisCache(cfg.Rds.ClusterAddr, "", 0)
 }
 
 func initMongo(cfg *conf.Config) {

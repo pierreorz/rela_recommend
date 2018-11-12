@@ -1,10 +1,16 @@
 package mongo
 
 import (
+	"encoding/json"
+	"errors"
+	redis2 "github.com/chasex/redis-go-cluster"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"rela_recommend/factory"
+	"rela_recommend/log"
+	"rela_recommend/utils"
+	"theL_api_golang/help"
 	"time"
-	"errors"
 )
 
 type ActiveUserLocationModule struct {
@@ -57,13 +63,73 @@ func (this *ActiveUserLocationModule) QueryOneByUserId(userId int64) (ActiveUser
 func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveUserLocation, error) {
 	var aul ActiveUserLocation
 	auls := make([]ActiveUserLocation, 0)
+	redisPool := help.GetRedisCluster(factory.CacheCluster)
+	rds := redisPool.NewBatch()
+	var userStrs = make([]interface{}, 0)
+	for _, id := range userIds {
+		rds.Put("GET", "app_user_location:"+utils.GetString(id))
+	}
+	reply, err := redisPool.RunBatch(rds)
+	if err != nil {
+		log.Error(err.Error())
+	}
+
+	_, err = redis2.Scan(reply, userStrs...)
+	if err != nil {
+		log.Error(err)
+	}
+
+	users := make([]ActiveUserLocation, 0)
+	var findUserIds = make([]int64, 0)
+	for _, str := range userStrs {
+		var user ActiveUserLocation
+		if err := json.Unmarshal(([]byte)(utils.GetString(str)), &user); err != nil {
+			log.Error(err.Error())
+		} else {
+			users = append(users, user)
+			findUserIds = append(findUserIds, user.UserId)
+		}
+	}
+
+	var notFoundUserIds = make([]int64, 0)
+	for _, uId := range userIds {
+		var found = false
+		for _, fUid := range findUserIds {
+			if fUid == uId {
+				found = true
+				break
+			}
+		}
+		if !found {
+			notFoundUserIds = append(notFoundUserIds, uId)
+		}
+	}
+
 	c := this.session.DB("rela_match").C(aul.TableName())
-	err := c.Find(bson.M{
+	err = c.Find(bson.M{
 		"userId": bson.M{
-			"$in": userIds,
+			"$in": notFoundUserIds,
 		},
 	}).All(&auls)
-	return auls, err
+
+	rds = redisPool.NewBatch()
+	for _, aul := range auls {
+		rds.Put("SET", 600, "app_user_location:"+utils.GetString(aul.UserId))
+	}
+	_, err = redisPool.RunBatch(rds)
+	if err != nil {
+		log.Error(err.Error())
+	}
+
+	var ret = make([]ActiveUserLocation, 0)
+	for _, v1 := range users {
+		ret = append(ret, v1)
+	}
+	for _, v2 := range auls {
+		ret = append(ret, v2)
+	}
+
+	return ret, err
 }
 
 func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds []int64) (ActiveUserLocation, []ActiveUserLocation, error) {
