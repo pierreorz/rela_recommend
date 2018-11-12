@@ -1,24 +1,22 @@
 package main
 
 import (
-	"os/signal"
 	"flag"
-	"syscall"
-	"runtime"
+	"os"
+	"os/signal"
+	"rela_recommend/conf"
 	"rela_recommend/factory"
 	"rela_recommend/log"
-	"rela_recommend/conf"
 	"rela_recommend/routers"
 	"rela_recommend/routes"
-	"os"
+	"runtime"
+	"syscall"
 )
 
 var (
 	buildTime  string
 	configFile = flag.String("conf", "", "param config file")
 )
-
-
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
@@ -61,6 +59,6 @@ func main() {
 	<-sc
 
 	apiServer.Close()
-	factory.Close()
+	//factory.Close()
 	log.Info("rela_recommend is closed.")
 }
