@@ -81,6 +81,9 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 	var findUserIds = make([]int64, 0)
 	log.Infof("userStrs length: %d\n", len(userStrs))
 	for _, str := range userStrs {
+		if str == nil {
+			continue
+		}
 		var user ActiveUserLocation
 		if err := json.Unmarshal(([]byte)(utils.GetString(str)), &user); err != nil {
 			log.Error(err.Error())
