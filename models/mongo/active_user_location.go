@@ -80,14 +80,12 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 
 	users := make([]ActiveUserLocation, 0)
 	var findUserIds = make([]int64, 0)
+	log.Infof("userStrs length: %d\n", len(userStrs))
 	for _, str := range userStrs {
 		var user ActiveUserLocation
-		log.Infof("%s\n", utils.GetString(str))
 		if err := json.Unmarshal(([]byte)(utils.GetString(str)), &user); err != nil {
-			log.Info(&user)
 			log.Error(err.Error())
 		} else {
-			log.Info("appending %s ---\n", user.UserId)
 			users = append(users, user)
 			findUserIds = append(findUserIds, user.UserId)
 		}
@@ -114,15 +112,17 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 		},
 	}).All(&auls)
 
+	log.Infof("auls length: %d\n", len(auls))
 	rds = redisPool.NewBatch()
 	for _, aul := range auls {
 		if str, err := json.Marshal(&aul); err == nil {
-			log.Infof("SET KEY: %s", "app_user_location:"+utils.GetString(aul.UserId))
+			//log.Infof("SET KEY: %s", "app_user_location:"+utils.GetString(aul.UserId))
 			rds.Put("SETEX", "app_user_location:"+utils.GetString(aul.UserId), 600, str)
 		} else {
 			log.Error(err.Error())
 		}
 	}
+
 	_, err = redisPool.RunBatch(rds)
 	if err != nil {
 		log.Error(err.Error())
