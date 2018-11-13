@@ -115,7 +115,7 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 	for _, aul := range auls {
 		if str, err := json.Marshal(&aul); err == nil {
 			log.Infof("SET KEY: %s", "app_user_location:"+utils.GetString(aul.UserId))
-			rds.Put("SET", 600, "app_user_location:"+utils.GetString(aul.UserId), str)
+			rds.Put("SETEX", "app_user_location:"+utils.GetString(aul.UserId), 600, str)
 		} else {
 			log.Error(err.Error())
 		}
