@@ -73,9 +73,8 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 		log.Error(err.Error())
 	}
 
-	_, err = redis2.Scan(reply, userStrs...)
-	if err != nil {
-		log.Error(err)
+	for _, re := range reply {
+		userStrs = append(userStrs, re)
 	}
 
 	users := make([]ActiveUserLocation, 0)
