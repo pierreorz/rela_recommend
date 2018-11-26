@@ -144,7 +144,7 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 		ret = append(ret, v2)
 	}
 	var startLogTime = time.Now()
-	log.Infof("redis:%d,mongo:%d;total:%.3f,redisInit:%.3f,redis:%.3f,redisLoad:%.3f,notfound:%.3f,mongo:%.3f,2redisInit:%.3f,2redis:%.3f\n",
+	log.Infof("QueryByUserIds,redis:%d,mongo:%d;total:%.3f,redisInit:%.3f,redis:%.3f,redisLoad:%.3f,notfound:%.3f,mongo:%.3f,2redisInit:%.3f,2redis:%.3f\n",
 		len(userIds), len(auls),
 		startLogTime.Sub(startTime).Seconds(), startRedisTime.Sub(startTime).Seconds(),
 		startRedisResTime.Sub(startRedisTime).Seconds(), startNFTime.Sub(startRedisResTime).Seconds(),
@@ -154,6 +154,7 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 }
 
 func (this *ActiveUserLocationModule) QueryByUserIdsFromMongo(userIds []int64) ([]ActiveUserLocation, error) {
+	var startTime = time.Now()
 	var aul ActiveUserLocation
 	auls := make([]ActiveUserLocation, 0)
 	c := this.session.DB("rela_match").C(aul.TableName())
@@ -162,6 +163,8 @@ func (this *ActiveUserLocationModule) QueryByUserIdsFromMongo(userIds []int64) (
 			"$in": userIds,
 		},
 	}).All(&auls)
+	var startLogTime = time.Now()
+	log.Infof("QueryByUserIdsFromMongo,mongo:%d,total:%.3f", len(userIds), startLogTime.Sub(startTime).Seconds())
 	return auls, err
 }
 
