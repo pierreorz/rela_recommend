@@ -170,7 +170,7 @@ func (this *ActiveUserLocationModule) QueryByUserIdsFromMongo(userIds []int64) (
 
 func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds []int64) (ActiveUserLocation, []ActiveUserLocation, error) {
 	allIds := append(userIds, userId)
-	users, err := this.QueryByUserIdsFromMongo(allIds)
+	users, err := this.QueryByUserIds(allIds)
 	var resUser ActiveUserLocation
 	var resUsers []ActiveUserLocation
 	if err == nil {

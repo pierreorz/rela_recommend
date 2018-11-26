@@ -19,13 +19,12 @@ func TestHTTP(c *routers.Context) {
 
 	var maxId int64 = 104887329
 	var minId int64 = 104860000
-	userId := rand.Int63n(maxId)
 	userIds := make([]int64, 0)
 	for i:=0;i<3000;i++{
 		userIds = append(userIds, rand.Int63n(maxId-minId)+minId)
 	}
 	aulm := mongo.NewActiveUserLocationModule(mongoClient)
-	aulm.QueryByUserAndUsers(userId, userIds)
+	aulm.QueryByUserIdsFromMongo(userIds)
 	var startLogTime = time.Now()
 	log.Infof("Test:userids:%d,total:%.3f", len(userIds), startLogTime.Sub(startTime).Seconds())
 }
