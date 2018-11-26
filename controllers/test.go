@@ -17,11 +17,12 @@ func TestHTTP(c *routers.Context) {
 	var mongoClient = factory.MatchClusterMon.Copy()
 	defer mongoClient.Close()
 
-	var maxId int64 = 415285405006916
+	var maxId int64 = 104887329
+	var minId int64 = 104860000
 	userId := rand.Int63n(maxId)
 	userIds := make([]int64, 0)
 	for i:=0;i<3000;i++{
-		userIds = append(userIds, rand.Int63n(maxId))
+		userIds = append(userIds, rand.Int63n(maxId-minId)+minId)
 	}
 	aulm := mongo.NewActiveUserLocationModule(mongoClient)
 	aulm.QueryByUserAndUsers(userId, userIds)
