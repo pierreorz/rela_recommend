@@ -76,6 +76,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	var startPredictTime = time.Now()
 	quick_match.MatchAlgo.Predict(&ctx)
 	// 结果排序
+	var startSortTime = time.Now()
 	sort.Sort(quick_match.UserInfoListSort(ctx.UserList))
 	// 分页结果
 	var startPageTime = time.Now()
@@ -94,12 +95,13 @@ func MatchRecommendListHTTP(c *routers.Context) {
 		log.Infof("%+v\n", logStr)
 	}
 	var startLogTime = time.Now()
-	log.Infof("paramuser %d,user %d,paramlen %d,len %d,return %d,max %g,min %g;total:%.3f,init:%.3f,cache:%.3f,ctx:%.3f,predict:%.3f,page:%.3f\n",
+	log.Infof("paramuser %d,user %d,paramlen %d,len %d,return %d,max %g,min %g;total:%.3f,init:%.3f,cache:%.3f,ctx:%.3f,predict:%.3f,sort:%.3f,page:%.3f\n",
 			  params.UserId, ctx.User.UserId, len(userIds), userLen, len(returnIds),
 			  ctx.UserList[0].Score, ctx.UserList[userLen-1].Score,
 			  startLogTime.Sub(startTime).Seconds(), startCacheTime.Sub(startTime).Seconds(),
 			  startCtxTime.Sub(startCacheTime).Seconds(), startPredictTime.Sub(startCtxTime).Seconds(),
-			  startPageTime.Sub(startPredictTime).Seconds(), startLogTime.Sub(startPageTime).Seconds())
+			  startSortTime.Sub(startPredictTime).Seconds(), startPageTime.Sub(startSortTime).Seconds(),
+			  startLogTime.Sub(startPageTime).Seconds())
 	// 返回
 	res := MatchRecommendResponse{RankId: rank_id, UserIds: returnIds, Status: "ok"}
 	c.JSON(formatResponse(res, service.WarpError(nil, "", "")))
