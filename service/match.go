@@ -316,6 +316,24 @@ func UserRow(user *models.ActiveUserLocation, receiver *models.ActiveUserLocatio
 	for i := 1; i <= 23; i++ {
 		arr = append(arr, propEqual(createHour(now), i))
 	}
+	// 90天单身偏好 352-359
+	for i := -1; i <= 7; i++ {
+		if i != receiver.Affection || user.JsonAffeLike == nil { 
+			arr = append(arr, 0.0)
+		} else {
+			arr = append(arr, user.JsonAffeLike[i])
+		}
+	}
+	// 90天性别偏好 360-369
+	for i := -1; i <= 8; i++ {
+		istr := utils.GetString(i)
+		if istr != receiver.RoleName || user.JsonRoleLike == nil {
+			arr = append(arr, 0.0)
+		} else {
+			arr = append(arr, user.JsonRoleLike[istr])
+		}
+	}
+
 	return arr
 }
 

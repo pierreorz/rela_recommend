@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"math"
+	"time"
 	"rela_recommend/algo"
 	"rela_recommend/algo/quick_match"
 	"rela_recommend/factory"
@@ -37,6 +38,7 @@ type MatchRecommendLog struct {
 }
 
 func MatchRecommendListHTTP(c *routers.Context) {
+	var startTime = time.Now()
 	var params MatchRecommendReqParams
 	if err := bind(c, &params); err != nil {
 		log.Error(err.Error())
@@ -54,6 +56,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 
 	rank_id := utils.UniqueId()
 	// 加载用户缓存
+	var startCacheTime = time.Now()
 	aulm := mongo.NewActiveUserLocationModule(mongoClient)
 	user, users, err := aulm.QueryByUserAndUsers(params.UserId, userIds)
 	if err != nil {
@@ -61,6 +64,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	}
 	userLen := len(users)
 	// 构建上下文
+	var startCtxTime = time.Now()
 	userInfo := &quick_match.UserInfo{UserId: user.UserId, UserCache: &user}
 	usersInfo := make([]quick_match.UserInfo, userLen)
 	for i, u := range users {
@@ -69,10 +73,12 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	}
 	ctx := quick_match.QuickMatchContext{RankId: rank_id, User: userInfo, UserList: usersInfo}
 	// 算法预测打分
+	var startPredictTime = time.Now()
 	quick_match.MatchAlgo.Predict(&ctx)
 	// 结果排序
 	sort.Sort(quick_match.UserInfoListSort(ctx.UserList))
 	// 分页结果
+	var startPageTime = time.Now()
 	maxIndex := int64(math.Min(float64(len(ctx.UserList)), float64(params.Offset+params.Limit)))
 	returnIds := make([]int64, maxIndex-params.Offset)
 	for i := params.Offset; i < maxIndex; i++ {
@@ -87,9 +93,13 @@ func MatchRecommendListHTTP(c *routers.Context) {
 									Features: algo.Features2String(currUser.Features)}
 		log.Infof("%+v\n", logStr)
 	}
-	log.Infof("paramuser %d,user %d,paramlen %d,len %d,return %d,max %g,min %g\n",
+	var startLogTime = time.Now()
+	log.Infof("paramuser %d,user %d,paramlen %d,len %d,return %d,max %g,min %g;total:%.3f,init:%.3f,cache:%.3f,ctx:%.3f,predict:%.3f,page:%.3f\n",
 			  params.UserId, ctx.User.UserId, len(userIds), userLen, len(returnIds),
-			  ctx.UserList[0].Score, ctx.UserList[userLen-1].Score)
+			  ctx.UserList[0].Score, ctx.UserList[userLen-1].Score,
+			  startLogTime.Sub(startTime).Seconds(), startCacheTime.Sub(startTime).Seconds(),
+			  startCtxTime.Sub(startCacheTime).Seconds(), startPredictTime.Sub(startCtxTime).Seconds(),
+			  startPageTime.Sub(startPredictTime).Seconds(), startLogTime.Sub(startPageTime).Seconds())
 	// 返回
 	res := MatchRecommendResponse{RankId: rank_id, UserIds: returnIds, Status: "ok"}
 	c.JSON(formatResponse(res, service.WarpError(nil, "", "")))

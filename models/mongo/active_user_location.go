@@ -44,6 +44,9 @@ type ActiveUserLocation struct {
 	Ratio      int       `bson:"ratio"`
 	CreateTime time.Time `bson:"create_time"`
 	Horoscope  int       `bson:"horoscope"`
+
+	JsonRoleLike map[string]float32	`bson:"jsonRoleLike"`
+	JsonAffeLike map[int]float32	`bson:"jsonAffeLike"`
 }
 
 func (this *ActiveUserLocation) TableName() string {
