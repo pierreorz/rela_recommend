@@ -65,13 +65,16 @@ func (this *ActiveUserLocationModule) QueryOneByUserId(userId int64) (ActiveUser
 func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveUserLocation, error) {
 	var aul ActiveUserLocation
 	auls := make([]ActiveUserLocation, 0)
+	var startTime = time.Now()
 	redisPool := factory.CacheCluster.GetConn().(*redis2.Cluster)
 	rds := redisPool.NewBatch()
 	var userStrs = make([]interface{}, 0)
 	for _, id := range userIds {
 		rds.Put("GET", "app_user_location:"+utils.GetString(id))
 	}
+	var startRedisTime = time.Now()
 	reply, err := redisPool.RunBatch(rds)
+	var startRedisResTime = time.Now()
 	if err != nil {
 		log.Error(err.Error())
 	}
@@ -82,7 +85,6 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 
 	users := make([]ActiveUserLocation, 0)
 	var findUserIds = make([]int64, 0)
-	log.Infof("userStrs length: %d\n", len(userStrs))
 	for _, str := range userStrs {
 		if str == nil {
 			continue
@@ -95,7 +97,7 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 			findUserIds = append(findUserIds, user.UserId)
 		}
 	}
-
+	var startNFTime = time.Now()
 	var notFoundUserIds = make([]int64, 0)
 	for _, uId := range userIds {
 		var found = false
@@ -109,7 +111,7 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 			notFoundUserIds = append(notFoundUserIds, uId)
 		}
 	}
-
+	var startMongoTime = time.Now()
 	c := this.session.DB("rela_match").C(aul.TableName())
 	err = c.Find(bson.M{
 		"userId": bson.M{
@@ -117,7 +119,7 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 		},
 	}).All(&auls)
 
-	log.Infof("auls length: %d\n", len(auls))
+	var start2RedisResTime = time.Now()
 	rds = redisPool.NewBatch()
 	for _, aul := range auls {
 		if str, err := json.Marshal(&aul); err == nil {
@@ -128,6 +130,7 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 		}
 	}
 
+	var start2RedisTime = time.Now()
 	_, err = redisPool.RunBatch(rds)
 	if err != nil {
 		log.Error(err.Error())
@@ -140,7 +143,13 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 	for _, v2 := range auls {
 		ret = append(ret, v2)
 	}
-
+	var startLogTime = time.Now()
+	log.Infof("redis:%d,mongo:%d;total:%.3f,redisInit:%.3f,redis:%.3f,redisLoad:%.3f,notfound:%.3f,mongo:%.3f,2redisInit:%.3f,2redis:%.3f\n",
+		len(userIds), len(auls),
+		startLogTime.Sub(startTime).Seconds(), startRedisTime.Sub(startTime).Seconds(),
+		startRedisResTime.Sub(startRedisTime).Seconds(), startNFTime.Sub(startRedisResTime).Seconds(),
+		startMongoTime.Sub(startNFTime).Seconds(), start2RedisResTime.Sub(startMongoTime).Seconds(),
+		start2RedisTime.Sub(start2RedisResTime).Seconds(), startLogTime.Sub(start2RedisTime).Seconds())
 	return ret, err
 }
 
