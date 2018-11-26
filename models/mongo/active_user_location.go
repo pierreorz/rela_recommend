@@ -153,9 +153,21 @@ func (this *ActiveUserLocationModule) QueryByUserIds(userIds []int64) ([]ActiveU
 	return ret, err
 }
 
+func (this *ActiveUserLocationModule) QueryByUserIdsFromMongo(userIds []int64) ([]ActiveUserLocation, error) {
+	var aul ActiveUserLocation
+	auls := make([]ActiveUserLocation, 0)
+	c := this.session.DB("rela_match").C(aul.TableName())
+	err := c.Find(bson.M{
+		"userId": bson.M{
+			"$in": userIds,
+		},
+	}).All(&auls)
+	return auls, err
+}
+
 func (this *ActiveUserLocationModule) QueryByUserAndUsers(userId int64, userIds []int64) (ActiveUserLocation, []ActiveUserLocation, error) {
 	allIds := append(userIds, userId)
-	users, err := this.QueryByUserIds(allIds)
+	users, err := this.QueryByUserIdsFromMongo(allIds)
 	var resUser ActiveUserLocation
 	var resUsers []ActiveUserLocation
 	if err == nil {
