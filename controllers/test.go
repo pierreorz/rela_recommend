@@ -6,14 +6,33 @@ import (
 	"rela_recommend/models/mongo"
 	"rela_recommend/routers"
 	"rela_recommend/service"
+	"rela_recommend/utils"
 	"math/rand"
 	"rela_recommend/log"
+	"strings"
 )
 
+type TestReqParams struct {
+	Limit   int64  `json:"limit" form:"limit"`
+	Offset  int64  `json:"offset" form:"offset"`
+	UserId  int64  `json:"userId" form:"userId"`
+	UserIds string `json:"userIds" form:"userIds"`
+}
 
 func TestHTTP(c *routers.Context) {
 	var startTime = time.Now()
-	// var params MatchRecommendReqParams
+	var params TestReqParams
+	if err := bind(c, &params); err != nil {
+		log.Error(err.Error())
+		c.JSON(formatResponse(nil, service.WarpError(service.ErrInvaPara, "", "")))
+		return
+	}
+	var userIds2 = make([]int64, 0)
+	var userIds2Strs = strings.Split(params.UserIds, ",")
+	for _, uid := range userIds2Strs {
+		userIds2 = append(userIds2, utils.GetInt64(uid))
+	}
+
 
 	var mongoClient = factory.MatchClusterMon.Copy()
 	defer mongoClient.Close()
@@ -29,7 +48,6 @@ func TestHTTP(c *routers.Context) {
 	var startLogTime = time.Now()
 	log.Infof("Test:userids:%d,total:%.3f", len(userIds), startLogTime.Sub(startTime).Seconds())
 	
-	userIds2 := []int64 {110652}
 	res, err := aulm.QueryByUserIdsFromMongo(userIds2)
 	c.JSON(formatResponse(res, service.WarpError(err, "", "")))
 }
