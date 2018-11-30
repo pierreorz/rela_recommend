@@ -5,6 +5,7 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/models/mongo"
 	"rela_recommend/routers"
+	"rela_recommend/service"
 	"math/rand"
 	"rela_recommend/log"
 )
@@ -27,5 +28,9 @@ func TestHTTP(c *routers.Context) {
 	aulm.QueryByUserIdsFromMongo(userIds)
 	var startLogTime = time.Now()
 	log.Infof("Test:userids:%d,total:%.3f", len(userIds), startLogTime.Sub(startTime).Seconds())
+	
+	userIds2 := []int64 {110652}
+	res, err := aulm.QueryByUserIdsFromMongo(userIds2)
+	c.JSON(formatResponse(res, service.WarpError(err, "", "")))
 }
 
