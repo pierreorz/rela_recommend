@@ -46,7 +46,7 @@ type ActiveUserLocation struct {
 	Horoscope  int       `bson:"horoscope"`
 
 	JsonRoleLike map[string]float32	`bson:"jsonRoleLike"`
-	JsonAffeLike map[int]float32	`bson:"jsonAffeLike"`
+	JsonAffeLike map[string]float32	`bson:"jsonAffeLike"`
 }
 
 func (this *ActiveUserLocation) TableName() string {

@@ -318,10 +318,11 @@ func UserRow(user *models.ActiveUserLocation, receiver *models.ActiveUserLocatio
 	}
 	// 90天单身偏好 352-359
 	for i := -1; i <= 7; i++ {
+		istr := utils.GetString(i)
 		if i != receiver.Affection || user.JsonAffeLike == nil { 
 			arr = append(arr, 0.0)
 		} else {
-			arr = append(arr, user.JsonAffeLike[i])
+			arr = append(arr, user.JsonAffeLike[istr])
 		}
 	}
 	// 90天性别偏好 360-369
