@@ -13,6 +13,7 @@ import (
 	"rela_recommend/utils"
 	"sort"
 	"strings"
+	"reflect"
 )
 
 type MatchRecommendReqParams struct {
@@ -33,6 +34,7 @@ type MatchRecommendLog struct {
 	Index int64
 	UserId int64
 	ReceiverId int64
+	Algo string
 	Score float32
 	Features string
 }
@@ -80,6 +82,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 		model = quick_match.MatchAlgoV1_1
 	}
 	model.Predict(&ctx)
+	modelName := reflect.TypeOf(model).String()
 	// 结果排序
 	var startSortTime = time.Now()
 	sort.Sort(quick_match.UserInfoListSort(ctx.UserList))
@@ -95,6 +98,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 		logStr := MatchRecommendLog{RankId: rank_id, Index: j,
 									UserId: ctx.User.UserId,
 									ReceiverId: currUser.UserId,
+									Algo: modelName,
 									Score: currUser.Score,
 									Features: algo.Features2String(currUser.Features)}
 		log.Infof("%+v\n", logStr)
