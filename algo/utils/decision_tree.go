@@ -4,6 +4,7 @@ import (
 	"os"
 	"fmt"
 	"io/ioutil"
+	"rela_recommend/log"
 	"encoding/json"
 	"compress/gzip"
 )
@@ -53,7 +54,7 @@ func (tree *DecisionTree) Init(path string)  {
 	if jerr != nil {
 		fmt.Println("tree:load json err")
 	}
-	fmt.Println("tree:init ok")
+	log.Infof("tree:init ok %s", path)
 }
 
 func (tree *DecisionTree) PredictSingle(features []float32) float32 {

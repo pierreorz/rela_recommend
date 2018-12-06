@@ -18,7 +18,7 @@ type QuickMatchContext struct {
 	UserList []UserInfo
 }
 
-// 用户排序
+// ************************************** 用户排序
 type UserInfoListSort []UserInfo
 
 func (a UserInfoListSort) Swap(i, j int) {

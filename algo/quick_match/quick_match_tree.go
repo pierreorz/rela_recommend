@@ -12,10 +12,6 @@ type QuickMatchTree struct {
 	tree *utils.DecisionTree
 }
 
-func (model *QuickMatchTree) Name() string {
-	return "QuickMatchTree"
-}
-
 func (model *QuickMatchTree) Init() {
 	tree := &utils.DecisionTree{}
 	tree.Init(model.FilePath)

@@ -63,6 +63,12 @@ func List2Features(arr []float32) []Feature {
 	return fts
 }
 
+// 模型接口
+type IModel interface {
+	Init(string)
+	PredictSingle([]float32) float32
+}
+
 // 算法接口
 type IAlgorithm interface {
 	Name() string

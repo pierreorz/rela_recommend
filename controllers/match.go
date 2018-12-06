@@ -74,7 +74,12 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	ctx := quick_match.QuickMatchContext{RankId: rank_id, User: userInfo, UserList: usersInfo}
 	// 算法预测打分
 	var startPredictTime = time.Now()
-	quick_match.MatchAlgo.Predict(&ctx)
+
+	var model = quick_match.MatchAlgo
+	if (ctx.User.UserId % 100 < 20) {
+		model = quick_match.MatchAlgoV1_1
+	}
+	model.Predict(&ctx)
 	// 结果排序
 	var startSortTime = time.Now()
 	sort.Sort(quick_match.UserInfoListSort(ctx.UserList))
