@@ -59,6 +59,6 @@ func main() {
 	<-sc
 
 	apiServer.Close()
-	factory.Close()
+	//factory.Close()
 	log.Info("rela_recommend is closed.")
 }
