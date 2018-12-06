@@ -9,9 +9,9 @@ import(
 type IQuickMatch interface {
 	Name() string
 	Init()
-	Features(ctx *QuickMatchContext, user *UserInfo)
-	PredictSingle(features []float32) float32
-	Predict(ctx *QuickMatchContext)
+	Features(*QuickMatchContext, *UserInfo) []float32
+	PredictSingle([]float32) float32
+	Predict(*QuickMatchContext)
 }
 
 type QuickMatchBase struct {

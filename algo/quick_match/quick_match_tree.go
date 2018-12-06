@@ -33,3 +33,12 @@ func (model *QuickMatchTree) Predict(ctx *QuickMatchContext) {
 		ctx.UserList[i].Features = algo.List2Features(features)
 	}
 }
+
+
+type QuickMatchTreeV1_0 struct {
+	QuickMatchBase
+}
+
+func (self *QuickMatchTreeV1_0) Name() string {
+	return "QuickMatchTreeV1_0"
+}

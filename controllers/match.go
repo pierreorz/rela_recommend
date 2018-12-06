@@ -77,12 +77,11 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	// 算法预测打分
 	var startPredictTime = time.Now()
 
-	var model = quick_match.MatchAlgo
+	var model quick_match.IQuickMatch = &quick_match.MatchAlgoV1_0
 	if (ctx.User.UserId % 100 < 20) {
-		model = quick_match.MatchAlgoV1_1
+		model = &quick_match.MatchAlgoV1_1
 	}
 	model.Predict(&ctx)
-	modelName := reflect.TypeOf(model).String()
 	// 结果排序
 	var startSortTime = time.Now()
 	sort.Sort(quick_match.UserInfoListSort(ctx.UserList))
@@ -98,7 +97,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 		logStr := MatchRecommendLog{RankId: rank_id, Index: j,
 									UserId: ctx.User.UserId,
 									ReceiverId: currUser.UserId,
-									Algo: modelName,
+									Algo: model.Name(),
 									Score: currUser.Score,
 									Features: algo.Features2String(currUser.Features)}
 		log.Infof("%+v\n", logStr)
