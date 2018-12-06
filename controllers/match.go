@@ -53,7 +53,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	}
 
 	var mongoClient = factory.MatchClusterMon.Copy()
-	defer mongoClient.Close()
+	// defer mongoClient.Close()
 
 	rank_id := utils.UniqueId()
 	// 加载用户缓存
@@ -63,6 +63,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	if err != nil {
 		log.Error(err.Error())
 	}
+	mongoClient.Close()
 	userLen := len(users)
 	// 构建上下文
 	var startCtxTime = time.Now()

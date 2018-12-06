@@ -122,6 +122,7 @@ func initMongo(cfg *conf.Config) {
 }
 
 func Close() {
+	MatchClusterMon.Close()
 	DbW.Close()
 	DbR.Close()
 	CassandraClient.Close()
