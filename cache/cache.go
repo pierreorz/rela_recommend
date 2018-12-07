@@ -21,4 +21,6 @@ type Cache interface {
 	Exists(key string) bool
 	// get conn
 	GetConn() interface{}
+	//close
+	Close()
 }

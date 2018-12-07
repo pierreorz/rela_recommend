@@ -122,7 +122,17 @@ func initMongo(cfg *conf.Config) {
 }
 
 func Close() {
+	//close db
 	DbW.Close()
 	DbR.Close()
+
+	//close cassandra
 	CassandraClient.Close()
+
+	//close mgo
+	MatchClusterMon.Close()
+
+	//close cache
+	CacheRds.Close()
+	CacheCluster.Close()
 }

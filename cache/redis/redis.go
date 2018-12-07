@@ -159,6 +159,10 @@ func (rc *Cache) GetConn() interface{} {
 	return rc.conn
 }
 
+func (rc *Cache) Close() {
+	rc.conn.Close()
+}
+
 // connect to redis.
 func (rc *Cache) connectInit() {
 	dialFunc := func() (c redis.Conn, err error) {

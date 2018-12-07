@@ -3,9 +3,9 @@ package redisCluster
 import (
 	redisCluster "github.com/chasex/redis-go-cluster"
 	"github.com/garyburd/redigo/redis"
+	"rela_recommend/cache"
+	"rela_recommend/log"
 	"strings"
-	"theL_api_golang/cache"
-	"theL_api_golang/log"
 	"time"
 )
 
@@ -129,6 +129,10 @@ func (rc *Cache) Decr(key string) (int64, error) {
 // get redis pool
 func (rc *Cache) GetConn() interface{} {
 	return rc.conn
+}
+
+func (rc *Cache) Close() {
+	rc.conn.Close()
 }
 
 // connect to redis.
