@@ -40,7 +40,7 @@ func TestHTTP(c *routers.Context) {
 	var maxId int64 = 105000000
 	var minId int64 = 100000000
 	userIds := make([]int64, 0)
-	for i:=0;i<3000;i++{
+	for i:=0;i<5000;i++{
 		userIds = append(userIds, rand.Int63n(maxId-minId)+minId)
 	}
 	aulm := mongo.NewActiveUserLocationModule(mongoClient)
