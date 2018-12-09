@@ -37,32 +37,32 @@ func NewUserProfileModule(cache *cache.Cache, store *cache.Cache) *UserProfileMo
 }
 
 type Location struct {
-	Lat 	float64		`bson:"lat"`
-	Lon 	float64		`bson:"lon"`
+	Lat 	float64		`json:"lat"`
+	Lon 	float64		`json:"lon"`
 }
 
 type UserProfile struct {
-	UserId         int64    `bson:"id"`         // 用户ID
-	Location       Location `bson:"location"`            //地理位置
-	Avatar         string   `bson:"avatar"`         // 头像
-	IsVip          int      `bson:"isVip"`          // 是否是vip
-	LastUpdateTime int64    `bson:"lastUpdateTime"` //最后在线时间
-	MomentsCount   int      `bson:"momentsCount"`   // 日志数
-	NewImageCount  int      `bson:"newImageCount"`
-	RoleName       string   `bson:"roleName"`
-	UserImageCount int      `bson:"userImageCount"`
-	WantRole       string   `bson:"wantRole"`
+	UserId         int64    `json:"id"`         // 用户ID
+	Location       Location `json:"location"`            //地理位置
+	Avatar         string   `json:"avatar"`         // 头像
+	IsVip          int      `json:"isVip"`          // 是否是vip
+	LastUpdateTime int64    `json:"lastUpdateTime"` //最后在线时间
+	MomentsCount   int      `json:"momentsCount"`   // 日志数
+	NewImageCount  int      `json:"newImageCount"`
+	RoleName       string   `json:"roleName"`
+	UserImageCount int      `json:"userImageCount"`
+	WantRole       string   `json:"wantRole"`
 
-	Affection  int       `bson:"affection"`
-	Age        int       `bson:"age"`
-	Height     int       `bson:"height"`
-	Weight     int       `bson:"weight"`
-	Ratio      int       `bson:"ratio"`
-	CreateTime time.Time `bson:"createTime"`
-	Horoscope  string    `bson:"horoscope"`
+	Affection  int       `json:"affection"`
+	Age        int       `json:"age"`
+	Height     int       `json:"height"`
+	Weight     int       `json:"weight"`
+	Ratio      int       `json:"ratio"`
+	CreateTime time.Time `json:"createTime"`
+	Horoscope  string    `json:"horoscope"`
 
-	JsonRoleLike map[string]float32	`bson:"jsonRoleLike"`
-	JsonAffeLike map[string]float32	`bson:"jsonAffeLike"`
+	JsonRoleLike map[string]float32	`json:"jsonRoleLike"`
+	JsonAffeLike map[string]float32	`json:"jsonAffeLike"`
 }
 
 func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, error) {
