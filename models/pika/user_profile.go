@@ -8,24 +8,24 @@ import (
 	"rela_recommend/utils"
 	"rela_recommend/cache"
 	"time"
-	// "strings"
+	"strings"
 )
 
-type JsonTime struct {
-	time.Time
-}
-func (p *JsonTime) UnmarshalJSON(data []byte) error {
-	local, err := time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", string(data), time.Local)
-	*p = JsonTime{Time: local}
-	return err
-}
-func (c JsonTime) MarshalJSON() ([]byte, error) {
-	data := make([]byte, 0)
-	data = append(data, '"')
-	data = time.Time(c.Time).AppendFormat(data, "2006-01-02 15:04:05.000+0000")
-	data = append(data, '"')
-	return data, nil
-}
+// type JsonTime struct {
+// 	time.Time
+// }
+// func (p *JsonTime) UnmarshalJSON(data []byte) error {
+// 	local, err := time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", string(data), time.Local)
+// 	*p = JsonTime{Time: local}
+// 	return err
+// }
+// func (c JsonTime) MarshalJSON() ([]byte, error) {
+// 	data := make([]byte, 0)
+// 	data = append(data, '"')
+// 	data = time.Time(c.Time).AppendFormat(data, "2006-01-02 15:04:05.000+0000")
+// 	data = append(data, '"')
+// 	return data, nil
+// }
 
 type UserProfileModule struct {
 	cacheCluster *cache.Cache
@@ -58,7 +58,7 @@ type UserProfile struct {
 	Height     int       `bson:"height"`
 	Weight     int       `bson:"weight"`
 	Ratio      int       `bson:"ratio"`
-	CreateTime JsonTime `bson:"createTime"`
+	CreateTime time.Time `bson:"createTime"`
 	Horoscope  string    `bson:"horoscope"`
 
 	JsonRoleLike map[string]float32	`bson:"jsonRoleLike"`
@@ -94,7 +94,7 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		}
 		var user UserProfile
 		userStr := utils.GetString(userRes)
-		// userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
+		userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
 		if err := json.Unmarshal(([]byte)(userStr), &user); err != nil {
 			notFoundUserIds = append(notFoundUserIds, userId)
 			log.Error(err.Error())
@@ -126,7 +126,7 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 			}
 			var user UserProfile
 			userStr := utils.GetString(userRes)
-			// userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
+			userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
 			if err := json.Unmarshal(([]byte)(userStr), &user); err != nil {
 				log.Error(err.Error())
 			} else {
