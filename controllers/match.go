@@ -39,7 +39,6 @@ type MatchRecommendLog struct {
 }
 
 func MatchRecommendListHTTP(c *routers.Context) {
-	var startTime = time.Now()
 	var params MatchRecommendReqParams
 	if err := bind(c, &params); err != nil {
 		log.Error(err.Error())
@@ -51,7 +50,12 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	for _, uid := range userIdsStrs {
 		userIds = append(userIds, utils.GetInt64(uid))
 	}
+	res := DoRecommend(&params, userIds)
+	c.JSON(formatResponse(res, service.WarpError(nil, "", "")))
+}
 
+func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommendResponse {
+	var startTime = time.Now()
 	rank_id := utils.UniqueId()
 	// 加载用户缓存
 	var startCacheTime = time.Now()
@@ -108,5 +112,5 @@ func MatchRecommendListHTTP(c *routers.Context) {
 			  startLogTime.Sub(startPageTime).Seconds())
 	// 返回
 	res := MatchRecommendResponse{RankId: rank_id, UserIds: returnIds, Status: "ok"}
-	c.JSON(formatResponse(res, service.WarpError(nil, "", "")))
+	return res
 }

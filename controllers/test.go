@@ -6,18 +6,26 @@ import (
 	"rela_recommend/models/pika"
 	"rela_recommend/routers"
 	"rela_recommend/service"
-	"rela_recommend/utils"
 	"math/rand"
 	"rela_recommend/log"
-	"strings"
 )
 
 type TestReqParams struct {
-	Limit   int64  `json:"limit" form:"limit"`
-	Offset  int64  `json:"offset" form:"offset"`
-	UserId  int64  `json:"userId" form:"userId"`
-	UserIds string `json:"userIds" form:"userIds"`
+	Count   int     `form:"count"`
+	Type    string  `form:"type"`
 }
+
+
+func GenUserIds(cnt int) []int64 {
+	var maxId int64 = 105000000
+	var minId int64 = 100000000
+	userIds := make([]int64, 0, cnt)
+	for i:=0; i < cnt; i++{
+		userIds = append(userIds, rand.Int63n(maxId-minId)+minId)
+	}
+	return userIds
+}
+
 
 func TestHTTP(c *routers.Context) {
 	var startTime = time.Now()
@@ -27,28 +35,25 @@ func TestHTTP(c *routers.Context) {
 		c.JSON(formatResponse(nil, service.WarpError(service.ErrInvaPara, "", "")))
 		return
 	}
-	var userIds2 = make([]int64, 0)
-	var userIds2Strs = strings.Split(params.UserIds, ",")
-	for _, uid := range userIds2Strs {
-		userIds2 = append(userIds2, utils.GetInt64(uid))
+	if params.Count <= 0 {
+		params.Count = 3000
 	}
+	var userId int64 = 104708381
 
-
-	var mongoClient = factory.MatchClusterMon.Copy()
-	defer mongoClient.Close()
-
-	var maxId int64 = 105000000
-	var minId int64 = 100000000
-	userIds := make([]int64, 0)
-	for i:=0;i<5000;i++{
-		userIds = append(userIds, rand.Int63n(maxId-minId)+minId)
+	// 开始测试
+	var resLen int
+	userIds := GenUserIds(params.Count)
+	if params.Type == "cache" {
+		aulm := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
+		users, _ := aulm.QueryByUserIds(userIds)
+		resLen = len(users)
+	} else if params.Type == "quick_match" {
+		pars := MatchRecommendReqParams{UserId: userId, Offset:0, Limit:20}
+		res := DoRecommend(&pars, userIds)
+		resLen = len(res.UserIds)
 	}
-
-	aulm := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
-	users, err := aulm.QueryByUserIds(userIds)
 	var startLogTime = time.Now()
 	log.Infof("userids:%d,total:%.3f", len(userIds), startLogTime.Sub(startTime).Seconds())
-	
-	c.JSON(formatResponse(users, service.WarpError(err, "", "")))
+	c.JSON(formatResponse(resLen, service.WarpError(nil, "", "")))
 }
 

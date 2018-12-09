@@ -168,7 +168,7 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		}
 	}
 	var startLogTime = time.Now()
-	log.Infof("QueryByUserIds,all:%d,redis:%d,pika:%d,final:%d;total:%.3f,redisInit:%.3f,redis:%.3f,redisLoad:%.3f,notfound:%.3f,pika:%.3f,2redisInit:%.3f,2redis:%.3f\n",
+	log.Infof("QueryByUserIds,all:%d,redis:%d,pika:%d,final:%d;total:%.3f,redisInit:%.3f,redis:%.3f,redisLoad:%.3f,pika:%.3f,pikaLoad:%.3f,2redisInit:%.3f,2redis:%.3f\n",
 		len(userIds), len(userIds)-len(notFoundUserIds), len(notFoundUserIds),len(auls),
 		startLogTime.Sub(startTime).Seconds(), startRedisTime.Sub(startTime).Seconds(),
 		startRedisResTime.Sub(startRedisTime).Seconds(), startNFTime.Sub(startRedisResTime).Seconds(),
