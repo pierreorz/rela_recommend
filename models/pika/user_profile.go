@@ -103,11 +103,12 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		toCacheMap := map[string]interface{}{}
 		for i, userId := range notFoundUserIds {
 			// storeKey := storeKeys[i]
-			str := storeUserStrs[i]
-			if str == nil {
+			userRes := storeUserStrs[i]
+			if userRes == nil {
 				continue
 			}
 			var user UserProfile
+			str := strings.Replace(utils.GetString(userRes), "+0000\"", "\"", -1)
 			if err := json.Unmarshal(([]byte)(utils.GetString(str)), &user); err != nil {
 				log.Error(err.Error())
 			} else {
