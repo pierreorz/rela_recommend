@@ -58,7 +58,7 @@ type UserProfile struct {
 	Height     int       `bson:"height"`
 	Weight     int       `bson:"weight"`
 	Ratio      int       `bson:"ratio"`
-	CreateTime time.Time `bson:"createTime"`
+	CreateTime JsonTime `bson:"createTime"`
 	Horoscope  string    `bson:"horoscope"`
 
 	JsonRoleLike map[string]float32	`bson:"jsonRoleLike"`

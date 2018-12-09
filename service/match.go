@@ -233,10 +233,10 @@ func UserRow(user *models.UserProfile, receiver *models.UserProfile) []float32 {
 	}
 
 	for _, ar := range userCreateDaysBkt {
-		arr = append(arr, propBkt(ar[0], ar[1], calculateCreateDays(user.CreateTime)))
+		arr = append(arr, propBkt(ar[0], ar[1], calculateCreateDays(user.CreateTime.Time)))
 	}
 	for _, ar := range receiverCreateDaysBkt {
-		arr = append(arr, propBkt(ar[0], ar[1], calculateCreateDays(receiver.CreateTime)))
+		arr = append(arr, propBkt(ar[0], ar[1], calculateCreateDays(receiver.CreateTime.Time)))
 	}
 
 	var user_image_count = user.UserImageCount + user.NewImageCount
