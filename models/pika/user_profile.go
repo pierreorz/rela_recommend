@@ -68,7 +68,7 @@ type UserProfile struct {
 func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, error) {
 	var cacheKeyPre = "active_location_location:"
 	var storeKeyPre = "active_location_location:"
-	auls := make([]UserProfile, 0)
+	auls := make([]UserProfile, 0, len(userIds))
 	var startTime = time.Now()
 	var cacheKeysMap = map[int64]string{}
 	var cacheKeys = make([]string, 0)
@@ -147,6 +147,8 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		user, found := usersMap[userId]
 		if found && user.UserId == userId {
 			auls = append(auls, user)
+		} else {
+			log.Error(errors.New("not found user " + string(userId)))
 		}
 	}
 	var startLogTime = time.Now()
