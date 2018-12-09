@@ -8,14 +8,22 @@ import (
 	"rela_recommend/utils"
 	"rela_recommend/cache"
 	"time"
+	"strings"
 )
 
 type JsonTime struct {
 	time.Time
 }
 func (p *JsonTime) UnmarshalJSON(data []byte) error {
-	if data != nil && len(data) > 0 {
-		local, err := time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", string(data), time.Local)
+	dataStr := string(data)
+	if data != nil && dataStr!="null" && len(data) > 0 {
+		var local time.Time
+		var err error
+		if strings.HasSuffix(dataStr, "+0000\"") {
+			local, err = time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", dataStr, time.Local)
+		} else {
+			(&local).UnmarshalJSON(data)
+		}
 		*p = JsonTime{Time: local}
 		return err
 	} else {
