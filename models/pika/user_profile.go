@@ -14,16 +14,24 @@ type JsonTime struct {
 	time.Time
 }
 func (p *JsonTime) UnmarshalJSON(data []byte) error {
-	local, err := time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", string(data), time.Local)
-	*p = JsonTime{Time: local}
-	return err
+	if data != nil && len(data) > 0 {
+		local, err := time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", string(data), time.Local)
+		*p = JsonTime{Time: local}
+		return err
+	} else {
+		return nil
+	}
 }
-func (c JsonTime) MarshalJSON() ([]byte, error) {
-	data := make([]byte, 0)
-	data = append(data, '"')
-	data = time.Time(c.Time).AppendFormat(data, "2006-01-02 15:04:05.000+0000")
-	data = append(data, '"')
-	return data, nil
+func (c *JsonTime) MarshalJSON() ([]byte, error) {
+	if &c.Time != nil {
+		data := make([]byte, 0)
+		data = append(data, '"')
+		data = time.Time(c.Time).AppendFormat(data, "2006-01-02 15:04:05.000+0000")
+		data = append(data, '"')
+		return data, nil
+	} else {
+		return nil, nil
+	}
 }
 
 type UserProfileModule struct {
