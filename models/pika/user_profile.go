@@ -97,7 +97,7 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		// userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
 		if err := json.Unmarshal(([]byte)(userStr), &user); err != nil {
 			notFoundUserIds = append(notFoundUserIds, userId)
-			log.Error(err.Error())
+			log.Error(userId, err.Error())
 		} else {
 			usersMap[userId] = user
 		}
@@ -128,7 +128,7 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 			userStr := utils.GetString(userRes)
 			// userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
 			if err := json.Unmarshal(([]byte)(userStr), &user); err != nil {
-				log.Error(err.Error())
+				log.Error(userId, err.Error())
 			} else {
 				usersMap[userId] = user
 
