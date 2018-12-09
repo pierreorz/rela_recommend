@@ -59,24 +59,12 @@ func (rc *Cache) Mget(keys []string) ([]interface{}, error) {
 	if len(keys) == 0 {
 		return make([]interface{}, 0), nil
 	}
-	size := len(keys)
-	var rv []interface{}
-	c := rc.conn.Get()
-	defer c.Close()
-	for _, key := range keys {
-		c.Send("GET", key)
+	args := make([]interface{}, 0)
+	for _, key := range(keys) {
+		args = append(args, key)
 	}
-	c.Flush()
-	for i := 0; i < size; i++ {
-		if v, err := c.Receive(); err == nil {
-			if v != nil {
-				rv = append(rv, v.([]byte))
-			}
-		} else {
-			rv = append(rv, err)
-		}
-	}
-	return rv, nil
+	rv, err := redis.Values(rc.do("MGET", args...))
+	return rv, err
 }
 
 // GetMulti get cache from redis.

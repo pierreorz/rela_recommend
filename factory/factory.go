@@ -115,7 +115,7 @@ func initCache(cfg *conf.Config) {
 	}
 
 	log.Infof("INIT PikaAddr: %s ....", cfg.Rds.PikaAddr)
-	PikaCluster, err = redisCluster.NewRedisCache(cfg.Rds.PikaAddr, "", 0)
+	PikaCluster, err = redis.NewRedisCache(cfg.Rds.PikaAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
