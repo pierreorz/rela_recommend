@@ -37,8 +37,8 @@ func TestHTTP(c *routers.Context) {
 	var mongoClient = factory.MatchClusterMon.Copy()
 	defer mongoClient.Close()
 
-	var maxId int64 = 104887329
-	var minId int64 = 104860000
+	var maxId int64 = 105000000
+	var minId int64 = 100000000
 	userIds := make([]int64, 0)
 	for i:=0;i<3000;i++{
 		userIds = append(userIds, rand.Int63n(maxId-minId)+minId)
