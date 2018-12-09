@@ -8,6 +8,7 @@ import (
 	"rela_recommend/utils"
 	"rela_recommend/cache"
 	"time"
+	"strings"
 )
 
 type UserProfileModule struct {
@@ -70,13 +71,14 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 	usersMap := map[int64]UserProfile{}
 	var notFoundUserIds = make([]int64, 0)
 	for i, userId := range userIds {
-		str := userStrs[i]
-		if str == nil {
+		userRes := userStrs[i]
+		if userRes == nil {
 			notFoundUserIds = append(notFoundUserIds, userId)
 			continue
 		}
 		var user UserProfile
-		if err := json.Unmarshal(([]byte)(utils.GetString(str)), &user); err != nil {
+		str := strings.Replace(utils.GetString(userRes), "+0000\"", "\"", -1)
+		if err := json.Unmarshal(([]byte)(str), &user); err != nil {
 			notFoundUserIds = append(notFoundUserIds, userId)
 			log.Error(err.Error())
 		} else {
