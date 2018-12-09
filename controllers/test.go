@@ -3,7 +3,7 @@ package controllers
 import (
 	"time"
 	"rela_recommend/factory"
-	"rela_recommend/models/mongo"
+	"rela_recommend/models/pika"
 	"rela_recommend/routers"
 	"rela_recommend/service"
 	"rela_recommend/utils"
@@ -43,12 +43,12 @@ func TestHTTP(c *routers.Context) {
 	for i:=0;i<5000;i++{
 		userIds = append(userIds, rand.Int63n(maxId-minId)+minId)
 	}
-	aulm := mongo.NewActiveUserLocationModule(mongoClient)
-	aulm.QueryByUserIdsFromMongo(userIds)
+
+	aulm := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
+	users, err := aulm.QueryByUserIds(userIds)
 	var startLogTime = time.Now()
-	log.Infof("Test:userids:%d,total:%.3f", len(userIds), startLogTime.Sub(startTime).Seconds())
+	log.Infof("userids:%d,total:%.3f", len(userIds), startLogTime.Sub(startTime).Seconds())
 	
-	res, err := aulm.QueryByUserIdsFromMongo(userIds2)
-	c.JSON(formatResponse(res, service.WarpError(err, "", "")))
+	c.JSON(formatResponse(users, service.WarpError(err, "", "")))
 }
 
