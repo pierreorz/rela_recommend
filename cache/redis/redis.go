@@ -55,9 +55,9 @@ func (rc *Cache) Get(key string) (interface{}, error) {
 	return rc.do("GET", key)
 }
 
-func (rc *Cache) Mget(keys []string) []interface{} {
+func (rc *Cache) Mget(keys []string) ([]interface{}, error) {
 	if len(keys) == 0 {
-		return nil
+		return make([]interface{}, 0), nil
 	}
 	size := len(keys)
 	var rv []interface{}
@@ -76,7 +76,7 @@ func (rc *Cache) Mget(keys []string) []interface{} {
 			rv = append(rv, err)
 		}
 	}
-	return rv
+	return rv, nil
 }
 
 // GetMulti get cache from redis.
@@ -110,6 +110,19 @@ ERROR:
 	}
 
 	return rv
+}
+
+func (rc *Cache) MsetEx(keyValMap map[string]interface{}, expire int64) error {
+	if len(keyValMap) == 0 {
+		return nil
+	}
+	for key, val := range keyValMap {
+		_, err := rc.do("SETEX", key, expire, val)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Put put cache to redis.

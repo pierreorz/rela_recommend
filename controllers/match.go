@@ -7,7 +7,7 @@ import (
 	"rela_recommend/algo/quick_match"
 	"rela_recommend/factory"
 	"rela_recommend/log"
-	"rela_recommend/models/mongo"
+	"rela_recommend/models/pika"
 	"rela_recommend/routers"
 	"rela_recommend/service"
 	"rela_recommend/utils"
@@ -52,13 +52,10 @@ func MatchRecommendListHTTP(c *routers.Context) {
 		userIds = append(userIds, utils.GetInt64(uid))
 	}
 
-	var mongoClient = factory.MatchClusterMon.Copy()
-	defer mongoClient.Close()
-
 	rank_id := utils.UniqueId()
 	// 加载用户缓存
 	var startCacheTime = time.Now()
-	aulm := mongo.NewActiveUserLocationModule(mongoClient)
+	aulm := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 	user, users, err := aulm.QueryByUserAndUsers(params.UserId, userIds)
 	if err != nil {
 		log.Error(err.Error())

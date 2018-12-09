@@ -40,9 +40,9 @@ func (rc *Cache) Get(key string) (interface{}, error) {
 	return rc.do("GET", key)
 }
 
-func (rc *Cache) Mget(keys []string) []interface{} {
+func (rc *Cache) Mget(keys []string) ([]interface{}, error) {
 	if len(keys) == 0 {
-		return nil
+		return make([]interface{}, 0), nil
 	}
 	var rv []interface{}
 	c := rc.conn
@@ -51,11 +51,22 @@ func (rc *Cache) Mget(keys []string) []interface{} {
 		batch.Put("GET", key)
 	}
 	rv, err := c.RunBatch(batch)
-	if err != nil {
-		log.Error(err)
-	}
-	return rv
+	return rv, err
 }
+
+func (rc *Cache) MsetEx(keyValMap map[string]interface{}, expire int64) error {
+	if len(keyValMap) == 0 {
+		return nil
+	}
+	c := rc.conn
+	batch := c.NewBatch()
+	for key, val := range keyValMap {
+		batch.Put("SETEX", key, expire, val)
+	}
+	_, err := c.RunBatch(batch)
+	return err
+}
+
 
 // GetMulti get cache from redis.
 func (rc *Cache) MultiGet(keys []string) []interface{} {

@@ -2,12 +2,12 @@ package quick_match
 
 import (
 	"rela_recommend/algo"
-	"rela_recommend/models/mongo"
+	"rela_recommend/models/pika"
 )
 
 type UserInfo struct {
 	UserId int64
-	UserCache *mongo.ActiveUserLocation
+	UserCache *pika.UserProfile
 	Score float32
 	Features []algo.Feature
 }

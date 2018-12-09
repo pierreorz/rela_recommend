@@ -27,6 +27,9 @@ var CacheRds cache.Cache
 // redis cache
 var CacheCluster cache.Cache
 
+// pika
+var PikaCluster cache.Cache
+
 // cassandra client
 var CassandraClient *gocql.Session
 
@@ -110,6 +113,12 @@ func initCache(cfg *conf.Config) {
 	if err != nil {
 		log.Error(err.Error())
 	}
+
+	log.Infof("INIT PikaAddr: %s ....", cfg.Rds.PikaAddr)
+	PikaCluster, err = redisCluster.NewRedisCache(cfg.Rds.PikaAddr, "", 0)
+	if err != nil {
+		log.Error(err.Error())
+	}
 }
 
 func initMongo(cfg *conf.Config) {
@@ -135,4 +144,5 @@ func Close() {
 	//close cache
 	CacheRds.Close()
 	CacheCluster.Close()
+	PikaCluster.Close()
 }

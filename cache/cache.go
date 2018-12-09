@@ -4,7 +4,9 @@ type Cache interface {
 	// get cached value by key.
 	Get(key string) (interface{}, error)
 	// GetMulti is a batch version of Get.
-	Mget(keys []string) []interface{}
+	Mget(keys []string) ([]interface{}, error)
+	// SetMulti is a batch version of Get.
+	MsetEx(keyValMap map[string]interface{}, expire int64) error
 	// set cached value with key
 	Set(key string, val interface{}) error
 	// set cached value with key and expire time.

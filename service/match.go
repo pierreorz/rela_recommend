@@ -2,7 +2,7 @@ package service
 
 import (
 	"math"
-	models "rela_recommend/models/mongo"
+	models "rela_recommend/models/pika"
 	"rela_recommend/utils"
 	"strings"
 	"time"
@@ -167,7 +167,7 @@ var receiverMomentsCountRange = [][]float64{
 	{168.0, maxFloat64},
 }
 
-func UserRow(user *models.ActiveUserLocation, receiver *models.ActiveUserLocation) []float32 {
+func UserRow(user *models.UserProfile, receiver *models.UserProfile) []float32 {
 	arr := make([]float32, 0)
 	for i := 0; i <= 7; i++ {
 		jMax := 7
@@ -227,7 +227,7 @@ func UserRow(user *models.ActiveUserLocation, receiver *models.ActiveUserLocatio
 		arr = append(arr, propBkt(ar[0], ar[1], receiver.Ratio))
 	}
 
-	var distance = calculateDistance(user.Loc.Coordinates[0], user.Loc.Coordinates[1], receiver.Loc.Coordinates[0], receiver.Loc.Coordinates[1]) / 1000
+	var distance = calculateDistance(user.Location.Lon, user.Location.Lat, receiver.Location.Lon, receiver.Location.Lat) / 1000
 	for _, ar := range distanceBkt {
 		arr = append(arr, propFloatBkt(ar[0], ar[1], distance))
 	}
