@@ -148,9 +148,10 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		if found && user.UserId == userId {
 			auls = append(auls, user)
 		} else {
-			log.Error(errors.New("not found user " + utils.GetString(userId)))
+			log.Error(errors.New("can't found user " + utils.GetString(userId)))
 		}
 	}
+	log.Infof("%+v", usersMap)
 	var startLogTime = time.Now()
 	log.Infof("QueryByUserIds,all:%d,redis:%d,pika:%d,final:%d;total:%.3f,redisInit:%.3f,redis:%.3f,redisLoad:%.3f,notfound:%.3f,pika:%.3f,2redisInit:%.3f,2redis:%.3f\n",
 		len(userIds), len(userIds)-len(notFoundUserIds), len(notFoundUserIds),len(auls),
