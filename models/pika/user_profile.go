@@ -94,6 +94,7 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		}
 		var user UserProfile
 		userStr := utils.GetString(userRes)
+		log.Info(userStr)
 		userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
 		if err := json.Unmarshal(([]byte)(userStr), &user); err != nil {
 			notFoundUserIds = append(notFoundUserIds, userId)
