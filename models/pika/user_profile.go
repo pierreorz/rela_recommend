@@ -8,24 +8,23 @@ import (
 	"rela_recommend/utils"
 	"rela_recommend/cache"
 	"time"
-	"strings"
 )
 
-// type JsonTime struct {
-// 	time.Time
-// }
-// func (p *JsonTime) UnmarshalJSON(data []byte) error {
-// 	local, err := time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", string(data), time.Local)
-// 	*p = JsonTime{Time: local}
-// 	return err
-// }
-// func (c JsonTime) MarshalJSON() ([]byte, error) {
-// 	data := make([]byte, 0)
-// 	data = append(data, '"')
-// 	data = time.Time(c.Time).AppendFormat(data, "2006-01-02 15:04:05.000+0000")
-// 	data = append(data, '"')
-// 	return data, nil
-// }
+type JsonTime struct {
+	time.Time
+}
+func (p *JsonTime) UnmarshalJSON(data []byte) error {
+	local, err := time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", string(data), time.Local)
+	*p = JsonTime{Time: local}
+	return err
+}
+func (c JsonTime) MarshalJSON() ([]byte, error) {
+	data := make([]byte, 0)
+	data = append(data, '"')
+	data = time.Time(c.Time).AppendFormat(data, "2006-01-02 15:04:05.000+0000")
+	data = append(data, '"')
+	return data, nil
+}
 
 type UserProfileModule struct {
 	cacheCluster *cache.Cache
@@ -58,7 +57,7 @@ type UserProfile struct {
 	Height     int       `json:"height"`
 	Weight     int       `json:"weight"`
 	Ratio      int       `json:"ratio"`
-	CreateTime time.Time `json:"createTime"`
+	CreateTime JsonTime `json:"createTime"`
 	Horoscope  string    `json:"horoscope"`
 
 	JsonRoleLike map[string]float32	`json:"jsonRoleLike"`
@@ -94,8 +93,8 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		}
 		var user UserProfile
 		userStr := utils.GetString(userRes)
-		log.Info(userStr)
-		userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
+		// log.Info(userStr)
+		// userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
 		if err := json.Unmarshal(([]byte)(userStr), &user); err != nil {
 			notFoundUserIds = append(notFoundUserIds, userId)
 			log.Error(err.Error())
@@ -127,7 +126,7 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 			}
 			var user UserProfile
 			userStr := utils.GetString(userRes)
-			userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
+			// userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
 			if err := json.Unmarshal(([]byte)(userStr), &user); err != nil {
 				log.Error(err.Error())
 			} else {
@@ -152,7 +151,6 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 			log.Error(errors.New("can't found user " + utils.GetString(userId)))
 		}
 	}
-	log.Infof("%+v", usersMap)
 	var startLogTime = time.Now()
 	log.Infof("QueryByUserIds,all:%d,redis:%d,pika:%d,final:%d;total:%.3f,redisInit:%.3f,redis:%.3f,redisLoad:%.3f,notfound:%.3f,pika:%.3f,2redisInit:%.3f,2redis:%.3f\n",
 		len(userIds), len(userIds)-len(notFoundUserIds), len(notFoundUserIds),len(auls),
