@@ -270,7 +270,7 @@ func UserRow(user *models.UserProfile, receiver *models.UserProfile) []float32 {
 
 	for i := 0; i <= 11; i++ {
 		var ap float32 = 0.0
-		if user.Horoscope == i {
+		if user.Horoscope == string(i) {
 			ap = 1
 		}
 		arr = append(arr, ap)
@@ -297,7 +297,7 @@ func UserRow(user *models.UserProfile, receiver *models.UserProfile) []float32 {
 
 	for i := 0; i <= 11; i++ {
 		var ap float32 = 0.0
-		if receiver.Horoscope == i {
+		if receiver.Horoscope == string(i) {
 			ap = 1
 		}
 		arr = append(arr, ap)
