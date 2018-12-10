@@ -84,6 +84,7 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 	var cacheKeyPre = "active_location_location:"
 	var storeKeyPre = "active_location_location:"
 	auls := make([]UserProfile, 0, len(userIds))
+	usersMap := map[int64]UserProfile{}
 	var startTime = time.Now()
 	var cacheKeysMap = map[int64]string{}
 	var cacheKeys = make([]string, 0)
@@ -93,31 +94,32 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		cacheKeys = append(cacheKeys, cacheKey)
 	}
 	var startRedisTime = time.Now()  // 开始读取缓存
+	var notFoundUserIds = make([]int64, 0)
 	userStrs, err := factory.CacheCluster.Mget(cacheKeys)
-	if err != nil {
+	var startRedisResTime = time.Now()  // 开始解析缓存结果
+	if err != nil {  // 读取缓存失败
 		log.Error(err.Error())
+		notFoundUserIds = userIds
+	} else {
+		for i, userId := range userIds {  
+			userRes := userStrs[i]
+			if userRes == nil {
+				notFoundUserIds = append(notFoundUserIds, userId)
+				continue
+			}
+			var user UserProfile
+			userStr := utils.GetString(userRes)
+			// log.Info(userStr)
+			// userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
+			if err := json.Unmarshal(([]byte)(userStr), &user); err != nil {
+				notFoundUserIds = append(notFoundUserIds, userId)
+				log.Error(userId, err.Error())
+			} else {
+				usersMap[userId] = user
+			}
+		}
 	}
 
-	var startRedisResTime = time.Now()  // 开始解析缓存结果
-	usersMap := map[int64]UserProfile{}
-	var notFoundUserIds = make([]int64, 0)
-	for i, userId := range userIds {
-		userRes := userStrs[i]
-		if userRes == nil {
-			notFoundUserIds = append(notFoundUserIds, userId)
-			continue
-		}
-		var user UserProfile
-		userStr := utils.GetString(userRes)
-		// log.Info(userStr)
-		// userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
-		if err := json.Unmarshal(([]byte)(userStr), &user); err != nil {
-			notFoundUserIds = append(notFoundUserIds, userId)
-			log.Error(userId, err.Error())
-		} else {
-			usersMap[userId] = user
-		}
-	}
 	var startMongoTime = time.Now()
 	var start2RedisResTime = time.Now()
 	var start2RedisTime = time.Now()
@@ -128,8 +130,9 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		}
 		startMongoTime = time.Now()  // 开始读取持久化存储
 		storeUserStrs, err := factory.PikaCluster.Mget(storeKeys)
-		if err != nil {
+		if err != nil {  // 读取持久化存储失败
 			log.Error(err.Error())
+			return nil, err
 		}
 		start2RedisResTime = time.Now()  // 开始解析持久化存储结果
 		toCacheMap := map[string]interface{}{}
