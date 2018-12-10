@@ -50,10 +50,10 @@ func Init(cfg *conf.Config) {
 	if 8*60*60 != utils.GetLocalTimeZoneOffset() {
 		panic("not utc+8, then going to quit")
 	}
-	initDB(cfg)
+	// initDB(cfg)
 	initCache(cfg)
-	initMongo(cfg)
-	initCassandraSession(cfg)
+	// initMongo(cfg)
+	// initCassandraSession(cfg)
 }
 
 func initDB(cfg *conf.Config) {
@@ -132,14 +132,14 @@ func initMongo(cfg *conf.Config) {
 
 func Close() {
 	//close db
-	DbW.Close()
-	DbR.Close()
+	// DbW.Close()
+	// DbR.Close()
 
 	//close cassandra
-	CassandraClient.Close()
+	// CassandraClient.Close()
 
 	//close mgo
-	MatchClusterMon.Close()
+	// MatchClusterMon.Close()
 
 	//close cache
 	CacheRds.Close()
