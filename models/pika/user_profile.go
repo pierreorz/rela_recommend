@@ -81,8 +81,8 @@ type UserProfile struct {
 }
 
 func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, error) {
-	var cacheKeyPre = "active_location_location:"
-	var storeKeyPre = "active_location_location:"
+	var cacheKeyPre = "app_user_location:"
+	var storeKeyPre = "app_user_location:"
 	auls := make([]UserProfile, 0, len(userIds))
 	usersMap := map[int64]UserProfile{}
 	var startTime = time.Now()
