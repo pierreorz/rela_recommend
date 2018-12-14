@@ -125,7 +125,7 @@ func Active24HourUpper(ctx *quick_match.QuickMatchContext) {
 	before24HourTime := time.Now().Unix() - 24 * 60 * 60
 	for i, user := range ctx.UserList {
 		if user.UserCache.LastUpdateTime >= before24HourTime {
-			ctx.UserList[i].Score = ctx.UserList[i].Score * 1.2
+			ctx.UserList[i].Score = ctx.UserList[i].Score * 1.1
 		}
 	}
 }
