@@ -8,6 +8,7 @@ import (
 type UserInfo struct {
 	UserId int64
 	UserCache *pika.UserProfile
+	AlgoScore float32
 	Score float32
 	Features []algo.Feature
 }

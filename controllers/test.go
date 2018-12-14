@@ -8,6 +8,9 @@ import (
 	"rela_recommend/service"
 	"math/rand"
 	"rela_recommend/log"
+	"rela_recommend/utils/response"
+	"rela_recommend/utils/request"
+	"rela_recommend/controllers/match"
 )
 
 type TestReqParams struct {
@@ -30,9 +33,9 @@ func GenUserIds(cnt int) []int64 {
 func TestHTTP(c *routers.Context) {
 	var startTime = time.Now()
 	var params TestReqParams
-	if err := bind(c, &params); err != nil {
+	if err := request.Bind(c, &params); err != nil {
 		log.Error(err.Error())
-		c.JSON(formatResponse(nil, service.WarpError(service.ErrInvaPara, "", "")))
+		c.JSON(response.FormatResponse(nil, service.WarpError(service.ErrInvaPara, "", "")))
 		return
 	}
 	if params.Count <= 0 {
@@ -43,17 +46,17 @@ func TestHTTP(c *routers.Context) {
 	// 开始测试
 	var resLen int
 	userIds := GenUserIds(params.Count)
-	if params.Type == "cache" {
+	if params.Type == "cache" {  // 测试缓存
 		aulm := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 		users, _ := aulm.QueryByUserIds(userIds)
 		resLen = len(users)
-	} else if params.Type == "quick_match" {
-		pars := MatchRecommendReqParams{UserId: userId, Offset:0, Limit:20}
-		res := DoRecommend(&pars, userIds)
+	} else if params.Type == "quick_match" {  // 测试速配
+		pars := match.MatchRecommendReqParams{UserId: userId, Offset:0, Limit:20}
+		res := match.DoRecommend(&pars, userIds)
 		resLen = len(res.UserIds)
 	}
 	var startLogTime = time.Now()
 	log.Infof("userids:%d,total:%.3f", len(userIds), startLogTime.Sub(startTime).Seconds())
-	c.JSON(formatResponse(resLen, service.WarpError(nil, "", "")))
+	c.JSON(response.FormatResponse(resLen, service.WarpError(nil, "", "")))
 }
 

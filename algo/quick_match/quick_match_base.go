@@ -40,7 +40,8 @@ func (self *QuickMatchBase) PredictSingle(features []float32) float32 {
 func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
 	for i := 0; i < len(ctx.UserList); i++ {
 		features := self.Features(ctx, &ctx.UserList[i])
-		ctx.UserList[i].Score = self.PredictSingle(features)
+		ctx.UserList[i].AlgoScore = self.PredictSingle(features)
+		ctx.UserList[i].Score = ctx.UserList[i].AlgoScore
 		ctx.UserList[i].Features = algo.List2Features(features)
 	}
 }
