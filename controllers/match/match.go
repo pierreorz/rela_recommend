@@ -84,9 +84,7 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 	var startPredictTime = time.Now()
 
 	var model quick_match.IQuickMatch = &quick_match.MatchAlgoV1_0
-	if (ctx.User.UserId % 100 < 20) {
-		model = &quick_match.MatchAlgoV1_1
-	} else if (ctx.User.UserId % 100 < 60) {
+	if (ctx.User.UserId % 100 < 30) {
 		model = &quick_match.MatchAlgoV1_2
 	}
 	model.Predict(&ctx)
