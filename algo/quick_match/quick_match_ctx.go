@@ -15,6 +15,7 @@ type UserInfo struct {
 
 type QuickMatchContext struct {
 	RankId string
+	Ua string
 	User *UserInfo
 	UserList []UserInfo
 }

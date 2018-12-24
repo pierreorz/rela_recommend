@@ -20,6 +20,7 @@ import (
 type MatchRecommendReqParams struct {
 	Limit   int64  `json:"limit" form:"limit"`
 	Offset  int64  `json:"offset" form:"offset"`
+	Ua      string `json:"ua" form:"ua"`
 	UserId  int64  `json:"userId" form:"userId"`
 	UserIds string `json:"userIds" form:"userIds"`
 }
@@ -76,13 +77,17 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 		usersInfo[i].UserId = u.UserId
 		usersInfo[i].UserCache = &users[i]
 	}
-	ctx := quick_match.QuickMatchContext{RankId: rank_id, User: userInfo, UserList: usersInfo}
+	ctx := quick_match.QuickMatchContext{
+		RankId: rank_id, Ua: params.Ua,
+		User: userInfo, UserList: usersInfo}
 	// 算法预测打分
 	var startPredictTime = time.Now()
 
 	var model quick_match.IQuickMatch = &quick_match.MatchAlgoV1_0
 	if (ctx.User.UserId % 100 < 20) {
 		model = &quick_match.MatchAlgoV1_1
+	} else if (ctx.User.UserId % 100 < 60) {
+		model = &quick_match.MatchAlgoV1_2
 	}
 	model.Predict(&ctx)
 	// 提升活跃用户权重
