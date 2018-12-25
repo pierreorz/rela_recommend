@@ -127,10 +127,14 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 }
 
 func Active24HourUpper(ctx *quick_match.QuickMatchContext) {
-	before24HourTime := time.Now().Unix() - 24 * 60 * 60
+	var upperRate float32 = 0.2
+	var offsetTime int64 = 24 * 60 * 60
+	nowTime := time.Now().Unix()
+	before24HourTime := nowTime - offsetTime
 	for i, user := range ctx.UserList {
 		if user.UserCache.LastUpdateTime >= before24HourTime {
-			ctx.UserList[i].Score = ctx.UserList[i].Score * 1.1
+			var addRate = float32((user.UserCache.LastUpdateTime - before24HourTime) / offsetTime) * upperRate
+			ctx.UserList[i].Score = ctx.UserList[i].Score * (1.0 + addRate)
 		}
 	}
 }
