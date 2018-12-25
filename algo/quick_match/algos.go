@@ -9,6 +9,7 @@ var MatchAlgo QuickMatchTree
 var MatchAlgoV1_0 QuickMatchTreeV1_0
 var MatchAlgoV1_1 QuickMatchTreeV1_1
 var MatchAlgoV1_2 QuickMatchTreeV1_2
+var MatchAlgoV1_3 QuickMatchTreeV1_3
 // var MatchAlgosMap = map[string]IQuickMatch{}
 func init() {
 	Work_dir, _ = os.Getwd()
@@ -29,5 +30,10 @@ func init() {
 	modelFileV1_2 := Work_dir + "/algo_files/quick_match_tree_v1.2.model"
 	MatchAlgoV1_2 = QuickMatchTreeV1_2{QuickMatchBase{FilePath: modelFileV1_2}}
 	MatchAlgoV1_2.Init()
+
+	// v1.3
+	modelFileV1_3 := Work_dir + "/algo_files/quick_match_tree_v1.3.model"
+	MatchAlgoV1_3 = QuickMatchTreeV1_3{QuickMatchBase{FilePath: modelFileV1_3}}
+	MatchAlgoV1_3.Init()
 	// MatchAlgosMap[""] = &QuickMatchTree{FilePath: model_file}
 }

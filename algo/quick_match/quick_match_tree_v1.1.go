@@ -15,3 +15,11 @@ type QuickMatchTreeV1_2 struct {
 func (self *QuickMatchTreeV1_2) Name() string {
 	return "QuickMatchTreeV1_2"
 }
+
+type QuickMatchTreeV1_3 struct {
+	QuickMatchBase
+}
+
+func (self *QuickMatchTreeV1_3) Name() string {
+	return "QuickMatchTreeV1_3"
+}
