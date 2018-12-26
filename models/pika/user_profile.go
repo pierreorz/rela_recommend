@@ -131,7 +131,7 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		startMongoTime = time.Now()  // 开始读取持久化存储
 		storeUserStrs, err := factory.PikaCluster.Mget(storeKeys)
 		if err != nil {  // 读取持久化存储失败
-			log.Error(err.Error(), storeUserStrs)
+			log.Error(err.Error(), storeKeys, storeUserStrs)
 			return nil, err
 		}
 		start2RedisResTime = time.Now()  // 开始解析持久化存储结果
