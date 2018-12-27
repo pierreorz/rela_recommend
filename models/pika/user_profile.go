@@ -83,6 +83,7 @@ type UserProfile struct {
 func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, error) {
 	var cacheKeyPre = "app_user_location:"
 	var storeKeyPre = "app_user_location:"
+	var finalError error = nil
 	auls := make([]UserProfile, 0, len(userIds))
 	usersMap := map[int64]UserProfile{}
 	var startTime = time.Now()
@@ -132,33 +133,33 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		storeUserStrs, err := factory.PikaCluster.Mget(storeKeys)
 		if err != nil {  // 读取持久化存储失败
 			log.Error(err.Error(), storeKeys, storeUserStrs)
-			return nil, err
-		}
-		start2RedisResTime = time.Now()  // 开始解析持久化存储结果
-		toCacheMap := map[string]interface{}{}
-		for i, userId := range notFoundUserIds {
-			// storeKey := storeKeys[i]
-			userRes := storeUserStrs[i]
-			if userRes == nil {
-				continue
-			}
-			var user UserProfile
-			userStr := utils.GetString(userRes)
-			// userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
-			if err := json.Unmarshal(([]byte)(userStr), &user); err != nil {
-				log.Error(userId, err.Error())
-			} else {
-				usersMap[userId] = user
+		} else {
+			start2RedisResTime = time.Now()  // 开始解析持久化存储结果
+			toCacheMap := map[string]interface{}{}
+			for i, userId := range notFoundUserIds {
+				// storeKey := storeKeys[i]
+				userRes := storeUserStrs[i]
+				if userRes == nil {
+					continue
+				}
+				var user UserProfile
+				userStr := utils.GetString(userRes)
+				// userStr = strings.Replace(userStr, "+0000\"", "Z\"", -1)
+				if err := json.Unmarshal(([]byte)(userStr), &user); err != nil {
+					log.Error(userId, err.Error())
+				} else {
+					usersMap[userId] = user
 
-				cacheUserKey, _ := cacheKeysMap[userId]
-				toCacheMap[cacheUserKey] = userStr
+					cacheUserKey, _ := cacheKeysMap[userId]
+					toCacheMap[cacheUserKey] = userStr
+				}
 			}
-		}
 
-		start2RedisTime = time.Now()  // 开始将持久化结果写入缓存
-		err = factory.CacheCluster.MsetEx(toCacheMap, 24 * 60 * 60)
-		if err != nil {
-			log.Error(err.Error())
+			start2RedisTime = time.Now()  // 开始将持久化结果写入缓存
+			err = factory.CacheCluster.MsetEx(toCacheMap, 24 * 60 * 60)
+			if err != nil {
+				log.Error(err.Error())
+			}
 		}
 	}
 	for _, userId := range userIds {
@@ -176,7 +177,7 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		startRedisResTime.Sub(startRedisTime).Seconds(), startMongoTime.Sub(startRedisResTime).Seconds(),
 		start2RedisResTime.Sub(startMongoTime).Seconds(),
 		start2RedisTime.Sub(start2RedisResTime).Seconds(), startLogTime.Sub(start2RedisTime).Seconds())
-	return auls, err
+	return auls, finalError
 }
 
 func (this *UserProfileModule) QueryByUserAndUsers(userId int64, userIds []int64) (UserProfile, []UserProfile, error) {
