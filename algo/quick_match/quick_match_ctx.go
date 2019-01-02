@@ -3,6 +3,7 @@ package quick_match
 import (
 	"rela_recommend/algo"
 	"rela_recommend/models/pika"
+	"rela_recommend/service/abtest"
 )
 
 type UserInfo struct {
@@ -16,6 +17,7 @@ type UserInfo struct {
 type QuickMatchContext struct {
 	RankId string
 	Ua string
+	AbTest *abtest.AbTest
 	User *UserInfo
 	UserList []UserInfo
 }

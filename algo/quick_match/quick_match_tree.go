@@ -38,7 +38,3 @@ func (model *QuickMatchTree) Predict(ctx *QuickMatchContext) {
 type QuickMatchTreeV1_0 struct {
 	QuickMatchBase
 }
-
-func (self *QuickMatchTreeV1_0) Name() string {
-	return "QuickMatchTreeV1_0"
-}

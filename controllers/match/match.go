@@ -10,6 +10,7 @@ import (
 	"rela_recommend/models/pika"
 	"rela_recommend/routers"
 	"rela_recommend/service"
+	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
 	"sort"
 	"strings"
@@ -40,6 +41,7 @@ type MatchRecommendLog struct {
 	AlgoScore float32
 	Score float32
 	Features string
+	AbMap string
 }
 
 func MatchRecommendListHTTP(c *routers.Context) {
@@ -79,19 +81,21 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 	}
 	ctx := quick_match.QuickMatchContext{
 		RankId: rank_id, Ua: params.Ua,
+		AbTest: abtest.GetAbTest("match", params.UserId),
 		User: userInfo, UserList: usersInfo}
 	// 算法预测打分
 	var startPredictTime = time.Now()
 
-	var model quick_match.IQuickMatch = &quick_match.MatchAlgoV1_0
-	if (ctx.User.UserId % 100 < 10) {
-		model = &quick_match.MatchAlgoV1_2
-	} else if (ctx.User.UserId % 100 < 40) {
-		model = &quick_match.MatchAlgoV1_3
+	var modelName = ctx.AbTest.GetString("match_model", "QuickMatchTreeV1_0")
+	model, ok := quick_match.MatchAlgosMap[modelName]
+	if !ok {
+		log.Errorf("model not find: %s\n", modelName)
+		model = quick_match.MatchAlgoV1_0
 	}
+	
 	model.Predict(&ctx)
 	// 提升活跃用户权重
-	Active24HourUpper(&ctx)
+	ActiveUserUpper(&ctx)
 	// 结果排序
 	var startSortTime = time.Now()
 	sort.Sort(quick_match.UserInfoListSort(ctx.UserList))
@@ -110,7 +114,8 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 									Algo: model.Name(),
 									AlgoScore: currUser.AlgoScore,
 									Score: currUser.Score,
-									Features: algo.Features2String(currUser.Features)}
+									Features: algo.Features2String(currUser.Features),
+									AbMap: ctx.AbTest.GetTestings() }
 		log.Infof("%+v\n", logStr)
 	}
 	var startLogTime = time.Now()
@@ -126,9 +131,9 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 	return res
 }
 
-func Active24HourUpper(ctx *quick_match.QuickMatchContext) {
-	var upperRate float32 = 0.2
-	var offsetTime int64 = 24 * 60 * 60
+func ActiveUserUpper(ctx *quick_match.QuickMatchContext) {
+	var upperRate float32 = ctx.AbTest.GetFloat("match_active_user_upper", 0.1)
+	var offsetTime int64 = 1 * 60 * 60
 	nowTime := time.Now().Unix()
 	before24HourTime := nowTime - offsetTime
 	for i, user := range ctx.UserList {
