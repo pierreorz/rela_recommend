@@ -86,18 +86,16 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 	// 算法预测打分
 	var startPredictTime = time.Now()
 
-	var model quick_match.IQuickMatch = quick_match.MatchAlgoV1_0
 	var modelName = ctx.AbTest.GetString("match_model", "QuickMatchTreeV1_0")
-	if modelValue, ok := quick_match.MatchAlgosMap[modelName]; ok {
-		model = modelValue
-	}
-	if model == nil {
+	model, ok := quick_match.MatchAlgosMap[modelName]
+	if !ok {
 		log.Errorf("model not find: %s\n", modelName)
+		model = quick_match.MatchAlgoV1_0
 	}
 	
 	model.Predict(&ctx)
 	// 提升活跃用户权重
-	Active24HourUpper(&ctx)
+	ActiveUserUpper(&ctx)
 	// 结果排序
 	var startSortTime = time.Now()
 	sort.Sort(quick_match.UserInfoListSort(ctx.UserList))
@@ -133,9 +131,9 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 	return res
 }
 
-func Active24HourUpper(ctx *quick_match.QuickMatchContext) {
+func ActiveUserUpper(ctx *quick_match.QuickMatchContext) {
 	var upperRate float32 = ctx.AbTest.GetFloat("match_24hour_upper", 0.1)
-	var offsetTime int64 = 24 * 60 * 60
+	var offsetTime int64 = 1 * 60 * 60
 	nowTime := time.Now().Unix()
 	before24HourTime := nowTime - offsetTime
 	for i, user := range ctx.UserList {
