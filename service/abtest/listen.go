@@ -26,8 +26,8 @@ func init() {
 		]}, 
 		{"name": "testing_upper", "desc": "测试活跃加权", "app": "match", "group": "", "status": 1, "daly_change": 1,
 			"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-				{"name": "v1.0", "percentage": 20, "factor_map": {"match_24hour_upper": "0.1"}},
-				{"name": "v1.2", "percentage": 20, "factor_map": {"match_24hour_upper": "0.2"}}
+				{"name": "v1.0", "percentage": 20, "factor_map": {"match_active_user_upper": "0.1"}},
+				{"name": "v1.2", "percentage": 20, "factor_map": {"match_active_user_upper": "0.2"}}
 		]}
 	]`
 	if err := json.Unmarshal(([]byte)(ab_config), &testingList); err != nil {
