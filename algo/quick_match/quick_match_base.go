@@ -2,7 +2,7 @@ package quick_match
 
 import(
 	// "time"
-	// "rela_recommend/log"
+	"rela_recommend/log"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
 	"rela_recommend/service"
@@ -61,9 +61,11 @@ func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
 	for i := 0; i < len(ctx.UserList); i++ {
 		countChan <- 1
 		go self.goPredict(resultChan, countChan, i, ctx)
+		log.Infof("i: %d", i)
 	}
 
 	for j := 0; j < len(ctx.UserList); j++ {
+		log.Infof("j: %d", j)
 		select {
 			case result := <- resultChan:
 				ctx.UserList[result.Index].AlgoScore = result.Score
