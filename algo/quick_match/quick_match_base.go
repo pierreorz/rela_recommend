@@ -55,8 +55,7 @@ func (self *QuickMatchBase) goPredict(r chan goResult, countChan chan int, index
 }
 
 func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
-	// var beginTime = time.Now()
-	// var resultChan chan goResult = make(chan goResult)
+	// var resultChan chan goResult = make(chan goResult, len(ctx.UserList))
 	// var countChan chan int = make(chan int, 8)
 	
 	// for i := 0; i < len(ctx.UserList); i++ {
@@ -66,7 +65,6 @@ func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
 
 	// for j := 0; j < len(ctx.UserList); j++ {
 	// 	select {
-	// 		case <- time.After(10): 
 	// 		case result := <- resultChan:
 	// 			ctx.UserList[result.Index].AlgoScore = result.Score
 	// 			ctx.UserList[result.Index].Score = result.Score
