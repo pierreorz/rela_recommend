@@ -140,7 +140,8 @@ func ActiveUserUpper(ctx *quick_match.QuickMatchContext) {
 		if user.UserCache.LastUpdateTime >= before24HourTime {
 			var addRate = float32((user.UserCache.LastUpdateTime - before24HourTime) / offsetTime) * upperRate
 			ctx.UserList[i].Score = ctx.UserList[i].Score * (1.0 + addRate)
-			log.Infof("ActiveUserUpper old:%.3f new:%.3f", ctx.UserList[i].AlgoScore, ctx.UserList[i].Score)
+			log.Infof("ActiveUserUpper before:%d, last:%d, add:%.3f old:%.3f new:%.3f", 
+			before24HourTime, user.UserCache.LastUpdateTime, addRate, ctx.UserList[i].AlgoScore, ctx.UserList[i].Score)
 		}
 	}
 }

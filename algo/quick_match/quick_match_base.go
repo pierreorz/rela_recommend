@@ -50,11 +50,8 @@ func (self *QuickMatchBase) goPredict(r chan goResult, countChan chan int, index
 	features := self.Features(ctx, &ctx.UserList[index])
 	score := self.PredictSingle(features) 
 	featureList := algo.List2Features(features)
-	log.Infof("ii: %d", index)
 	r <- goResult{Index: index, Score: score, Features: featureList}
-	log.Infof("ii: %d", index)
 	<- countChan
-	log.Infof("ii: %d", index)
 }
 
 func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
@@ -64,11 +61,9 @@ func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
 	for i := 0; i < len(ctx.UserList); i++ {
 		countChan <- 1
 		go self.goPredict(resultChan, countChan, i, ctx)
-		log.Infof("i: %d", i)
 	}
 
 	for j := 0; j < len(ctx.UserList); j++ {
-		log.Infof("j: %d", j)
 		select {
 			case result := <- resultChan:
 				ctx.UserList[result.Index].AlgoScore = result.Score
