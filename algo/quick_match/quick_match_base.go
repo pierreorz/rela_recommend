@@ -58,7 +58,7 @@ func (self *QuickMatchBase) goPredict(r chan goResult, countChan chan int, index
 }
 
 func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
-	var resultChan chan goResult = make(chan goResult)
+	var resultChan chan goResult = make(chan goResult, len(ctx.UserList))
 	var countChan chan int = make(chan int, 8)
 	
 	for i := 0; i < len(ctx.UserList); i++ {
