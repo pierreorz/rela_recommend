@@ -52,6 +52,7 @@ func (self *QuickMatchBase) goPredict(r chan goResult, countChan chan int, index
 	featureList := algo.List2Features(features)
 	r <- goResult{Index: index, Score: score, Features: featureList}
 	<- countChan
+	log.Infof("ii: %d", index)
 }
 
 func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
