@@ -55,27 +55,27 @@ func (self *QuickMatchBase) goPredict(r chan goResult, countChan chan int, index
 }
 
 func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
-	var resultChan chan goResult = make(chan goResult, len(ctx.UserList))
-	var countChan chan int = make(chan int, 8)
-	
-	for i := 0; i < len(ctx.UserList); i++ {
-		countChan <- 1
-		go self.goPredict(resultChan, countChan, i, ctx)
-	}
-
-	for j := 0; j < len(ctx.UserList); j++ {
-		select {
-			case result := <- resultChan:
-				ctx.UserList[result.Index].AlgoScore = result.Score
-				ctx.UserList[result.Index].Score = result.Score
-				ctx.UserList[result.Index].Features = result.Features
-			}
-	}
+	// var resultChan chan goResult = make(chan goResult, len(ctx.UserList))
+	// var countChan chan int = make(chan int, 8)
 	
 	// for i := 0; i < len(ctx.UserList); i++ {
-	// 	features := self.Features(ctx, &ctx.UserList[i])
-	// 	ctx.UserList[i].AlgoScore = self.PredictSingle(features)
-	// 	ctx.UserList[i].Score = ctx.UserList[i].AlgoScore
-	// 	ctx.UserList[i].Features = algo.List2Features(features)
+	// 	countChan <- 1
+	// 	go self.goPredict(resultChan, countChan, i, ctx)
 	// }
+
+	// for j := 0; j < len(ctx.UserList); j++ {
+	// 	select {
+	// 		case result := <- resultChan:
+	// 			ctx.UserList[result.Index].AlgoScore = result.Score
+	// 			ctx.UserList[result.Index].Score = result.Score
+	// 			ctx.UserList[result.Index].Features = result.Features
+	// 		}
+	// }
+	
+	for i := 0; i < len(ctx.UserList); i++ {
+		features := self.Features(ctx, &ctx.UserList[i])
+		ctx.UserList[i].AlgoScore = self.PredictSingle(features)
+		ctx.UserList[i].Score = ctx.UserList[i].AlgoScore
+		ctx.UserList[i].Features = algo.List2Features(features)
+	}
 }

@@ -133,15 +133,15 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 
 func ActiveUserUpper(ctx *quick_match.QuickMatchContext) {
 	var upperRate float32 = ctx.AbTest.GetFloat("match_active_user_upper", 0.1)
-	var offsetTime int64 = 30 * 60
+	var offsetTime int64 = 1 * 60 * 60
 	nowTime := time.Now().Unix()
 	before24HourTime := nowTime - offsetTime
 	for i, user := range ctx.UserList {
 		if user.UserCache.LastUpdateTime >= before24HourTime {
 			var addRate = float32(user.UserCache.LastUpdateTime - before24HourTime) / float32(offsetTime) * upperRate
 			ctx.UserList[i].Score = ctx.UserList[i].Score * (1.0 + addRate)
-			log.Infof("ActiveUserUpper before:%d, last:%d, add:%.3f old:%.3f new:%.3f", 
-			before24HourTime, user.UserCache.LastUpdateTime, addRate, ctx.UserList[i].AlgoScore, ctx.UserList[i].Score)
+			// log.Infof("ActiveUserUpper before:%d, last:%d, add:%.3f old:%.3f new:%.3f", 
+			// before24HourTime, user.UserCache.LastUpdateTime, addRate, ctx.UserList[i].AlgoScore, ctx.UserList[i].Score)
 		}
 	}
 }
