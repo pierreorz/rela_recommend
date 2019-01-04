@@ -2,7 +2,7 @@ package quick_match
 
 import(
 	// "time"
-	"rela_recommend/log"
+	// "rela_recommend/log"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
 	"rela_recommend/service"
