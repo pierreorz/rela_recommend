@@ -2,7 +2,7 @@ package quick_match
 
 import(
 	// "time"
-	"rela_recommend/log"
+	// "rela_recommend/log"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
 	"rela_recommend/service"
@@ -74,7 +74,6 @@ func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
 	
 	for i := 0; i < len(ctx.UserList); i++ {
 		features := self.Features(ctx, &ctx.UserList[i])
-		log.Infof("features len: %d", len(features))
 		ctx.UserList[i].AlgoScore = self.PredictSingle(features)
 		ctx.UserList[i].Score = ctx.UserList[i].AlgoScore
 		ctx.UserList[i].Features = algo.List2Features(features)

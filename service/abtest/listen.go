@@ -11,7 +11,7 @@ var whiteList []WhiteName = make([]WhiteName, 0)
 func init() {
 	// 因子默认值
 	default_config := `{
-		"match": {"match_model": "QuickMatchTreeV1_3", "default_key": "test"}
+		"match": {"match_model": "QuickMatchTreeV1_0", "default_key": "test"}
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
 		log.Error(err.Error())
