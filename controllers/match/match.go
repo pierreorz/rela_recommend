@@ -88,6 +88,7 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 
 	var modelName = ctx.AbTest.GetString("match_model", "QuickMatchTreeV1_0")
 	model, ok := quick_match.MatchAlgosMap[modelName]
+	// log.Infof("%s,%s,%s,%s", modelName, model, ok, ctx.AbTest.FactorMap)
 	if !ok {
 		log.Errorf("model not find: %s\n", modelName)
 		model = quick_match.MatchAlgoV1_0
