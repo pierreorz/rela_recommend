@@ -35,7 +35,7 @@ func init() {
 	}
 	// 白名单
 	white_config := `[
-		{"name": "test_test", "desc": "测试", "app": "match", "ids":[1,2,3],"factor_map":{"white_test":"1"}}
+		{"name": "test_test", "desc": "测试", "app": "match", "ids":[1,2,3],"factor_map":{"white_test":"1"}},
 		{"name": "match_model", "desc": "匹配模型", "app": "match", "ids":[104708381],"factor_map":{"match_model":"QuickMatchTreeV1_3"}}
 	]`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteList); err != nil {
