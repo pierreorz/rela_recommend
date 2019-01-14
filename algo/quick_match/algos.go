@@ -20,6 +20,8 @@ func init() {
 										   AlgoName: "QuickMatchTreeV1_2"}},
 		&QuickMatchTreeV1_0{QuickMatchBase{FilePath: Work_dir + "/quick_match_tree_v1.3.model", 
 										   AlgoName: "QuickMatchTreeV1_3"}},
+		&QuickMatchTreeV1_0{QuickMatchBase{FilePath: Work_dir + "/quick_match_tree_v1.4.model", 
+										   AlgoName: "QuickMatchTreeV1_4"}},
 		MatchAlgoV1_0}
 
 	for index, _ := range modelList {
