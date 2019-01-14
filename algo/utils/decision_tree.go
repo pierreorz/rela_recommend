@@ -67,7 +67,7 @@ func (tree *DecisionTree) PredictSingle(features []float32) float32 {
 				node = node.Right
 			}
 		}
-		return node.Value[1] / node.Sample
+		return node.Value[1] / (node.Value[0] + node.Value[1])
 	}
 	return 0.0
 }
