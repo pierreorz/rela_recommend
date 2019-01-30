@@ -7,7 +7,21 @@ import (
 	"reflect"
 	"bytes"
 )
-// 特征
+
+//********************************* 服务端日志
+type RecommendLog struct {
+	RankId string  
+	Index int64
+	UserId int64
+	DataId int64
+	Algo string
+	AlgoScore float32
+	Score float32
+	Features string
+	AbMap string
+}
+
+//********************************* 特征
 type Feature struct {
 	Index int
 	Value float32
@@ -17,7 +31,7 @@ func (feature *Feature) ToString() string {
 	return fmt.Sprintf("%d:%g", feature.Index, feature.Value)
 }
 
-// 特征列表
+//********************************* 特征列表
 type Features struct {
 	Features []Feature
 }
