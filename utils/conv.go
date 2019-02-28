@@ -16,6 +16,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 	"strconv"
 )
 
@@ -58,6 +59,12 @@ func GetInt(v interface{}) int {
 		return int(result)
 	case int64:
 		return int(result)
+	case bool:
+		if bool(result) {
+			return 1
+		} else {
+			return 0
+		}
 	case float32:
 		return int(result)
 	case float64:
@@ -119,4 +126,36 @@ func GetBool(v interface{}) bool {
 		}
 	}
 	return false
+}
+
+func GetInts(v interface{}) []int {
+	if v != nil {
+		switch result := v.(type) {
+			case []int:
+				return result
+			case string:
+				var ids = make([]int, 0)
+				for _, uid := range strings.Split(GetString(v), ",") {
+					ids = append(ids, GetInt(uid))
+				}
+				return ids
+		}
+	}
+	return make([]int, 0)
+}
+
+func GetInt64s(v interface{}) []int64 {
+	if v != nil {
+		switch result := v.(type) {
+			case []int64:
+				return result
+			case string:
+				var ids = make([]int64, 0)
+				for _, uid := range strings.Split(GetString(v), ",") {
+					ids = append(ids, GetInt64(uid))
+				}
+				return ids
+		}
+	}
+	return make([]int64, 0)
 }

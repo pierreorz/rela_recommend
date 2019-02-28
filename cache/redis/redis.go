@@ -67,6 +67,16 @@ func (rc *Cache) Mget(keys []string) ([]interface{}, error) {
 	return rv, err
 }
 
+func (rc *Cache) LRange(key string, start int, end int) ([]string, error) {
+	rv, err := redis.Strings(rc.do("LRANGE", key, start, end))
+	return rv, err
+}
+
+func (rc *Cache) SMembers(key string, start int, end int) ([]interface{}, error) {
+	rv, err := redis.Values(rc.do("SMEMBERS", key, start, end))
+	return rv, err
+}
+
 // GetMulti get cache from redis.
 func (rc *Cache) MultiGet(keys []string) []interface{} {
 	size := len(keys)

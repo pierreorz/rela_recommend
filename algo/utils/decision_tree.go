@@ -72,6 +72,10 @@ func (tree *DecisionTree) PredictSingle(features []float32) float32 {
 	return 0.0
 }
 
+func (tree *DecisionTree) PredictSingleBySparse(features map[int]float32) float32 {
+	return -1
+}
+
 
 func main() {
 	work_dir, _ := os.Getwd()
