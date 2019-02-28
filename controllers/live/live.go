@@ -118,7 +118,7 @@ func DoRecommend(params *LiveRecommendRequest) LiveRecommendResponse {
 	model.Predict(ctx)
 	// 结果排序
 	var startSortTime = time.Now()
-	sort.Sort(live.LiveInfoListSorter{ctx.LiveList, ctx})
+	sort.Sort(live.LiveInfoListSorter{List: ctx.LiveList, Context: ctx})
 
 	// 分页结果
 	var startPageTime = time.Now()
