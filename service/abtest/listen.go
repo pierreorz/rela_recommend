@@ -34,8 +34,8 @@ func init() {
 		"live": [
 			{"name": "testing_model", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daly_change": 0,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-					{"name": "v1.0", "percentage": 50, "factor_map": {"live_model": "LiveModelV1_0", "return_old": "1"}},
-					{"name": "v1.1", "percentage": 50, "factor_map": {"live_model": "LiveModelV1_0", "return_old": "0"}}
+					{"name": "v1.0", "percentage": 50, "factor_map": {"live_model": "LiveModelV1_0"}},
+					{"name": "v1.1", "percentage": 50, "factor_map": {"live_model": "LiveModelV1_0"}}
 			]} ]
 	}`
 	if err := json.Unmarshal(([]byte)(ab_config), &testingMap); err != nil {
