@@ -13,6 +13,7 @@ import (
 	"syscall"
 
 	// "fmt"
+	// "time"
 	// "rela_recommend/algo/live"
 	// "rela_recommend/algo/utils"
 )
@@ -33,12 +34,17 @@ func main() {
 	// 	map[int]float32{1:20.000000,2:174.000000,3:62.000000,501:101.000000,502:140.000000,503:41.000000,504:898.000000,505:526.000000,509:93.000000,10195:1.000000,10140:1.000000,10018:1.000000,10024:1.000000,10104:1.000000,10122:1.000000,10130:1.000000,10159:1.000000,10161:1.000000,10177:1.000000,10187:1.000000,10206:1.000000,10211:1.000000,10221:1.000000 }}
 
 	// model, _ := live.LiveAlgosMap["LiveModelV1_0"]
-	// for i, _ := range features {
-	// 	ft := &utils.Features{}
-	// 	ft.FromMap(features[i])
-	// 	score := model.PredictSingle(ft)
-	// 	fmt.Printf("%d: %f\n", i, score)
+	// startTime := time.Now()
+	// for j := 0; j < 10000; j++ {
+	// 	for i, _ := range features {
+	// 		ft := &utils.Features{}
+	// 		ft.FromMap(features[i])
+	// 		model.PredictSingle(ft)
+	// 		// fmt.Printf("%d: %f\n", i, score)
+	// 	}
 	// }
+	// endTime := time.Now()
+	// fmt.Printf("%d: %f\n", 0, endTime.Sub(startTime).Seconds())
 	// return
 
 	var err error
