@@ -1,6 +1,7 @@
 package live
 
 import (
+	"fmt"
 	"math"
 	"time"
 	"rela_recommend/algo"
@@ -102,7 +103,7 @@ func DoRecommend(params *LiveRecommendRequest) LiveRecommendResponse {
 	var startCtxTime = time.Now()
 	ctx, err := BuildContext(params)
 	if err != nil || ctx == nil || ctx.LiveList == nil || ctx.User == nil {
-		return LiveRecommendResponse{Status: "error", Message: "not list or user"}
+		return LiveRecommendResponse{Status: "error", Message: fmt.Sprintf("not list or user; %s", err)}
 	}
 
 	dataLen := len(ctx.LiveList)

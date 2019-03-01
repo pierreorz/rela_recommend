@@ -3,13 +3,15 @@ package pika
 import (
 	"encoding/json"
 	"rela_recommend/log"
+	"rela_recommend/utils"
 	"rela_recommend/cache"
 )
 
 type LiveProfile struct {
 	LiveId         		int64		`json:"id"`         // 用户ID
 	LiveTypeId     		int 		`json:"liveTypeId"`            
-	UserId				int64		`json:"userId"`
+	UserIdStr			string		`json:"userId"`
+	UserId				int64		`json:"-"`
 	Text				string		`json:"text"`
 	CreateTime			JsonTime	`json:"createTime"`
 	UpdateTime			JsonTime	`json:"updateTime"`
@@ -53,6 +55,7 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 
 	list_key := "hotlives_with_recommend_v2"
 	live_strs, err := self.cacheLive.LRange(list_key, 0, -1)
+	log.Info(live_strs)
 	lives := make([]LiveCache, 0)
 	for i := 0; i < len(live_strs); i++ {
 		live_str := live_strs[i]
@@ -61,6 +64,7 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 			if err := json.Unmarshal(([]byte)(live_str), &live); err != nil {
 				log.Error(err.Error(), live_str)
 			} else if live.Live.UserId > 0	{
+				live.Live.UserId = utils.GetInt64(live.Live.UserIdStr)
 				if len(live_ids_map) == 0 {
 					lives = append(lives, live)
 				} else if _, ok := live_ids_map[live.Live.UserId]; ok {
