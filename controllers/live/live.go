@@ -28,10 +28,10 @@ type LiveRecommendRequest struct {
 }
 
 type LiveRecommendResponse struct {
-	Status  string
-	Message string
-	RankId	string
-	LiveIds []int64
+	Status  string		`json:"status" form:"status"`
+	Message string		`json:"message" form:"message"`
+	RankId	string		`json:"rankId" form:"rankId"`
+	LiveIds []int64		`json:"liveIds" form:"liveIds"`
 }
 
 func LiveRecommendListHTTP(c *routers.Context) {

@@ -47,7 +47,9 @@ func init() {
 			{"name": "test_test", "desc": "测试", "app": "match", "ids":[1,2,3],"factor_map":{"white_test":"1"}},
 			{"name": "match_model", "desc": "匹配模型", "app": "match", "ids":[104708381],"factor_map":{"match_model":"QuickMatchTreeV1_4"}}
 		],
-		"live": []
+		"live": [
+			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381],"factor_map":{"match_model":"QuickMatchTreeV1_4", "return_old": "0"}}
+		]
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {
 		log.Error(err.Error())
