@@ -57,7 +57,9 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 	live_ids_map := make(map[int64]int)
 	if liveIds != nil && len(liveIds) > 0 {
 		for _, liveId := range liveIds {
-			live_ids_map[liveId] = 1
+			if liveId > 0 {
+				live_ids_map[liveId] = 1
+			}
 		}
 	}
 
@@ -84,7 +86,7 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 			}
 		}
 	}
-	log.Infof("%d, %d \n", len(live_ids_map), len(lives))
+	log.Infof("%d, %d , %+v\n", len(live_ids_map), len(lives), live_ids_map)
 	return lives, err
 }
 
