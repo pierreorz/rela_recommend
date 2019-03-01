@@ -140,6 +140,10 @@ func DoRecommend(params *LiveRecommendRequest) LiveRecommendResponse {
 									AbMap: ctx.AbTest.GetTestings() }
 		log.Infof("%+v\n", logStr)
 	}
+	// 按照原来的值进行返回
+	if ctx.AbTest.GetBool("return_old", false) {
+		returnIds = params.LiveIds
+	}
 	var startLogTime = time.Now()
 	log.Infof("paramuser %d,user %d,paramlen %d,len %d,return %d,max %g,min %g;total:%.3f,init:%.3f,cache:%.3f,ctx:%.3f,predict:%.3f,sort:%.3f,page:%.3f\n",
 			  params.UserId, ctx.User.UserId, len(params.LiveIds), dataLen, len(returnIds),
@@ -148,10 +152,6 @@ func DoRecommend(params *LiveRecommendRequest) LiveRecommendResponse {
 			  startCtxTime.Sub(startCacheTime).Seconds(), startPredictTime.Sub(startCtxTime).Seconds(),
 			  startSortTime.Sub(startPredictTime).Seconds(), startPageTime.Sub(startSortTime).Seconds(),
 			  startLogTime.Sub(startPageTime).Seconds())
-	// 按照原来的值进行返回
-	if ctx.AbTest.GetBool("return_old", false) {
-		returnIds = params.LiveIds
-	}
 	// 返回
 	res := LiveRecommendResponse{RankId: ctx.RankId, LiveIds: returnIds, Status: "ok"}
 	return res
