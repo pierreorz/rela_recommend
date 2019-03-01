@@ -124,11 +124,11 @@ func DoRecommend(params *LiveRecommendRequest) LiveRecommendResponse {
 	// 分页结果
 	var startPageTime = time.Now()
 	maxIndex := int64(math.Min(float64(dataLen), float64(params.Offset + params.Limit)))
-	returnIds := make([]int64, maxIndex - params.Offset)
+	returnIds := make([]int64, 0)
 	for i := params.Offset; i < maxIndex; i++ {
 		j := i // - params.Offset
 		currData := ctx.LiveList[i]
-		returnIds[j] = currData.UserId
+		returnIds = append(returnIds, currData.UserId)
 		// 记录日志
 		logStr := algo.RecommendLog{RankId: ctx.RankId, Index: j,
 									UserId: ctx.User.UserId,
