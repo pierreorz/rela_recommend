@@ -95,7 +95,7 @@ func (self *AbTest) updateWhite(white WhiteName) {
 	}
 }
 // 初始化内容
-func (self *AbTest) Init(defMap map[string]map[string]string, testList []Testing, whiteList []WhiteName) {
+func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[string][]Testing, whiteListMap map[string][]WhiteName) {
 	self.CurrentTime = time.Now()
 	self.FactorMap = map[string]string{}
 	self.HitTestingMap = map[string]TestingVersion{}
@@ -105,15 +105,19 @@ func (self *AbTest) Init(defMap map[string]map[string]string, testList []Testing
 		self.update(defVal)
 	}
 	// 选择测试组
-	for _, test := range testList {
-		if test.App == self.App && test.Status == 1 && test.BeginTime.Before(self.CurrentTime) && test.EndTime.After(self.CurrentTime) {
-			self.updateTesting(test)
+	if testList, ok := testingMap[self.App]; ok {
+		for _, test := range testList {
+			if test.App == self.App && test.Status == 1 && test.BeginTime.Before(self.CurrentTime) && test.EndTime.After(self.CurrentTime) {
+				self.updateTesting(test)
+			}
 		}
 	}
 	// 增加白名单
-	for _, white := range whiteList {
-		if white.App == self.App {
-			self.updateWhite(white)
+	if whiteList, ok := whiteListMap[self.App]; ok {
+		for _, white := range whiteList {
+			if white.App == self.App {
+				self.updateWhite(white)
+			}
 		}
 	}
 }
@@ -121,6 +125,13 @@ func (self *AbTest) Init(defMap map[string]map[string]string, testList []Testing
 func (self *AbTest) GetString(key string, defVal string) string {
 	if val, ok := self.FactorMap[key]; ok {
 		return val
+	}
+	return defVal
+}
+func (self *AbTest) GetBool(key string, defVal bool) bool {
+	if val, ok := self.FactorMap[key]; ok {
+		val = strings.ToLower(val)
+		return val != "0" && val != "f" && val != "false" && val != "no"
 	}
 	return defVal
 }
@@ -178,6 +189,6 @@ func (self *AbTest) IsSwitchOn(key string, defVal bool) bool {
 
 func GetAbTest(app string, dataId int64) *AbTest {
 	abtest := AbTest{App: app, DataId: dataId}
-	abtest.Init(defaultFactorMap, testingList, whiteList)
+	abtest.Init(defaultFactorMap, testingMap, whiteListMap)
 	return &abtest
 }

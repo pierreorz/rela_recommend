@@ -74,8 +74,6 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 				log.Error(err.Error(), string(live_byte))
 			} else {
 				live.CheckDataType()
-
-				log.Infof("%+v \n", live)
 				if live.Live.UserId > 0	{
 					if len(live_ids_map) == 0 {
 						lives = append(lives, live)
@@ -86,7 +84,6 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 			}
 		}
 	}
-	log.Infof("%d, %d , %+v\n", len(live_ids_map), len(lives), live_ids_map)
 	return lives, err
 }
 
