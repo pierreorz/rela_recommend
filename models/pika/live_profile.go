@@ -63,7 +63,6 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 
 	list_key := "hotlives_with_recommend_v2"
 	live_strs, err := self.cacheLive.LRange(list_key, 0, -1)
-	log.Info(live_strs)
 	lives := make([]LiveCache, 0)
 	for i := 0; i < len(live_strs); i++ {
 		live_str := live_strs[i]
@@ -71,12 +70,14 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 			live := LiveCache{}
 			if err := json.Unmarshal(([]byte)(live_str), &live); err != nil {
 				log.Error(err.Error(), live_str)
-			} else if live.Live.UserId > 0	{
+			} else {
 				live.CheckDataType()
-				if len(live_ids_map) == 0 {
-					lives = append(lives, live)
-				} else if _, ok := live_ids_map[live.Live.UserId]; ok {
-					lives = append(lives, live)
+				if live.Live.UserId > 0	{
+					if len(live_ids_map) == 0 {
+						lives = append(lives, live)
+					} else if _, ok := live_ids_map[live.Live.UserId]; ok {
+						lives = append(lives, live)
+					}
 				}
 			}
 		}
