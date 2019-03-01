@@ -206,7 +206,7 @@ func (this *UserProfileModule) QueryByUserAndUsers(userId int64, userIds []int64
 // 查询我关注的人的列表, 依赖缓存
 func (this *UserProfileModule) QueryConcernsByUser(userId int64) ([]int64, error) {
 	key := fmt.Sprintf("user_concern:%d", userId)
-	idstrs, err := factory.CacheRds.SMembers(key, 0, -1)
+	idstrs, err := factory.CacheRds.SMembers(key)
 	userIds := make([]int64, 0)
 	for _, idstr := range idstrs {
 		id, err := redis.Int64(idstr, err)

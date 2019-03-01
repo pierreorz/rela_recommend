@@ -59,8 +59,8 @@ func (rc *Cache) LRange(key string, start int, end int) ([]string, error) {
 	return rv, err
 }
 
-func (rc *Cache) SMembers(key string, start int, end int) ([]interface{}, error) {
-	rv, err := redis.Values(rc.do("SMEMBERS", key, start, end))
+func (rc *Cache) SMembers(key string) ([]interface{}, error) {
+	rv, err := redis.Values(rc.do("SMEMBERS", key))
 	return rv, err
 }
 
