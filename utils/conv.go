@@ -152,7 +152,9 @@ func GetInt64s(v interface{}) []int64 {
 			case string:
 				var ids = make([]int64, 0)
 				for _, uid := range strings.Split(GetString(v), ",") {
-					ids = append(ids, GetInt64(uid))
+					if len(uid) > 0 {
+						ids = append(ids, GetInt64(uid))
+					}
 				}
 				return ids
 		}
