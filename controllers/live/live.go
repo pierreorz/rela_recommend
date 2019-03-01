@@ -62,7 +62,6 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 	for i, _ := range lives {
 		liveIds[i] = lives[i].Live.UserId
 	}
-	log.Infof("%+v \n", lives)
 	user, users, err := userCache.QueryByUserAndUsers(params.UserId, liveIds)
 	if err != nil {
 		log.Errorf("QueryByUserAndUsers err: %s\n", err)
