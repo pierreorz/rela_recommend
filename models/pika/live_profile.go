@@ -84,6 +84,7 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 			}
 		}
 	}
+	log.Infof("%d, %d \n", len(live_ids_map), len(lives))
 	return lives, err
 }
 
