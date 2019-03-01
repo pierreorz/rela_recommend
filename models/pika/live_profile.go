@@ -22,7 +22,8 @@ type LiveProfile struct {
 	Lat					float32		`json:"lat"`
 	Lng					float32		`json:"lng"`
 	City				string		`json:"city"`
-	GemProfit			float32		`json:"gemProfit"`
+	GemProfitStr		string		`json:"gemProfit"`
+	GemProfit			float32		`json:"-"`
 	SendMsgCount		int			`json:"sendMsgCount"`
 	ReceivedMsgCount 	int			`json:"receivedMsgCount"`
 	ShareCount			int			`json:"shareCount"`
@@ -32,11 +33,18 @@ type LiveProfile struct {
 
 type LiveCache struct {
 	Live 				LiveProfile	`json:"live"`
-	Score				float32		`json:"score"`
+	ScoreStr			string		`json:"score"`
+	Score				float32		`json:"-"`
 	FansCount			int			`json:"fansCount"`
 	Priority			float32		`json:"priority"`
 	DayIncoming			float32		`json:"dayIncoming"`
 	MonthIncoming		float32		`json:"monthIncoming"`
+}
+
+func (self *LiveCache) CheckDataType() {
+	self.Score = float32(utils.GetFloat64(self.ScoreStr))
+	self.Live.UserId = utils.GetInt64(self.Live.UserIdStr)
+	self.Live.GemProfit = float32(utils.GetFloat64(self.Live.GemProfitStr))
 }
 
 
@@ -64,7 +72,7 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 			if err := json.Unmarshal(([]byte)(live_str), &live); err != nil {
 				log.Error(err.Error(), live_str)
 			} else if live.Live.UserId > 0	{
-				live.Live.UserId = utils.GetInt64(live.Live.UserIdStr)
+				live.CheckDataType()
 				if len(live_ids_map) == 0 {
 					lives = append(lives, live)
 				} else if _, ok := live_ids_map[live.Live.UserId]; ok {
