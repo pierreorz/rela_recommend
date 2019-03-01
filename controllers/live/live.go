@@ -55,21 +55,22 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 
 	lives, err := liveCache.QueryByLiveIds(params.LiveIds)
 	if err != nil {
-		log.Errorf("QueryByLiveIds err: %s", err)
+		log.Errorf("QueryByLiveIds err: %s\n", err)
 		return nil, err
 	}
 	liveIds := make([]int64, len(lives))
 	for i, _ := range lives {
 		liveIds[i] = lives[i].Live.UserId
 	}
+	log.Infof("%+v \n", lives)
 	user, users, err := userCache.QueryByUserAndUsers(params.UserId, liveIds)
 	if err != nil {
-		log.Errorf("QueryByUserAndUsers err: %s", err)
+		log.Errorf("QueryByUserAndUsers err: %s\n", err)
 		return nil, err
 	}
 	concerns, err := userCache.QueryConcernsByUser(params.UserId)
 	if err != nil {
-		log.Warnf("QueryConcernsByUser err: %s", err)
+		log.Warnf("QueryConcernsByUser err: %s\n", err)
 	}
 
 	usersMap := make(map[int64]pika.UserProfile)

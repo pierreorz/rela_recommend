@@ -67,8 +67,8 @@ func (rc *Cache) Mget(keys []string) ([]interface{}, error) {
 	return rv, err
 }
 
-func (rc *Cache) LRange(key string, start int, end int) ([]string, error) {
-	rv, err := redis.Strings(rc.do("LRANGE", key, start, end))
+func (rc *Cache) LRange(key string, start int, end int) ([][]byte, error) {
+	rv, err := redis.ByteSlices(rc.do("LRANGE", key, start, end))
 	return rv, err
 }
 
