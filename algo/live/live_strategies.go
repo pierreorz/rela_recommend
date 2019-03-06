@@ -48,5 +48,5 @@ func (self *LiveOldStrategy) DoSingle(ctx *LiveAlgoContext, live *LiveInfo) {
 	score += self.scoreFx(float32(live.LiveCache.FansCount)) * 0.10
 	score += self.scoreFx(float32(live.LiveCache.Live.ShareCount)) * 0.10
 
-	live.RankInfo.Score = live.RankInfo.Score * 0.5 + score * 0.5
+	live.RankInfo.Score = live.RankInfo.Score * 0.4 + score * 0.6
 }
