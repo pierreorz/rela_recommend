@@ -32,10 +32,10 @@ func init() {
 					{"name": "v1.2", "percentage": 10, "factor_map": {"match_active_user_upper": "0.2"}}
 			]} ],
 		"live": [
-			{"name": "testing_model", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daly_change": 0,
+			{"name": "testing_old", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daly_change": 0,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-					{"name": "v1.0", "percentage": 50, "factor_map": {"live_model": "LiveModelV1_0"}},
-					{"name": "v1.1", "percentage": 50, "factor_map": {"live_model": "LiveModelV1_0"}}
+					{"name": "v1.0", "percentage": 50, "factor_map": {"new_score": "0.3"}},
+					{"name": "v1.1", "percentage": 50, "factor_map": {"new_score": "0.4"}}
 			]} ]
 	}`
 	if err := json.Unmarshal(([]byte)(ab_config), &testingMap); err != nil {
