@@ -8,6 +8,13 @@ import(
 	"rela_recommend/service/abtest"
 )
 
+type RankInfo struct {
+	IsTop		int 		// 1: 置顶， 0: 默认， -1:置底
+	Level		int			// 推荐等级
+	AlgoScore 	float32		// 算法得分
+	Score 		float32		// 最终得分
+}
+
 // 用户信息
 type UserInfo struct {
 	UserId int64
@@ -17,12 +24,11 @@ type UserInfo struct {
 
 // 主播信息
 type LiveInfo struct {
-	UserId int64
-	UserCache *pika.UserProfile
-	LiveCache *pika.LiveCache
-	AlgoScore float32
-	Score float32
-	Features *utils.Features
+	UserId 		int64
+	UserCache 	*pika.UserProfile
+	LiveCache 	*pika.LiveCache
+	RankInfo	*RankInfo
+	Features 	*utils.Features
 }
 
 // 直播推荐算法上下文
@@ -69,8 +75,8 @@ func (self *LiveAlgoBase) Predict(ctx *LiveAlgoContext) {
 	for i := 0; i < len(ctx.LiveList); i++ {
 		features := self.Features(ctx, &ctx.LiveList[i])
 		ctx.LiveList[i].Features = features
-		ctx.LiveList[i].AlgoScore = self.PredictSingle(features)
-		ctx.LiveList[i].Score = ctx.LiveList[i].AlgoScore
+		ctx.LiveList[i].RankInfo.AlgoScore = self.PredictSingle(features)
+		ctx.LiveList[i].RankInfo.Score = ctx.LiveList[i].RankInfo.AlgoScore
 	}
 }
 

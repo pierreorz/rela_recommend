@@ -13,7 +13,6 @@ import (
 	"rela_recommend/service/abtest"
 	"rela_recommend/models/pika"
 	"rela_recommend/utils"
-	"sort"
 	"rela_recommend/utils/response"
 	"rela_recommend/utils/request"
 )
@@ -80,7 +79,11 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 	livesInfo := make([]live.LiveInfo, 0)
 	for i, _ := range lives {
 		if liveUser, ok := usersMap[lives[i].Live.UserId]; ok {
-			liveInfo := live.LiveInfo{ UserId: lives[i].Live.UserId, LiveCache: &lives[i], UserCache: &liveUser }
+			liveInfo := live.LiveInfo{ 
+				UserId: lives[i].Live.UserId, 
+				LiveCache: &lives[i], 
+				UserCache: &liveUser, 
+				RankInfo: &live.RankInfo{} }
 			livesInfo = append(livesInfo, liveInfo)
 		}
 	}
@@ -119,7 +122,9 @@ func DoRecommend(params *LiveRecommendRequest) LiveRecommendResponse {
 	model.Predict(ctx)
 	// 结果排序
 	var startSortTime = time.Now()
-	sort.Sort(live.LiveInfoListSorter{List: ctx.LiveList, Context: ctx})
+	sorter := &live.LiveInfoListSorter{List: ctx.LiveList, Context: ctx}
+	sorter.DoStrategies()
+	sorter.Sort()
 
 	// 分页结果
 	var startPageTime = time.Now()
@@ -134,20 +139,16 @@ func DoRecommend(params *LiveRecommendRequest) LiveRecommendResponse {
 									UserId: ctx.User.UserId,
 									DataId: currData.UserId,
 									Algo: model.Name(),
-									AlgoScore: currData.AlgoScore,
-									Score: currData.Score,
+									AlgoScore: currData.RankInfo.AlgoScore,
+									Score: currData.RankInfo.Score,
 									Features: currData.Features.ToString(),
 									AbMap: ctx.AbTest.GetTestings() }
 		log.Infof("%+v\n", logStr)
 	}
-	// 按照原来的值进行返回
-	if ctx.AbTest.GetBool("return_old", false) {
-		returnIds = params.LiveIds
-	}
 	var startLogTime = time.Now()
 	log.Infof("paramuser %d,user %d,paramlen %d,len %d,return %d,max %g,min %g;total:%.3f,init:%.3f,cache:%.3f,ctx:%.3f,predict:%.3f,sort:%.3f,page:%.3f\n",
 			  params.UserId, ctx.User.UserId, len(params.LiveIds), dataLen, len(returnIds),
-			  ctx.LiveList[0].Score, ctx.LiveList[dataLen-1].Score,
+			  ctx.LiveList[0].RankInfo.Score, ctx.LiveList[dataLen-1].RankInfo.Score,
 			  startLogTime.Sub(startTime).Seconds(), startCacheTime.Sub(startTime).Seconds(),
 			  startCtxTime.Sub(startCacheTime).Seconds(), startPredictTime.Sub(startCtxTime).Seconds(),
 			  startSortTime.Sub(startPredictTime).Seconds(), startPageTime.Sub(startSortTime).Seconds(),

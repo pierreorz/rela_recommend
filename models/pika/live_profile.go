@@ -37,6 +37,11 @@ type LiveCache struct {
 	Score				float32		`json:"-"`
 	FansCount			int			`json:"fansCount"`
 	Priority			float32		`json:"priority"`
+	Recommand			int			`json:"recommand"`
+	RecommandLevel		int			`json:"recommandLevel"`
+	StarsCount			int			`json:"starsCount"`
+	TopCount			int			`json:"topCount"`		// 是否置顶
+	BottomScore			int			`json:"bottomScore"`
 	DayIncoming			float32		`json:"dayIncoming"`
 	MonthIncoming		float32		`json:"monthIncoming"`
 }
