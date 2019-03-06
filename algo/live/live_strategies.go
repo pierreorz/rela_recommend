@@ -2,19 +2,16 @@ package live
 
 type LiveStrategy interface {
 	Do(ctx *LiveAlgoContext, list []LiveInfo)
-	DoSingle(ctx *LiveAlgoContext, live *LiveInfo)
+	// DoSingle(ctx *LiveAlgoContext, live *LiveInfo)
 }
 
 type LiveStrategyBase struct {}
-func (self *LiveStrategyBase) DoSingle(ctx *LiveAlgoContext, live *LiveInfo) {}
-func (self *LiveStrategyBase) Do(ctx *LiveAlgoContext, list []LiveInfo) {
-	for i, _ := range list {
-		self.DoSingle(ctx, &list[i])
-	}
-}
 
 // 置顶策略
 type LiveTopStrategy struct { LiveStrategyBase } 
+func (self *LiveTopStrategy) Do(ctx *LiveAlgoContext, list []LiveInfo) {
+	for i, _ := range list { self.DoSingle(ctx, &list[i]) }
+}
 func (self *LiveTopStrategy) DoSingle(ctx *LiveAlgoContext, live *LiveInfo) {
 	// 1: 置顶， 0: 默认， -1:置底
 	if live.LiveCache.Recommand == 1 && live.LiveCache.RecommandLevel > 10 {
@@ -28,12 +25,18 @@ func (self *LiveTopStrategy) DoSingle(ctx *LiveAlgoContext, live *LiveInfo) {
 
 // 等级策略
 type LiveLevelStrategy struct { LiveStrategyBase } 
+func (self *LiveLevelStrategy) Do(ctx *LiveAlgoContext, list []LiveInfo) {
+	for i, _ := range list { self.DoSingle(ctx, &list[i]) }
+}
 func (self *LiveLevelStrategy) DoSingle(ctx *LiveAlgoContext, live *LiveInfo) {
 	live.RankInfo.Level = live.LiveCache.RecommandLevel
 }
 
 // 融合老策略
 type LiveOldStrategy struct { LiveStrategyBase }
+func (self *LiveOldStrategy) Do(ctx *LiveAlgoContext, list []LiveInfo) {
+	for i, _ := range list { self.DoSingle(ctx, &list[i]) }
+}
 func (self *LiveOldStrategy) scoreFx(score float32) float32 {
 	return (score / 200) / (1 + score / 200)
 }
