@@ -17,10 +17,12 @@ func GetLiveFeatures(ctx *LiveAlgoContext, live *LiveInfo) *utils.Features {
 	fs.Add(3, float32(userCache.Weight))
 
 	// 主播连续特征 501 - 1000
-	fs.Add(501, float32(liveUserCache.Age))
-	fs.Add(502, float32(liveUserCache.Height))
-	fs.Add(503, float32(liveUserCache.Weight))
-	fs.Add(504, float32(ctx.CreateTime.Sub(liveUserCache.CreateTime.Time).Seconds() / 60 / 60 / 24))			// 直播注册时长 day
+	if liveUserCache != nil {
+		fs.Add(501, float32(liveUserCache.Age))
+		fs.Add(502, float32(liveUserCache.Height))
+		fs.Add(503, float32(liveUserCache.Weight))
+		fs.Add(504, float32(ctx.CreateTime.Sub(liveUserCache.CreateTime.Time).Seconds() / 60 / 60 / 24))			// 直播注册时长 day
+	}
 	fs.Add(505, float32(liveCache.FansCount))		// 粉丝数量
 	fs.Add(506, liveCache.DayIncoming)				// 天收入
 	fs.Add(507, liveCache.MonthIncoming)			// 月收入
@@ -40,10 +42,12 @@ func GetLiveFeatures(ctx *LiveAlgoContext, live *LiveInfo) *utils.Features {
 	fs.AddCategories(10140, 10, 0, rutils.GetInts(userCache.WantRole), 0)	// 想要寻找
 	
 	// 主播
-	fs.AddCategory(10150, 12, 0, rutils.GetInt(liveUserCache.Horoscope), 0)	// 星座
-	fs.AddCategory(10170, 10, -1, liveUserCache.Affection, -1)				// 单身情况
-	fs.AddCategory(10180, 10, 0, rutils.GetInt(liveUserCache.RoleName), 0)				// 自我认同
-	fs.AddCategories(10190, 10, 0, rutils.GetInts(liveUserCache.WantRole), 0)	// 想要寻找
+	if liveUserCache != nil {
+		fs.AddCategory(10150, 12, 0, rutils.GetInt(liveUserCache.Horoscope), 0)	// 星座
+		fs.AddCategory(10170, 10, -1, liveUserCache.Affection, -1)				// 单身情况
+		fs.AddCategory(10180, 10, 0, rutils.GetInt(liveUserCache.RoleName), 0)				// 自我认同
+		fs.AddCategories(10190, 10, 0, rutils.GetInts(liveUserCache.WantRole), 0)	// 想要寻找
+	}
 
 	fs.AddCategory(10200, 5, 0, ctx.Platform, 0)	// 用户操作系统
 	fs.AddCategory(10205, 5, 0, rutils.GetPlatform(liveCache.Live.Ua), 0)	// 主播操作系统

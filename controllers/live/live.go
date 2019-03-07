@@ -78,14 +78,15 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 
 	livesInfo := make([]live.LiveInfo, 0)
 	for i, _ := range lives {
+		liveInfo := live.LiveInfo{ 
+			UserId: lives[i].Live.UserId, 
+			LiveCache: &lives[i], 
+			UserCache: nil, 
+			RankInfo: &live.RankInfo{} }
 		if liveUser, ok := usersMap[lives[i].Live.UserId]; ok {
-			liveInfo := live.LiveInfo{ 
-				UserId: lives[i].Live.UserId, 
-				LiveCache: &lives[i], 
-				UserCache: &liveUser, 
-				RankInfo: &live.RankInfo{} }
-			livesInfo = append(livesInfo, liveInfo)
+			liveInfo.UserCache = &liveUser
 		}
+		livesInfo = append(livesInfo, liveInfo)
 	}
 
 	userInfo := &live.UserInfo{UserId: user.UserId, UserCache: &user, UserConcerns: utils.NewSetInt64FromArray(concerns)}
