@@ -5,6 +5,9 @@ type Cache interface {
 	Get(key string) (interface{}, error)
 	// GetMulti is a batch version of Get.
 	Mget(keys []string) ([]interface{}, error)
+	// lrange key start end
+	LRange(key string, start int, end int) ([][]byte, error)
+	SMembers(key string) ([]interface{}, error)
 	// SetMulti is a batch version of Get.
 	MsetEx(keyValMap map[string]interface{}, expire int64) error
 	// set cached value with key

@@ -2,6 +2,7 @@ package pika
 
 import (
 	"encoding/json"
+	"github.com/garyburd/redigo/redis"
 	"errors"
 	"rela_recommend/factory"
 	"rela_recommend/log"
@@ -9,6 +10,7 @@ import (
 	"rela_recommend/cache"
 	"time"
 	"strings"
+	"fmt"
 )
 
 type JsonTime struct {
@@ -43,12 +45,12 @@ func (c *JsonTime) MarshalJSON() ([]byte, error) {
 }
 
 type UserProfileModule struct {
-	cacheCluster *cache.Cache
-	storeCluster *cache.Cache
+	cacheCluster cache.Cache
+	storeCluster cache.Cache
 }
 
 func NewUserProfileModule(cache *cache.Cache, store *cache.Cache) *UserProfileModule {
-	return &UserProfileModule{cacheCluster: cache, storeCluster: store}
+	return &UserProfileModule{cacheCluster: *cache, storeCluster: *store}
 }
 
 type Location struct {
@@ -199,4 +201,18 @@ func (this *UserProfileModule) QueryByUserAndUsers(userId int64, userIds []int64
 		}
 	}
 	return resUser, resUsers, err
+}
+
+// 查询我关注的人的列表, 依赖缓存
+func (this *UserProfileModule) QueryConcernsByUser(userId int64) ([]int64, error) {
+	key := fmt.Sprintf("user_concern:%d", userId)
+	idstrs, err := factory.CacheRds.SMembers(key)
+	userIds := make([]int64, 0)
+	for _, idstr := range idstrs {
+		id, err := redis.Int64(idstr, err)
+		if err == nil && id > 0 {
+			userIds = append(userIds, id)
+		}
+	}
+	return userIds, err
 }

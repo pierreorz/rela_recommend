@@ -12,8 +12,10 @@ memory_cache_size =  157810688
 
 #rds
 [rds]
-redis_addr = "127.0.0.1:6379"
-pika_addr = "127.0.0.1:6379"
+redis_addr = "117.50.7.73:6379"
+redis_live_addr = "17.50.7.73:6379"
+redis_cluster_addr = "117.50.7.73:6379,117.50.7.73:6380,117.50.7.73:6381"
+pika_addr = "117.50.7.73:6379"
 
 #mysql
 [rdb]

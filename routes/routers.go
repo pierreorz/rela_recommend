@@ -4,12 +4,14 @@ import (
 	"rela_recommend/routers"
 	"rela_recommend/controllers"
 	"rela_recommend/controllers/match"
+	"rela_recommend/controllers/live"
 )
 
 func RegisterRouters(router *routers.Routers) {
 	router.GET("/recommend", controllers.IndexHTTP)
 	router.GET("/recommend/test", controllers.TestHTTP)
 	router.POST("/recommend/matchList", match.MatchRecommendListHTTP)
+	router.POST("/recommend/liveList", live.LiveRecommendListHTTP)
 	router.NotFound = NotFound
 }
 

@@ -54,6 +54,16 @@ func (rc *Cache) Mget(keys []string) ([]interface{}, error) {
 	return rv, err
 }
 
+func (rc *Cache) LRange(key string, start int, end int) ([][]byte, error) {
+	rv, err := redis.ByteSlices(rc.do("LRANGE", key, start, end))
+	return rv, err
+}
+
+func (rc *Cache) SMembers(key string) ([]interface{}, error) {
+	rv, err := redis.Values(rc.do("SMEMBERS", key))
+	return rv, err
+}
+
 func (rc *Cache) MsetEx(keyValMap map[string]interface{}, expire int64) error {
 	if len(keyValMap) == 0 {
 		return nil

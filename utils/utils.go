@@ -17,6 +17,7 @@ import (
 	"time"
 	"io"
 	"encoding/binary"
+	"hash/fnv"
 	"github.com/gansidui/geohash"
 	"net/url"
 )
@@ -144,6 +145,13 @@ MD5加密
 */
 func Md5Sum(data []byte) string {
 	return hex.EncodeToString(byte16ToBytes(md5.Sum(data)))
+}
+
+func Md5Sum32(data []byte) uint32 {
+	hash32 := fnv.New32a()
+	hash32.Write(data)
+	res := hash32.Sum32()
+	return res
 }
 
 //[16]byte to []byte
@@ -302,4 +310,38 @@ func Int64ToBytes(i int64) []byte {
 
 func BytesToInt64(buf []byte) int64 {
 	return int64(binary.BigEndian.Uint64(buf))
+}
+
+// 0 其他， 1 IOS， 2 Android
+func GetPlatform(ua string) int {
+	ua = strings.ToLower(ua)
+	if strings.Contains(ua, "ios") {
+		return 1
+	} else if strings.Contains(ua, "android") {
+		return 2
+	}
+	return 0
+}
+
+// Set 结构
+type SetInt64 struct {
+	intMap map[int64]int
+}
+
+func(self *SetInt64) FromArray(vals []int64) {
+	self.intMap = make(map[int64]int, 0)
+	for _, val := range vals {
+		self.intMap[val] = 1
+	}
+}
+
+func(self *SetInt64) Contains(val int64) bool {
+	_, ok := self.intMap[val]
+	return ok
+}
+
+func NewSetInt64FromArray(vals []int64) *SetInt64 {
+	set := SetInt64{}
+	set.FromArray(vals)
+	return &set
 }
