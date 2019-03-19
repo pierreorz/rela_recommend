@@ -147,9 +147,12 @@ func DoRecommend(params *LiveRecommendRequest) LiveRecommendResponse {
 		log.Infof("%+v\n", logStr)
 	}
 	var startLogTime = time.Now()
+	var minScore, maxScore float32
+	if dataLen > 0 {
+		minScore, maxScore = ctx.LiveList[0].RankInfo.Score, ctx.LiveList[dataLen-1].RankInfo.Score
+	}
 	log.Infof("paramuser %d,user %d,paramlen %d,len %d,return %d,max %g,min %g;total:%.3f,init:%.3f,cache:%.3f,ctx:%.3f,predict:%.3f,sort:%.3f,page:%.3f\n",
-			  params.UserId, ctx.User.UserId, len(params.LiveIds), dataLen, len(returnIds),
-			  ctx.LiveList[0].RankInfo.Score, ctx.LiveList[dataLen-1].RankInfo.Score,
+			  params.UserId, ctx.User.UserId, len(params.LiveIds), dataLen, len(returnIds), minScore, maxScore,
 			  startLogTime.Sub(startTime).Seconds(), startCacheTime.Sub(startTime).Seconds(),
 			  startCtxTime.Sub(startCacheTime).Seconds(), startPredictTime.Sub(startCtxTime).Seconds(),
 			  startSortTime.Sub(startPredictTime).Seconds(), startPageTime.Sub(startSortTime).Seconds(),
