@@ -34,8 +34,7 @@ func init() {
 		"live": [
 			{"name": "testing_old", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daly_change": 0,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-					{"name": "v1.0.0", "percentage": 20, "factor_map": {"new_score": "0.0", "live_model": "LiveModelV1_0"}},
-					{"name": "v1.0.1", "percentage": 20, "factor_map": {"new_score": "0.0", "live_model": "LiveModelV1_1"}},
+					{"name": "v1.0.0", "percentage": 30, "factor_map": {"new_score": "0.0", "live_model": "LiveModelV1_0"}},
 					{"name": "v1.1.0", "percentage": 30, "factor_map": {"new_score": "0.4", "live_model": "LiveModelV1_0"}},
 					{"name": "v1.1.1", "percentage": 30, "factor_map": {"new_score": "0.4", "live_model": "LiveModelV1_1"}}
 			]} ]

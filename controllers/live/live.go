@@ -12,7 +12,7 @@ import (
 	"rela_recommend/service"
 	"rela_recommend/service/abtest"
 	"rela_recommend/models/pika"
-	"rela_recommend/models/redis"
+	// "rela_recommend/models/redis"
 	"rela_recommend/utils"
 	"rela_recommend/utils/response"
 	"rela_recommend/utils/request"
@@ -53,7 +53,7 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 	userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 	liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
 
-	rdsPikaCache := redis.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
+	// rdsPikaCache := redis.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 
 	// 获取主播列表
 	lives, err := liveCache.QueryByLiveIds(params.LiveIds)
@@ -76,14 +76,14 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 		usersMap[users[i].UserId] = users[i]
 	}
 	// 获取刷新用户画像
-	user2, users2, err2 := rdsPikaCache.QueryByUserAndUsers(params.UserId, liveIds)
-	if err2 != nil {
-		log.Warnf("redis QueryByUserAndUsers err: %s\n", err2)
-	}
-	usersMap2 := make(map[int64]redis.UserProfile)
-	for i, _ := range users2 {
-		usersMap2[users2[i].UserId] = users2[i]
-	}
+	// user2, users2, err2 := rdsPikaCache.QueryByUserAndUsers(params.UserId, liveIds)
+	// if err2 != nil {
+	// 	log.Warnf("redis QueryByUserAndUsers err: %s\n", err2)
+	// }
+	// usersMap2 := make(map[int64]redis.UserProfile)
+	// for i, _ := range users2 {
+	// 	usersMap2[users2[i].UserId] = users2[i]
+	// }
 
 	// 获取关注信息
 	concerns, err := userCache.QueryConcernsByUser(params.UserId)
@@ -97,19 +97,20 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 		liveInfo := live.LiveInfo{ 
 			UserId: lives[i].Live.UserId, 
 			LiveCache: &lives[i], 
-			UserCache: nil, 
+			UserCache: nil, UserProfile: nil,
 			RankInfo: &live.RankInfo{} }
 		if liveUser, ok := usersMap[lives[i].Live.UserId]; ok {
 			liveInfo.UserCache = &liveUser
 		}
-		if liveUser2, ok := usersMap2[lives[i].Live.UserId]; ok {
-			liveInfo.UserProfile = &liveUser2
-		}
+		// if liveUser2, ok := usersMap2[lives[i].Live.UserId]; ok {
+		// 	liveInfo.UserProfile = &liveUser2
+		// }
 		livesInfo = append(livesInfo, liveInfo)
 	}
 
 	userInfo := &live.UserInfo{
-		UserId: user.UserId, UserCache: &user, UserProfile: &user2,
+		UserId: user.UserId, UserCache: &user, 
+		// UserProfile: &user2,
 		UserConcerns: utils.NewSetInt64FromArray(concerns)}
 
 	ctx := live.LiveAlgoContext{
