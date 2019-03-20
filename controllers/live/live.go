@@ -78,8 +78,7 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 	// 获取刷新用户画像
 	user2, users2, err2 := rdsPikaCache.QueryByUserAndUsers(params.UserId, liveIds)
 	if err2 != nil {
-		log.Errorf("redis QueryByUserAndUsers err: %s\n", err2)
-		return nil, err2
+		log.Warnf("redis QueryByUserAndUsers err: %s\n", err2)
 	}
 	usersMap2 := make(map[int64]redis.UserProfile)
 	for i, _ := range users2 {
