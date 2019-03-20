@@ -59,7 +59,19 @@ func (self *Features) Add(key int, val float32) bool {
 	}
 	return false
 }
-
+// 增加连续数组
+func (self *Features) AddArray(start, length int, vals []float32) bool {
+	if vals != nil {
+		for i, val := range vals {
+			if i < length {
+				self.Add(start + i, val)
+			}
+		}
+		return true
+	}
+	return false
+}
+// 增加类别的特征
 func (self *Features) AddCategory(start, length, minVal, val, def int) bool {
 	new_val := val - minVal
 	if new_val >= 0 && new_val < length {
@@ -69,6 +81,7 @@ func (self *Features) AddCategory(start, length, minVal, val, def int) bool {
 	}
 }
 
+// 增加多选类别的特征
 func (self *Features) AddCategories(start, length, minVal int, vals []int, def int) bool {
 	for _, val := range vals {
 		self.AddCategory(start, length, minVal, val, def)
