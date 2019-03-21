@@ -128,6 +128,35 @@ func GetBool(v interface{}) bool {
 	return false
 }
 
+func GetInterfaces(v interface{}) []interface{} {
+	res := make([]interface{}, 0)
+	if v != nil {
+		switch result := v.(type) {
+			case []interface{}:
+				return result
+			case []int64:
+				for _, uid := range result { res = append(res, uid) }
+			case []int32:
+				for _, uid := range result { res = append(res, uid) }
+			case []int:
+				for _, uid := range result { res = append(res, uid) }
+			case []float32:
+				for _, uid := range result { res = append(res, uid) }
+			case []float64:
+				for _, uid := range result { res = append(res, uid) }
+			case []bool:
+				for _, uid := range result { res = append(res, uid) }
+			case []string:
+				for _, uid := range result { res = append(res, uid) }
+			case []byte:
+				for _, uid := range result { res = append(res, uid) }
+			case [][]byte:
+				for _, uid := range result { res = append(res, uid) }
+		}
+	}
+	return res
+}
+
 func GetInts(v interface{}) []int {
 	if v != nil {
 		switch result := v.(type) {

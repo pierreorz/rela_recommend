@@ -4,6 +4,7 @@ import(
 	"time"
 	rutils "rela_recommend/utils"
 	"rela_recommend/models/pika"
+	"rela_recommend/models/redis"
 	"rela_recommend/algo/utils"
 	"rela_recommend/service/abtest"
 )
@@ -19,6 +20,7 @@ type RankInfo struct {
 type UserInfo struct {
 	UserId int64
 	UserCache *pika.UserProfile
+	UserProfile *redis.UserProfile
 	UserConcerns *rutils.SetInt64
 }
 
@@ -26,6 +28,7 @@ type UserInfo struct {
 type LiveInfo struct {
 	UserId 		int64
 	UserCache 	*pika.UserProfile
+	UserProfile *redis.UserProfile
 	LiveCache 	*pika.LiveCache
 	RankInfo	*RankInfo
 	Features 	*utils.Features

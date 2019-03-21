@@ -34,8 +34,9 @@ func init() {
 		"live": [
 			{"name": "testing_old", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daly_change": 0,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-					{"name": "v1.0", "percentage": 50, "factor_map": {"new_score": "0.0"}},
-					{"name": "v1.1", "percentage": 50, "factor_map": {"new_score": "0.4"}}
+					{"name": "v1.0.0", "percentage": 30, "factor_map": {"new_score": "0.0", "live_model": "LiveModelV1_0"}},
+					{"name": "v1.1.0", "percentage": 30, "factor_map": {"new_score": "0.4", "live_model": "LiveModelV1_0"}},
+					{"name": "v1.1.1", "percentage": 30, "factor_map": {"new_score": "0.4", "live_model": "LiveModelV1_1"}}
 			]} ]
 	}`
 	if err := json.Unmarshal(([]byte)(ab_config), &testingMap); err != nil {
@@ -48,7 +49,7 @@ func init() {
 			{"name": "match_model", "desc": "匹配模型", "app": "match", "ids":[104708381],"factor_map":{"match_model":"QuickMatchTreeV1_4"}}
 		],
 		"live": [
-			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381, 524],"factor_map":{"match_model":"QuickMatchTreeV1_4", "new_score": "0.4"}}
+			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381, 524],"factor_map":{"live_model":"LiveModelV1_1", "new_score": "0.4"}}
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {
