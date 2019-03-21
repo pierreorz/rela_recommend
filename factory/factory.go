@@ -116,7 +116,7 @@ func initCache(cfg *conf.Config) {
 	}
 
 	log.Infof("INIT ClusterAddr: %s ....", cfg.Rds.ClusterAddr)
-	CacheCluster, err = redisCluster.NewRedisCache(cfg.Rds.ClusterAddr, "", 0)
+	CacheCluster, err = redis.NewRedisCache(cfg.Rds.ClusterAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
