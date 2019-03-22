@@ -197,7 +197,7 @@ func (this *UserProfileModule) QueryByUserAndUsers(userId int64, userIds []int64
 			}
 		}
 		if resUser.UserId == 0 {
-			err = errors.New("user is nil")
+			err = errors.New("user is nil" + utils.GetString(userId))
 		}
 	}
 	return resUser, resUsers, err
