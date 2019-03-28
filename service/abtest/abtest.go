@@ -25,7 +25,7 @@ type Testing struct {
 	App string					`json:"app"`
 	Group string                `json:"group"` 
 	Status int                  `json:"status"`		 //状态,0:新建，1:上线，2:下线
-	DalyChange int				`json:"daly_change"` //测试名单每天变化,0:不变，1:变
+	DailyChange int				`json:"daily_change"` //测试名单每天变化,0:不变，1:变
 	BeginTime time.Time         `json:"begin_time"` 
 	EndTime time.Time           `json:"end_time"` 
 	Versions []TestingVersion   `json:"versions"` 
@@ -51,9 +51,9 @@ type AbTest struct {
 }
 
 // 生成用户AB码
-func (self *AbTest) generateInt(preString string, dalyChange int) int {
+func (self *AbTest) generateInt(preString string, dailyChange int) int {
 	idString := preString + utils.GetString(self.DataId)
-	if(dalyChange == 1) {
+	if(dailyChange == 1) {
 		idString = self.CurrentTime.Format("2000-01-01") + idString
 	}
 	hash32 := fnv.New32a()
@@ -70,7 +70,7 @@ func (self *AbTest) update(newMap map[string]string) {
 }
 // 命中测试
 func (self *AbTest) updateTesting(test Testing) {
-	var perVal = self.generateInt(test.Name, test.DalyChange)  // 随机出AB分组因子
+	var perVal = self.generateInt(test.Name, test.DailyChange)  // 随机出AB分组因子
 	var perSum int = 0
 	for _, version := range test.Versions {
 		if perSum <= perVal && perVal < perSum + version.Percentage {
