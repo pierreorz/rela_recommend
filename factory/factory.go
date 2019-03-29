@@ -105,7 +105,7 @@ func initCassandraSession(cfg *conf.Config) {
 
 func initCache(cfg *conf.Config) {
 	var err error
-	CacheRds, err = redis.NewRedisCache(cfg.Rds.RedisAddr, "", 0)
+	CacheRds, err = redisCluster.NewRedisCache(cfg.Rds.RedisAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
@@ -116,7 +116,7 @@ func initCache(cfg *conf.Config) {
 	}
 
 	log.Infof("INIT ClusterAddr: %s ....", cfg.Rds.ClusterAddr)
-	CacheCluster, err = redisCluster.NewRedisCache(cfg.Rds.ClusterAddr, "", 0)
+	CacheCluster, err = redis.NewRedisCache(cfg.Rds.ClusterAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
