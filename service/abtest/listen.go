@@ -49,7 +49,7 @@ func init() {
 			{"name": "match_model", "desc": "匹配模型", "app": "match", "ids":[104708381],"factor_map":{"match_model":"QuickMatchTreeV1_4"}}
 		],
 		"live": [
-			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381, 524],"factor_map":{"live_model":"LiveModelV1_1", "new_score": "0.5"}}
+			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381],"factor_map":{"live_model":"LiveModelV1_2", "new_score": "0.5"}}
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {

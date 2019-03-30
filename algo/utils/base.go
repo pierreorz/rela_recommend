@@ -21,6 +21,7 @@ type IModelAlgo interface {
 type ModelAlgoBase struct {
 	FeaturesMap 	FeaturesMapEncoder		`json:"features_map"`
 	Features		[]string				`json:"features"`
+	Description		string					`json:"description"`	// 模型描述
 }
 func (self *ModelAlgoBase) PredictSingle(features *Features) float32 {
 	return 0
