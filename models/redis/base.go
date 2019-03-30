@@ -24,7 +24,7 @@ func (self *CachePikaModule) Get(key string) (interface{}, error) {
 	return res, err
 }
 
-func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime int64)([]interface{}, error) {
+func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime int64, cacheNilTime int64)([]interface{}, error) {
 	var startTime = time.Now()
 	dataLen := len(ids)
 	// 构造keys
@@ -45,6 +45,11 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 		if res == nil {
 			notFoundIndexs = append(notFoundIndexs, i)
 			notFoundKeys = append(notFoundKeys, keys[i])
+		} else {
+			// 处理空字符串
+			if bs, ok := res.([]byte); ok && len(bs) == 0 {
+				ress[i] = nil
+			}
 		}
 	}
 	var startStoreTime = time.Now()
@@ -54,15 +59,21 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 		ress2, err2 := self.store.Mget(notFoundKeys)
 		if err2 == nil {
 			var setKeyVals = make(map[string]interface{}, 0)
+			var setNilVals = make(map[string]interface{}, 0)
 			for i, res := range ress2 {
 				if res != nil {
 					ress[notFoundIndexs[i]] = res
 					setKeyVals[notFoundKeys[i]] = res
+				} else {
+					setNilVals[notFoundKeys[i]] = ""
 				}
 			}
-			if len(setKeyVals) > 0 {  // 设置缓存
+			if cacheTime > 0 && len(setKeyVals) > 0 {  // 设置缓存
 				startStoreSetTime = time.Now()
 				self.cache.MsetEx(setKeyVals, cacheTime)
+			}
+			if cacheNilTime > 0 && len(setNilVals) > 0 {  // 设置找不到的缓存
+				self.cache.MsetEx(setNilVals, cacheNilTime)
 			}
 		} else {
 			err = err2
