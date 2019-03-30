@@ -24,6 +24,7 @@ func (self *CachePikaModule) Get(key string) (interface{}, error) {
 	return res, err
 }
 
+// 读取缓存。cacheTime：redis的缓存时间；cacheNilTime: pika也不存在的key写入redis的缓存时间
 func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime int64, cacheNilTime int64)([]interface{}, error) {
 	var startTime = time.Now()
 	dataLen := len(ids)
@@ -54,6 +55,7 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 	}
 	var startStoreTime = time.Now()
 	var startStoreSetTime = time.Now()
+	var setLen, setNilLen int = 0, 0
 	if len(notFoundIndexs) > 0 {
 		// 从持久化存储读取
 		ress2, err2 := self.store.Mget(notFoundKeys)
@@ -68,11 +70,12 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 					setNilVals[notFoundKeys[i]] = ""
 				}
 			}
-			if cacheTime > 0 && len(setKeyVals) > 0 {  // 设置缓存
-				startStoreSetTime = time.Now()
+			setLen, setNilLen = len(setKeyVals), len(setNilVals)
+			startStoreSetTime = time.Now()
+			if cacheTime > 0 && setLen > 0 {  // 设置缓存
 				self.cache.MsetEx(setKeyVals, cacheTime)
 			}
-			if cacheNilTime > 0 && len(setNilVals) > 0 {  // 设置找不到的缓存
+			if cacheNilTime > 0 && setNilLen > 0 {  // 设置找不到的缓存
 				self.cache.MsetEx(setNilVals, cacheNilTime)
 			}
 		} else {
@@ -80,8 +83,8 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 		}
 	}
 	var endTime = time.Now()
-	log.Infof("ReadKey:%s,all:%d,cache:%d,store:%d,final:%d;total:%.3f,keys:%.3f,cache:%.3f,notfound:%.3f,store:%.3f,2cache:%.3f\n",
-		keyFormater, dataLen, dataLen-len(notFoundIndexs), len(notFoundIndexs),len(ress), 
+	log.Infof("ReadKey:%s,all:%d,cache:%d,store:%d,final:%d,set:%d,setnil:%d;total:%.3f,keys:%.3f,cache:%.3f,notfound:%.3f,store:%.3f,2cache:%.3f\n",
+		keyFormater, dataLen, dataLen-len(notFoundIndexs), len(notFoundIndexs),len(ress), setLen, setNilLen,
 		endTime.Sub(startTime).Seconds(),
 		startCacheTime.Sub(startTime).Seconds(), endCacheTime.Sub(startCacheTime).Seconds(),
 		startStoreTime.Sub(endCacheTime).Seconds(), startStoreSetTime.Sub(startStoreTime).Seconds(),

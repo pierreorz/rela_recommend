@@ -28,11 +28,12 @@ func NewUserProfileModule(cache *cache.Cache, store *cache.Cache) *UserProfileMo
 	return &UserProfileModule{cache: *cache, store: *store}
 }
 
+// 读取直播相关用户画像
 func (self *UserProfileModule) QueryLiveProfileByUserIds(userIds []int64) ([]LiveProfile, error) {
 	startTime := time.Now()
 	cacheModule := &CachePikaModule{cache: self.cache, store: self.store}
 	keyFormatter := "live_profile:%d"
-	ress, err := cacheModule.MGetSet(userIds, keyFormatter, 24 * 60 * 60, 60 * 30)
+	ress, err := cacheModule.MGetSet(userIds, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
 	startJsonTime := time.Now()
 	users := make([]LiveProfile, 0)
 	for i, res := range ress {
@@ -51,7 +52,7 @@ func (self *UserProfileModule) QueryLiveProfileByUserIds(userIds []int64) ([]Liv
 		}
 	}
 	endTime := time.Now()
-	log.Infof("UnmarshalKey:%s,all:%d,cache:%d,final:%d;total:%.3f,read:%.3f,json:%.3f\n",
+	log.Infof("UnmarshalKey:%s,all:%d,notfound:%d,final:%d;total:%.3f,read:%.3f,json:%.3f\n",
 		keyFormatter, len(userIds), len(userIds)-len(users), len(users), 
 		endTime.Sub(startTime).Seconds(),
 		startJsonTime.Sub(startTime).Seconds(), endTime.Sub(startJsonTime).Seconds())
