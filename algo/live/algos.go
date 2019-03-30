@@ -12,8 +12,9 @@ func init() {
 
 	modelList := [...]ILiveAlgo{
 		// todo models
-		&LiveGbdtLrV0{LiveAlgoBase{ AlgoName: "LiveModelV1_0", FilePath: Work_dir + "gbdtlr_6_200_v0.model" }},
-		&LiveGbdtLrV0{LiveAlgoBase{ AlgoName: "LiveModelV1_1", FilePath: Work_dir + "gbdtlr_6_200_v1.model" }},
+		&LiveGbdtLrV0{LiveAlgoBase{ AlgoName: "LiveModelV1_0", FilePath: Work_dir + "gbdtlr_6_200_v1.0.model" }},
+		&LiveGbdtLrV0{LiveAlgoBase{ AlgoName: "LiveModelV1_1", FilePath: Work_dir + "gbdtlr_6_200_v1.1.model" }},
+		&LiveGbdtLrV0{LiveAlgoBase{ AlgoName: "LiveModelV1_2", FilePath: Work_dir + "gbdtlr_6_200_v1.2.model" }},
 	}
 
 	for index, _ := range modelList {

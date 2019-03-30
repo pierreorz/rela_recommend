@@ -6,14 +6,16 @@ import(
 	"encoding/json"
 	"rela_recommend/log"
 	"rela_recommend/cache"
+	"rela_recommend/utils"
 )
 
 
-type UserProfile struct {
-	UserId 	int64		`json:"id"`
+// 直播业务的画像
+type LiveProfile struct {
+	UserId 	int64		`json:"user_id"`
 	// 观看直播间时间的 embedding
-	LiveViewUserEmbedding []float32		`json:"live_view_user"`		// 用户端
-	LiveViewLiveEmbedding []float32		`json:"live_view_live"`		// 主播端
+	LiveViewUserEmbedding []float32		`json:"live_view5_user"`		// 用户端
+	LiveViewLiveEmbedding []float32		`json:"live_view5_live"`		// 主播端
 }
 
 
@@ -26,16 +28,17 @@ func NewUserProfileModule(cache *cache.Cache, store *cache.Cache) *UserProfileMo
 	return &UserProfileModule{cache: *cache, store: *store}
 }
 
-func (self *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, error) {
+// 读取直播相关用户画像
+func (self *UserProfileModule) QueryLiveProfileByUserIds(userIds []int64) ([]LiveProfile, error) {
 	startTime := time.Now()
 	cacheModule := &CachePikaModule{cache: self.cache, store: self.store}
-	keyFormatter := "algo_user_profile:%d"
-	ress, err := cacheModule.MGetSet(userIds, keyFormatter, 24 * 60 * 60)
+	keyFormatter := "live_profile:%d"
+	ress, err := cacheModule.MGetSet(userIds, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
 	startJsonTime := time.Now()
-	users := make([]UserProfile, 0)
+	users := make([]LiveProfile, 0)
 	for i, res := range ress {
 		if res != nil {
-			var user UserProfile
+			var user LiveProfile
 			bs, ok := res.([]byte)
 			if ok {
 				if err := json.Unmarshal(bs, &user); err == nil {
@@ -49,7 +52,7 @@ func (self *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 		}
 	}
 	endTime := time.Now()
-	log.Infof("UnmarshalKey:%s,all:%d,cache:%d,final:%d;total:%.3f,read:%.3f,json:%.3f\n",
+	log.Infof("UnmarshalKey:%s,all:%d,notfound:%d,final:%d;total:%.3f,read:%.3f,json:%.3f\n",
 		keyFormatter, len(userIds), len(userIds)-len(users), len(users), 
 		endTime.Sub(startTime).Seconds(),
 		startJsonTime.Sub(startTime).Seconds(), endTime.Sub(startJsonTime).Seconds())
@@ -57,11 +60,11 @@ func (self *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 }
 
 
-func (self *UserProfileModule) QueryByUserAndUsers(userId int64, userIds []int64) (UserProfile, []UserProfile, error) {
+func (self *UserProfileModule) QueryLiveProfileByUserAndUsers(userId int64, userIds []int64) (LiveProfile, []LiveProfile, error) {
 	allIds := append(userIds, userId)
-	users, err := self.QueryByUserIds(allIds)
-	var resUser UserProfile
-	var resUsers []UserProfile
+	users, err := self.QueryLiveProfileByUserIds(allIds)
+	var resUser LiveProfile
+	var resUsers []LiveProfile
 	if err == nil {
 		for i, user := range users {
 			if user.UserId == userId {
@@ -72,7 +75,7 @@ func (self *UserProfileModule) QueryByUserAndUsers(userId int64, userIds []int64
 			}
 		}
 		if resUser.UserId == 0 {
-			err = errors.New("user is nil")
+			err = errors.New("LiveProfile user is nil" + utils.GetString(userId))
 		}
 	}
 	return resUser, resUsers, err

@@ -20,7 +20,7 @@ type RankInfo struct {
 type UserInfo struct {
 	UserId int64
 	UserCache *pika.UserProfile
-	UserProfile *redis.UserProfile
+	LiveProfile *redis.LiveProfile
 	UserConcerns *rutils.SetInt64
 }
 
@@ -28,7 +28,7 @@ type UserInfo struct {
 type LiveInfo struct {
 	UserId 		int64
 	UserCache 	*pika.UserProfile
-	UserProfile *redis.UserProfile
+	LiveProfile *redis.LiveProfile
 	LiveCache 	*pika.LiveCache
 	RankInfo	*RankInfo
 	Features 	*utils.Features
