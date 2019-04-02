@@ -34,9 +34,10 @@ func init() {
 		"live": [
 			{"name": "testing_model_v1", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daily_change": 1,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-					{"name": "v1.0.0", "percentage": 30, "factor_map": {"new_score": "0.0", "live_model": "LiveModelV1_0"}},
-					{"name": "v1.1.1", "percentage": 30, "factor_map": {"new_score": "0.5", "live_model": "LiveModelV1_1"}},
-					{"name": "v1.1.2", "percentage": 30, "factor_map": {"new_score": "0.5", "live_model": "LiveModelV1_2"}}
+					{"name": "v1.0.0", "percentage": 25, "factor_map": {"new_score": "0.0", "live_model": "LiveModelV1_0"}},
+					{"name": "v1.2.5", "percentage": 25, "factor_map": {"new_score": "0.5", "live_model": "LiveModelV1_2"}},
+					{"name": "v1.2.6", "percentage": 25, "factor_map": {"new_score": "0.6", "live_model": "LiveModelV1_2"}},
+					{"name": "v1.2.7", "percentage": 25, "factor_map": {"new_score": "0.7", "live_model": "LiveModelV1_2"}}
 			]} ]
 	}`
 	if err := json.Unmarshal(([]byte)(ab_config), &testingMap); err != nil {
