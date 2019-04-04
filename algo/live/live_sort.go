@@ -40,8 +40,8 @@ func (self *LiveInfoListSorter) Sort() {
 func (self *LiveInfoListSorter) DoStrategies() *LiveInfoListSorter {
 	strategies := []LiveStrategy{
 		&LiveTopStrategy{},
-		&LiveLevelStrategy{},
 		&LiveOldStrategy{},
+		&LivePunishStrategy{},
 	}
 	for i, _ := range strategies {
 		strategies[i].Do(self.Context, self.List)

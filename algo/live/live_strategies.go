@@ -6,28 +6,38 @@ type LiveStrategy interface {
 
 type LiveStrategyBase struct {}
 
-// 置顶策略
+// 业务置顶推荐惩罚策略
 type LiveTopStrategy struct { LiveStrategyBase } 
 func (self *LiveTopStrategy) Do(ctx *LiveAlgoContext, list []LiveInfo) {
 	for i, _ := range list { 
 		live := &list[i]
-		// 1: 置顶， 0: 默认， -1:置底
-		if live.LiveCache.Recommand == 1 && live.LiveCache.RecommandLevel > 10 {
-			live.RankInfo.IsTop = 1
-		} else if live.LiveCache.Recommand == -1 && live.LiveCache.RecommandLevel == -1 {
-			live.RankInfo.IsTop = -1
-		} else {
-			live.RankInfo.IsTop = 0
+		if live.LiveCache.Recommand == 1 {							// 1: 推荐
+			if live.LiveCache.RecommandLevel > 10 {						// 15: 置顶
+				live.RankInfo.IsTop = 1
+			}
+			live.RankInfo.Level = live.LiveCache.RecommandLevel			// 推荐等级
+		}  else if live.LiveCache.Recommand == -1 {					// -1: 不推荐
+			if live.LiveCache.RecommandLevel == -1 {					// -1: 置底
+				live.RankInfo.IsTop = -1
+			} else if live.LiveCache.RecommandLevel > 0 {				// 降低权重
+				if live.LiveCache.RecommandLevel >= 100 {
+					live.RankInfo.IsTop = -1
+				} else {
+					live.RankInfo.Punish = float32(100 - live.LiveCache.RecommandLevel) / 100.0
+				}
+			}
 		}
 	}
 }
 
-// 等级策略
-type LiveLevelStrategy struct { LiveStrategyBase } 
-func (self *LiveLevelStrategy) Do(ctx *LiveAlgoContext, list []LiveInfo) {
+// 降权策略
+type LivePunishStrategy struct { LiveStrategyBase } 
+func (self *LivePunishStrategy) Do(ctx *LiveAlgoContext, list []LiveInfo) {
 	for i, _ := range list { 
 		live := &list[i]
-		live.RankInfo.Level = live.LiveCache.RecommandLevel
+		if live.RankInfo.Punish > 0 {
+			live.RankInfo.Score = live.RankInfo.Score * live.RankInfo.Punish
+		}
 	}
 }
 

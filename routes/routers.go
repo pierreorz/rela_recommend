@@ -5,9 +5,11 @@ import (
 	"rela_recommend/controllers"
 	"rela_recommend/controllers/match"
 	"rela_recommend/controllers/live"
+	"rela_recommend/controllers/config"
 )
 
 func RegisterRouters(router *routers.Routers) {
+	router.POST("/config/abtest", config.AbTestHTTP)
 	router.GET("/recommend", controllers.IndexHTTP)
 	router.GET("/recommend/test", controllers.TestHTTP)
 	router.POST("/recommend/matchList", match.MatchRecommendListHTTP)
