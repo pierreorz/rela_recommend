@@ -35,7 +35,7 @@ type LivePunishStrategy struct { LiveStrategyBase }
 func (self *LivePunishStrategy) Do(ctx *LiveAlgoContext, list []LiveInfo) {
 	for i, _ := range list { 
 		live := &list[i]
-		if live.RankInfo.Punish > 0 {
+		if live.RankInfo.Punish > 0.000001 {
 			live.RankInfo.Score = live.RankInfo.Score * live.RankInfo.Punish
 		}
 	}
