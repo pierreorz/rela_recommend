@@ -42,12 +42,12 @@ type WhiteName struct {
 
 
 type AbTest struct {
-	App string
-	DataId int64
-	CurrentTime time.Time
-	FactorMap map[string]string
-	HitTestingMap map[string]TestingVersion
-	HitWriteList []WhiteName
+	App string									`json:"app"`
+	DataId int64								`json:"data_id"`
+	CurrentTime time.Time						`json:"create_time"`
+	FactorMap map[string]string					`json:"factor_map"`
+	HitTestingMap map[string]TestingVersion		`json:"hit_testing_map"`
+	HitWriteMap map[string]WhiteName			`json:"hit_write_list"`
 }
 
 // 生成用户AB码
@@ -89,7 +89,7 @@ func (self *AbTest) updateWhite(white WhiteName) {
 	for _, id := range white.Ids {
 		if id == self.DataId {
 			self.update(white.FactorMap)
-			self.HitWriteList = append(self.HitWriteList, white)
+			self.HitWriteMap[white.Name] = white
 			break
 		}
 	}
@@ -99,7 +99,7 @@ func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[str
 	self.CurrentTime = time.Now()
 	self.FactorMap = map[string]string{}
 	self.HitTestingMap = map[string]TestingVersion{}
-	self.HitWriteList = []WhiteName{}
+	self.HitWriteMap = map[string]WhiteName{}
 	// 初始化因子
 	if defVal, ok := defMap[self.App]; ok {
 		self.update(defVal)

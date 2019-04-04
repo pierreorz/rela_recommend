@@ -75,7 +75,7 @@ func (self *UserProfileModule) QueryLiveProfileByUserAndUsers(userId int64, user
 			}
 		}
 		if resUser.UserId == 0 {
-			err = errors.New("LiveProfile user is nil" + utils.GetString(userId))
+			err = errors.New("LiveProfile user is nil " + utils.GetString(userId))
 		}
 	}
 	return resUser, resUsers, err

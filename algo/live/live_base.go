@@ -12,6 +12,7 @@ import(
 type RankInfo struct {
 	IsTop		int 		// 1: 置顶， 0: 默认， -1:置底
 	Level		int			// 推荐等级
+	Punish		float32		// 惩罚系数
 	AlgoScore 	float32		// 算法得分
 	Score 		float32		// 最终得分
 }
