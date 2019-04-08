@@ -1,5 +1,9 @@
 package live
 
+import (
+	"math"
+)
+
 type LiveStrategy interface {
 	Do(ctx *LiveAlgoContext, list []LiveInfo)
 }
@@ -20,11 +24,8 @@ func (self *LiveTopStrategy) Do(ctx *LiveAlgoContext, list []LiveInfo) {
 			if live.LiveCache.RecommandLevel == -1 {					// -1: 置底
 				live.RankInfo.IsTop = -1
 			} else if live.LiveCache.RecommandLevel > 0 {				// 降低权重
-				if live.LiveCache.RecommandLevel >= 100 {
-					live.RankInfo.IsTop = -1
-				} else {
-					live.RankInfo.Punish = float32(100 - live.LiveCache.RecommandLevel) / 100.0
-				}
+				level := math.Min(float64(live.LiveCache.RecommandLevel), 100.0)
+				live.RankInfo.Punish = float32(100.0 - level) / 100.0
 			}
 		}
 	}
