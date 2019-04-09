@@ -35,6 +35,7 @@ func GetLiveFeatures(ctx *LiveAlgoContext, live *LiveInfo) *utils.Features {
 	fs.Add(509, float32(liveCache.Live.SendMsgCount))			// 消息数量
 	fs.Add(510, float32(liveCache.Live.GemProfit))			// 房间收益
 	fs.Add(511, float32(ctx.CreateTime.Sub(liveCache.Live.CreateTime.Time).Seconds() / 60 / 60 / 24))			// 房间开播时长 min
+	fs.Add(512, liveCache.Score)					// 当前直播间观看人数
 
 	if live.LiveProfile != nil {
 		// 主播直播行为embedding
@@ -63,9 +64,10 @@ func GetLiveFeatures(ctx *LiveAlgoContext, live *LiveInfo) *utils.Features {
 	fs.AddCategory(10205, 5, 0, rutils.GetPlatform(liveCache.Live.Ua), 0)	// 主播操作系统
 
 	fs.AddCategory(10210, 10, 0, liveCache.Live.AudioType, 0)	// 房间类型
-	fs.AddCategory(10220, 10, 0, liveCache.Live.IsMulti, 0)	// 房间是否多人
+	fs.AddCategory(10220, 10, 0, liveCache.Live.IsMulti, 0)		// 房间是否多人
 
 	fs.AddCategory(10230, 2, 0, rutils.GetInt(ctx.User.UserConcerns.Contains(liveCache.Live.UserId)), 0)	// 用户是否是主播粉丝
+	fs.AddCategory(10232, 3, -1, liveCache.Recommand, 0)		// 主播是否被推荐(-1, 0, 1)
 
 	return fs
 }
