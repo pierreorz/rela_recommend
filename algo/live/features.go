@@ -65,9 +65,9 @@ func GetLiveFeatures(ctx *LiveAlgoContext, live *LiveInfo) *utils.Features {
 
 	fs.AddCategory(10210, 10, 0, liveCache.Live.AudioType, 0)	// 房间类型
 	fs.AddCategory(10220, 10, 0, liveCache.Live.IsMulti, 0)		// 房间是否多人
-	fs.AddCategory(10230, 3, -1, liveCache.Recommand, 0)		// 主播是否被推荐(-1, 0, 1)
 
 	fs.AddCategory(10230, 2, 0, rutils.GetInt(ctx.User.UserConcerns.Contains(liveCache.Live.UserId)), 0)	// 用户是否是主播粉丝
+	fs.AddCategory(10232, 3, -1, liveCache.Recommand, 0)		// 主播是否被推荐(-1, 0, 1)
 
 	return fs
 }
