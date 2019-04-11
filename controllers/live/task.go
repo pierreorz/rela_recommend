@@ -24,8 +24,12 @@ func refreshLiveList(duration time.Duration) {
 				if err != nil {
 					log.Errorf("refreshLiveList err %.3f: %s\n", endTime.Sub(startTime).Seconds(), err)
 				} else {
-					CachedLiveList = lives
-					log.Infof("refreshLiveList over %.3f: %d\n", endTime.Sub(startTime).Seconds(), len(CachedLiveList))
+					if lives != nil {
+						CachedLiveList = lives
+						log.Infof("refreshLiveList over %.3f: %d\n", endTime.Sub(startTime).Seconds(), len(CachedLiveList))
+					} else {
+						log.Errorf("refreshLiveList err %.3f: list is nil\n", endTime.Sub(startTime).Seconds())
+					}
 				}
 			} else {
 				log.Errorf("refreshLiveList err:cache is not ready\n")
