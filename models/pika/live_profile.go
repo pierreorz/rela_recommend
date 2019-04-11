@@ -1,6 +1,7 @@
 package pika
 
 import (
+	"time"
 	"encoding/json"
 	"rela_recommend/log"
 	"rela_recommend/utils"
@@ -59,6 +60,16 @@ type LiveCacheModule struct {
 
 // 根据liveids 获取直播间信息，如果liveids为空 返回所有直播间
 func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error) {
+	lives := make([]LiveCache, 0)
+	allList, err := self.QueryLiveList()
+	if err == nil {
+		lives = self.MgetByLiveIds(allList, liveIds)
+	}
+	return lives, err
+}
+
+// 根据liveids 获取直播间信息，如果liveids为空 返回所有直播间
+func (self *LiveCacheModule) MgetByLiveIds(allList []LiveCache, liveIds []int64) []LiveCache {
 	live_ids_map := make(map[int64]int)
 	if liveIds != nil && len(liveIds) > 0 {
 		for _, liveId := range liveIds {
@@ -68,8 +79,25 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 		}
 	}
 
+	lives := make([]LiveCache, 0)
+	if len(live_ids_map) == 0 {
+		lives = allList
+	} else {
+		for i, _ := range allList {
+			if _, ok := live_ids_map[allList[i].Live.UserId]; ok {
+				lives = append(lives, allList[i])
+			}
+		}
+	}
+	return lives
+}
+
+// 获取所有直播列表
+func (self *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
+	var startTime = time.Now()
 	list_key := "hotlives_with_recommend_v2"
 	live_bytes, err := self.cacheLive.LRange(list_key, 0, -1)
+	var startJsonTime = time.Now()
 	lives := make([]LiveCache, 0)
 	for i := 0; i < len(live_bytes); i++ {
 		live_byte := live_bytes[i]
@@ -80,15 +108,16 @@ func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error
 			} else {
 				live.CheckDataType()
 				if live.Live.UserId > 0	{
-					if len(live_ids_map) == 0 {
-						lives = append(lives, live)
-					} else if _, ok := live_ids_map[live.Live.UserId]; ok {
-						lives = append(lives, live)
-					}
+					lives = append(lives, live)
 				}
 			}
 		}
 	}
+	var endTime = time.Now()
+	log.Infof("QueryLiveList,all:%.3f,len:%d,cache:%.3f,json:%.3f", 
+		endTime.Sub(startTime).Seconds(), len(lives), 
+		startJsonTime.Sub(startTime).Seconds(),
+		endTime.Sub(startJsonTime).Seconds() )
 	return lives, err
 }
 
