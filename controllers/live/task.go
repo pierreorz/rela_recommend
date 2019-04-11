@@ -10,21 +10,25 @@ import (
 var CachedLiveList []pika.LiveCache = make([]pika.LiveCache, 0)
 
 func refreshLiveList(duration time.Duration) {
-	time.Sleep(10 * time.Second)
+	// time.Sleep(10 * time.Second)
 	log.Infof("refreshLiveList task start: %s\n", duration)
 	tick := time.NewTicker(duration)
-	liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
 	for {
 		select {
 		case <- tick.C:
-			var startTime = time.Now()
-			lives, err := liveCache.QueryLiveList()
-			var endTime = time.Now()
-			if err != nil {
-				log.Errorf("refreshLiveList err %.3f: %s\n", endTime.Sub(startTime).Seconds(), err)
+			if factory.CacheLiveRds != nil {
+				var startTime = time.Now()
+				liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
+				lives, err := liveCache.QueryLiveList()
+				var endTime = time.Now()
+				if err != nil {
+					log.Errorf("refreshLiveList err %.3f: %s\n", endTime.Sub(startTime).Seconds(), err)
+				} else {
+					CachedLiveList = lives
+					log.Infof("refreshLiveList over %.3f: %d\n", endTime.Sub(startTime).Seconds(), len(CachedLiveList))
+				}
 			} else {
-				CachedLiveList = lives
-				log.Infof("refreshLiveList over %.3f: %d\n", endTime.Sub(startTime).Seconds(), len(CachedLiveList))
+				log.Errorf("refreshLiveList err:cache is not ready\n")
 			}
 		}
 	}
