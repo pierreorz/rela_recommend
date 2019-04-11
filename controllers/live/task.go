@@ -10,6 +10,7 @@ import (
 var CachedLiveList []pika.LiveCache = make([]pika.LiveCache, 0)
 
 func refreshLiveList(duration time.Duration) {
+	time.Sleep(10 * time.Second)
 	log.Infof("refreshLiveList task start: %s\n", duration)
 	tick := time.NewTicker(duration)
 	liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
@@ -31,9 +32,5 @@ func refreshLiveList(duration time.Duration) {
 
 // 启动自动刷新直播列表缓存
 func init() {
-	time.Sleep(10 * time.Second)
-	liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
-	lives, err := liveCache.QueryLiveList()
-	log.Infof("live init task start %d: %s\n", len(lives), err)
 	go refreshLiveList(2 * time.Second)
 }
