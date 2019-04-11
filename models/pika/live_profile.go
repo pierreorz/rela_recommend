@@ -80,12 +80,14 @@ func (self *LiveCacheModule) MgetByLiveIds(allList []LiveCache, liveIds []int64)
 	}
 
 	lives := make([]LiveCache, 0)
-	if len(live_ids_map) == 0 {
-		lives = allList
-	} else {
-		for i, _ := range allList {
-			if _, ok := live_ids_map[allList[i].Live.UserId]; ok {
-				lives = append(lives, allList[i])
+	if allList != nil && len(allList) > 0 {
+		if len(live_ids_map) == 0 {
+			lives = allList
+		} else {
+			for i, _ := range allList {
+				if _, ok := live_ids_map[allList[i].Live.UserId]; ok {
+					lives = append(lives, allList[i])
+				}
 			}
 		}
 	}
