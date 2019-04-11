@@ -31,5 +31,8 @@ func refreshLiveList(duration time.Duration) {
 
 // 启动自动刷新直播列表缓存
 func init() {
+	liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
+	lives, err := liveCache.QueryLiveList()
+	log.Infof("live init task start %d: %s\n", len(lives), err)
 	go refreshLiveList(2 * time.Second)
 }
