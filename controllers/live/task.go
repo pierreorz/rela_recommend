@@ -7,7 +7,7 @@ import (
 	"rela_recommend/models/pika"
 )
 
-var CachedLiveList []pika.LiveCache
+var CachedLiveList []pika.LiveCache = make([]pika.LiveCache, 0)
 
 func refreshLiveList(duration time.Duration) {
 	log.Infof("refreshLiveList task start: %s\n", duration)
