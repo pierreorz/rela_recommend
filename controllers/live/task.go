@@ -7,7 +7,12 @@ import (
 	"rela_recommend/models/pika"
 )
 
-var CachedLiveList []pika.LiveCache = make([]pika.LiveCache, 0)
+var cachedLiveList []pika.LiveCache = make([]pika.LiveCache, 0)
+
+// 获取缓存的直播列表
+func GetCachedLiveList() []pika.LiveCache {
+	return cachedLiveList
+}
 
 func refreshLiveList(duration time.Duration) {
 	// time.Sleep(10 * time.Second)
@@ -25,8 +30,8 @@ func refreshLiveList(duration time.Duration) {
 					log.Errorf("refreshLiveList err %.3f: %s\n", endTime.Sub(startTime).Seconds(), err)
 				} else {
 					if lives != nil {
-						CachedLiveList = lives
-						log.Infof("refreshLiveList over %.3f: %d\n", endTime.Sub(startTime).Seconds(), len(CachedLiveList))
+						cachedLiveList = lives
+						log.Infof("refreshLiveList over %.3f: %d\n", endTime.Sub(startTime).Seconds(), len(cachedLiveList))
 					} else {
 						log.Errorf("refreshLiveList err %.3f: list is nil\n", endTime.Sub(startTime).Seconds())
 					}
