@@ -205,6 +205,7 @@ func (this *UserProfileModule) QueryByUserAndUsers(userId int64, userIds []int64
 
 // 查询我关注的人的列表, 依赖缓存
 func (this *UserProfileModule) QueryConcernsByUser(userId int64) ([]int64, error) {
+	var startTime = time.Now()
 	key := fmt.Sprintf("user_concern:%d", userId)
 	idstrs, err := factory.CacheRds.SMembers(key)
 	userIds := make([]int64, 0)
@@ -214,5 +215,7 @@ func (this *UserProfileModule) QueryConcernsByUser(userId int64) ([]int64, error
 			userIds = append(userIds, id)
 		}
 	}
+	var endTime = time.Now()
+	log.Infof("QueryConcernsByUser :%.3f:len:%d", endTime.Sub(startTime).Seconds(), len(userIds))
 	return userIds, err
 }

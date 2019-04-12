@@ -177,7 +177,10 @@ func (rc *Cache) Close() {
 // connect to redis.
 func (rc *Cache) connectInit() {
 	dialFunc := func() (c redis.Conn, err error) {
-		c, err = redis.Dial("tcp", rc.conninfo)
+		c, err = redis.Dial("tcp", rc.conninfo,
+			redis.DialConnectTimeout(1000 * time.Millisecond),
+			redis.DialReadTimeout(500 * time.Millisecond),
+			redis.DialWriteTimeout(1000 * time.Millisecond))
 		if err != nil {
 			return nil, err
 		}
