@@ -88,10 +88,10 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 	}
 
 	// 获取关注信息
-	concerns, err := userCache.QueryConcernsByUser(params.UserId)
-	if err != nil {
-		log.Warnf("QueryConcernsByUser err: %s\n", err)
-	}
+	// concerns, err := userCache.QueryConcernsByUser(params.UserId)
+	// if err != nil {
+	// 	log.Warnf("QueryConcernsByUser err: %s\n", err)
+	// }
 
 
 	livesInfo := make([]live.LiveInfo, 0)
@@ -112,8 +112,7 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 
 	userInfo := &live.UserInfo{
 		UserId: user.UserId, UserCache: &user, 
-		LiveProfile: &user2,
-		UserConcerns: utils.NewSetInt64FromArray(concerns)}
+		LiveProfile: &user2}
 
 	ctx := live.LiveAlgoContext{
 		RankId: rank_id, Ua: params.Ua, Platform: utils.GetPlatform(params.Ua),
