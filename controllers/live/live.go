@@ -58,8 +58,9 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 	// 获取主播列表
 	allLives := GetCachedLiveList()
 	if allLives == nil || len(allLives) == 0 {
-		log.Warnf("cached live list is nil\n")
-		allLives, _ = liveCache.QueryLiveList()
+		var err error
+		allLives, err = liveCache.QueryLiveList()
+		log.Warnf("cached live list is nil, %s\n", err)
 	}
 	lives := liveCache.MgetByLiveIds(allLives, params.LiveIds)
 	liveIds := make([]int64, len(lives))
