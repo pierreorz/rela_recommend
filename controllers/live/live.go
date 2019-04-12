@@ -88,6 +88,7 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 	}
 
 	// 获取关注信息
+	// concerns := make([]int64, 0)
 	concerns, err := userCache.QueryConcernsByUser(params.UserId)
 	if err != nil {
 		log.Warnf("QueryConcernsByUser err: %s\n", err)

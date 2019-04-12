@@ -163,9 +163,9 @@ func (rc *Cache) connectInit() {
 	rc.conn, err = redisCluster.NewCluster(
 		&redisCluster.Options{
 			StartNodes:   addr,
-			ConnTimeout:  5 * time.Second,
-			ReadTimeout:  5 * time.Second,
-			WriteTimeout: 5 * time.Second,
+			ConnTimeout:  1000 * time.Millisecond,
+			ReadTimeout:  500 * time.Millisecond,
+			WriteTimeout: 1000 * time.Millisecond,
 			KeepAlive:    1000,
 			AliveTime:    180 * time.Second,
 		})
