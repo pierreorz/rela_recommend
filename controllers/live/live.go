@@ -56,7 +56,12 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 	rdsPikaCache := redis.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 
 	// 获取主播列表
-	lives := liveCache.MgetByLiveIds(GetCachedLiveList(), params.LiveIds)
+	allLives := GetCachedLiveList()
+	if allLives == nil || len(allLives) == 0 {
+		log.Warnf("cached live list is nil\n")
+		allLives, _ = liveCache.QueryLiveList()
+	}
+	lives := liveCache.MgetByLiveIds(allLives, params.LiveIds)
 	liveIds := make([]int64, len(lives))
 	for i, _ := range lives {
 		liveIds[i] = lives[i].Live.UserId
