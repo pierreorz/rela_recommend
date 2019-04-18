@@ -52,7 +52,7 @@ func (self *UserProfileModule) QueryLiveProfileByUserIds(userIds []int64) ([]Liv
 		}
 	}
 	endTime := time.Now()
-	log.Infof("UnmarshalKey:%s,all:%d,notfound:%d,final:%d;total:%.3f,read:%.3f,json:%.3f\n",
+	log.Infof("UnmarshalKey:%s,all:%d,notfound:%d,final:%d;total:%.4f,read:%.4f,json:%.4f\n",
 		keyFormatter, len(userIds), len(userIds)-len(users), len(users), 
 		endTime.Sub(startTime).Seconds(),
 		startJsonTime.Sub(startTime).Seconds(), endTime.Sub(startJsonTime).Seconds())
