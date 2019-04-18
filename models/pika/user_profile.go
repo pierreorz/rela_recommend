@@ -209,10 +209,12 @@ func (this *UserProfileModule) QueryConcernsByUser(userId int64) ([]int64, error
 	key := fmt.Sprintf("user_concern:%d", userId)
 	idstrs, err := factory.CacheRds.SMembers(key)
 	userIds := make([]int64, 0)
-	for _, idstr := range idstrs {
-		id, err := redis.Int64(idstr, err)
-		if err == nil && id > 0 {
-			userIds = append(userIds, id)
+	if err == nil {
+		for _, idstr := range idstrs {
+			id, err := redis.Int64(idstr, err)
+			if err == nil && id > 0 {
+				userIds = append(userIds, id)
+			}
 		}
 	}
 	var endTime = time.Now()
