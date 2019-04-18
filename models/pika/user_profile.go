@@ -216,6 +216,6 @@ func (this *UserProfileModule) QueryConcernsByUser(userId int64) ([]int64, error
 		}
 	}
 	var endTime = time.Now()
-	log.Infof("QueryConcernsByUser :%.3f:len:%d", endTime.Sub(startTime).Seconds(), len(userIds))
+	log.Infof("QueryConcernsByUser total:%.4f:len:%d", endTime.Sub(startTime).Seconds(), len(userIds))
 	return userIds, err
 }
