@@ -42,7 +42,7 @@ func GetLiveFeatures(ctx *LiveAlgoContext, live *LiveInfo) *utils.Features {
 		fs.AddArray(600, 30, live.LiveProfile.LiveViewLiveEmbedding)
 	}
 
-	// 离散特征  1000 - &
+	// 离散特征与交叉特征  10000 - &
 	fs.AddCategory(10000, 24, 0, ctx.CreateTime.Hour(), 0)			// 时间
 	fs.AddCategory(10024, 7, 0, int(ctx.CreateTime.Weekday()), 0)	// 周几
 
