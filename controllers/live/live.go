@@ -176,8 +176,8 @@ func DoRecommend(params *LiveRecommendRequest) LiveRecommendResponse {
 	if dataLen > 0 {
 		minScore, maxScore = ctx.LiveList[0].RankInfo.Score, ctx.LiveList[dataLen-1].RankInfo.Score
 	}
-	log.Infof("paramuser %d,user %d,paramlen %d,len %d,return %d,max %g,min %g;total:%.3f,init:%.3f,cache:%.3f,ctx:%.3f,predict:%.3f,sort:%.3f,page:%.3f\n",
-			  params.UserId, ctx.User.UserId, len(params.LiveIds), dataLen, len(returnIds), minScore, maxScore,
+	log.Infof("paramuser %d,offset %d,limit %d,user %d,paramlen %d,len %d,return %d,max %g,min %g;total:%.3f,init:%.3f,cache:%.3f,ctx:%.3f,predict:%.3f,sort:%.3f,page:%.3f\n",
+			  params.UserId, params.Offset, params.Limit, ctx.User.UserId, len(params.LiveIds), dataLen, len(returnIds), minScore, maxScore,
 			  startLogTime.Sub(startTime).Seconds(), startCacheTime.Sub(startTime).Seconds(),
 			  startCtxTime.Sub(startCacheTime).Seconds(), startPredictTime.Sub(startCtxTime).Seconds(),
 			  startSortTime.Sub(startPredictTime).Seconds(), startPageTime.Sub(startSortTime).Seconds(),
