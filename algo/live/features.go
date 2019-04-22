@@ -42,7 +42,7 @@ func GetLiveFeatures(ctx *LiveAlgoContext, live *LiveInfo) *utils.Features {
 		fs.AddArray(600, 30, live.LiveProfile.LiveViewLiveEmbedding)
 	}
 
-	// 离散特征与交叉特征  10000 - &
+	// 离散特征与交叉特征  10000 - 15000
 	fs.AddCategory(10000, 24, 0, ctx.CreateTime.Hour(), 0)			// 时间
 	fs.AddCategory(10024, 7, 0, int(ctx.CreateTime.Weekday()), 0)	// 周几
 
@@ -70,11 +70,13 @@ func GetLiveFeatures(ctx *LiveAlgoContext, live *LiveInfo) *utils.Features {
 	}	
 	fs.AddCategory(10232, 3, -1, liveCache.Recommand, 0)		// 主播是否被推荐(-1, 0, 1)
 
-	// 交叉特征
+	// 交叉特征    15000 - 20000
 	if live.LiveProfile != nil && ctx.User.LiveProfile != nil {	// 隐含特征推荐度
 		recVal := utils.ArrayMultSum(ctx.User.LiveProfile.LiveViewUserEmbedding, live.LiveProfile.LiveViewLiveEmbedding)
-		fs.Add(20000, recVal)
+		fs.Add(15000, recVal)
 	}
+
+	// 大规模稀疏特征  20000 - 
 
 	return fs
 }
