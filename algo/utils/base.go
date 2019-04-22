@@ -37,6 +37,17 @@ func Expit(score float32) float32 {
 	return 1.0 / (1.0 + float32(math.Exp(-float64(score))))
 }
 
+// 数组相乘的和
+func ArrayMultSum(arr1, arr2 []float32) float32 {
+	var sum float32 = 0.0
+	if arr1 != nil && arr2 != nil && len(arr1) == len(arr2) {
+		for i, arr1i := range arr1 {
+			sum += arr1i * arr2[i]
+		}
+	}
+	return sum
+}
+
 // 模型加载 json -> gzip 
 func LoadModel(path string, model interface{}) bool {
 	fr, oerr := os.Open(path)
