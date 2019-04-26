@@ -12,7 +12,7 @@ func init() {
 	// 因子默认值
 	default_config := `{
 		"match": {"match_model": "QuickMatchTreeV1_0", "default_key": "test"},
-		"live": {"live_model": "LiveModelV1_2", "new_score": "0.3"}
+		"live": {"live_model": "LiveModelV1_3", "new_score": "0.3"}
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
 		log.Error(err.Error())
@@ -32,13 +32,13 @@ func init() {
 					{"name": "v1.2", "percentage": 10, "factor_map": {"match_active_user_upper": "0.2"}}
 			]} ],
 		"live": [
-			{"name": "testing_model_v4", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daily_change": 1,
+			{"name": "testing_model_v1.3", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daily_change": 1,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-					{"name": "v1.0.0", "percentage": 15, "factor_map": {"new_score": "0.0", "live_model": "LiveModelV1_2"}},
-					{"name": "v1.2.6", "percentage": 15, "factor_map": {"new_score": "0.6", "live_model": "LiveModelV1_2"}},
-					{"name": "v1.2.5", "percentage": 15, "factor_map": {"new_score": "0.5", "live_model": "LiveModelV1_2"}},
-					{"name": "v1.2.4", "percentage": 15, "factor_map": {"new_score": "0.4", "live_model": "LiveModelV1_2"}},
-					{"name": "v1.2.3", "percentage": 15, "factor_map": {"new_score": "0.3", "live_model": "LiveModelV1_2"}}
+					{"name": "v1.0.0", "percentage": 15, "factor_map": {"new_score": "0.0", "live_model": "LiveModelV1_3"}},
+					{"name": "v1.2.6", "percentage": 15, "factor_map": {"new_score": "0.6", "live_model": "LiveModelV1_3"}},
+					{"name": "v1.2.5", "percentage": 15, "factor_map": {"new_score": "0.5", "live_model": "LiveModelV1_3"}},
+					{"name": "v1.2.4", "percentage": 15, "factor_map": {"new_score": "0.4", "live_model": "LiveModelV1_3"}},
+					{"name": "v1.2.3", "percentage": 15, "factor_map": {"new_score": "0.3", "live_model": "LiveModelV1_3"}}
 			]} ]
 	}`
 	if err := json.Unmarshal(([]byte)(ab_config), &testingMap); err != nil {
