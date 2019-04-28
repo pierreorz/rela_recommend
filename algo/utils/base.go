@@ -31,6 +31,18 @@ func (self *ModelAlgoBase) TransformSingle(features *Features) *Features {
 	return features
 }
 
+// 分割索引
+func SplitIndexs(lens int, batch int) [][]int {
+	arrs := make([][]int, batch)
+	for i := 0; i < lens; i++ {
+		index := i % batch
+		if arrs[index] == nil {
+			arrs[index] = make([]int, 0)
+		}
+		arrs[index] = append(arrs[index], i)
+	}
+	return arrs
+}
 
 // Sigmoid 函数
 func Expit(score float32) float32 {
