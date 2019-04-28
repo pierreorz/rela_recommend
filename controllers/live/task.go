@@ -30,8 +30,13 @@ func refreshLiveList(duration time.Duration) {
 					log.Errorf("refreshLiveList err %.3f: %s\n", endTime.Sub(startTime).Seconds(), err)
 				} else {
 					if lives != nil {
-						cachedLiveList = lives
-						log.Infof("refreshLiveList over %.3f: %d\n", endTime.Sub(startTime).Seconds(), len(cachedLiveList))
+						// 防止缓存临时挂掉引起列表为空： 原列表>=20时，新列表突然为0时不更新，假如有脏数据，外层生成列表时会校验。
+						if len(cachedLiveList) >= 20 && len(lives) == 0 {
+							log.Infof("refreshLiveList err %.3f: old %d, new %d\n", endTime.Sub(startTime).Seconds(), len(cachedLiveList), len(lives))
+						} else {
+							cachedLiveList = lives
+							log.Infof("refreshLiveList over %.3f: %d\n", endTime.Sub(startTime).Seconds(), len(cachedLiveList))
+						}
 					} else {
 						log.Errorf("refreshLiveList err %.3f: list is nil\n", endTime.Sub(startTime).Seconds())
 					}
