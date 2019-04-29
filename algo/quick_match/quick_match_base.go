@@ -49,6 +49,12 @@ func (self *QuickMatchBase) doPredictSingle(ctx *QuickMatchContext, index int) {
 	ctx.UserList[index].Features = algo.List2Features(features)
 }
 
+// 使用简单计算
+func (self *QuickMatchBase) doPredict(ctx *QuickMatchContext) {
+	for i := 0; i < len(ctx.UserList); i++ {
+		self.doPredictSingle(ctx, i)
+	}
+}
 // 使用goroutine多线程并行计算
 func (self *QuickMatchBase) goPredict(ctx *QuickMatchContext, batch int) {
 	parts := utils.SplitIndexs(len(ctx.UserList), batch)
@@ -67,9 +73,7 @@ func (self *QuickMatchBase) goPredict(ctx *QuickMatchContext, batch int) {
 
 func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
 	if len(ctx.UserList) < 100 {
-		for i := 0; i < len(ctx.UserList); i++ {
-			self.doPredictSingle(ctx, i)
-		}
+		self.doPredict(ctx)
 	} else {
 		self.goPredict(ctx, 3)
 	}
