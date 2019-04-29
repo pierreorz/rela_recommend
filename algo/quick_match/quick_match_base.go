@@ -3,6 +3,7 @@ package quick_match
 import(
 	// "time"
 	// "rela_recommend/log"
+	"sync"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
 	"rela_recommend/service"
@@ -40,42 +41,40 @@ func (self *QuickMatchBase) PredictSingle(features []float32) float32 {
 	return self.model.PredictSingle(features)
 }
 
-type goResult struct {
-	Index int
-	Score float32
-	Features []algo.Feature
+// 使用简单计算单个
+func (self *QuickMatchBase) doPredictSingle(ctx *QuickMatchContext, index int) {
+	features := self.Features(ctx, &ctx.UserList[index])
+	ctx.UserList[index].AlgoScore = self.PredictSingle(features)
+	ctx.UserList[index].Score = ctx.UserList[index].AlgoScore
+	ctx.UserList[index].Features = algo.List2Features(features)
 }
 
-func (self *QuickMatchBase) goPredict(r chan goResult, countChan chan int, index int, ctx *QuickMatchContext) {
-	features := self.Features(ctx, &ctx.UserList[index])
-	score := self.PredictSingle(features) 
-	featureList := algo.List2Features(features)
-	r <- goResult{Index: index, Score: score, Features: featureList}
-	<- countChan
+// 使用简单计算
+func (self *QuickMatchBase) doPredict(ctx *QuickMatchContext) {
+	for i := 0; i < len(ctx.UserList); i++ {
+		self.doPredictSingle(ctx, i)
+	}
+}
+// 使用goroutine多线程并行计算
+func (self *QuickMatchBase) goPredict(ctx *QuickMatchContext, batch int) {
+	parts := utils.SplitIndexs(len(ctx.UserList), batch)
+	wg := new(sync.WaitGroup)
+	for _, part := range parts {
+		wg.Add(1)
+		go func(part []int) {
+			defer wg.Done()
+			for _, indx := range part {
+				self.doPredictSingle(ctx, indx)
+			}
+        }(part)
+	}
+	wg.Wait()
 }
 
 func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
-	// var resultChan chan goResult = make(chan goResult, len(ctx.UserList))
-	// var countChan chan int = make(chan int, 8)
-	
-	// for i := 0; i < len(ctx.UserList); i++ {
-	// 	countChan <- 1
-	// 	go self.goPredict(resultChan, countChan, i, ctx)
-	// }
-
-	// for j := 0; j < len(ctx.UserList); j++ {
-	// 	select {
-	// 		case result := <- resultChan:
-	// 			ctx.UserList[result.Index].AlgoScore = result.Score
-	// 			ctx.UserList[result.Index].Score = result.Score
-	// 			ctx.UserList[result.Index].Features = result.Features
-	// 		}
-	// }
-	
-	for i := 0; i < len(ctx.UserList); i++ {
-		features := self.Features(ctx, &ctx.UserList[i])
-		ctx.UserList[i].AlgoScore = self.PredictSingle(features)
-		ctx.UserList[i].Score = ctx.UserList[i].AlgoScore
-		ctx.UserList[i].Features = algo.List2Features(features)
+	if len(ctx.UserList) < 100 {
+		self.doPredict(ctx)
+	} else {
+		self.goPredict(ctx, 3)
 	}
 }
