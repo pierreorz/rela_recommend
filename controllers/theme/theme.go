@@ -94,7 +94,7 @@ func DoRecommend(params *algo.RecommendRequest) algo.RecommendResponse {
 	}
 	var startLogTime = time.Now()
 	log.Infof("rankid %s,paramuser %d,offset %d,limit %d,user %d,paramlen %d,len %d,return %d,max %g,min %g;total:%.3f,init:%.3f,cache:%.3f,ctx:%.3f,predict:%.3f,sort:%.3f,page:%.3f\n",
-			  ctx.RankId, params.UserId, params.Offset, params.Limit, ctx.User.UserId, dataLen, dataLen, len(returnIds), 0.0, 0.0,
+			  ctx.RankId, params.UserId, params.Offset, params.Limit, params.UserId, dataLen, dataLen, len(returnIds), 0.0, 0.0,
 			  startLogTime.Sub(startTime).Seconds(), startCacheTime.Sub(startTime).Seconds(),
 			  startCtxTime.Sub(startCacheTime).Seconds(), startPredictTime.Sub(startCtxTime).Seconds(),
 			  startSortTime.Sub(startPredictTime).Seconds(), startPageTime.Sub(startSortTime).Seconds(),
