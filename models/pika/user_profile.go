@@ -203,6 +203,18 @@ func (this *UserProfileModule) QueryByUserAndUsers(userId int64, userIds []int64
 	return resUser, resUsers, err
 }
 
+func (this *UserProfileModule) QueryByUserAndUsersMap(userId int64, userIds []int64) (*UserProfile, map[int64]*UserProfile, error) {
+	user, users, err := this.QueryByUserAndUsers(userId, userIds)
+	usersMap := make(map[int64]*UserProfile, 0)
+	for i, u := range users {
+		if u.UserId > 0 {
+			usersMap[u.UserId] = &users[i]
+		}
+	}
+	return &user, usersMap, err
+}
+
+
 // 查询我关注的人的列表, 依赖缓存
 func (this *UserProfileModule) QueryConcernsByUser(userId int64) ([]int64, error) {
 	var startTime = time.Now()

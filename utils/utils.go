@@ -17,7 +17,7 @@ import (
 	"time"
 	"io"
 	"encoding/binary"
-	"hash/fnv"
+	"bytes"
 	"github.com/gansidui/geohash"
 	"net/url"
 )
@@ -147,11 +147,22 @@ func Md5Sum(data []byte) string {
 	return hex.EncodeToString(byte16ToBytes(md5.Sum(data)))
 }
 
-func Md5Sum32(data []byte) uint32 {
-	hash32 := fnv.New32a()
-	hash32.Write(data)
-	res := hash32.Sum32()
-	return res
+func Bytes2Int32(data []byte) int32 {
+	var x int32
+	b_buf := bytes.NewBuffer(data)  // 取最后4字节
+	err := binary.Read(b_buf, binary.BigEndian, &x) 
+	if err != nil{
+		fmt.Printf("err %s\n", err)
+	}
+	return x
+}
+
+func Md5Sum32(data []byte) int32 {
+	hash := md5.New()
+	hash.Write(data)
+	resByte := hash.Sum(nil)
+
+	return Bytes2Int32(resByte[12:])
 }
 
 //[16]byte to []byte
@@ -340,8 +351,26 @@ func(self *SetInt64) Contains(val int64) bool {
 	return ok
 }
 
+func(self *SetInt64) ToList() []int64 {
+	res := make([]int64, 0)
+	for k, _ := range self.intMap {
+		res = append(res, k)
+	}
+	return res
+}
+
 func NewSetInt64FromArray(vals []int64) *SetInt64 {
 	set := SetInt64{}
 	set.FromArray(vals)
 	return &set
+}
+
+// int是否在int数组内
+func IsInInts(v int, vs []int) bool {
+	for _, vv := range vs {
+		if v == vv {
+			return true
+		}
+	}
+	return false
 }

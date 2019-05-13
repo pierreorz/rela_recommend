@@ -44,6 +44,10 @@ type cassandraConfig struct {
 	Addresses string `toml:"addresses"`
 }
 
+type rpcConfig struct {
+	SearchRpcAddr	string	`toml:"search_rpc_addr"`
+}
+
 type Config struct {
 	FileName string `toml:"-"`
 
@@ -71,6 +75,7 @@ type Config struct {
 	Rdb       rdbConfig       `toml:"rdb"`
 	Rds       rdsConfig       `toml:"rds"`
 	Cassandra cassandraConfig `toml:"cassandra"`
+	Rpc		rpcConfig	`toml:"rpc"`
 }
 
 func NewConfigWithFile(fileName string) (*Config, error) {

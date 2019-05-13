@@ -93,8 +93,15 @@ func (self *Features) AddCategories(start, length, minVal int, vals []int, def i
 func (self *Features) AddHash(start, length int, val interface{}) bool {
 	bytesVal := utils.GetBytes(val)
 	hashVal := utils.Md5Sum32(bytesVal)
-	restVal := int(hashVal % uint32(length))
+	restVal := int(hashVal % int32(length))
 	return self.AddCategory(start, length, 0, restVal, 0)
+}
+
+func (self *Features) AddHashStrings(start, length int, vals []string) bool {
+	for _, val := range vals {
+		self.AddHash(start, length, val)
+	}
+	return true
 }
 
 func (self *Features) Get(key int) float32 {

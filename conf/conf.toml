@@ -24,3 +24,6 @@ master_address = "root:qwe123@tcp(localhost:3306)/stay?charset=utf8mb4&parseTime
 
 [cassandra]
 addresses="127.0.0.1"
+
+[rpc]
+search_rpc_addr = ""

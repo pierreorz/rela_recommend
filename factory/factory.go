@@ -4,10 +4,12 @@ import (
 	"gopkg.in/mgo.v2"
 	"rela_recommend/cache"
 	"rela_recommend/cache/redis"
+	"rela_recommend/rpc"
 	"rela_recommend/conf"
 	"rela_recommend/log"
 	"rela_recommend/utils"
 	"strings"
+	"time"
 
 	"github.com/gocql/gocql"
 	"github.com/jinzhu/gorm"
@@ -38,6 +40,7 @@ var CassandraClient *gocql.Session
 // match mongo
 var MatchClusterMon *mgo.Session
 
+var SearchRpcClient *rpc.HttpClient
 //配置相关
 var Cfg *conf.Config
 
@@ -56,6 +59,7 @@ func Init(cfg *conf.Config) {
 	initCache(cfg)
 	// initMongo(cfg)
 	// initCassandraSession(cfg)
+	initRpc(cfg)
 }
 
 func initDB(cfg *conf.Config) {
@@ -135,6 +139,10 @@ func initMongo(cfg *conf.Config) {
 	if err != nil {
 		log.Error(err.Error())
 	}
+}
+
+func initRpc(cfg *conf.Config){
+	SearchRpcClient = rpc.NewHttpClient(cfg.Rpc.SearchRpcAddr, time.Millisecond * 500)
 }
 
 func Close() {

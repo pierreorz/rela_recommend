@@ -30,6 +30,7 @@ type RecommendRequest struct {
 	Lng		float32 `json:"lng" form:"lng"`
 	UserId  int64  	`json:"userId" form:"userId"`
 	Module	string	`json:"module" form:"module"`	// 是推荐/热门/
+	DataIds []int64	`json:"dataIds" form:"dataIds"`
 }
 
 type RecommendResponseItem struct {
