@@ -30,11 +30,6 @@ func RecommendListHTTP(c *routers.Context) {
 	c.JSON(response.FormatResponse(res, service.WarpError(nil, "", "")))
 }
 
-// 获取候选列表
-func SearchList(params *algo.RecommendRequest) []int64 {
-	return []int64{1,2,2,3,4,5}
-}
-
 // 构建上下文
 func BuildContext(params *algo.RecommendRequest) (*theme.ThemeAlgoContext, error) {
 	rank_id := utils.UniqueId()
