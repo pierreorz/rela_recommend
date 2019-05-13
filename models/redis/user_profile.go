@@ -80,3 +80,13 @@ func (self *UserProfileModule) QueryLiveProfileByUserAndUsers(userId int64, user
 	}
 	return resUser, resUsers, err
 }
+
+// 从缓存中获取以逗号分割的字符串，并转化成int64. 如 keys11  1,2,3,4,5
+func (self *UserProfileModule) GetInt64List(id int64, keyFormatter string) ([]int64, error) {
+	cacheModule := &CachePikaModule{cache: self.cache, store: self.store}
+	res, err := cacheModule.GetSet(id, keyFormatter, 24 * 60 * 60, 1 * 60 * 60)
+	if err == nil {
+		return utils.GetInt64s(res), nil
+	}
+	return nil, err
+}

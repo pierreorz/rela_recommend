@@ -21,6 +21,31 @@ type RecommendLog struct {
 	AbMap string
 }
 
+// 请求参数
+type RecommendRequest struct {
+	Limit   int64  `json:"limit" form:"limit"`
+	Offset  int64  `json:"offset" form:"offset"`
+	Ua      string `json:"ua" form:"ua"`
+	Lat		float32 `json:"lat" form:"lat"`
+	Lng		float32 `json:"lng" form:"lng"`
+	UserId  int64  `json:"userId" form:"userId"`
+}
+
+type RecommendResponseItem struct {
+	DataId int64	`json:"dataIds" form:"dataIds"`
+	Reason string	`json:"reason" form:"reason"`
+	Score float32	`json:"score" form:"score"`
+}
+
+// 返回参数
+type RecommendResponse struct {
+	Status  string		`json:"status" form:"status"`
+	Message string		`json:"message" form:"message"`
+	RankId	string		`json:"rankId" form:"rankId"`
+	DataIds []int64		`json:"dataIds" form:"dataIds"`
+	DataList []RecommendResponseItem	`json:"dataList" form:"dataList"`
+}
+
 //********************************* 特征
 type Feature struct {
 	Index int

@@ -13,14 +13,42 @@ type CachePikaModule struct {
 	store cache.Cache
 }
 
-func (self *CachePikaModule) Get(key string) (interface{}, error) {
+// 读取缓存。cacheTime：redis的缓存时间；cacheNilTime: pika也不存在的key写入redis的缓存时间
+func (self *CachePikaModule) GetSet(id int64, keyFormater string, cacheTime int, cacheNilTime int) (interface{}, error) {
+	var startTime = time.Now()
+	var dataFrom = "cache"
+	var message = ""
+	key := fmt.Sprintf(keyFormater, id)
 	res, err := self.cache.Get(key)
+	var endCacheTime = time.Now()
 	if err != nil {
-		log.Warnf("CachePikaModule  get warn: %s\n", err)
+		message = fmt.Sprintf("cache warn: %s\n", err)
 	}
-	if res == nil {
+	var startStoreTime = time.Now()
+	var startStoreSetTime = time.Now()
+	if res == nil {  // 缓存没有获取到
 		res, err = self.store.Get(key)
+		startStoreSetTime = time.Now()
+		if err == nil {
+			dataFrom = "store"
+			res2, cacheTime2 := res, cacheTime
+			if res == nil {
+				res2, cacheTime2 = "", cacheNilTime
+			}
+			err = self.cache.SetEx(key, res2, cacheTime2)
+			if err != nil {
+				message = fmt.Sprintf("%s;setcache warn: %s\n", message, err)
+			}
+		} else {
+			message = fmt.Sprintf("%s;store warn: %s\n", message, err)
+		}
 	}
+	var endTime = time.Now()
+	log.Infof("GetSet Key:%s,id:%d,from:%s,total:%.3f,cache:%.3f,store:%.3f,2cache:%.3f,msg:%s\n",
+		keyFormater, id, dataFrom,
+		endTime.Sub(startTime).Seconds(), endCacheTime.Sub(startTime).Seconds(), 
+		startStoreSetTime.Sub(startStoreTime).Seconds(), endTime.Sub(startStoreSetTime).Seconds(),
+		message)
 	return res, err
 }
 
