@@ -39,7 +39,9 @@ func BuildContext(params *algo.RecommendRequest) (*theme.ThemeAlgoContext, error
 	if err == nil {
 		log.Warnf("theme recommend list is nil, %s\n", err)
 	}
-
+	if len(dataList) == 0{
+		dataList, _ = rdsPikaCache.GetInt64List(-999999999, "theme_recommend_list:%d")
+	}
 	ctx := theme.ThemeAlgoContext{
 		RankId: rank_id, Platform: utils.GetPlatform(params.Ua),
 		CreateTime: time.Now(), AbTest: abtest.GetAbTest("theme", params.UserId),
