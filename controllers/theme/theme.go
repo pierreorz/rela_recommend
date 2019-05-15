@@ -34,7 +34,7 @@ func RecommendListHTTP(c *routers.Context) {
 func BuildContext(params *algo.RecommendRequest) (*theme.ThemeAlgoContext, error) {
 	rank_id := utils.UniqueId()
 	rdsPikaCache := redis.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
-	
+
 	dataList, err := rdsPikaCache.GetInt64List(params.UserId, "theme_recommend_list:%d")
 	if err == nil {
 		log.Warnf("theme recommend list is nil, %s\n", err)
@@ -43,6 +43,7 @@ func BuildContext(params *algo.RecommendRequest) (*theme.ThemeAlgoContext, error
 		dataList, _ = rdsPikaCache.GetInt64List(-999999999, "theme_recommend_list:%d")
 	}
 	ctx := theme.ThemeAlgoContext{
+		Request: params,
 		RankId: rank_id, Platform: utils.GetPlatform(params.Ua),
 		CreateTime: time.Now(), AbTest: abtest.GetAbTest("theme", params.UserId),
 		ThemeIds: dataList}
@@ -80,7 +81,7 @@ func DoRecommend(params *algo.RecommendRequest) algo.RecommendResponse {
 		returnIds = append(returnIds, currData)
 		// 记录日志
 		logStr := algo.RecommendLog{RankId: ctx.RankId, Index: j,
-									UserId: ctx.User.UserId,
+									UserId: ctx.Request.UserId,
 									DataId: currData,
 									Algo: modelName,
 									AlgoScore: 0.0,
