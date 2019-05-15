@@ -7,6 +7,7 @@ import(
 	"rela_recommend/log"
 	"rela_recommend/cache"
 	"rela_recommend/utils"
+	"fmt"
 )
 
 
@@ -85,8 +86,9 @@ func (self *UserProfileModule) QueryLiveProfileByUserAndUsers(userId int64, user
 func (self *UserProfileModule) GetInt64List(id int64, keyFormatter string) ([]int64, error) {
 	cacheModule := &CachePikaModule{cache: self.cache, store: self.store}
 	res, err := cacheModule.GetSet(id, keyFormatter, 24 * 60 * 60, 1 * 60 * 60)
+	fmt.Println(res)
 	if err == nil {
-		return utils.GetInt64s(res), nil
+		return utils.GetInt64s(utils.GetString(res)), nil
 	}
 	return nil, err
 }
