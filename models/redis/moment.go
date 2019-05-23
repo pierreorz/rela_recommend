@@ -38,7 +38,7 @@ type Moments struct {
 	/** 额外信息  **/
 	Ext string `gorm:"column:ext" json:"-"`
 	/** 额外信息  **/
-	MomentsExt MomentsExt `gorm:"column:-" json:"ext,omitempty"`
+	MomentsExt MomentsExt `gorm:"column:-" json:"-,omitempty"`
 }
 
 type MomentsExt struct {
