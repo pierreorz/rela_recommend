@@ -33,9 +33,12 @@ func RecommendListHTTP(c *routers.Context) {
 
 // 构建上下文
 func BuildContext(params *algo.RecommendRequest) (*moment.AlgoContext, error) {
+	var startTime = time.Now()
+	abTest := abtest.GetAbTest("theme", params.UserId)
 	rank_id := utils.UniqueId()
 	userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(&factory.CacheCluster, &factory.PikaCluster)
+
 	// search list
 	var err error
 	dataIds := params.DataIds
@@ -46,6 +49,7 @@ func BuildContext(params *algo.RecommendRequest) (*moment.AlgoContext, error) {
 		}
 	}
 	// 获取日志内容
+	var startMomentTime = time.Now()
 	moms, err := momentCache.QueryMomentsByIds(dataIds)
 	userIds := make([]int64, 0)
 	if err != nil {
@@ -59,11 +63,14 @@ func BuildContext(params *algo.RecommendRequest) (*moment.AlgoContext, error) {
 		userIds = utils.NewSetInt64FromArray(userIds).ToList()
 	}
 	// 获取用户信息
+	var startUserTime = time.Now()
 	user, usersMap, err := userCache.QueryByUserAndUsersMap(params.UserId, userIds)
 	if err != nil {
 		log.Warnf("users list is err, %s\n", err)
 	}
 
+
+	var startBuildTime = time.Now()
 	userInfo := &moment.UserInfo{
 		UserId: params.UserId,
 		UserCache: user}
@@ -86,9 +93,15 @@ func BuildContext(params *algo.RecommendRequest) (*moment.AlgoContext, error) {
 	ctx := moment.AlgoContext{
 		Request: params, User: userInfo,
 		RankId: rank_id, Platform: utils.GetPlatform(params.Ua),
-		CreateTime: time.Now(), AbTest: abtest.GetAbTest("theme", params.UserId),
+		CreateTime: time.Now(), AbTest: abTest,
 		DataIds: dataIds, DataList: dataList}
 
+	var endTime = time.Now()
+	log.Infof("rankid %s,searchlen:%d;total:%.3f,search:%.3f,moment:%.3f,user:%.3f,build:%.3f\n",
+			  ctx.RankId, len(dataIds),
+			  endTime.Sub(startTime).Seconds(), startMomentTime.Sub(startTime).Seconds(),
+			  startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(),
+			  endTime.Sub(startBuildTime).Seconds() )
 	return &ctx, nil
 }
 
