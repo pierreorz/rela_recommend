@@ -107,7 +107,7 @@ func NewMomentCacheModule(cache *cache.Cache, store *cache.Cache) *MomentCacheMo
 // 读取直播相关用户画像
 func (self *MomentCacheModule) QueryMomentsByIds(ids []int64) ([]MomentsAndExtend, error) {
 	startTime := time.Now()
-	keyFormatter := "friends_moments_moments_%d"
+	keyFormatter := "friends_moments_moments:%d"
 	ress, err := self.MGetSet(ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
 	startJsonTime := time.Now()
 	objs := make([]MomentsAndExtend, 0)

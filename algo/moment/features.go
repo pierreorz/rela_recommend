@@ -63,8 +63,9 @@ func GetMomentFeatures(model *MomentAlgoBase, ctx *AlgoContext, data *DataInfo) 
 	}
 	
 	// 分词结果
-	words := model.CheckWords(memprofile.MomentsTextWords)
-	fs.AddHashStrings(100000, 100000, words)
-
+	if memprofile != nil {
+		words := model.CheckWords(memprofile.MomentsTextWords)
+		fs.AddHashStrings(100000, 100000, words)
+	}
 	return fs
 }
