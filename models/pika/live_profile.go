@@ -97,7 +97,7 @@ func (self *LiveCacheModule) MgetByLiveIds(allList []LiveCache, liveIds []int64)
 // 获取所有直播列表
 func (self *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
 	var startTime = time.Now()
-	list_key := "hotlives_with_recommend_v2"
+	list_key := "{cluster1}hotlives_with_recommend_v2"
 	live_bytes, err := self.cacheLive.LRange(list_key, 0, -1)
 	var startJsonTime = time.Now()
 	lives := make([]LiveCache, 0)
