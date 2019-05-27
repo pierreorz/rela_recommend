@@ -1,6 +1,7 @@
 package moment
 
 import (
+	"rela_recommend/factory"
 	"rela_recommend/algo/utils"
 	rutils "rela_recommend/utils"
 )
@@ -18,7 +19,8 @@ func GetMomentFeatures(model *MomentAlgoBase, ctx *AlgoContext, data *DataInfo) 
 		fs.AddCategory(40, 3, 0, shareTo, 0)
 	}
 	// 		是否有 内容，图片，视频
-	fs.AddCategory(44, 2, 0, rutils.GetInt(len(mem.MomentsText) > 0), 0)
+	wordsCount := len(mem.MomentsText)
+	fs.AddCategory(44, 2, 0, rutils.GetInt(wordsCount > 0), 0)
 	fs.AddCategory(46, 2, 0, rutils.GetInt(len(mem.ImageUrl) > 0), 0)
 	fs.AddCategory(48, 2, 0, rutils.GetInt(len(mem.VoiceUrl) > 0), 0)
 
@@ -63,8 +65,14 @@ func GetMomentFeatures(model *MomentAlgoBase, ctx *AlgoContext, data *DataInfo) 
 	}
 	
 	// 分词结果
-	if memprofile != nil {
-		words := model.CheckWords(memprofile.MomentsTextWords)
+	if wordsCount > 0 {
+		var words = make([]string, 0)
+		if memprofile != nil {
+			words = memprofile.MomentsTextWords
+		} else {
+			words = factory.Segmenter.Cut(mem.MomentsText)
+		}
+		words = model.CheckWords(words)
 		fs.AddHashStrings(100000, 100000, words)
 	}
 	return fs

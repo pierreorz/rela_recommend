@@ -169,6 +169,10 @@ func (rc *Cache) connectInit() {
 			KeepAlive:    1000,
 			AliveTime:    180 * time.Second,
 		})
+	if rc.conn == nil {
+		log.Error("redis cluster init error!")
+		return
+	}
 	if rc.password != "" {
 		if _, err := rc.conn.Do("AUTH", rc.password); err != nil {
 			rc.conn.Close()

@@ -15,6 +15,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"rela_recommend/cache/redisCluster"
+	"rela_recommend/service/segment"
 )
 
 // mysql slave
@@ -41,6 +42,9 @@ var CassandraClient *gocql.Session
 var MatchClusterMon *mgo.Session
 
 var SearchRpcClient *rpc.HttpClient
+
+// 分词
+var Segmenter segment.ISegmenter
 //配置相关
 var Cfg *conf.Config
 
@@ -60,6 +64,7 @@ func Init(cfg *conf.Config) {
 	// initMongo(cfg)
 	// initCassandraSession(cfg)
 	initRpc(cfg)
+	initSegmenter(cfg)
 }
 
 func initDB(cfg *conf.Config) {
@@ -143,6 +148,11 @@ func initMongo(cfg *conf.Config) {
 
 func initRpc(cfg *conf.Config){
 	SearchRpcClient = rpc.NewHttpClient(cfg.Rpc.SearchRpcAddr, time.Millisecond * 500)
+}
+
+func initSegmenter(cfg *conf.Config) {
+	Segmenter = segment.NewSegmenter()
+	log.Infof("INIT Segmenter: %s", Segmenter.Cut("你好分词已经准备好了！")) 
 }
 
 func Close() {
