@@ -59,7 +59,7 @@ func (self *BaseSegmenter) LoadStopWords(files ...string) error {
 		} else {
 			log.Warnf("Could not load stop words: \"%s\", %v \n", file, err)
 		}
-		log.Infof("loading stop words: %s , lines %d %+v\n", realFile, len(lines), lines)
+		log.Infof("loading stop words: %s , lines %d\n", realFile, len(lines))
 	}
 	return nil
 }
