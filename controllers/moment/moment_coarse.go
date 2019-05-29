@@ -132,7 +132,6 @@ func DoCoarseRecommend(params *algo.RecommendRequest) algo.RecommendResponse {
 			Score: currData.RankInfo.AlgoScore })
 		// 记录日志
 		logStr := algo.RecommendLog{RankId: ctx.RankId, Index: j,
-									UserId: ctx.User.UserId,
 									DataId: currData.DataId,
 									Algo: currData.RankInfo.AlgoName,
 									AlgoScore: currData.RankInfo.AlgoScore,
