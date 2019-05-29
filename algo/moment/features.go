@@ -32,16 +32,19 @@ func GetMomentFeatures(model IMomentAlgo, ctx *AlgoContext, data *DataInfo) *uti
 
 	// 发布者
 	memu := data.UserCache
-	fs.Add(2000, float32(ctx.CreateTime.Sub(memu.CreateTime.Time).Seconds() / 60 / 60 / 24))
-	fs.Add(2001, float32(memu.Age))
-	fs.Add(2002, float32(memu.Height))
-	fs.Add(2003, float32(memu.Weight))
+	var role, wantRoles = 0, make([]int, 0)
+	if(memu != nil) {
+		fs.Add(2000, float32(ctx.CreateTime.Sub(memu.CreateTime.Time).Seconds() / 60 / 60 / 24))
+		fs.Add(2001, float32(memu.Age))
+		fs.Add(2002, float32(memu.Height))
+		fs.Add(2003, float32(memu.Weight))
 
-	fs.AddCategory(2010, 13, -1, rutils.GetInt(memu.Horoscope), -1)	// 星座
-	fs.AddCategory(2030, 10, -1, memu.Affection, -1)				// 单身情况
-	role, wantRoles := rutils.GetInt(memu.RoleName), rutils.GetInts(memu.WantRole)
-	fs.AddCategory(2040, 10, -1, role, -1)				// 自我认同
-	fs.AddCategories(2050, 10, -1, wantRoles, -1)	// 想要寻找
+		fs.AddCategory(2010, 13, -1, rutils.GetInt(memu.Horoscope), -1)	// 星座
+		fs.AddCategory(2030, 10, -1, memu.Affection, -1)				// 单身情况
+		role, wantRoles = rutils.GetInt(memu.RoleName), rutils.GetInts(memu.WantRole)
+		fs.AddCategory(2040, 10, -1, role, -1)				// 自我认同
+		fs.AddCategories(2050, 10, -1, wantRoles, -1)	// 想要寻找
+	}
 
 	// 观看者
 	curr := ctx.User.UserCache
