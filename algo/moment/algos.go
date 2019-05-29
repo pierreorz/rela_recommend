@@ -39,7 +39,7 @@ func init() {
 
 
 	// 粗排算法
-	workDir := Work_dir + "/algo_files/moment/coarse/"
+	workDir := Work_dir + "coarse/"
 	modelCoarseList := [...]IMomentAlgo{
 		&MomentAlgoCoarse{MomentAlgoBase: MomentAlgoBase{AlgoName: "MomentCoarseModelV1_0", FilePath: workDir + "moment_coarse_xg_v1.0.model" }},
 	}
