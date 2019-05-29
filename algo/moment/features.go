@@ -6,7 +6,7 @@ import (
 	rutils "rela_recommend/utils"
 )
 
-func GetMomentFeatures(model *MomentAlgoBase, ctx *AlgoContext, data *DataInfo) *utils.Features {
+func GetMomentFeatures(model IMomentAlgo, ctx *AlgoContext, data *DataInfo) *utils.Features {
 	fs := &utils.Features{}
 	shareToList := map[string]int{"all": 0, "friends": 1, "self": 2}
 

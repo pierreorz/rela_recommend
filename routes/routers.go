@@ -20,6 +20,7 @@ func RegisterRouters(router *routers.Routers) {
 	router.POST("/recommend/liveList", live.LiveRecommendListHTTP)
 	router.POST("/recommend/themeList", theme.RecommendListHTTP)
 	router.POST("/recommend/momentList", moment.RecommendListHTTP)
+	router.POST("/recommend/coarse/momentList", moment.CoarseRecommendListHTTP)
 	router.NotFound = NotFound
 }
 

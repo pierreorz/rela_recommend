@@ -55,6 +55,7 @@ type IMomentAlgo interface {
 	Features(*AlgoContext, *DataInfo) *utils.Features
 	PredictSingle(*utils.Features) float32
 	Predict(*AlgoContext)
+	CheckWords([]string) []string
 }
 
 type MomentAlgoBase struct {
