@@ -47,8 +47,8 @@ func GetMomentFeatures(model IMomentAlgo, ctx *AlgoContext, data *DataInfo) *uti
 	}
 
 	// 观看者
-	curr := ctx.User.UserCache
-	if curr != nil {
+	if ctx.User != nil && ctx.User.UserCache != nil {
+		curr := ctx.User.UserCache
 		fs.Add(4000, float32(ctx.CreateTime.Sub(curr.CreateTime.Time).Seconds() / 60 / 60 / 24))
 		fs.Add(4001, float32(curr.Age))
 		fs.Add(4002, float32(curr.Height))
