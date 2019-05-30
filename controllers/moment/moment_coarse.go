@@ -57,10 +57,7 @@ func BuildCoarseContext(params *algo.RecommendRequest) (*moment.AlgoContext, err
 	}
 	// 获取用户信息
 	var startUserTime = time.Now()
-	_, usersMap, err := userCache.QueryByUserAndUsersMap(params.UserId, userIds)
-	if len(usersMap) > 0 {
-		log.Warnf("users list is err, %s\n", err)
-	}
+	usersMap, err := userCache.QueryUsersMap(userIds)
 
 	var startBuildTime = time.Now()
 	dataList := make([]moment.DataInfo, 0)
