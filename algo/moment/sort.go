@@ -1,6 +1,7 @@
 package moment
 
 import (
+	"math"
 	"sort"
 	"errors"
 )
@@ -27,10 +28,16 @@ func (self DataListSorter) Less(i, j int) bool {
 		if ranki.Level != rankj.Level {
 			return ranki.Level > rankj.Level		// Level : 倒序， 推荐星数
 		} else {
-			if ranki.Score != rankj.Score {
-				return ranki.Score > rankj.Score		// Score : 倒序， 推荐分数
+			hoursI := int(self.Context.CreateTime.Sub(self.List[i].MomentCache.InsertTime).Hours()) / 24
+			hoursJ := int(self.Context.CreateTime.Sub(self.List[j].MomentCache.InsertTime).Hours()) / 24
+			if hoursI != hoursJ {
+				return hoursI < hoursJ					// 每24小时优先: 正序
 			} else {
-				return self.List[i].DataId < self.List[j].DataId	// UserId : 正序
+				if ranki.Score != rankj.Score {
+					return ranki.Score > rankj.Score		// Score : 倒序， 推荐分数
+				} else {
+					return self.List[i].DataId < self.List[j].DataId	// UserId : 正序
+				}
 			}
 		}
 	}
