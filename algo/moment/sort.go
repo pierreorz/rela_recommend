@@ -27,8 +27,8 @@ func (self DataListSorter) Less(i, j int) bool {
 		if ranki.Level != rankj.Level {
 			return ranki.Level > rankj.Level		// Level : 倒序， 推荐星数
 		} else {
-			hoursI := int(self.Context.CreateTime.Sub(self.List[i].MomentCache.InsertTime).Hours()) / 24
-			hoursJ := int(self.Context.CreateTime.Sub(self.List[j].MomentCache.InsertTime).Hours()) / 24
+			hoursI := int(self.Context.CreateTime.Sub(self.List[i].MomentCache.InsertTime).Hours()) / 12
+			hoursJ := int(self.Context.CreateTime.Sub(self.List[j].MomentCache.InsertTime).Hours()) / 12
 			if hoursI != hoursJ {
 				return hoursI < hoursJ					// 每24小时优先: 正序
 			} else {
