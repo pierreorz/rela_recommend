@@ -13,7 +13,7 @@ func GetMomentFeatures(model IMomentAlgo, ctx *AlgoContext, data *DataInfo) *uti
 	// 发布内容
 	mem, meme := data.MomentCache, data.MomentExtendCache
 	memprofile := data.MomentProfile
-	fs.AddCategory(1, 12, 0, mem.InsertTime.Hour(), 0)
+	fs.AddCategory(1, 24, 0, mem.InsertTime.Hour(), 0)
 	fs.AddCategory(30, 7, 0, int(mem.InsertTime.Weekday()), 0)
 	if shareTo, ok := shareToList[mem.ShareTo]; ok {
 		fs.AddCategory(40, 3, 0, shareTo, 0)
@@ -29,6 +29,7 @@ func GetMomentFeatures(model IMomentAlgo, ctx *AlgoContext, data *DataInfo) *uti
 		fs.Add(51, float32(memprofile.LikeCnt))
 	}
 	fs.Add(52, float32(len(mem.MomentsText)))
+	fs.Add(53, float32(ctx.CreateTime.Sub(mem.InsertTime).Minutes()))
 
 	// 发布者
 	memu := data.UserCache
@@ -54,7 +55,6 @@ func GetMomentFeatures(model IMomentAlgo, ctx *AlgoContext, data *DataInfo) *uti
 		fs.Add(4002, float32(curr.Height))
 		fs.Add(4003, float32(curr.Weight))
 		fs.Add(4004, float32(rutils.EarthDistance(float64(ctx.Request.Lng), float64(ctx.Request.Lat), meme.Lng, meme.Lat)))
-		fs.Add(4005, float32(ctx.CreateTime.Sub(mem.InsertTime).Minutes()))
 
 		fs.AddCategory(4010, 13, -1, rutils.GetInt(curr.Horoscope), -1)	// 星座
 		fs.AddCategory(4030, 10, -1, curr.Affection, -1)				// 单身情况
