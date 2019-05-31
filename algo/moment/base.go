@@ -2,6 +2,7 @@ package moment
 
 import(
 	"time"
+	"sync"
 	"rela_recommend/algo"
 	rutils "rela_recommend/utils"
 	"rela_recommend/models/pika"
@@ -80,13 +81,42 @@ func (self *MomentAlgoBase) PredictSingle(features *utils.Features) float32 {
 	return self.Model.PredictSingle(new_features)
 }
 
-func (self *MomentAlgoBase) Predict(ctx *AlgoContext) {
+// 使用简单计算单个
+func (self *MomentAlgoBase) doPredictSingle(ctx *AlgoContext, index int) {
+	features := self.Features(ctx, &ctx.DataList[index])
+	ctx.DataList[index].Features = features
+	ctx.DataList[index].RankInfo.AlgoScore = self.PredictSingle(features)
+	ctx.DataList[index].RankInfo.Score = ctx.DataList[index].RankInfo.AlgoScore
+}
+
+// 使用简单计算
+func (self *MomentAlgoBase) doPredict(ctx *AlgoContext) {
 	for i := 0; i < len(ctx.DataList); i++ {
-		features := self.Features(ctx, &ctx.DataList[i])
-		ctx.DataList[i].Features = features
-		ctx.DataList[i].RankInfo.AlgoName = self.Name()
-		ctx.DataList[i].RankInfo.AlgoScore = self.PredictSingle(features)
-		ctx.DataList[i].RankInfo.Score = ctx.DataList[i].RankInfo.AlgoScore
+		self.doPredictSingle(ctx, i)
+	}
+}
+// 使用goroutine多线程并行计算
+func (self *MomentAlgoBase) goPredict(ctx *AlgoContext, batch int) {
+	parts := utils.SplitIndexs(len(ctx.DataList), batch)
+	wg := new(sync.WaitGroup)
+	for _, part := range parts {
+		wg.Add(1)
+		go func(part []int) {
+			defer wg.Done()
+			for _, indx := range part {
+				self.doPredictSingle(ctx, indx)
+			}
+        }(part)
+	}
+	wg.Wait()
+}
+
+
+func (self *MomentAlgoBase) Predict(ctx *AlgoContext) {
+	if len(ctx.DataList) < 100 {
+		self.doPredict(ctx)
+	} else {
+		self.goPredict(ctx, 3)
 	}
 }
 
