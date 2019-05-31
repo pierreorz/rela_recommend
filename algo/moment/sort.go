@@ -1,7 +1,6 @@
 package moment
 
 import (
-	"math"
 	"sort"
 	"errors"
 )
