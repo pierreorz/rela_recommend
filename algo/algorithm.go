@@ -48,6 +48,15 @@ type RecommendResponse struct {
 	DataList []RecommendResponseItem	`json:"dataList" form:"dataList"`
 }
 
+type RankInfo struct {
+	IsTop		int 		// 1: 置顶， 0: 默认， -1:置底
+	Level		int			// 推荐等级
+	Punish		float32		// 惩罚系数
+	AlgoName	string		// 算法名称
+	AlgoScore 	float32		// 算法得分
+	Score 		float32		// 最终得分
+}
+
 //********************************* 特征
 type Feature struct {
 	Index int
@@ -151,15 +160,6 @@ func List2Features(arr []float32) []Feature {
 type IModel interface {
 	Init(string)
 	PredictSingle([]float32) float32
-}
-
-// 算法接口
-type IAlgorithm interface {
-	Name() string
-	Features() []float32
-	PredictSingle() float32
-	Predict() []float32
-	Init()
 }
 
 // 算法基础类

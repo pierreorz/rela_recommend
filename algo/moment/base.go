@@ -11,15 +11,6 @@ import(
 	"rela_recommend/service/abtest"
 )
 
-type RankInfo struct {
-	IsTop		int 		// 1: 置顶， 0: 默认， -1:置底
-	Level		int			// 推荐等级
-	Punish		float32		// 惩罚系数
-	AlgoName	string		// 算法名称
-	AlgoScore 	float32		// 算法得分
-	Score 		float32		// 最终得分
-}
-
 // 用户信息
 type UserInfo struct {
 	UserId int64
@@ -34,7 +25,7 @@ type DataInfo struct {
 	MomentCache 		*redis.Moments
 	MomentExtendCache 	*redis.MomentsExtend
 	MomentProfile		*redis.MomentsProfile
-	RankInfo			*RankInfo
+	RankInfo			*algo.RankInfo
 	Features 			*utils.Features
 }
 

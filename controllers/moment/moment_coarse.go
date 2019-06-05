@@ -70,7 +70,7 @@ func BuildCoarseContext(params *algo.RecommendRequest) (*moment.AlgoContext, err
 				MomentCache: mom.Moments,
 				MomentExtendCache: mom.MomentsExtend,
 				MomentProfile: mom.MomentsProfile,
-				RankInfo: &moment.RankInfo{}}
+				RankInfo: &algo.RankInfo{}}
 			dataList = append(dataList, info)
 		}
 	}

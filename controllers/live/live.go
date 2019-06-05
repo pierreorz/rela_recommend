@@ -101,7 +101,7 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 			UserId: lives[i].Live.UserId, 
 			LiveCache: &lives[i], 
 			UserCache: nil, LiveProfile: nil,
-			RankInfo: &live.RankInfo{} }
+			RankInfo: &algo.RankInfo{} }
 		if liveUser, ok := usersMap[lives[i].Live.UserId]; ok {
 			liveInfo.UserCache = &liveUser
 		}

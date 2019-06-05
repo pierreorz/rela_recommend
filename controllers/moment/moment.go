@@ -85,7 +85,7 @@ func BuildContext(params *algo.RecommendRequest) (*moment.AlgoContext, error) {
 				MomentCache: mom.Moments,
 				MomentExtendCache: mom.MomentsExtend,
 				MomentProfile: mom.MomentsProfile,
-				RankInfo: &moment.RankInfo{}}
+				RankInfo: &algo.RankInfo{}}
 			dataList = append(dataList, info)
 		}
 	}

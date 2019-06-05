@@ -2,20 +2,13 @@ package live
 
 import(
 	"time"
+	"rela_recommend/algo"
 	rutils "rela_recommend/utils"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	"rela_recommend/algo/utils"
 	"rela_recommend/service/abtest"
 )
-
-type RankInfo struct {
-	IsTop		int 		// 1: 置顶， 0: 默认， -1:置底
-	Level		int			// 推荐等级
-	Punish		float32		// 惩罚系数
-	AlgoScore 	float32		// 算法得分
-	Score 		float32		// 最终得分
-}
 
 // 用户信息
 type UserInfo struct {
@@ -31,7 +24,7 @@ type LiveInfo struct {
 	UserCache 	*pika.UserProfile
 	LiveProfile *redis.LiveProfile
 	LiveCache 	*pika.LiveCache
-	RankInfo	*RankInfo
+	RankInfo	*algo.RankInfo
 	Features 	*utils.Features
 }
 
