@@ -6,10 +6,24 @@ import (
 	"fmt"
 	// "reflect"
 	"bytes"
+	"rela_recommend/algo/utils"
 )
+
+type AppInfo struct {
+	Name string
+	AlgoKey string
+	AlgoMap map[string]IAlgo
+	StrategyKey string
+	StrategyMap map[string]IStrategy
+	SorterKey string
+	SorterMap map[string]ISorter
+	PagerKey string
+	PagerMap map[string]IPager
+}
 
 //********************************* 服务端日志
 type RecommendLog struct {
+	Module string
 	RankId string  
 	Index int64
 	UserId int64
@@ -49,12 +63,14 @@ type RecommendResponse struct {
 }
 
 type RankInfo struct {
-	IsTop		int 		// 1: 置顶， 0: 默认， -1:置底
-	Level		int			// 推荐等级
-	Punish		float32		// 惩罚系数
-	AlgoName	string		// 算法名称
-	AlgoScore 	float32		// 算法得分
-	Score 		float32		// 最终得分
+	Features 	*utils.Features		// 特征
+	IsTop		int 				// 1: 置顶， 0: 默认， -1:置底
+	Level		int					// 推荐等级
+	Punish		float32				// 惩罚系数
+	AlgoName	string				// 算法名称
+	AlgoScore 	float32				// 算法得分
+	Score 		float32				// 最终得分
+	Reason		string				// 推荐理由
 }
 
 //********************************* 特征

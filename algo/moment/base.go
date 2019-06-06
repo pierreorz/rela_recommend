@@ -107,7 +107,7 @@ func (self *MomentAlgoBase) Predict(ctx *AlgoContext) {
 	if len(ctx.DataList) < 100 {
 		self.doPredict(ctx)
 	} else {
-		self.goPredict(ctx, 3)
+		self.goPredict(ctx, 6)
 	}
 }
 

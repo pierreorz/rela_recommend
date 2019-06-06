@@ -75,6 +75,6 @@ func (self *QuickMatchBase) Predict(ctx *QuickMatchContext) {
 	if len(ctx.UserList) < 100 {
 		self.doPredict(ctx)
 	} else {
-		self.goPredict(ctx, 3)
+		self.goPredict(ctx, 6)
 	}
 }
