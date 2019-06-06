@@ -18,7 +18,6 @@ type AlgoBase struct {
 	FilePath string
 	AlgoName string
 	Model utils.IModelAlgo		`json:"model"`
-	Words	map[string]int		`json:"words"`
 	FeaturesFunc func(IContext, IDataInfo) *utils.Features
 }
 
