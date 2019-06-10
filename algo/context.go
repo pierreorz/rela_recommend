@@ -4,7 +4,7 @@ import (
 	"time"
 	"errors"
 	"strings"
-	// "rela_recommend/log"
+	"rela_recommend/log"
 	uutils "rela_recommend/utils"
 	"rela_recommend/service/abtest"
 )
@@ -36,13 +36,18 @@ type IContext interface {
 	SetDataList([]IDataInfo)
 	GetDataByIndex(int) IDataInfo
 
+	SetResponse(*RecommendResponse)
+	GetResponse() *RecommendResponse
+
 	DoInit(*AppInfo, *RecommendRequest) error
 	DoBuildData(func(IContext) error) error
+	DoFeatures() error
 	DoAlgo() error
 	DoStrategies() error
 	DoSort() error
-	DoPage() (*RecommendResponse, error)
-	Do(*AppInfo, *RecommendRequest, func(IContext) error) (*RecommendResponse, error)
+	DoPage() error
+	DoLog() error
+	Do(*AppInfo, *RecommendRequest, func(IContext) error) error
 }
 
 type ContextBase struct {
@@ -53,9 +58,12 @@ type ContextBase struct {
 	Request *RecommendRequest
 	AbTest *abtest.AbTest
 	DataIds []int64
+	Algo IAlgo
 
 	User IUserInfo
 	DataList []IDataInfo
+
+	Response *RecommendResponse
 }
 
 func(self *ContextBase) GetRankId() string {
@@ -114,6 +122,15 @@ func(self *ContextBase) GetDataByIndex(index int) IDataInfo {
 	return self.DataList[index]
 }
 
+func(self *ContextBase) GetResponse() *RecommendResponse {
+	return self.Response
+}
+
+func(self *ContextBase) SetResponse(response *RecommendResponse) {
+	self.Response = response
+}
+
+
 func (self *ContextBase) DoInit(app *AppInfo, params *RecommendRequest) error {
 	self.RankId = uutils.UniqueId()
 	self.App = app
@@ -121,7 +138,15 @@ func (self *ContextBase) DoInit(app *AppInfo, params *RecommendRequest) error {
 	self.Platform = uutils.GetPlatform(params.Ua)
 	self.CreateTime = time.Now()
 	self.Request = params
-	return nil
+
+	var err error
+	var modelName = self.AbTest.GetString(app.AlgoKey, "model")
+	if model, ok := app.AlgoMap[modelName]; ok {
+		self.Algo = model
+	} else {
+		err = errors.New("algo not found:" + modelName)
+	}
+	return err
 }
 
 // 构建数据
@@ -129,19 +154,13 @@ func(self *ContextBase) DoBuildData(buildFunc func(IContext) error) error {
 	return buildFunc(self)
 }
 
+// 执行特征工程
+func(self *ContextBase) DoFeatures() error {
+	return self.Algo.DoFeatures(self)
+}
 // 执行算法
 func(self *ContextBase) DoAlgo() error {
-	var err error
-	app := self.GetAppInfo()
-	var modelName = self.AbTest.GetString(app.AlgoKey, "model")
-	model, ok := app.AlgoMap[modelName]
-	if ok {
-		model.Predict(self)
-	} else {
-		err = errors.New("algo not found:" + modelName)
-	}
-
-	return err
+	return self.Algo.Predict(self)
 }
 
 // 执行策略
@@ -149,10 +168,15 @@ func(self *ContextBase) DoStrategies() error {
 	var err error
 	app := self.GetAppInfo()
 	if app.StrategyMap != nil {
-		var names = strings.Split(self.AbTest.GetString(app.StrategyKey, "strategies"), ",")
+		var names = strings.Split(self.AbTest.GetString(app.StrategyKey, ""), ",")
 		for _, name := range names {
 			if strategy, ok := app.StrategyMap[name]; ok {
-				strategy.Do(self)
+				err = strategy.Do(self)
+				if err != nil {
+					break
+				}
+			} else {
+				log.Warnf("%s can't find strategy %s", app.Name, name)
 			}
 		}
 	}
@@ -176,8 +200,8 @@ func(self *ContextBase) DoSort() error {
 	return err
 }
 
-// 执行排序
-func(self *ContextBase) DoPage() (*RecommendResponse, error) {
+// 执行分页
+func(self *ContextBase) DoPage() error {
 	var err error
 	appInfo := self.GetAppInfo()
 	pages := self.GetAppInfo().PagerMap
@@ -190,24 +214,54 @@ func(self *ContextBase) DoPage() (*RecommendResponse, error) {
 	} else {
 		err = errors.New("pager not found:" + name)
 	}
-	return nil, err
+	return err
+}
+// 执行打日志
+func(self *ContextBase) DoLog() error {
+	var err error
+	app := self.GetAppInfo()
+	if app.LoggerMap == nil || len(app.LoggerMap) == 0 {
+		app.LoggerMap = map[string]ILogger{"logger_base": &LoggerBase{}}
+	}
+	var names = strings.Split(self.AbTest.GetString(app.LoggerKey, "logger_base"), ",")
+	for _, name := range names {
+		if logger, ok := app.LoggerMap[name]; ok {
+			err = logger.Do(self)
+			if err != nil {
+				break
+			}
+		} else {
+			log.Warnf("%s can't find logger %s", app.Name, name)
+		}
+	}
+
+	return err
 }
 
-func(self *ContextBase) Do(app *AppInfo, params *RecommendRequest, buildFunc func(IContext) error) (*RecommendResponse, error) {
+func(self *ContextBase) Do(app *AppInfo, params *RecommendRequest, buildFunc func(IContext) error) error {
 	if err := self.DoInit(app, params); err != nil {
-		return nil, err
+		return err
 	}
 	if err := self.DoBuildData(buildFunc); err != nil {
-		return nil, err
+		return err
+	}
+	if err := self.DoFeatures(); err != nil {
+		return err
 	}
 	if err := self.DoAlgo(); err != nil {
-		return nil, err
+		return err
 	}
 	if err := self.DoStrategies(); err != nil {
-		return nil, err
+		return err
 	}
 	if err := self.DoSort(); err != nil {
-		return nil, err
+		return err
 	}
-	return self.DoPage()
+	if err := self.DoPage(); err != nil {
+		return err
+	}
+	if err := self.DoLog(); err != nil {
+		return err
+	}
+	return nil
 }

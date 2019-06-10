@@ -19,6 +19,8 @@ type AppInfo struct {
 	SorterMap map[string]ISorter
 	PagerKey string
 	PagerMap map[string]IPager
+	LoggerKey string
+	LoggerMap map[string]ILogger
 }
 
 //********************************* 服务端日志
@@ -49,6 +51,7 @@ type RecommendRequest struct {
 
 type RecommendResponseItem struct {
 	DataId int64	`json:"dataIds" form:"dataIds"`
+	Index 	int		`json:"index" form:"index"`
 	Reason string	`json:"reason" form:"reason"`
 	Score float32	`json:"score" form:"score"`
 }
@@ -70,6 +73,7 @@ type RankInfo struct {
 	AlgoName	string				// 算法名称
 	AlgoScore 	float32				// 算法得分
 	Score 		float32				// 最终得分
+	Index 		int					// 排在第几
 	Reason		string				// 推荐理由
 }
 

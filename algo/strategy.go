@@ -55,12 +55,12 @@ func (self *SorterBase) Do(ctx IContext) error {
 
 // 分页组件
 type IPager interface {
-	Do(ctx IContext) (*RecommendResponse, error)
+	Do(ctx IContext) error
 }
 
 type PagerBase struct { }
 
-func (self *PagerBase) Do(ctx IContext) (*RecommendResponse, error) {
+func (self *PagerBase) Do(ctx IContext) error {
 	params := ctx.GetRequest()
 	index := math.Min(float64(ctx.GetDataLength()), float64(params.Offset + params.Limit))
 	minIndex := int(math.Max(float64(params.Offset), 0.0))
@@ -71,12 +71,30 @@ func (self *PagerBase) Do(ctx IContext) (*RecommendResponse, error) {
 		currData := ctx.GetDataByIndex(i)
 		returnIds = append(returnIds, currData.GetDataId())
 		rankInfo := currData.GetRankInfo()
+		rankInfo.Index = i
 		returnObjs = append(returnObjs, RecommendResponseItem{
 			DataId: currData.GetDataId(), 
-			Score: rankInfo.AlgoScore })
-		// 记录日志
+			Index: rankInfo.Index,
+			Score: rankInfo.Score,
+			Reason: rankInfo.Reason })
+	}
+	response := &RecommendResponse{RankId: ctx.GetRankId(), DataIds: returnIds, DataList: returnObjs, Status: "ok"}
+	ctx.SetResponse(response)
+	return nil
+}
+
+type ILogger interface {
+	Do(ctx IContext) error
+}
+
+type LoggerBase struct { }
+func (self *LoggerBase) Do(ctx IContext) error {
+	response := ctx.GetResponse()
+	for _, item := range response.DataList {
+		currData := ctx.GetDataByIndex(item.Index)
+		rankInfo := currData.GetRankInfo()
 		logStr := RecommendLog{Module: ctx.GetAppInfo().Name,
-							RankId: ctx.GetRankId(), Index: int64(i),
+							RankId: ctx.GetRankId(), Index: int64(item.Index),
 							DataId: currData.GetDataId(),
 							Algo: rankInfo.AlgoName,
 							AlgoScore: rankInfo.AlgoScore,
@@ -85,6 +103,5 @@ func (self *PagerBase) Do(ctx IContext) (*RecommendResponse, error) {
 							AbMap: ctx.GetAbTest().GetTestings() }
 		log.Infof("%+v\n", logStr)
 	}
-	res := &RecommendResponse{RankId: ctx.GetRankId(), DataIds: returnIds, DataList: returnObjs, Status: "ok"}
-	return res, nil
+	return nil
 }

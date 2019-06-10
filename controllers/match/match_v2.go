@@ -24,10 +24,11 @@ func MatchRecommendListV2HTTP(c *routers.Context) {
 		AlgoKey: "model", AlgoMap: match.MatchAlgosMap,
 		StrategyKey: "strategies", StrategyMap: nil,
 		SorterKey: "sorter", SorterMap: nil,
-		PagerKey: "pager", PagerMap: nil}
+		PagerKey: "pager", PagerMap: nil,
+		LoggerKey: "loggers", LoggerMap: nil}
 	ctx := &algo.ContextBase{}
-	res, err := ctx.Do(app, params, DoBuildData)
-	c.JSON(response.FormatResponse(res, service.WarpError(err, "", "")))
+	err := ctx.Do(app, params, DoBuildData)
+	c.JSON(response.FormatResponse(ctx.GetResponse(), service.WarpError(err, "", "")))
 }
 
 func DoBuildData(ctx algo.IContext) error {
