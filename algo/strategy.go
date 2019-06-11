@@ -105,3 +105,20 @@ func (self *LoggerBase) Do(ctx IContext) error {
 	}
 	return nil
 }
+
+type LoggerPerforms struct { }
+func (self *LoggerPerforms) Do(ctx IContext) error {
+	pfm := ctx.GetPerforms()
+	params := ctx.GetRequest()
+	response := ctx.GetResponse()
+	returnLen := 0
+	if response != nil {
+		returnLen = len(response.DataIds)
+	}
+	log.Infof("module:%s,rankId:%s,userId:%d,paramsLen:%d,offset:%d,limit:%d,dataIds:%d,dataList:%d,return:%d;%s\n", 
+			  ctx.GetAppInfo().Name, ctx.GetRankId(), params.UserId, len(params.DataIds),
+			  params.Offset, params.Limit,
+			  len(ctx.GetDataIds()), len(ctx.GetDataList()), 
+			  returnLen, pfm.ToString())
+	return nil
+}

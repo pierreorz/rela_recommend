@@ -7,6 +7,7 @@ import (
 	"rela_recommend/log"
 	uutils "rela_recommend/utils"
 	"rela_recommend/service/abtest"
+	"rela_recommend/service/performs"
 )
 
 // ************************************************** 上下文
@@ -39,6 +40,8 @@ type IContext interface {
 	SetResponse(*RecommendResponse)
 	GetResponse() *RecommendResponse
 
+	GetPerforms() *performs.Performs
+
 	DoInit(*AppInfo, *RecommendRequest) error
 	DoBuildData(func(IContext) error) error
 	DoFeatures() error
@@ -63,6 +66,7 @@ type ContextBase struct {
 	User IUserInfo
 	DataList []IDataInfo
 
+	Performs *performs.Performs
 	Response *RecommendResponse
 }
 
@@ -122,6 +126,10 @@ func(self *ContextBase) GetDataByIndex(index int) IDataInfo {
 	return self.DataList[index]
 }
 
+func(self *ContextBase) GetPerforms() *performs.Performs {
+	return self.Performs
+}
+
 func(self *ContextBase) GetResponse() *RecommendResponse {
 	return self.Response
 }
@@ -138,6 +146,7 @@ func (self *ContextBase) DoInit(app *AppInfo, params *RecommendRequest) error {
 	self.Platform = uutils.GetPlatform(params.Ua)
 	self.CreateTime = time.Now()
 	self.Request = params
+	self.Performs = &performs.Performs{}
 
 	var err error
 	var modelName = self.AbTest.GetString(app.AlgoKey, "model_base")
@@ -170,13 +179,15 @@ func(self *ContextBase) DoStrategies() error {
 	if app.StrategyMap != nil {
 		var names = strings.Split(self.AbTest.GetString(app.StrategyKey, ""), ",")
 		for _, name := range names {
-			if strategy, ok := app.StrategyMap[name]; ok {
-				err = strategy.Do(self)
-				if err != nil {
-					break
+			if len(name) > 0 {
+				if strategy, ok := app.StrategyMap[name]; ok {
+					err = strategy.Do(self)
+					if err != nil {
+						break
+					}
+				} else {
+					log.Warnf("%s can't find strategy %s", app.Name, name)
 				}
-			} else {
-				log.Warnf("%s can't find strategy %s", app.Name, name)
 			}
 		}
 	}
@@ -188,14 +199,13 @@ func(self *ContextBase) DoSort() error {
 	var err error
 	abKey := self.GetAppInfo().SorterKey
 	sorts := self.GetAppInfo().SorterMap
-	if sorts == nil || len(sorts) == 0 {
-		sorts = map[string]ISorter{"sorter_base": &SorterBase{}}
-	}
-	var name = self.AbTest.GetString(abKey, "sorter_base")
-	if sorter, ok := sorts[name]; ok {
-		err = sorter.Do(self)
-	} else {
-		err = errors.New("sorter not found:" + name)
+	if sorts != nil {
+		var name = self.AbTest.GetString(abKey, "base")
+		if sorter, ok := sorts[name]; ok {
+			err = sorter.Do(self)
+		} else {
+			err = errors.New("sorter not found:" + name)
+		}
 	}
 	return err
 }
@@ -205,14 +215,13 @@ func(self *ContextBase) DoPage() error {
 	var err error
 	appInfo := self.GetAppInfo()
 	pages := self.GetAppInfo().PagerMap
-	if pages == nil || len(pages) == 0 {
-		pages = map[string]IPager{"pager_base": &PagerBase{}}
-	}
-	var name = self.AbTest.GetString(appInfo.PagerKey, "pager_base")
-	if pager, ok := pages[name]; ok {
-		return pager.Do(self)
-	} else {
-		err = errors.New("pager not found:" + name)
+	if pages != nil {
+		var name = self.AbTest.GetString(appInfo.PagerKey, "base")
+		if pager, ok := pages[name]; ok {
+			return pager.Do(self)
+		} else {
+			err = errors.New("pager not found:" + name)
+		}
 	}
 	return err
 }
@@ -220,18 +229,19 @@ func(self *ContextBase) DoPage() error {
 func(self *ContextBase) DoLog() error {
 	var err error
 	app := self.GetAppInfo()
-	if app.LoggerMap == nil || len(app.LoggerMap) == 0 {
-		app.LoggerMap = map[string]ILogger{"logger_base": &LoggerBase{}}
-	}
-	var names = strings.Split(self.AbTest.GetString(app.LoggerKey, "logger_base"), ",")
-	for _, name := range names {
-		if logger, ok := app.LoggerMap[name]; ok {
-			err = logger.Do(self)
-			if err != nil {
-				break
+	if app.LoggerMap != nil {
+		var names = strings.Split(self.AbTest.GetString(app.LoggerKey, "features,performs"), ",")
+		for _, name := range names {
+			if len(name) > 0 {
+				if logger, ok := app.LoggerMap[name]; ok {
+					err = logger.Do(self)
+					if err != nil {
+						break
+					}
+				} else {
+					log.Warnf("%s can't find logger %s", app.Name, name)
+				}
 			}
-		} else {
-			log.Warnf("%s can't find logger %s", app.Name, name)
 		}
 	}
 
@@ -242,26 +252,35 @@ func(self *ContextBase) Do(app *AppInfo, params *RecommendRequest, buildFunc fun
 	if err := self.DoInit(app, params); err != nil {
 		return err
 	}
+	pfm := self.GetPerforms()
+	pfm.Begin("build_data")
 	if err := self.DoBuildData(buildFunc); err != nil {
 		return err
 	}
+	pfm.EndAndBegin("build_data", "features")
 	if err := self.DoFeatures(); err != nil {
 		return err
 	}
+	pfm.EndAndBegin("features", "algo")
 	if err := self.DoAlgo(); err != nil {
 		return err
 	}
+	pfm.EndAndBegin("algo", "strategies")
 	if err := self.DoStrategies(); err != nil {
 		return err
 	}
+	pfm.EndAndBegin("strategies", "sort")
 	if err := self.DoSort(); err != nil {
 		return err
 	}
+	pfm.EndAndBegin("sort", "page")
 	if err := self.DoPage(); err != nil {
 		return err
 	}
+	pfm.EndAndBegin("page", "log")
 	if err := self.DoLog(); err != nil {
 		return err
 	}
+	pfm.End("log")
 	return nil
 }

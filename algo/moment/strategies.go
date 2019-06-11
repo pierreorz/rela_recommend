@@ -1,7 +1,14 @@
 package moment
 
-type Strategy interface {
-	Do(ctx *AlgoContext, list []DataInfo)
-}
+import(
+	"rela_recommend/algo"
+)
 
-type StrategyBase struct {}
+var StrategyMap = map[string]algo.IStrategy{}
+var SorterMap = map[string]algo.ISorter{
+	"base": &algo.SorterBase{}}
+var PagerMap = map[string]algo.IPager{
+	"base": &algo.PagerBase{}}
+var LoggerMap = map[string]algo.ILogger{
+	"features": &algo.LoggerBase{},
+	"performs": &algo.LoggerPerforms{}}
