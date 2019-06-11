@@ -77,6 +77,14 @@ type RankInfo struct {
 	Reason		string				// 推荐理由
 }
 
+func (self *RankInfo) GetFeaturesString() string {
+	if self.Features == nil {
+		return ""
+	} else {
+		return self.Features.ToString()
+	}
+}
+
 //********************************* 特征
 type Feature struct {
 	Index int

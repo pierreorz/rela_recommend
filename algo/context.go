@@ -154,10 +154,12 @@ func (self *ContextBase) DoInit() error {
 
 	var err error
 	var modelName = self.AbTest.GetString(self.App.AlgoKey, "model_base")
-	if model, ok := self.App.AlgoMap[modelName]; ok {
-		self.Algo = model
-	} else {
-		err = errors.New("algo not found:" + modelName)
+	if self.App.AlgoMap != nil {
+		if model, ok := self.App.AlgoMap[modelName]; ok {
+			self.Algo = model
+		} else {
+			err = errors.New("algo not found:" + modelName)
+		}
 	}
 	return err
 }
@@ -169,11 +171,17 @@ func(self *ContextBase) DoBuildData(buildFunc func(IContext) error) error {
 
 // 执行特征工程
 func(self *ContextBase) DoFeatures() error {
-	return self.Algo.DoFeatures(self)
+	if self.Algo != nil {
+		return self.Algo.DoFeatures(self)
+	}
+	return nil
 }
 // 执行算法
 func(self *ContextBase) DoAlgo() error {
-	return self.Algo.Predict(self)
+	if self.Algo != nil {
+		return self.Algo.Predict(self)
+	}
+	return nil
 }
 
 // 执行策略

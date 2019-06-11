@@ -100,7 +100,7 @@ func (self *LoggerBase) Do(ctx IContext) error {
 								Algo: rankInfo.AlgoName,
 								AlgoScore: rankInfo.AlgoScore,
 								Score: rankInfo.Score,
-								Features: rankInfo.Features.ToString(),
+								Features: rankInfo.GetFeaturesString(),
 								AbMap: ctx.GetAbTest().GetTestings() }
 			log.Infof("%+v\n", logStr)
 		}

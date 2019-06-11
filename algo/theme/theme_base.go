@@ -1,12 +1,9 @@
 package theme
 
 import(
-	"time"
 	"rela_recommend/algo"
 	rutils "rela_recommend/utils"
 	"rela_recommend/models/pika"
-	"rela_recommend/algo/utils"
-	"rela_recommend/service/abtest"
 )
 
 // 用户信息
@@ -17,21 +14,19 @@ type UserInfo struct {
 }
 
 // 话题信息
-type ThemeInfo struct {
-	UserId 		int64
-	UserCache 	*pika.UserProfile
+type DataInfo struct {
+	DataId 		int64
 	RankInfo	*algo.RankInfo
-	Features 	*utils.Features
 }
 
-// 直播推荐算法上下文
-type ThemeAlgoContext struct {
-	RankId string
-	CreateTime time.Time
-	Platform int
-	Request *algo.RecommendRequest
-	AbTest *abtest.AbTest
-	User *UserInfo
-	ThemeIds []int64
-	ThemeList []ThemeInfo
+func (self *DataInfo) GetDataId() int64 {
+	return self.DataId
+}
+
+func(self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {
+	self.RankInfo = rankInfo
+}
+
+func(self *DataInfo) GetRankInfo() *algo.RankInfo {
+	return self.RankInfo
 }
