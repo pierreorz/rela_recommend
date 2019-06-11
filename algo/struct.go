@@ -45,12 +45,12 @@ type RecommendRequest struct {
 	Lat		float32 `json:"lat" form:"lat"`
 	Lng		float32 `json:"lng" form:"lng"`
 	UserId  int64  	`json:"userId" form:"userId"`
-	Module	string	`json:"module" form:"module"`	// 是推荐/热门/
+	Type	string	`json:"type" form:"type"`	// 是推荐/热门/
 	DataIds []int64	`json:"dataIds" form:"dataIds"`
 }
 
 type RecommendResponseItem struct {
-	DataId int64	`json:"dataIds" form:"dataIds"`
+	DataId int64	`json:"dataId" form:"dataId"`
 	Index 	int		`json:"index" form:"index"`
 	Reason string	`json:"reason" form:"reason"`
 	Score float32	`json:"score" form:"score"`
