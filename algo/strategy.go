@@ -97,6 +97,7 @@ func (self *LoggerBase) Do(ctx IContext) error {
 			logStr := RecommendLog{Module: ctx.GetAppInfo().Name,
 								RankId: ctx.GetRankId(), Index: int64(item.Index),
 								DataId: currData.GetDataId(),
+								UserId: ctx.GetRequest().UserId,
 								Algo: rankInfo.AlgoName,
 								AlgoScore: rankInfo.AlgoScore,
 								Score: rankInfo.Score,
