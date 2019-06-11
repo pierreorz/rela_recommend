@@ -138,7 +138,6 @@ func(self *ContextBase) SetResponse(response *RecommendResponse) {
 	self.Response = response
 }
 
-
 func (self *ContextBase) DoInit(app *AppInfo, params *RecommendRequest) error {
 	self.RankId = uutils.UniqueId()
 	self.App = app
@@ -253,11 +252,11 @@ func(self *ContextBase) Do(app *AppInfo, params *RecommendRequest, buildFunc fun
 		return err
 	}
 	pfm := self.GetPerforms()
-	pfm.Begin("build_data")
+	pfm.Begin("buildData")
 	if err := self.DoBuildData(buildFunc); err != nil {
 		return err
 	}
-	pfm.EndAndBegin("build_data", "features")
+	pfm.EndAndBegin("buildData", "features")
 	if err := self.DoFeatures(); err != nil {
 		return err
 	}

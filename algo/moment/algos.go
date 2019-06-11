@@ -41,7 +41,7 @@ func init() {
 	// 粗排算法
 	workDir := Work_dir + "coarse/"
 	modelCoarseList := [...]algo.IAlgo{
-		&algo.AlgoBase{AlgoName: "MomentCoarseModelV1_0", FilePath: workDir + "moment_coarse_xg_v1.0.model",
+		&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "moment_coarse_xg_v1.0.model",
 						Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
 	}
 
