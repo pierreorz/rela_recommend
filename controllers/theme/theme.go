@@ -15,7 +15,7 @@ import (
 
 func RecommendListHTTP(c *routers.Context) {
 	var params = &algo.RecommendRequest{}
-	if err := request.Bind(c, &params); err != nil {
+	if err := request.Bind(c, params); err != nil {
 		log.Error(err.Error())
 		c.JSON(response.FormatResponse(nil, service.WarpError(service.ErrInvaPara, "", "")))
 		return
