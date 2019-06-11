@@ -90,18 +90,20 @@ type ILogger interface {
 type LoggerBase struct { }
 func (self *LoggerBase) Do(ctx IContext) error {
 	response := ctx.GetResponse()
-	for _, item := range response.DataList {
-		currData := ctx.GetDataByIndex(item.Index)
-		rankInfo := currData.GetRankInfo()
-		logStr := RecommendLog{Module: ctx.GetAppInfo().Name,
-							RankId: ctx.GetRankId(), Index: int64(item.Index),
-							DataId: currData.GetDataId(),
-							Algo: rankInfo.AlgoName,
-							AlgoScore: rankInfo.AlgoScore,
-							Score: rankInfo.Score,
-							Features: rankInfo.Features.ToString(),
-							AbMap: ctx.GetAbTest().GetTestings() }
-		log.Infof("%+v\n", logStr)
+	if response != nil {
+		for _, item := range response.DataList {
+			currData := ctx.GetDataByIndex(item.Index)
+			rankInfo := currData.GetRankInfo()
+			logStr := RecommendLog{Module: ctx.GetAppInfo().Name,
+								RankId: ctx.GetRankId(), Index: int64(item.Index),
+								DataId: currData.GetDataId(),
+								Algo: rankInfo.AlgoName,
+								AlgoScore: rankInfo.AlgoScore,
+								Score: rankInfo.Score,
+								Features: rankInfo.Features.ToString(),
+								AbMap: ctx.GetAbTest().GetTestings() }
+			log.Infof("%+v\n", logStr)
+		}
 	}
 	return nil
 }

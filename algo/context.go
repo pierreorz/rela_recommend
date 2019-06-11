@@ -253,42 +253,51 @@ func(self *ContextBase) DoLog() error {
 }
 
 func(self *ContextBase) Do(app *AppInfo, params *RecommendRequest, buildFunc func(IContext) error) error {
-	if err := self.DoNew(app, params); err != nil {
-		return err
-	}
+	var err error
+	err = self.DoNew(app, params)
 	pfm := self.GetPerforms()
-	pfm.Begin("init")
-	if err := self.DoInit(); err != nil {
-		return err
+	if err == nil {
+		pfm.Begin("init")
+		err = self.DoInit()
+		pfm.End("init")
 	}
-	pfm.EndAndBegin("init", "buildData")
-	if err := self.DoBuildData(buildFunc); err != nil {
-		return err
+	if err == nil {
+		pfm.Begin("buildData")
+		err = self.DoBuildData(buildFunc)
+		pfm.End("buildData")
 	}
-	pfm.EndAndBegin("buildData", "features")
-	if err := self.DoFeatures(); err != nil {
-		return err
+	if err == nil {
+		pfm.Begin("features")
+		err = self.DoFeatures()
+		pfm.End("features")
 	}
-	pfm.EndAndBegin("features", "algo")
-	if err := self.DoAlgo(); err != nil {
-		return err
+	if err == nil {
+		pfm.Begin("algo")
+		err = self.DoAlgo()
+		pfm.End("algo")
 	}
-	pfm.EndAndBegin("algo", "strategies")
-	if err := self.DoStrategies(); err != nil {
-		return err
+	if err == nil {
+		pfm.Begin("strategies")
+		err = self.DoStrategies()
+		pfm.End("strategies")
 	}
-	pfm.EndAndBegin("strategies", "sort")
-	if err := self.DoSort(); err != nil {
-		return err
+	if err == nil {
+		pfm.Begin("sort")
+		err = self.DoSort()
+		pfm.End("sort")
 	}
-	pfm.EndAndBegin("sort", "page")
-	if err := self.DoPage(); err != nil {
-		return err
+	if err == nil {
+		pfm.Begin("page")
+		err = self.DoPage()
+		pfm.End("page")
 	}
-	pfm.EndAndBegin("page", "log")
-	if err := self.DoLog(); err != nil {
-		return err
+
+	pfm.Begin("log")
+	err1 := self.DoLog()
+	if err == nil {
+		err = err1
 	}
 	pfm.End("log")
-	return nil
+
+	return err
 }
