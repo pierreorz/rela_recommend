@@ -29,6 +29,18 @@ type DataInfo struct {
 	Features 			*utils.Features
 }
 
+func (self *DataInfo) GetDataId() int64 {
+	return self.DataId
+}
+
+func(self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {
+	self.RankInfo = rankInfo
+}
+
+func(self *DataInfo) GetRankInfo() *algo.RankInfo {
+	return self.RankInfo
+}
+
 // 直播推荐算法上下文
 type AlgoContext struct {
 	RankId string

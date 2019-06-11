@@ -2,10 +2,12 @@ package moment
 
 import (
 	"os"
+	"rela_recommend/algo"
 )
 
 var Work_dir string = ""
 var AlgosMap = map[string]IMomentAlgo{}
+var AlgosMap2 = map[string]algo.IAlgo{}
 var AlgosCoarseMap = map[string]IMomentAlgo{}
 func init() {
 	Work_dir, _ = os.Getwd()
@@ -23,6 +25,16 @@ func init() {
 
 
 
+
+	// 精排算法
+	modelList2 := [...]algo.IAlgo{
+		&algo.AlgoBase{AlgoName: "MomentModelV1_0", FilePath: Work_dir + "moment_xg_v1.0.model", FeaturesFunc: GetMomentFeatures2 },
+	}
+
+	for index, _ := range modelList2 {
+		modelList2[index].Init()
+		AlgosMap2[modelList2[index].Name()] = modelList2[index]
+	}
 
 
 
