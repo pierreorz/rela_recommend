@@ -22,10 +22,18 @@ type Performs struct {
 	ItemsMap	map[string]*PerformsItem
 }
 
+func (self *Performs) check() {
+	if self.ItemsMap == nil {
+		self.ItemsMap = map[string]*PerformsItem{}
+	}
+}
+
 func (self *Performs) Begin(name string) {
+	self.check()
 	now := time.Now()
 	if self.BeginTime == nil {
 		self.BeginTime = &now
+		self.EndTime = &now
 	}
 	if _, ok := self.ItemsMap[name]; !ok {
 		self.ItemsName = append(self.ItemsName, name)
@@ -36,6 +44,7 @@ func (self *Performs) Begin(name string) {
 }
 
 func (self *Performs) End(name string) {
+	self.check()
 	if val, ok := self.ItemsMap[name]; ok {
 		now := time.Now()
 		self.EndTime = &now
@@ -49,6 +58,7 @@ func (self *Performs) End(name string) {
 }
 
 func (self *Performs) Incr(name string) {
+	self.check()
 	if val, ok := self.ItemsMap[name]; ok {
 		val.Count++
 	} else {
@@ -62,6 +72,7 @@ func(self *Performs) EndAndBegin(endName string, beginName string) {
 }
 
 func(self *Performs) ToString() string {
+	self.check()
 	var buffer bytes.Buffer
 	buffer.WriteString(fmt.Sprintf("total:%.3f", self.Interval))
 	for _, name := range self.ItemsName {
