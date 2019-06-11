@@ -100,5 +100,5 @@ func DoBuildData(ctx algo.IContext) error {
 			  endTime.Sub(startTime).Seconds(), startMomentTime.Sub(startTime).Seconds(),
 			  startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(),
 			  endTime.Sub(startBuildTime).Seconds() )
-	return err
+	return nil
 }

@@ -31,12 +31,12 @@ func CoarseRecommendListHTTP(c *routers.Context) {
 		PagerKey: "pager", PagerMap: nil,
 		LoggerKey: "loggers", LoggerMap: nil}
 	ctx := &algo.ContextBase{}
-	err := ctx.Do(app, params, DoBuildData)
+	err := ctx.Do(app, params, DoBuildCoarseData)
 	c.JSON(response.FormatResponse(ctx.GetResponse(), service.WarpError(err, "", "")))
 }
 
 // 构建上下文
-func BuildCoarseData(ctx algo.IContext) error {
+func DoBuildCoarseData(ctx algo.IContext) error {
 	var startTime = time.Now()
 	params := ctx.GetRequest()
 	userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
@@ -50,7 +50,7 @@ func BuildCoarseData(ctx algo.IContext) error {
 	moms, err := momentCache.QueryMomentsByIds(dataIds)
 	userIds := make([]int64, 0)
 	if err != nil {
-		log.Warnf("moment list is err, %s\n", err)
+		return err
 	} else {
 		for _, mom := range moms {
 			if mom.Moments != nil {
