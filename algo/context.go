@@ -42,7 +42,8 @@ type IContext interface {
 
 	GetPerforms() *performs.Performs
 
-	DoInit(*AppInfo, *RecommendRequest) error
+	DoNew(*AppInfo, *RecommendRequest) error
+	DoInit() error
 	DoBuildData(func(IContext) error) error
 	DoFeatures() error
 	DoAlgo() error
@@ -138,18 +139,22 @@ func(self *ContextBase) SetResponse(response *RecommendResponse) {
 	self.Response = response
 }
 
-func (self *ContextBase) DoInit(app *AppInfo, params *RecommendRequest) error {
-	self.RankId = uutils.UniqueId()
+func(self *ContextBase) DoNew(app *AppInfo, params *RecommendRequest) error {
 	self.App = app
-	self.AbTest = abtest.GetAbTest(app.Name, params.UserId)
-	self.Platform = uutils.GetPlatform(params.Ua)
-	self.CreateTime = time.Now()
 	self.Request = params
 	self.Performs = &performs.Performs{}
+	return nil
+}
+
+func (self *ContextBase) DoInit() error {
+	self.RankId = uutils.UniqueId()
+	self.AbTest = abtest.GetAbTest(self.App.Name, self.Request.UserId)
+	self.Platform = uutils.GetPlatform(self.Request.Ua)
+	self.CreateTime = time.Now()
 
 	var err error
-	var modelName = self.AbTest.GetString(app.AlgoKey, "model_base")
-	if model, ok := app.AlgoMap[modelName]; ok {
+	var modelName = self.AbTest.GetString(self.App.AlgoKey, "model_base")
+	if model, ok := self.App.AlgoMap[modelName]; ok {
 		self.Algo = model
 	} else {
 		err = errors.New("algo not found:" + modelName)
@@ -248,11 +253,15 @@ func(self *ContextBase) DoLog() error {
 }
 
 func(self *ContextBase) Do(app *AppInfo, params *RecommendRequest, buildFunc func(IContext) error) error {
-	if err := self.DoInit(app, params); err != nil {
+	if err := self.DoNew(app, params); err != nil {
 		return err
 	}
 	pfm := self.GetPerforms()
-	pfm.Begin("buildData")
+	pfm.Begin("init")
+	if err := self.DoInit(); err != nil {
+		return err
+	}
+	pfm.EndAndBegin("init", "buildData")
 	if err := self.DoBuildData(buildFunc); err != nil {
 		return err
 	}
