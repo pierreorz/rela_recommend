@@ -140,7 +140,7 @@ func (self *ContextBase) DoInit(app *AppInfo, params *RecommendRequest) error {
 	self.Request = params
 
 	var err error
-	var modelName = self.AbTest.GetString(app.AlgoKey, "model")
+	var modelName = self.AbTest.GetString(app.AlgoKey, "model_base")
 	if model, ok := app.AlgoMap[modelName]; ok {
 		self.Algo = model
 	} else {

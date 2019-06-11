@@ -29,7 +29,7 @@ func init() {
 
 	// 精排算法
 	modelList2 := [...]algo.IAlgo{
-		&algo.AlgoBase{AlgoName: "MomentModelV1_0", FilePath: Work_dir + "moment_xg_v1.0.model", 
+		&algo.AlgoBase{AlgoName: "model_base", FilePath: Work_dir + "moment_xg_v1.0.model", 
 					   Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures2 },
 	}
 
