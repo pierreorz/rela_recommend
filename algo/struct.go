@@ -77,12 +77,23 @@ type RankInfo struct {
 	Reason		string				// 推荐理由
 }
 
+// 获取Features的字符串形式：1:1.0,1000:1.0,99:1.0
 func (self *RankInfo) GetFeaturesString() string {
 	if self.Features == nil {
 		return ""
 	} else {
 		return self.Features.ToString()
 	}
+}
+
+// 增加推荐理由，以,隔开：TOP,RECOMMEND
+func (self *RankInfo) AddReason(reason string) string {
+	if len(self.Reason) > 0 {
+		self.Reason = self.Reason + "," + reason
+	} else {
+		self.Reason = reason
+	}
+	return self.Reason
 }
 
 //********************************* 特征
