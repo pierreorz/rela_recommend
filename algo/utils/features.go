@@ -27,7 +27,7 @@ func (self *Features) ToString() string {
 		if i != 0 {
 			buffer.WriteString(",")
 		}
-		str := fmt.Sprintf("%d:%f", key, val)
+		str := fmt.Sprintf("%d:%g", key, val)
 		buffer.WriteString(str)
 		i++
 	}
