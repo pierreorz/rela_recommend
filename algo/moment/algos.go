@@ -15,7 +15,7 @@ func init() {
 
 	// 精排算法
 	modelList := [...]algo.IAlgo{
-		&algo.AlgoBase{AlgoName: "model_base", FilePath: Work_dir + "moment_xg_v1.0.model", 
+		&algo.AlgoBase{AlgoName: "model_base", FilePath: Work_dir + "moment_xg_v1.1.model", 
 					   Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
 	}
 
