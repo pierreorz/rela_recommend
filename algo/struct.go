@@ -17,6 +17,10 @@ type AppInfo struct {
 	AlgoKey string
 	AlgoDefault string
 	AlgoMap map[string]IAlgo
+	// 构造数据的abtest key
+	BuilderKey string
+	BuilderDefault string
+	BuilderMap map[string]IBuilder
 	// 策略的abtest key
 	StrategyKey string
 	StrategyDefault string
@@ -51,6 +55,7 @@ type RecommendLog struct {
 
 // 请求参数
 type RecommendRequest struct {
+	App		string 	`json:"app" form:"app"`
 	Limit   int64  	`json:"limit" form:"limit"`
 	Offset  int64  	`json:"offset" form:"offset"`
 	Ua      string 	`json:"ua" form:"ua"`

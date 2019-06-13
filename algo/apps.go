@@ -6,15 +6,20 @@ import (
 
 var appMap = map[string]*AppInfo{}
 
-func SetAppInfo(appName string, app *AppInfo) {
-	appMap[appName] = app
+func AddAppInfo(app *AppInfo) *AppInfo {
+	if _, ok := appMap[app.Name]; ok {
+		log.Errorf("app is exists: %s\n", app.Name)
+	} else {
+		appMap[app.Name] = app
+	}
+	return app
 }
 
 func GetAppInfo(appName string) *AppInfo {
 	if val, ok := appMap[appName]; ok {
 		return val
 	} else {
-		log.Errorf("con't get app %s\n", appName)
+		log.Errorf("con't get app: %s\n", appName)
 	}
 	return nil
 }

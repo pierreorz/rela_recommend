@@ -27,7 +27,7 @@ func MatchRecommendListV2HTTP(c *routers.Context) {
 		PagerKey: "pager", PagerMap: nil,
 		LoggerKey: "loggers", LoggerMap: nil}
 	ctx := &algo.ContextBase{}
-	err := ctx.Do(app, params, DoBuildData)
+	err := ctx.Do(app, params)
 	c.JSON(response.FormatResponse(ctx.GetResponse(), service.WarpError(err, "", "")))
 }
 

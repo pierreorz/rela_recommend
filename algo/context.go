@@ -44,14 +44,14 @@ type IContext interface {
 
 	DoNew(*AppInfo, *RecommendRequest) error
 	DoInit() error
-	DoBuildData(func(IContext) error) error
+	DoBuildData() error
 	DoFeatures() error
 	DoAlgo() error
 	DoStrategies() error
 	DoSort() error
 	DoPage() error
 	DoLog() error
-	Do(*AppInfo, *RecommendRequest, func(IContext) error) error
+	Do(*AppInfo, *RecommendRequest) error
 }
 
 type ContextBase struct {
@@ -165,8 +165,23 @@ func (self *ContextBase) DoInit() error {
 }
 
 // 构建数据
-func(self *ContextBase) DoBuildData(buildFunc func(IContext) error) error {
-	return buildFunc(self)
+func(self *ContextBase) DoBuildData() error {
+	var err error
+	app := self.GetAppInfo()
+	if app.BuilderMap != nil {
+		var name = self.AbTest.GetString(app.BuilderKey, app.BuilderDefault)
+		if len(name) > 0 {
+			if builder, ok := app.BuilderMap[name]; ok {
+				err = builder.Do(self)
+			} else {
+				err = errors.New("builder not found:" + name)
+			}
+		}
+	}
+	if err == nil && self.GetDataLength() == 0 {
+		err = errors.New("builder data length is 0")
+	}
+	return err
 }
 
 // 执行特征工程
@@ -265,7 +280,7 @@ func(self *ContextBase) DoLog() error {
 	return err
 }
 
-func(self *ContextBase) Do(app *AppInfo, params *RecommendRequest, buildFunc func(IContext) error) error {
+func(self *ContextBase) Do(app *AppInfo, params *RecommendRequest) error {
 	var err error
 	err = self.DoNew(app, params)
 	pfm := self.GetPerforms()
@@ -276,7 +291,7 @@ func(self *ContextBase) Do(app *AppInfo, params *RecommendRequest, buildFunc fun
 	}
 	if err == nil {
 		pfm.Begin("buildData")
-		err = self.DoBuildData(buildFunc)
+		err = self.DoBuildData()
 		pfm.End("buildData")
 	}
 	if err == nil {

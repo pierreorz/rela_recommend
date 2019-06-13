@@ -7,6 +7,18 @@ import (
 )
 
 // 策略组件
+type IBuilder interface {
+	Do(ctx IContext) error
+}
+
+type BuilderBase struct { 
+	DoBuild 	func(IContext) error
+}
+func (self *BuilderBase) Do(ctx IContext) error {
+	return self.DoBuild(ctx)
+}
+
+// 策略组件
 type IStrategy interface {
 	Do(ctx IContext) error
 }
