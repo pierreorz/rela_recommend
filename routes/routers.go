@@ -13,7 +13,7 @@ import (
 
 func RegisterRouters(router *routers.Routers) {
 	router.POST("/config/abtest", config.AbTestHTTP)
-	router.GET("/recommend", controllers.IndexHTTP)
+	router.POST("/recommend", controllers.IndexHTTP)
 	router.GET("/recommend/test", controllers.TestHTTP)
 	router.POST("/recommend/segment", segment.SegmentHTTP)
 	router.POST("/recommend/matchList", match.MatchRecommendListHTTP)
