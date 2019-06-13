@@ -140,7 +140,13 @@ func(self *ContextBase) SetResponse(response *RecommendResponse) {
 }
 
 func(self *ContextBase) DoNew(app *AppInfo, params *RecommendRequest) error {
+	if app == nil {
+		return errors.New("app is nil")
+	}
 	self.App = app
+	if params == nil {
+		return errors.New("params is nil")
+	}
 	self.Request = params
 	self.Performs = &performs.Performs{}
 	return nil
@@ -281,8 +287,7 @@ func(self *ContextBase) DoLog() error {
 }
 
 func(self *ContextBase) Do(app *AppInfo, params *RecommendRequest) error {
-	var err error
-	err = self.DoNew(app, params)
+	var err = self.DoNew(app, params)
 	pfm := self.GetPerforms()
 	if err == nil {
 		pfm.Begin("init")

@@ -19,7 +19,6 @@ func GetAppInfo(appName string) *AppInfo {
 	if val, ok := appMap[appName]; ok {
 		return val
 	} else {
-		log.Errorf("con't get app: %s\n", appName)
+		return nil
 	}
-	return nil
 }
