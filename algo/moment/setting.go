@@ -1,6 +1,7 @@
 package moment
 
 import(
+	"rela_recommend/log"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
 )
@@ -30,8 +31,6 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 })
 
 
-
-
 var appInfo = &algo.AppInfo{
 	Name: appName, Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap, 
@@ -41,3 +40,7 @@ var appInfo = &algo.AppInfo{
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap}
 var _ = algo.AddAppInfo(appInfo)
+
+func init() {
+	log.Infof("%+v", appInfo)
+}
