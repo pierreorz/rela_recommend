@@ -42,5 +42,5 @@ var appInfo = &algo.AppInfo{
 var _ = algo.AddAppInfo(appInfo)
 
 func init() {
-	log.Infof("%+v", appInfo)
+	log.Infof("moment:%+v", appInfo)
 }
