@@ -25,11 +25,11 @@ func CoarseRecommendListHTTP(c *routers.Context) {
 
 	app := &algo.AppInfo{
 		Name: "moment_coarse",
-		AlgoKey: "model", AlgoMap: moment.AlgosCoarseMap,
-		StrategyKey: "strategies", StrategyMap: nil,
-		SorterKey: "sorter", SorterMap: nil,
-		PagerKey: "pager", PagerMap: moment.PagerMap,
-		LoggerKey: "loggers", LoggerMap: moment.LoggerMap}
+		AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: moment.AlgosCoarseMap,
+		StrategyKey: "strategies", StrategyDefault: "", StrategyMap: nil,
+		SorterKey: "sorter", SorterDefault: "base", SorterMap: nil,
+		PagerKey: "pager", PagerDefault: "base", PagerMap: moment.PagerMap,
+		LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: moment.LoggerMap}
 	ctx := &algo.ContextBase{}
 	err := ctx.Do(app, params, DoBuildCoarseData)
 	c.JSON(response.FormatResponse(ctx.GetResponse(), service.WarpError(err, "", "")))

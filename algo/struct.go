@@ -10,16 +10,27 @@ import (
 )
 
 type AppInfo struct {
+	// app名称，用于标识app，读取app的abtest
 	Name string
+	// 算法的abtest key
 	AlgoKey string
+	AlgoDefault string
 	AlgoMap map[string]IAlgo
+	// 策略的abtest key
 	StrategyKey string
+	StrategyDefault string
 	StrategyMap map[string]IStrategy
+	// 排序的abtest key
 	SorterKey string
+	SorterDefault string
 	SorterMap map[string]ISorter
+	// 分页的abtest key
 	PagerKey string
+	PagerDefault string
 	PagerMap map[string]IPager
+	// 日志的abtest key
 	LoggerKey string
+	LoggerDefault string
 	LoggerMap map[string]ILogger
 }
 
@@ -68,7 +79,7 @@ type RecommendResponse struct {
 type RankInfo struct {
 	Features 	*utils.Features		// 特征
 	IsTop		int 				// 1: 置顶， 0: 默认， -1:置底
-	Level		int					// 推荐等级
+	Level		int					// 推荐优先级
 	Punish		float32				// 惩罚系数
 	AlgoName	string				// 算法名称
 	AlgoScore 	float32				// 算法得分

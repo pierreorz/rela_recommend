@@ -23,11 +23,11 @@ func RecommendListHTTP(c *routers.Context) {
 
 	app := &algo.AppInfo{
 		Name: "theme",
-		AlgoKey: "model", AlgoMap: nil,
-		StrategyKey: "strategies", StrategyMap: nil,
-		SorterKey: "sorter", SorterMap: nil,
-		PagerKey: "pager", PagerMap: theme.PagerMap,
-		LoggerKey: "loggers", LoggerMap: theme.LoggerMap}
+		AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: nil,
+		StrategyKey: "strategies", StrategyDefault: "time_level", StrategyMap: nil,
+		SorterKey: "sorter", SorterDefault: "base", SorterMap: nil,
+		PagerKey: "pager", PagerDefault: "base", PagerMap: theme.PagerMap,
+		LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: theme.LoggerMap}
 	ctx := &algo.ContextBase{}
 	err := ctx.Do(app, params, DoBuildData)
 	c.JSON(response.FormatResponse(ctx.GetResponse(), service.WarpError(err, "", "")))

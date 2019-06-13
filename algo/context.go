@@ -153,7 +153,7 @@ func (self *ContextBase) DoInit() error {
 	self.CreateTime = time.Now()
 
 	var err error
-	var modelName = self.AbTest.GetString(self.App.AlgoKey, "model_base")
+	var modelName = self.AbTest.GetString(self.App.AlgoKey, self.App.AlgoDefault)
 	if self.App.AlgoMap != nil {
 		if model, ok := self.App.AlgoMap[modelName]; ok {
 			self.Algo = model
@@ -189,7 +189,8 @@ func(self *ContextBase) DoStrategies() error {
 	var err error
 	app := self.GetAppInfo()
 	if app.StrategyMap != nil {
-		var names = strings.Split(self.AbTest.GetString(app.StrategyKey, ""), ",")
+		var namestr = self.AbTest.GetString(app.StrategyKey, app.StrategyDefault)
+		var names = strings.Split(namestr, ",")
 		for _, name := range names {
 			if len(name) > 0 {
 				if strategy, ok := app.StrategyMap[name]; ok {
@@ -209,14 +210,15 @@ func(self *ContextBase) DoStrategies() error {
 // 执行排序
 func(self *ContextBase) DoSort() error {
 	var err error
-	abKey := self.GetAppInfo().SorterKey
-	sorts := self.GetAppInfo().SorterMap
-	if sorts != nil {
-		var name = self.AbTest.GetString(abKey, "base")
-		if sorter, ok := sorts[name]; ok {
-			err = sorter.Do(self)
-		} else {
-			err = errors.New("sorter not found:" + name)
+	app := self.GetAppInfo()
+	if app.SorterMap != nil {
+		var name = self.AbTest.GetString(app.SorterKey, app.SorterDefault)
+		if len(name) > 0 {
+			if sorter, ok := app.SorterMap[name]; ok {
+				err = sorter.Do(self)
+			} else {
+				err = errors.New("sorter not found:" + name)
+			}
 		}
 	}
 	return err
@@ -228,11 +230,13 @@ func(self *ContextBase) DoPage() error {
 	appInfo := self.GetAppInfo()
 	pages := self.GetAppInfo().PagerMap
 	if pages != nil {
-		var name = self.AbTest.GetString(appInfo.PagerKey, "base")
-		if pager, ok := pages[name]; ok {
-			return pager.Do(self)
-		} else {
-			err = errors.New("pager not found:" + name)
+		var name = self.AbTest.GetString(appInfo.PagerKey, appInfo.PagerDefault)
+		if len(name) > 0 {
+			if pager, ok := pages[name]; ok {
+				return pager.Do(self)
+			} else {
+				err = errors.New("pager not found:" + name)
+			}
 		}
 	}
 	return err
@@ -242,7 +246,8 @@ func(self *ContextBase) DoLog() error {
 	var err error
 	app := self.GetAppInfo()
 	if app.LoggerMap != nil {
-		var names = strings.Split(self.AbTest.GetString(app.LoggerKey, "features,performs"), ",")
+		var namestr = self.AbTest.GetString(app.LoggerKey, app.LoggerDefault)
+		var names = strings.Split(namestr, ",")
 		for _, name := range names {
 			if len(name) > 0 {
 				if logger, ok := app.LoggerMap[name]; ok {
