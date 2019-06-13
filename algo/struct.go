@@ -12,6 +12,7 @@ import (
 type AppInfo struct {
 	// app名称，用于标识app，读取app的abtest
 	Name string
+	Path string
 	// 算法的abtest key
 	AlgoKey string
 	AlgoDefault string

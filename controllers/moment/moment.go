@@ -24,15 +24,8 @@ func RecommendListHTTP(c *routers.Context) {
 		return
 	}
 
-	app := &algo.AppInfo{
-		Name: "moment",
-		AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: moment.AlgosMap, 
-		StrategyKey: "strategies", StrategyDefault: "time_level", StrategyMap: moment.StrategyMap, 
-		SorterKey: "sorter", SorterDefault: "base", SorterMap: moment.SorterMap,
-		PagerKey: "pager", PagerDefault: "base", PagerMap: moment.PagerMap,
-		LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: moment.LoggerMap}
 	ctx := &algo.ContextBase{}
-	err := ctx.Do(app, params, DoBuildData)
+	err := ctx.Do(algo.GetAppInfo("moment"), params, DoBuildData)
 	c.JSON(response.FormatResponse(ctx.GetResponse(), service.WarpError(err, "", "")))
 }
 

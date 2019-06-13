@@ -4,16 +4,16 @@ import(
 	"rela_recommend/algo"
 )
 
-var StrategyMap = map[string]algo.IStrategy{
+var strategyMap = map[string]algo.IStrategy{
 	"time_level": &algo.StrategyBase{ DoSingle: DoTimeLevel },
 }
-var SorterMap = map[string]algo.ISorter{
+var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{},
 }
-var PagerMap = map[string]algo.IPager{
+var pagerMap = map[string]algo.IPager{
 	"base": &algo.PagerBase{},
 }
-var LoggerMap = map[string]algo.ILogger{
+var loggerMap = map[string]algo.ILogger{
 	"features": &algo.LoggerBase{},
 	"performs": &algo.LoggerPerforms{},
 }
