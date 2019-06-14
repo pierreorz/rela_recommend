@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os"
+	"time"
 	"compress/gzip"
 	"io/ioutil"
 	"encoding/json"
@@ -62,6 +63,7 @@ func ArrayMultSum(arr1, arr2 []float32) float32 {
 
 // 模型加载 json -> gzip 
 func LoadModel(path string, model interface{}) bool {
+	var startTime = time.Now()
 	fr, oerr := os.Open(path)
 	name := reflect.TypeOf(model).String()
 	defer fr.Close()
@@ -85,7 +87,7 @@ func LoadModel(path string, model interface{}) bool {
 		log.Infof("%s:load json err, %s, %s", path, name, jerr)
 		return false
 	}
-	
-	log.Infof("%s:init ok %s", name, path)
+	var endTime = time.Now()
+	log.Infof("%s:init %.2f ok %s", name, endTime.Sub(startTime).Seconds(), path)
 	return true
 }

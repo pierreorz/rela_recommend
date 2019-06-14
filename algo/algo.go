@@ -19,8 +19,8 @@ type IAlgo interface {
 type AlgoBase struct {
 	FilePath string
 	AlgoName string
-	Model utils.IModelAlgo		`json:"model"`
-	Words map[string]int		`json:"words"`
+	Model utils.IModelAlgo			`json:"model"`
+	Words map[string][]float32		`json:"words"`
 	FeaturesFunc func(IContext, IAlgo, IDataInfo) *utils.Features
 }
 

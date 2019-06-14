@@ -1,7 +1,6 @@
 package moment
 
 import(
-	"rela_recommend/log"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
 )
@@ -40,7 +39,3 @@ var appInfo = &algo.AppInfo{
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap}
 var _ = algo.AddAppInfo(appInfo)
-
-func init() {
-	log.Infof("moment:%+v", appInfo)
-}
