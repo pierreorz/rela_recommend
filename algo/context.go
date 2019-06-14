@@ -154,7 +154,7 @@ func(self *ContextBase) DoNew(app *AppInfo, params *RecommendRequest) error {
 
 func (self *ContextBase) DoInit() error {
 	self.RankId = uutils.UniqueId()
-	self.AbTest = abtest.GetAbTest(self.App.Name, self.Request.UserId)
+	self.AbTest = abtest.GetAbTestWithSetting(self.App.Name, self.Request.UserId, self.Request.AbMap)
 	self.Platform = uutils.GetPlatform(self.Request.Ua)
 	self.CreateTime = time.Now()
 

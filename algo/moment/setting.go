@@ -11,6 +11,7 @@ var workDir = algo.GetWorkDir("/algo_files/moment/")
 var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildData}}
 var strategyMap = map[string]algo.IStrategy{
 	"time_level": &algo.StrategyBase{ DoSingle: DoTimeLevel },
+	"time_frist": &algo.StrategyBase{ DoSingle: DoTimeFirstLevel },
 }
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{},

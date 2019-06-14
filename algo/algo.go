@@ -13,6 +13,7 @@ type IAlgo interface {
 	DoFeatures(IContext) error
 	PredictSingle(*utils.Features) float32
 	Predict(IContext) error
+	GetWords() map[string][]float32
 	CheckWords([]string) []string
 }
 
@@ -31,6 +32,10 @@ func (self *AlgoBase) Name() string {
 func (self *AlgoBase) Init() {
 	// self.Model.Init(self.FilePath)
 	utils.LoadModel(self.FilePath, self)
+}
+
+func (self *AlgoBase) GetWords() map[string][]float32 {
+	return self.Words
 }
 
 func (self *AlgoBase) PredictSingle(features *utils.Features) float32 {

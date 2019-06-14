@@ -95,7 +95,8 @@ func (self *AbTest) updateWhite(white WhiteName) {
 	}
 }
 // 初始化内容
-func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[string][]Testing, whiteListMap map[string][]WhiteName) {
+func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[string][]Testing, 
+						 whiteListMap map[string][]WhiteName, settingMap map[string]string) {
 	self.CurrentTime = time.Now()
 	self.FactorMap = map[string]string{}
 	self.HitTestingMap = map[string]TestingVersion{}
@@ -119,6 +120,10 @@ func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[str
 				self.updateWhite(white)
 			}
 		}
+	}
+	// 配置设置值
+	if settingMap != nil && len(settingMap) > 0 {
+		self.update(settingMap)
 	}
 }
 
@@ -188,7 +193,11 @@ func (self *AbTest) IsSwitchOn(key string, defVal bool) bool {
 }
 
 func GetAbTest(app string, dataId int64) *AbTest {
+	return GetAbTestWithSetting(app, dataId, nil)
+}
+
+func GetAbTestWithSetting(app string, dataId int64, settingMap map[string]string) *AbTest {
 	abtest := AbTest{App: app, DataId: dataId}
-	abtest.Init(defaultFactorMap, testingMap, whiteListMap)
+	abtest.Init(defaultFactorMap, testingMap, whiteListMap, settingMap)
 	return &abtest
 }

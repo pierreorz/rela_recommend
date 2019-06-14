@@ -21,7 +21,8 @@ func DoBuildData(ctx algo.IContext) error {
 	// search list
 	dataIds := params.DataIds
 	if dataIds == nil || len(dataIds) == 0 {
-		dataIds, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000)
+		dataIds, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000, 
+												 "text_image,video,text,image", 0.0)
 		if err != nil {
 			return err
 		}
