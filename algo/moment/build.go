@@ -22,7 +22,7 @@ func DoBuildData(ctx algo.IContext) error {
 	dataIds := params.DataIds
 	if dataIds == nil || len(dataIds) == 0 {
 		dataIds, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000, 
-												 "text_image,video,text,image", 0.0)
+												 "text_image,video,text,image", 0.0, "20km")
 		if err != nil {
 			return err
 		}

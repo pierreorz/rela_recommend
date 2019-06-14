@@ -13,7 +13,7 @@ func init() {
 	default_config := `{
 		"match": {"match_model": "QuickMatchTreeV1_0", "default_key": "test"},
 		"live": {"live_model": "LiveModelV1_3", "new_score": "0.5"},
-		"moment": {"strategies": "time_frist"}
+		"moment": {"strategies": "time_level"}
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
 		log.Error(err.Error())
