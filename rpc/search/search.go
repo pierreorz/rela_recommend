@@ -14,16 +14,6 @@ type momentListRes struct {
 	Data	momentListResIds	`json:"data"`
 }
 
-type momentsListReq struct {
-	UserId          int64    `form:"userId" json:"userId"`
-	Lng             float64  `form:"lng" json:"lng"`
-	Lat             float64  `form:"lat" json:"lat"`
-	From            int      `form:"from" json:"from"`
-	Limit           int      `form:"limit" json:"limit"`
-	MomentsType     []string `form:"limit" json:"momentsType"`
-	InsertTimestamp float64  `form:"insertTimestamp" json:"insertTimestamp"`
-}
-
 // 获取附近日志列表
 func CallNearMomentList(userId int64, lat, lng float32, offset, limit int, momentTypes string, insertTimestamp float32) ([]int64, error) {
 	params := fmt.Sprintf("from=%d&limit=%d&lat=%f&lng=%f&user_id=%d&momentsType=%s&insertTimestamp=%f", 
