@@ -36,16 +36,12 @@ func DoBuildData(ctx algo.IContext) error {
 		recIds, topMap, recMap, err = api.CallBackendRecommendMomentList(1)
 		if err != nil {
 			log.Warnf("backend recommend list is err, %s\n", err)
-		} else {
-			for _, v := range recIds {
-				dataIdList = append(dataIdList, v)
-			}
 		}
 	}
 
 	// 获取日志内容
 	var startMomentTime = time.Now()
-	var dataIds = utils.NewSetInt64FromArray(dataIdList).ToList()
+	var dataIds = utils.NewSetInt64FromArray(dataIdList).AppendArray(recIds).ToList()
 	moms, err := momentCache.QueryMomentsByIds(dataIds)
 	userIds := make([]int64, 0)
 	if err != nil {
