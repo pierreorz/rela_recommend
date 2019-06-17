@@ -6,6 +6,7 @@ import (
 	"rela_recommend/log"
 	"rela_recommend/factory"
 	"rela_recommend/rpc/search"
+	"rela_recommend/rpc/api"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	"rela_recommend/utils"
@@ -19,17 +20,28 @@ func DoBuildData(ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(&factory.CacheCluster, &factory.PikaCluster)
 
 	// search list
-	dataIds := params.DataIds
-	if dataIds == nil || len(dataIds) == 0 {
-		dataIds, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000, 
+	dataIdList := params.DataIds
+	if dataIdList == nil || len(dataIdList) == 0 {
+		dataIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000, 
 												 "text_image,video,text,image", 0.0, "20km")
 		if err != nil {
 			return err
 		}
 	}
 
+	// backend recommend list
+	var startBackEndTime = time.Now()
+	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
+	if false {	// 等待该接口5.0上线，别忘记配置conf文件
+		recIds, topMap, recMap, err = api.CallBackendRecommendMomentList(1)
+		if err != nil {
+			log.Warnf("backend recommend list is err, %s\n", err)
+		}
+	}
+
 	// 获取日志内容
 	var startMomentTime = time.Now()
+	var dataIds = utils.NewSetInt64FromArray(dataIdList).AppendArray(recIds).ToList()
 	moms, err := momentCache.QueryMomentsByIds(dataIds)
 	userIds := make([]int64, 0)
 	if err != nil {
@@ -58,22 +70,41 @@ func DoBuildData(ctx algo.IContext) error {
 	for _, mom := range moms {
 		if mom.Moments != nil && mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
+
+			// 处理置顶
+			var isTop = 0
+			if topMap != nil {
+				if _, isTopOk := topMap[mom.Moments.Id]; isTopOk {
+					isTop = 1
+				}
+			}
+
+			// 处理推荐
+			var recommends = []algo.RecommendItem{}
+			if recMap != nil {
+				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
+					recommends = append(recommends, algo.RecommendItem{ Reason: "RECOMMEND", Score: 2.0 })
+				}
+			}
+				
 			info := &DataInfo{
 				DataId: mom.Moments.Id,
 				UserCache: momUser,
 				MomentCache: mom.Moments,
 				MomentExtendCache: mom.MomentsExtend,
 				MomentProfile: mom.MomentsProfile,
-				RankInfo: &algo.RankInfo{}}
+				RankInfo: &algo.RankInfo{IsTop: isTop, Recommends: recommends},
+			}
 			dataList = append(dataList, info)
 		}
 	}
 	ctx.SetUserInfo(userInfo)
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
-	log.Infof("rankid %s,searchlen:%d;total:%.3f,search:%.3f,moment:%.3f,user:%.3f,build:%.3f\n",
-			  ctx.GetRankId(), len(dataIds),
-			  endTime.Sub(startTime).Seconds(), startMomentTime.Sub(startTime).Seconds(),
+	log.Infof("rankid %s,totallen:%d,searchlen:%d;backendlen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,build:%.3f\n",
+			  ctx.GetRankId(), len(dataIds), len(dataIdList), len(recIds),
+			  endTime.Sub(startTime).Seconds(), startBackEndTime.Sub(startTime).Seconds(), 
+			  startMomentTime.Sub(startBackEndTime).Seconds(),
 			  startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(),
 			  endTime.Sub(startBuildTime).Seconds() )
 	return nil

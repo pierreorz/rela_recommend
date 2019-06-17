@@ -23,12 +23,13 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeatures },
 
 })
+
 var appInfo = &algo.AppInfo{
 	Name: appName, Path: workDir,
-	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: nil,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
-	StrategyKey: "strategies", StrategyDefault: "", StrategyMap: nil,
-	SorterKey: "sorter", SorterDefault: "base", SorterMap: nil,
+	StrategyKey: "strategies", StrategyDefault: "", StrategyMap: strategyMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap}
 var _ = algo.AddAppInfo(appInfo)

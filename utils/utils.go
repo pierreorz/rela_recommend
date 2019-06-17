@@ -339,12 +339,27 @@ type SetInt64 struct {
 	intMap map[int64]int
 }
 
+func(self *SetInt64) checkMap(setEmpty bool) {
+	if self.intMap == nil || setEmpty {
+		self.intMap = make(map[int64]int, 0)
+	}
+}
+
 func(self *SetInt64) FromArray(vals []int64) {
-	self.intMap = make(map[int64]int, 0)
+	self.checkMap(true)
 	for _, val := range vals {
 		self.intMap[val] = 1
 	}
 }
+
+func(self *SetInt64) AppendArray(vals []int64) *SetInt64 {
+	self.checkMap(false)
+	for _, val := range vals {
+		self.intMap[val] = 1
+	}
+	return self
+}
+
 
 func(self *SetInt64) Contains(val int64) bool {
 	_, ok := self.intMap[val]

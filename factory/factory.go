@@ -42,6 +42,7 @@ var CassandraClient *gocql.Session
 var MatchClusterMon *mgo.Session
 
 var SearchRpcClient *rpc.HttpClient
+var V3RpcClient *rpc.HttpClient
 
 // 分词
 var Segmenter segment.ISegmenter
@@ -148,6 +149,7 @@ func initMongo(cfg *conf.Config) {
 
 func initRpc(cfg *conf.Config){
 	SearchRpcClient = rpc.NewHttpClient(cfg.Rpc.SearchRpcAddr, time.Millisecond * 500)
+	V3RpcClient = rpc.NewHttpClient(cfg.Rpc.V3RpcAddr, time.Millisecond * 100)
 }
 
 func initSegmenter(cfg *conf.Config) {

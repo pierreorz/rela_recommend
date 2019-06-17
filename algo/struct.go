@@ -83,16 +83,22 @@ type RecommendResponse struct {
 	DataList []RecommendResponseItem	`json:"dataList" form:"dataList"`
 }
 
+type RecommendItem struct {
+	Reason 		string				// 推荐理由
+	Score		float32				// 推荐分数
+}
+
 type RankInfo struct {
-	Features 	*utils.Features		// 特征
-	IsTop		int 				// 1: 置顶， 0: 默认， -1:置底
-	Level		int					// 推荐优先级
-	Punish		float32				// 惩罚系数
-	AlgoName	string				// 算法名称
-	AlgoScore 	float32				// 算法得分
-	Score 		float32				// 最终得分
-	Index 		int					// 排在第几
-	Reason		string				// 推荐理由
+	Features 	*utils.Features			// 特征
+	IsTop		int 					// 1: 置顶， 0: 默认， -1:置底
+	Level		int						// 推荐优先级
+	Recommends	[]RecommendItem	// 推荐系数
+	Punish		float32					// 惩罚系数
+	AlgoName	string					// 算法名称
+	AlgoScore 	float32					// 算法得分
+	Score 		float32					// 最终得分
+	Index 		int						// 排在第几
+	Reason		string					// 推荐理由
 }
 
 // 获取Features的字符串形式：1:1.0,1000:1.0,99:1.0

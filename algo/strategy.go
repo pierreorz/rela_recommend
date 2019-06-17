@@ -3,6 +3,7 @@ package algo
 import (
 	"sort"
 	"math"
+	"strings"
 	"rela_recommend/log"
 )
 
@@ -33,6 +34,35 @@ func (self *StrategyBase) Do(ctx IContext) error {
 		if err != nil { break }
 	}
 	return err
+}
+
+// 计算分数
+func StrategyScoreFunc(ctx IContext, index int) error {
+	dataInfo := ctx.GetDataByIndex(index)
+	rankInfo := dataInfo.GetRankInfo()
+	for _, item := range rankInfo.Recommends {
+		if item.Score > 0 {
+			rankInfo.Score *= item.Score
+		}
+	}
+	return nil
+}
+
+// 计算推荐理由
+func StrategyReasonsFunc(ctx IContext, index int) error {
+	dataInfo := ctx.GetDataByIndex(index)
+	rankInfo := dataInfo.GetRankInfo()
+	if rankInfo.IsTop > 0 {
+		rankInfo.AddReason("TOP")
+	} else if rankInfo.IsTop < 0 {
+		rankInfo.AddReason("BOTTOM")
+	}
+	for _, item := range rankInfo.Recommends {
+		if item.Score > 0 {
+			rankInfo.AddReason(strings.ToUpper(item.Reason))
+		}
+	}
+	return nil
 }
 
 // 排序组件
