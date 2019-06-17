@@ -20,9 +20,9 @@ func DoBuildData(ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(&factory.CacheCluster, &factory.PikaCluster)
 
 	// search list
-	dataIds := params.DataIds
-	if dataIds == nil || len(dataIds) == 0 {
-		dataIds, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000, 
+	dataIdList := params.DataIds
+	if dataIdList == nil || len(dataIdList) == 0 {
+		dataIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000, 
 												 "text_image,video,text,image", 0.0, "20km")
 		if err != nil {
 			return err
@@ -31,16 +31,21 @@ func DoBuildData(ctx algo.IContext) error {
 
 	// backend recommend list
 	var startBackEndTime = time.Now()
-	var topMap, recMap = map[int64]int{}, map[int64]int{}
+	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
 	if false {	// 等待该接口5.0上线，别忘记配置conf文件
-		topMap, recMap, err = api.CallBackendRecommendMomentList(1)
+		recIds, topMap, recMap, err = api.CallBackendRecommendMomentList(1)
 		if err != nil {
 			log.Warnf("backend recommend list is err, %s\n", err)
+		} else {
+			for _, v := range recIds {
+				dataIdList = append(dataIdList, v)
+			}
 		}
 	}
 
 	// 获取日志内容
 	var startMomentTime = time.Now()
+	var dataIds = utils.NewSetInt64FromArray(dataIdList).ToList()
 	moms, err := momentCache.QueryMomentsByIds(dataIds)
 	userIds := make([]int64, 0)
 	if err != nil {
@@ -100,8 +105,8 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetUserInfo(userInfo)
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
-	log.Infof("rankid %s,searchlen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,build:%.3f\n",
-			  ctx.GetRankId(), len(dataIds),
+	log.Infof("rankid %s,total:%d,searchlen:%d;backendlen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,build:%.3f\n",
+			  ctx.GetRankId(), len(dataIds), len(dataIdList) - len(recIds), len(recIds),
 			  endTime.Sub(startTime).Seconds(), startBackEndTime.Sub(startTime).Seconds(), 
 			  startMomentTime.Sub(startBackEndTime).Seconds(),
 			  startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(),
