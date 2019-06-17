@@ -2,6 +2,7 @@ package theme
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/algo/utils"
 )
 
 var appName = "theme"
@@ -17,7 +18,9 @@ var loggerMap = map[string]algo.ILogger{
 	"features": &algo.LoggerBase{},
 	"performs": &algo.LoggerPerforms{}}
 
-var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{ 
+var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
+	&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "theme_xg_v1.1.model",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeatures },
 
 })
 var appInfo = &algo.AppInfo{
@@ -29,3 +32,6 @@ var appInfo = &algo.AppInfo{
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap}
 var _ = algo.AddAppInfo(appInfo)
+
+
+
