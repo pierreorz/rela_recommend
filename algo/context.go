@@ -184,9 +184,6 @@ func(self *ContextBase) DoBuildData() error {
 			}
 		}
 	}
-	if err == nil && self.GetDataLength() == 0 {
-		err = errors.New("builder data length is 0")
-	}
 	return err
 }
 
@@ -209,20 +206,28 @@ func(self *ContextBase) DoAlgo() error {
 func(self *ContextBase) DoStrategies() error {
 	var err error
 	app := self.GetAppInfo()
+
+	var strategies = []IStrategy{}
 	if app.StrategyMap != nil {
 		var namestr = self.AbTest.GetString(app.StrategyKey, app.StrategyDefault)
 		var names = strings.Split(namestr, ",")
 		for _, name := range names {
 			if len(name) > 0 {
 				if strategy, ok := app.StrategyMap[name]; ok {
-					err = strategy.Do(self)
-					if err != nil {
-						break
-					}
+					strategies = append(strategies, strategy)
 				} else {
 					log.Warnf("%s can't find strategy %s", app.Name, name)
 				}
 			}
+		}
+	}
+	// 添加默认策略，计算推荐分数，计算推荐理由
+	strategies = append(strategies, &StrategyBase{ DoSingle: StrategyScoreFunc })
+	strategies = append(strategies, &StrategyBase{ DoSingle: StrategyReasonsFunc })
+	for _, strategy := range strategies {
+		err = strategy.Do(self)
+		if err != nil {
+			break
 		}
 	}
 	return err

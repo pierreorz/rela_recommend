@@ -6,6 +6,7 @@ import (
 	"rela_recommend/log"
 	"rela_recommend/factory"
 	"rela_recommend/rpc/search"
+	"rela_recommend/rpc/api"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	"rela_recommend/utils"
@@ -25,6 +26,15 @@ func DoBuildData(ctx algo.IContext) error {
 												 "text_image,video,text,image", 0.0, "20km")
 		if err != nil {
 			return err
+		}
+	}
+
+	// backend recommend list
+	var topMap, recMap = map[int64]int{}, map[int64]int{}
+	if true {
+		topMap, recMap, err = api.CallBackendRecommendMomentList(1)
+		if err != nil {
+			log.Warnf("backend recommend list is err, %s\n", err)
 		}
 	}
 
@@ -58,13 +68,31 @@ func DoBuildData(ctx algo.IContext) error {
 	for _, mom := range moms {
 		if mom.Moments != nil && mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
+
+			// 处理置顶
+			var isTop = 0
+			if topMap != nil {
+				if _, isTopOk := topMap[mom.Moments.Id]; isTopOk {
+					isTop = 1
+				}
+			}
+
+			// 处理推荐
+			var recommends = []algo.RecommendItem{}
+			if recMap != nil {
+				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
+					recommends = append(recommends, algo.RecommendItem{ Reason: "RECOMMEND", Score: 2.0 })
+				}
+			}
+				
 			info := &DataInfo{
 				DataId: mom.Moments.Id,
 				UserCache: momUser,
 				MomentCache: mom.Moments,
 				MomentExtendCache: mom.MomentsExtend,
 				MomentProfile: mom.MomentsProfile,
-				RankInfo: &algo.RankInfo{}}
+				RankInfo: &algo.RankInfo{IsTop: isTop, Recommends: recommends},
+			}
 			dataList = append(dataList, info)
 		}
 	}

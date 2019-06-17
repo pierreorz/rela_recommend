@@ -46,6 +46,7 @@ type cassandraConfig struct {
 
 type rpcConfig struct {
 	SearchRpcAddr	string	`toml:"search_rpc_addr"`
+	V3RpcAddr		string	`toml:"v3_rpc_addr"`
 }
 
 type Config struct {
