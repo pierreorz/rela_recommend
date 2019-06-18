@@ -19,7 +19,7 @@ var loggerMap = map[string]algo.ILogger{
 	"performs": &algo.LoggerPerforms{}}
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
-	&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "theme_xg_v1.1.model",
+	&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "mods_1.0.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeatures },
 
 })
