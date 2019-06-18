@@ -25,9 +25,9 @@ func GetThemeFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 		fs.AddCategory(501, 12, 0, rutils.GetInt(memu.Horoscope), 0) //星座
 		fs.AddCategory(514, 10, 0, rutils.GetInt(memu.RoleName), 0)  //自我认同
 	}
-	if (memu != nil) {
-		fs.AddCategory(525, 5, 0, ctx.GetPlatform(), 0) //用户操作系统
-	}
+
+	fs.AddCategory(525, 5, 0, ctx.GetPlatform(), 0) //用户操作系统
+
 	//词向量 600-856
 	wordsCount := len(mem.MomentsText)
 
