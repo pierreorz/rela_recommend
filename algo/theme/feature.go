@@ -16,7 +16,7 @@ func GetThemeFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 	memu := data.UserCache //用户缓存信息
 
 	//用户连续特征 1 - 500
-	if (mem != nil) {
+	if (memu!= nil) {
 		fs.Add(1, float32(memu.Age))
 		fs.Add(2, float32(memu.Height))
 		fs.Add(3, float32(memu.Weight))
@@ -32,32 +32,26 @@ func GetThemeFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 	wordsCount := len(mem.MomentsText)
 
 	if wordsCount > 0 {
-		var words= make([]string, 0)
-		words = factory.Segmenter.Cut(mem.MomentsText)
+		words := factory.Segmenter.Cut(mem.MomentsText)
 		wordNum := make(map[int]float32)
 		count := 0
 		for i := 0; i < len(words); i++ {
-			if _, ok := wordVec[words[i]]; ok {
+			if dictValue, ok := wordVec[words[i]]; ok {
 				count += 1
-				wordVecList := wordVec[words[i]]
-				for j, num := range wordVecList {
+				for j, num := range dictValue {
 					if _, value := wordNum[j]; value {
 						wordNum[j] += num
 					} else {
 						wordNum[j] = num
 					}
 				}
-			} else {
-				continue
 			}
-
 		}
-		for k := 0; k < 256; k++ {
-
-			fs.Add(k+600, wordNum[k]/float32(count))
-
+		if count>0 {
+			for k := 0; k < 256; k++ {
+				fs.Add(k+600, wordNum[k]/float32(count))
+			}
 		}
-
 	}
 	return fs
 }
