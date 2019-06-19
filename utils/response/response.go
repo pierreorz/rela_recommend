@@ -151,3 +151,24 @@ func FormatResponse(data interface{}, apiError service.IAPIError) (status int, r
 	}
 	return
 }
+
+type ResponseV3 struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+	TTL     int         `json:"ttl"`
+}
+
+func FormatResponseV3(data interface{}, err error) (status int, res ResponseV3) {
+	if err == nil {
+		status = http.StatusOK
+		res.Data = data
+		return
+	} else {
+		status = http.StatusBadRequest
+		res.Code = 1
+		res.Message = err.Error()
+		log.Error(err.Error())
+	}
+	return
+}

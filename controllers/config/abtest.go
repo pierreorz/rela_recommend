@@ -14,11 +14,6 @@ type AbTestRequest struct {
 	UserId  	int64  				`json:"user_id" form:"user_id"`
 	ParamsMap 	map[string]string	`json:"params_map" from:"params_map"`
 }
-type AbTestResponse struct {
-	Status  string				`json:"status" form:"status"`
-	Message string				`json:"message" form:"message"`
-	AbTest	*abtest.AbTest		`json:"abtest" form:"abtest"`
-}
 
 func AbTestHTTP(c *routers.Context) {
 	var params AbTestRequest
@@ -28,8 +23,6 @@ func AbTestHTTP(c *routers.Context) {
 		return
 	}
 	ab := abtest.GetAbTest(params.App, params.UserId)
-	res := AbTestResponse{Status: "OK", AbTest: ab}
-
-	c.JSON(response.FormatResponse(res, service.WarpError(nil, "", "")))
+	c.JSON(response.FormatResponseV3(ab, nil))
 }
 
