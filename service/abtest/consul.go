@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/consul/watch"
 )
 
-type AppInfo struct {
+type appInfo struct {
 	Name string 				`json:"name"`
 
 	configPrefix	string
@@ -93,7 +93,7 @@ func updateWhite(app string, prefix string, kvs api.KVPairs) error{
 	return nil
 }
 
-func(self *AppInfo) Watch(hosts string) *AppInfo {
+func(self *appInfo) Watch(hosts string) *appInfo {
 	self.configPrefix = "ai/abtest/config/" + self.Name + "/"
 	self.testPrefix = "ai/abtest/test/" + self.Name + "/"
 	self.whitePrefix = "ai/abtest/white/" + self.Name + "/"
@@ -103,13 +103,13 @@ func(self *AppInfo) Watch(hosts string) *AppInfo {
 	return self
 }
 
-var watchAppMap = map[string]*AppInfo{}
+var watchAppMap = map[string]*appInfo{}
 
 func BeginWatching(hosts string) *watch.Plan {
 	// hosts := "127.0.0.1:8500"
 	return watch_func(hosts, "", "ai/abtest/app/", func(appName string, prefix string, kvs api.KVPairs) error{
 		for _, kv := range kvs {
-			var app = &AppInfo{}
+			var app = &appInfo{}
 			if err := json.Unmarshal(kv.Value, app); err != nil {
 				log.Errorf("%s app error: %s, %s\n", prefix, err, string(kv.Value))
 			} else {
