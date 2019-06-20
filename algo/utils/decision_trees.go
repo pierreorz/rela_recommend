@@ -10,6 +10,7 @@ type DecisionTreeBase struct {
 	NodeCount int `json:"node_count"`
 	FeatureCount int `json:"n_features"`
 	ClassCount int `json:"n_classes"`
+	MissingType int `json:"missing_type"`  	// 缺失值处理方式：0:按照0处理，1:按照左分支处理, 2:按照右分支处理
 	
 	Threshold []float32 `json:"threshold"`
 	Impurity []float32 `json:"impurity"`
@@ -26,8 +27,16 @@ func (tree *DecisionTreeBase) PredictSingleLeaf(features *Features) int {
 		if feature_id < 0 {
 			break
 		}
-		feature_val := features.Get(feature_id)
-		if feature_val <= tree.Threshold[node_id] {
+		feature_val, ok := features.Get(feature_id)
+
+		var toLeft = false
+		if !ok && tree.MissingType > 0 {
+			toLeft = tree.MissingType == 1
+		} else {
+			toLeft = feature_val <= tree.Threshold[node_id]
+		}
+
+		if toLeft {
 			node_id = tree.ChildrenLeft[node_id]
 		} else {
 			node_id = tree.ChildrenRight[node_id]

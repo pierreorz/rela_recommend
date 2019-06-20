@@ -104,10 +104,8 @@ func (self *Features) AddHashStrings(start, length int, vals []string) bool {
 	return true
 }
 
-func (self *Features) Get(key int) float32 {
+func (self *Features) Get(key int) (float32, bool) {
 	self.checkInit()
-	if val, ok := self.featuresMap[key]; ok {
-		return val
-	}
-	return 0.0
+	val, ok := self.featuresMap[key]
+	return val, ok
 }
