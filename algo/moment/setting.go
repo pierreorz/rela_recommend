@@ -28,8 +28,8 @@ var loggerMap = map[string]algo.ILogger{
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	// &algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "moment_xg_v1.1.model", 
 	// 			   Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
-	&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "xglr_v1.2.model", 
-					Model: &utils.GradientBoostingLRClassifier{}, FeaturesFunc: GetMomentFeatures },
+	&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "xgb_lr_v1.2.model", 
+					Model: &utils.XgboostLRClassifier{}, FeaturesFunc: GetMomentFeatures },
 })
 
 
