@@ -30,9 +30,6 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 				   Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
 })
 
-var AlgosMap = algosMap
-
-
 var appInfo = &algo.AppInfo{
 	Name: appName, Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap, 
