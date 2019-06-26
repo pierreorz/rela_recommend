@@ -9,7 +9,7 @@ const internalBackendRecommendMomentListUrl = "/v3/backend/moments/recommend"
 
 type backendRecommendMomentDataRes struct {
 	TopTheme        int64						`json:"topTheme"`
-	RecommandThemes map[int64]int				`json:"recommandThemes"`
+	RecommandThemes map[int64]int				`json:"recommendThemes"`
 }
 
 type backendRecommendMomentListRes struct {

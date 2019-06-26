@@ -5,7 +5,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/log"
 	"rela_recommend/factory"
-	//"rela_recommend/rpc/search"
+	"rela_recommend/rpc/search"
 	"rela_recommend/rpc/api"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
@@ -30,18 +30,18 @@ func DoBuildData(ctx algo.IContext) error {
 	// search list
 	var startSearchTime = time.Now()
 	dataIdList := params.DataIds
-	//if dataIdList == nil || len(dataIdList) == 0 {
-	//	startNewTime := float32(ctx.GetCreateTime().Unix() - 24 * 60 * 60)
-	//	dataIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000,
-	//											 "theme", startNewTime , "800km")
-	//	if err != nil {
-	//		return err
-	//	}
-	//}
-	// backend recommend list
+	if dataIdList == nil || len(dataIdList) == 0 {
+		startNewTime := float32(ctx.GetCreateTime().Unix() - 24 * 60 * 60)
+		dataIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000,
+												 "theme", startNewTime , "800km")
+		if err != nil {
+			return err
+		}
+	}
+	//backend recommend list
 	var startBackEndTime = time.Now()
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
-	if false {	// 等待该接口5.0上线，别忘记配置conf文件
+	if true {	// 等待该接口5.0上线，别忘记配置conf文件
 		recIds, topMap, recMap, err = api.CallBackendRecommendMomentList(1)
 		if err != nil {
 			log.Warnf("backend recommend list is err, %s\n", err)
