@@ -16,7 +16,7 @@ func DoBuildCoarseData(ctx algo.IContext) error {
 	var startTime = time.Now()
 	params := ctx.GetRequest()
 	userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
-	momentCache := redis.NewMomentCacheModule(&factory.CacheCluster, &factory.PikaCluster)
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
 	// search list
 	var err error

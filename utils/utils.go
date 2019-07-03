@@ -389,3 +389,17 @@ func IsInInts(v int, vs []int) bool {
 	}
 	return false
 }
+
+// 分隔数组
+func SplitList(list []interface{}, partLen int) [][]interface{} {
+	arrs := make([][]interface{}, partLen)
+	dataLen, endLen := len(list) / partLen, len(list) % partLen
+	for i := 0; i < partLen; i++ {
+		startIndex, endIndex := i * dataLen, (i+1)*dataLen
+		if i == partLen - 1 {
+			endIndex += endLen
+		}
+		arrs = append(arrs, list[startIndex: endIndex])
+	}
+	return arrs
+}

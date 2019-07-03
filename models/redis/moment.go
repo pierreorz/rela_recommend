@@ -2,9 +2,10 @@ package redis
 
 import(
 	"time"
-	"encoding/json"
-	"rela_recommend/log"
+	// "encoding/json"
+	// "rela_recommend/log"
 	"rela_recommend/cache"
+	"rela_recommend/algo"
 )
 
 type Moments struct {
@@ -100,36 +101,14 @@ type MomentCacheModule struct {
 	CachePikaModule
 }
 
-func NewMomentCacheModule(cache *cache.Cache, store *cache.Cache) *MomentCacheModule {
-	return &MomentCacheModule{CachePikaModule{cache: *cache, store: *store}}
+func NewMomentCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *MomentCacheModule {
+	return &MomentCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
 
 // 读取直播相关用户画像
 func (self *MomentCacheModule) QueryMomentsByIds(ids []int64) ([]MomentsAndExtend, error) {
-	startTime := time.Now()
 	keyFormatter := "friends_moments_moments:%d"
-	ress, err := self.MGetSet(ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
-	startJsonTime := time.Now()
-	objs := make([]MomentsAndExtend, 0)
-	for i, res := range ress {
-		if res != nil {
-			var obj MomentsAndExtend
-			bs, ok := res.([]byte)
-			if ok {
-				if err := json.Unmarshal(bs, &obj); err == nil {
-					objs = append(objs, obj)
-				} else {
-					log.Warn(keyFormatter, ids[i], err.Error())
-				}
-			} else {
-				log.Warn(keyFormatter, ids[i], err.Error())
-			}
-		}
-	}
-	endTime := time.Now()
-	log.Infof("UnmarshalKey:%s,all:%d,notfound:%d,final:%d;total:%.4f,read:%.4f,json:%.4f\n",
-		keyFormatter, len(ids), len(ids)-len(objs), len(objs), 
-		endTime.Sub(startTime).Seconds(),
-		startJsonTime.Sub(startTime).Seconds(), endTime.Sub(startJsonTime).Seconds())
+	ress, err := self.MGetStructs(MomentsAndExtend{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
+	objs := ress.Interface().([]MomentsAndExtend)
 	return objs, err
 }

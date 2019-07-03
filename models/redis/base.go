@@ -2,15 +2,21 @@ package redis
 
 import (
 	"fmt"
+	"sync"
 	"time"
+	"reflect"
+	"encoding/json"
 	"rela_recommend/log"
 	"rela_recommend/cache"
+	"rela_recommend/utils"
+	"rela_recommend/algo"
 )
 
 
 type CachePikaModule struct {
 	cache cache.Cache
 	store cache.Cache
+	ctx algo.IContext
 }
 
 // 读取缓存。cacheTime：redis的缓存时间；cacheNilTime: pika也不存在的key写入redis的缓存时间
@@ -118,4 +124,99 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 		startStoreTime.Sub(endCacheTime).Seconds(), startStoreSetTime.Sub(startStoreTime).Seconds(),
 		endTime.Sub(startStoreSetTime).Seconds())
 	return ress, err
+}
+
+
+func (self *CachePikaModule) jsonsToValues(jsons []interface{}, objType reflect.Type) ([]reflect.Value, error) {
+	objs := make([]reflect.Value, 0, len(jsons))
+	for _, res := range jsons {
+		if res != nil {
+			var newObj = reflect.New(objType)
+			bs, ok := res.([]byte)
+			if ok {
+				if err := json.Unmarshal(bs, newObj.Interface()); err == nil {
+					objs = append(objs, reflect.Indirect(newObj))
+				} else {
+					log.Warn("json err:", res , err.Error())
+				}
+			} else {
+				log.Warn("must []byte:", res)
+			}
+		}
+	}
+	return objs, nil
+}
+
+func (self *CachePikaModule) Jsons2StructsBySingle(jsons []interface{}, obj interface{}) (*reflect.Value, error) {
+	startTime := time.Now()
+	objLen := len(jsons)
+	objTyp := reflect.TypeOf(obj)
+	objSlc := reflect.MakeSlice(reflect.SliceOf(objTyp), 0, objLen)
+	ress, err := self.jsonsToValues(jsons, objTyp)
+	for _, res := range ress {
+		objSlc = reflect.Append(objSlc, res)
+	}
+	endTime := time.Now()
+	log.Infof("Jsons2StructsBySingle all:%d,notfound:%d,final:%d;total:%.4f\n",
+		len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(), 
+		endTime.Sub(startTime).Seconds())
+	return &objSlc, err
+}
+
+func (self *CachePikaModule) Jsons2StructsByRoutine(jsons []interface{}, obj interface{}, partLen int) (*reflect.Value, error) {
+	startTime := time.Now()
+
+	parts := utils.SplitList(jsons, partLen)
+	objTyp := reflect.TypeOf(obj)
+	objSlc := reflect.MakeSlice(reflect.SliceOf(objTyp), 0, len(jsons))
+	var err error
+
+	var lockHandler = &sync.RWMutex{}
+	wg := new(sync.WaitGroup)
+	for _, part := range parts {
+		wg.Add(1)
+		go func(part []interface{}) {
+			defer wg.Done()
+			partRes, partErr := self.jsonsToValues(part, objTyp)
+			lockHandler.Lock()
+			defer lockHandler.Unlock()
+			if err == nil {
+				err = partErr
+			}
+			for _, res := range partRes {
+				objSlc = reflect.Append(objSlc, res)
+			}
+		}(part)
+	}
+	wg.Wait()
+
+	endTime := time.Now()
+	log.Infof("Jsons2StructsByRoutine all:%d,notfound:%d,final:%d;total:%.4f\n",
+		len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(), 
+		endTime.Sub(startTime).Seconds())
+	return &objSlc, err
+}
+
+func (self *CachePikaModule) Jsons2Structs(jsons []interface{}, obj interface{}) (*reflect.Value, error) {
+	abtest := self.ctx.GetAbTest()
+	threshold := abtest.GetInt("redis.json.thread.threshold", 200)
+	if len(jsons) > threshold {
+		jobs := abtest.GetInt("redis.json.thread.jobs", 4)
+		return self.Jsons2StructsByRoutine(jsons, obj, jobs)
+	} else {
+		return self.Jsons2StructsBySingle(jsons, obj)
+	}
+}
+
+func (self *CachePikaModule) MGetStructs(obj interface{}, ids []int64, keyFormater string, cacheTime int64, cacheNilTime int64) (*reflect.Value, error) {
+	startTime := time.Now()
+	ress, err := self.MGetSet(ids, keyFormater, cacheTime, cacheNilTime)
+	startJsonTime := time.Now()
+	objs, err := self.Jsons2Structs(ress, obj)
+	endTime := time.Now()
+	log.Infof("UnmarshalKey:%s,all:%d,notfound:%d,final:%d;total:%.4f,read:%.4f,json:%.4f\n",
+		keyFormater, len(ids), len(ids)-objs.Len(), objs.Len(), 
+		endTime.Sub(startTime).Seconds(),
+		startJsonTime.Sub(startTime).Seconds(), endTime.Sub(startJsonTime).Seconds())
+	return objs, err
 }

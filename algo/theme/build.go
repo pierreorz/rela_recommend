@@ -17,7 +17,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var startTime = time.Now()
 	params := ctx.GetRequest()
 	userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
-	momentCache := redis.NewMomentCacheModule(&factory.CacheCluster, &factory.PikaCluster)
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 	dataOldIds, err := rdsPikaCache.GetInt64List(params.UserId, "theme_recommend_list:%d")
 	if err == nil {
