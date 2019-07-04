@@ -119,10 +119,13 @@ func (self *AlgoBase) goFeatures(ctx IContext, batch int) error {
 	return nil
 }
 func (self *AlgoBase) DoFeatures(ctx IContext) error {
-	if ctx.GetDataLength() < 100 {
+	abtest := ctx.GetAbTest()
+	threshold := abtest.GetInt("algo.thread.threshold", 100)
+	if ctx.GetDataLength() < threshold {
 		return self.doFeatures(ctx)
 	} else {
-		return self.goFeatures(ctx, 6)
+		jobs := abtest.GetInt("algo.thread.jobs", 6)
+		return self.goFeatures(ctx, jobs)
 	}
 }
 
