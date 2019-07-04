@@ -13,7 +13,7 @@ func init() {
 	default_config := `{
 		"match": {"match_model": "QuickMatchTreeV1_0", "default_key": "test"},
 		"live": {"live_model": "LiveModelV1_3", "new_score": "0.5"},
-		"moment": {"strategies": "time_frist", "radius_range":"20km"}
+		"moment": {"strategies": "time_level", "radius_range":"50km"}
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
 		log.Error(err.Error())
@@ -42,11 +42,7 @@ func init() {
 					{"name": "v1.2.3", "percentage": 15, "factor_map": {"new_score": "0.3", "live_model": "LiveModelV1_3"}}
 			]} ],
 		"moment": [
-			{"name": "testing_model_v1_0", "desc": "测试算法排序方式", "app": "moment", "group": "", "status": 1, "daily_change": 1,
-				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-					{"name": "v0.0.0", "percentage": 33, "factor_map": {"strategies": "time_frist"}},
-					{"name": "v1.1.0", "percentage": 33, "factor_map": {"strategies": "time_level", "radius_range":"50km"}}
-			]}
+			
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(ab_config), &testingMap); err != nil {
