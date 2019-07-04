@@ -22,7 +22,7 @@ func DoBuildData(ctx algo.IContext) error {
 	// search list
 	dataIdList := params.DataIds
 	if dataIdList == nil || len(dataIdList) == 0 {
-		radiusRange := ctx.GetAbTest().GetString("radius_range", "20km")
+		radiusRange := ctx.GetAbTest().GetString("radius_range", "50km")
 		dataIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000, 
 												 "text_image,video,text,image", 0.0, radiusRange)
 		if err != nil {
