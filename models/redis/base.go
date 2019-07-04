@@ -117,8 +117,8 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 		}
 	}
 	var endTime = time.Now()
-	log.Infof("ReadKey:%s,all:%d,cache:%d,store:%d,final:%d,set:%d,setnil:%d;total:%.3f,keys:%.3f,cache:%.3f,notfound:%.3f,store:%.3f,2cache:%.3f\n",
-		keyFormater, dataLen, dataLen-len(notFoundIndexs), len(notFoundIndexs),len(ress), setLen, setNilLen,
+	log.Infof("ReadKey:%s,rankId:%s,all:%d,cache:%d,store:%d,final:%d,set:%d,setnil:%d;total:%.3f,keys:%.3f,cache:%.3f,notfound:%.3f,store:%.3f,2cache:%.3f\n",
+		keyFormater, self.ctx.GetRankId(), dataLen, dataLen-len(notFoundIndexs), len(notFoundIndexs),len(ress), setLen, setNilLen,
 		endTime.Sub(startTime).Seconds(),
 		startCacheTime.Sub(startTime).Seconds(), endCacheTime.Sub(startCacheTime).Seconds(),
 		startStoreTime.Sub(endCacheTime).Seconds(), startStoreSetTime.Sub(startStoreTime).Seconds(),
@@ -157,8 +157,8 @@ func (self *CachePikaModule) Jsons2StructsBySingle(jsons []interface{}, obj inte
 		objSlc = reflect.Append(objSlc, res)
 	}
 	endTime := time.Now()
-	log.Infof("Jsons2StructsBySingle all:%d,notfound:%d,final:%d;total:%.4f\n",
-		len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(), 
+	log.Infof("Jsons2StructsBySingle rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
+		self.ctx.GetRankId(), len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(), 
 		endTime.Sub(startTime).Seconds())
 	return &objSlc, err
 }
@@ -191,8 +191,8 @@ func (self *CachePikaModule) Jsons2StructsByRoutine(jsons []interface{}, obj int
 	wg.Wait()
 
 	endTime := time.Now()
-	log.Infof("Jsons2StructsByRoutine all:%d,notfound:%d,final:%d;total:%.4f\n",
-		len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(), 
+	log.Infof("Jsons2StructsByRoutine rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
+		self.ctx.GetRankId(), len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(), 
 		endTime.Sub(startTime).Seconds())
 	return &objSlc, err
 }
@@ -214,8 +214,8 @@ func (self *CachePikaModule) MGetStructs(obj interface{}, ids []int64, keyFormat
 	startJsonTime := time.Now()
 	objs, err := self.Jsons2Structs(ress, obj)
 	endTime := time.Now()
-	log.Infof("UnmarshalKey:%s,all:%d,notfound:%d,final:%d;total:%.4f,read:%.4f,json:%.4f\n",
-		keyFormater, len(ids), len(ids)-objs.Len(), objs.Len(), 
+	log.Infof("UnmarshalKey:%s,rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f,read:%.4f,json:%.4f\n",
+		keyFormater, self.ctx.GetRankId(), len(ids), len(ids)-objs.Len(), objs.Len(), 
 		endTime.Sub(startTime).Seconds(),
 		startJsonTime.Sub(startTime).Seconds(), endTime.Sub(startJsonTime).Seconds())
 	return objs, err
