@@ -3,7 +3,7 @@ package theme
 import(
 	"rela_recommend/algo"
 	rutils "rela_recommend/utils"
-	"rela_recommend/models/pika"
+	// "rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	"rela_recommend/algo/utils"
 )
@@ -11,14 +11,14 @@ import(
 // 用户信息
 type UserInfo struct {
 	UserId int64
-	UserCache *pika.UserProfile
+	UserCache *redis.UserProfile
 	UserConcerns *rutils.SetInt64
 }
 
 // 话题信息
 type DataInfo struct {
 	DataId 		int64
-	UserCache 			*pika.UserProfile
+	UserCache 			*redis.UserProfile
 	MomentCache 		*redis.Moments
 	MomentExtendCache 	*redis.MomentsExtend
 	MomentProfile		*redis.MomentsProfile
