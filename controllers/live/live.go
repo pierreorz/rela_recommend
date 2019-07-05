@@ -53,7 +53,7 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 	userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 	liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
 
-	rdsPikaCache := redis.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
+	rdsPikaCache := redis.NewLiveCacheModule(nil, &factory.CacheCluster, &factory.PikaCluster)
 
 	// 获取主播列表
 	allLives := GetCachedLiveList()

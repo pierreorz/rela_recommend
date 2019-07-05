@@ -6,7 +6,6 @@ import (
 	"rela_recommend/log"
 	"rela_recommend/factory"
 	"rela_recommend/algo/moment"
-	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	"rela_recommend/utils"
 )
@@ -15,7 +14,7 @@ import (
 func DoBuildCoarseData(ctx algo.IContext) error {
 	var startTime = time.Now()
 	params := ctx.GetRequest()
-	userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
 	// search list
