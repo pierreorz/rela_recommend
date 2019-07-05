@@ -10,6 +10,7 @@ import (
 	"rela_recommend/cache"
 	"rela_recommend/utils"
 	"rela_recommend/algo"
+	"rela_recommend/service/abtest"
 )
 
 
@@ -205,7 +206,10 @@ func (self *CachePikaModule) Jsons2StructsByRoutine(jsons []interface{}, obj int
 }
 
 func (self *CachePikaModule) Jsons2Structs(jsons []interface{}, obj interface{}) (*reflect.Value, error) {
-	abtest := self.ctx.GetAbTest()
+	var abtest = abtest.GetAbTest("", 0)
+	if self.ctx != nil {
+		abtest = self.ctx.GetAbTest()
+	}
 	threshold := abtest.GetInt("redis.json.thread.threshold", 200)
 	if len(jsons) > threshold {
 		jobs := abtest.GetInt("redis.json.thread.jobs", 4)
