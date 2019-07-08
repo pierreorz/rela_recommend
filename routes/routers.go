@@ -24,7 +24,9 @@ func RegisterRouters(router *routers.Routers) {
 	router.POST("/recommend/momentList", moment.RecommendListHTTP)
 	router.POST("/recommend/coarse/momentList", moment.CoarseRecommendListHTTP)
 
-	router.POST("/rank/:app/*type", controllers.IndexHTTP)
+	// 动态路由
+	router.POST("/rank/:app", controllers.IndexHTTP)
+	router.POST("/rank/:app/:type", controllers.IndexHTTP)
 	router.NotFound = NotFound
 }
 
