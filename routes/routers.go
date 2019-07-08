@@ -13,14 +13,18 @@ import (
 
 func RegisterRouters(router *routers.Routers) {
 	router.POST("/config/abtest", config.AbTestHTTP)
-	router.POST("/recommend", controllers.IndexHTTP)
+	router.POST("/segment", segment.SegmentHTTP)
+
+
+	// router.POST("/recommend", controllers.IndexHTTP)
 	router.GET("/recommend/test", controllers.TestHTTP)
-	router.POST("/recommend/segment", segment.SegmentHTTP)
 	router.POST("/recommend/matchList", match.MatchRecommendListHTTP)
 	router.POST("/recommend/liveList", live.LiveRecommendListHTTP)
 	router.POST("/recommend/themeList", theme.RecommendListHTTP)
 	router.POST("/recommend/momentList", moment.RecommendListHTTP)
 	router.POST("/recommend/coarse/momentList", moment.CoarseRecommendListHTTP)
+
+	router.POST("/rank/:app/*type", controllers.IndexHTTP)
 	router.NotFound = NotFound
 }
 

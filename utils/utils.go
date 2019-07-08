@@ -403,3 +403,13 @@ func SplitList(list []interface{}, partLen int) [][]interface{} {
 	}
 	return arrs
 }
+
+// 返回第一个不为空的字符串
+func CoalesceString(strs ...string) string {
+	for _, str := range strs {
+		if len(str) > 0 {
+			return str
+		}
+	}
+	return ""
+}

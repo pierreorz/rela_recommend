@@ -1,10 +1,13 @@
 package algo
 import (
 	"os"
+	"fmt"
+	"strings"
 	"errors"
 	"rela_recommend/log"
 	"rela_recommend/utils/routers"
 	"rela_recommend/utils/request"
+	"rela_recommend/utils"
 )
 
 // 获取当前工作目录
@@ -29,17 +32,23 @@ func DoWithRoutersContext(c *routers.Context, appName string) (*RecommendRespons
 	var params = &RecommendRequest{}
 	var err = request.Bind(c, params)
 	if err == nil {
-		var name = appName
-		if len(appName) == 0 {
-			name = params.App
+		params.App = utils.CoalesceString(appName, c.Params.ByName("app"), params.App)
+
+		// url中的*type会出现前后/
+		appType := utils.CoalesceString(strings.Split(c.Params.ByName("type"), "/")...)
+		params.Type = utils.CoalesceString(appType, params.Type)
+
+		name := params.App
+		if len(params.Type) > 0 {
+			name = fmt.Sprintf("%s.%s", name, params.Type)
 		}
 		var app = GetAppInfo(name)
 		if app != nil {
 			err = ctx.Do(app, params)
 		} else {
-			err = errors.New("invalid app: " + params.App)
+			err = errors.New("invalid app: " + name)
 		}
-	} 
+	}
 	if err != nil {
 		log.Error(err.Error())
 	}
