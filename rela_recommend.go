@@ -7,7 +7,7 @@ import (
 	"rela_recommend/conf"
 	"rela_recommend/factory"
 	"rela_recommend/log"
-	"rela_recommend/routers"
+	"rela_recommend/utils/routers"
 	"rela_recommend/routes"
 	"runtime"
 	"syscall"

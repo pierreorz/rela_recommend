@@ -3,7 +3,7 @@ import (
 	"os"
 	"errors"
 	"rela_recommend/log"
-	"rela_recommend/routers"
+	"rela_recommend/utils/routers"
 	"rela_recommend/utils/request"
 )
 

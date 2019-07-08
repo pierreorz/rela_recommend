@@ -1,7 +1,7 @@
 package config
 
 import (
-	"rela_recommend/routers"
+	"rela_recommend/utils/routers"
 	"rela_recommend/service"
 	"rela_recommend/utils/response"
 	"rela_recommend/utils/request"

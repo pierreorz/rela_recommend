@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"rela_recommend/routers"
+	"rela_recommend/utils/routers"
 	"rela_recommend/algo"
 	"rela_recommend/utils/response"
 

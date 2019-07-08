@@ -5,7 +5,7 @@ import (
 	"runtime/debug"
 
 	"rela_recommend/log"
-	"rela_recommend/routers"
+	"rela_recommend/utils/routers"
 	"rela_recommend/service"
 	"rela_recommend/utils/response"
 )

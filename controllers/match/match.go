@@ -8,7 +8,7 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/models/pika"
-	"rela_recommend/routers"
+	"rela_recommend/utils/routers"
 	"rela_recommend/service"
 	"rela_recommend/service/abtest"
 	"rela_recommend/utils"

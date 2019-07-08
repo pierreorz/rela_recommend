@@ -4,7 +4,7 @@ import (
 	"time"
 	"rela_recommend/factory"
 	"rela_recommend/models/pika"
-	"rela_recommend/routers"
+	"rela_recommend/utils/routers"
 	"rela_recommend/service"
 	"math/rand"
 	"rela_recommend/log"

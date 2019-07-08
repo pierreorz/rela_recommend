@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"rela_recommend/routers"
+	"rela_recommend/utils/routers"
 	"rela_recommend/controllers"
 	"rela_recommend/controllers/match"
 	"rela_recommend/controllers/live"
