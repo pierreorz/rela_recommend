@@ -26,7 +26,7 @@ func RegisterRouters(router *routers.Routers) {
 
 	// 动态路由
 	router.POST("/rank/:app", controllers.IndexHTTP)
-	router.POST("/rank/:app/:type", controllers.IndexHTTP)
+	router.POST("/rank/:app/*type", controllers.IndexHTTP)
 	router.NotFound = NotFound
 }
 
