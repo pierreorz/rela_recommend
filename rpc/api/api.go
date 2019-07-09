@@ -5,7 +5,7 @@ import (
 	"errors"
 	"rela_recommend/factory"
 )
-const internalBackendRecommendMomentListUrl = "/v3/backend/moments/recommend"
+const internalBackendRecommendMomentListUrl = "/internal//backend/moments/recommend"
 
 type backendRecommendMomentDataRes struct {
 	TopTheme        int64						`json:"topTheme"`
@@ -24,7 +24,7 @@ func CallBackendRecommendMomentList(category int) ([]int64, map[int64]int, map[i
 	params := fmt.Sprintf("category=%d", category)
 	res := &backendRecommendMomentListRes{}
 	var ids, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
-	var err = factory.V3RpcClient.SendGETForm(internalBackendRecommendMomentListUrl, params, res)
+	var err = factory.ApiRpcClient.SendGETForm(internalBackendRecommendMomentListUrl, params, res)
 	if err == nil {
 		if res.Code == 0 {
 			if res.Data.TopTheme > 0 {
