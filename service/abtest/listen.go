@@ -13,7 +13,7 @@ func init() {
 	default_config := `{
 		"match": {"match_model": "QuickMatchTreeV1_0", "default_key": "test"},
 		"live": {"live_model": "LiveModelV1_3", "new_score": "0.5"},
-		"moment": {"strategies": "time_level", "radius_range":"50km"},
+		"moment": {"strategies": "time_level", "radius_range":"300km"},
 		"moment.near": {"strategies": "time_level", "radius_range":"50km"}
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
