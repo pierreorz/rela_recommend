@@ -30,7 +30,7 @@ func DoBuildData(ctx algo.IContext) error {
 	// search list
 	var startSearchTime = time.Now()
 	dataIdList := params.DataIds
-	if dataIdList == nil || len(dataIdList) == 0 {
+	if false { // dataIdList == nil || len(dataIdList) == 0 {
 		startNewTime := float32(ctx.GetCreateTime().Unix() - 24 * 60 * 60)
 		dataIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000,
 												 "theme", startNewTime , "800km")
