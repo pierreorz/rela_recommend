@@ -24,15 +24,25 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 
 })
 
-var appInfo = &algo.AppInfo{
-	Name: appName, Path: workDir,
+// 话题推荐列表
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "theme", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
 	StrategyKey: "strategies", StrategyDefault: "", StrategyMap: strategyMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
-	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap}
-var _ = algo.AddAppInfo(appInfo)
+	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap})
+
+// 话题推荐热门列表
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "theme.hot", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
+	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
+	StrategyKey: "strategies", StrategyDefault: "", StrategyMap: strategyMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap})
 
 
 

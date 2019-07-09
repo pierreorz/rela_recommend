@@ -5,7 +5,6 @@ import(
 	"rela_recommend/algo/utils"
 )
 
-var appName = "moment"
 var workDir = algo.GetWorkDir("/algo_files/moment/")
 
 var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildData}}
@@ -30,12 +29,22 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 				   Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
 })
 
-var appInfo = &algo.AppInfo{
-	Name: appName, Path: workDir,
+// 推荐日志
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "moment", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap, 
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
 	StrategyKey: "strategies", StrategyDefault: "time_level", StrategyMap: strategyMap, 
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
-	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap}
-var _ = algo.AddAppInfo(appInfo)
+	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap})
+
+// 日志附近的人
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "moment.near", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap, 
+	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
+	StrategyKey: "strategies", StrategyDefault: "time_level", StrategyMap: strategyMap, 
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap})

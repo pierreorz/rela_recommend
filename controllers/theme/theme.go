@@ -18,6 +18,6 @@ func RecommendListHTTP(c *routers.Context) {
 	}
 
 	ctx := &algo.ContextBase{}
-	err := ctx.Do(algo.GetAppInfo("theme"), params)
+	err := ctx.Do(algo.GetAppInfo("theme.hot"), params)
 	c.JSON(response.FormatResponse(ctx.GetResponse(), service.WarpError(err, "", "")))
 }

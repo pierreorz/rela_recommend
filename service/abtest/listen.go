@@ -13,7 +13,8 @@ func init() {
 	default_config := `{
 		"match": {"match_model": "QuickMatchTreeV1_0", "default_key": "test"},
 		"live": {"live_model": "LiveModelV1_3", "new_score": "0.5"},
-		"moment": {"strategies": "time_level", "radius_range":"50km"}
+		"moment": {"strategies": "time_level", "radius_range":"50km"},
+		"moment.near": {"strategies": "time_level", "radius_range":"50km"}
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
 		log.Error(err.Error())
@@ -41,7 +42,7 @@ func init() {
 					{"name": "v1.2.4", "percentage": 15, "factor_map": {"new_score": "0.4", "live_model": "LiveModelV1_3"}},
 					{"name": "v1.2.3", "percentage": 15, "factor_map": {"new_score": "0.3", "live_model": "LiveModelV1_3"}}
 			]} ],
-		"moment": [
+		"moment.near": [
 			
 		]
 	}`
@@ -57,7 +58,7 @@ func init() {
 		"live": [
 			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381],"factor_map":{"live_model":"LiveModelV1_3", "new_score": "0.6"}}
 		],
-		"moment": [
+		"moment.near": [
 			{"name": "moment_model", "desc": "日志白名单", "app": "moment", "ids":[104708381],"factor_map":{"strategies": "time_level", "radius_range":"50km"}}
 		]
 	}`
