@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+	"rela_recommend/log"
 )
 
 type HttpClient struct {
@@ -25,7 +26,8 @@ func NewHttpClient(api_host string, timeout time.Duration) *HttpClient {
 }
 
 func (cli *HttpClient) SendPOSTJson(url string, body []byte, internalClientRes interface{}) error {
-	req, _ := http.NewRequest(http.MethodPost, cli.api_host+url, bytes.NewBuffer(body))
+	finalUrl := cli.api_host+url
+	req, _ := http.NewRequest(http.MethodPost, finalUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := cli.client.Do(req)
 	if err != nil {
@@ -39,14 +41,19 @@ func (cli *HttpClient) SendPOSTJson(url string, body []byte, internalClientRes i
 		return nil
 	}
 	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	if err == nil {
+		err = json.Unmarshal(data, internalClientRes)
 	}
-	return json.Unmarshal(data, internalClientRes)
+
+	if err != nil {
+		log.Errorf("SendPOSTJson err, %s %s\n", finalUrl, err)
+	}
+	return err
 }
 
 func (cli *HttpClient) SendGETForm(url, params string, internalClientRes interface{}) error {
-	req, _ := http.NewRequest(http.MethodGet, cli.api_host+url+"?"+params, nil)
+	finalUrl := cli.api_host+url+"?"+params
+	req, _ := http.NewRequest(http.MethodGet, finalUrl, nil)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	resp, err := cli.client.Do(req)
 	if err != nil {
@@ -60,14 +67,19 @@ func (cli *HttpClient) SendGETForm(url, params string, internalClientRes interfa
 		return nil
 	}
 	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	if err == nil {
+		err = json.Unmarshal(data, internalClientRes)
 	}
-	return json.Unmarshal(data, internalClientRes)
+
+	if err != nil {
+		log.Errorf("SendGETForm err, %s %s\n", finalUrl, err)
+	}
+	return err
 }
 
 func (cli *HttpClient) SendPOSTForm(url string, body []byte, internalClientRes interface{}) error {
-	req, _ := http.NewRequest(http.MethodPost, cli.api_host+url, bytes.NewBuffer(body))
+	finalUrl := cli.api_host+url
+	req, _ := http.NewRequest(http.MethodPost, finalUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	resp, err := cli.client.Do(req)
 	if err != nil {
@@ -81,14 +93,19 @@ func (cli *HttpClient) SendPOSTForm(url string, body []byte, internalClientRes i
 		return nil
 	}
 	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	if err == nil {
+		err = json.Unmarshal(data, internalClientRes)
 	}
-	return json.Unmarshal(data, internalClientRes)
+
+	if err != nil {
+		log.Errorf("SendPOSTForm err, %s %s\n", finalUrl, err)
+	}
+	return err
 }
 
 func (cli *HttpClient) SendGetHeader(url, headerKey, headerVal string, internalClientRes interface{}) error {
-	req, _ := http.NewRequest(http.MethodGet, cli.api_host+url, nil)
+	finalUrl := cli.api_host+url
+	req, _ := http.NewRequest(http.MethodGet, finalUrl, nil)
 	req.Header.Set(headerKey, headerVal)
 	resp, err := cli.client.Do(req)
 	if err != nil {
@@ -102,8 +119,11 @@ func (cli *HttpClient) SendGetHeader(url, headerKey, headerVal string, internalC
 		return nil
 	}
 	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	if err == nil {
+		err = json.Unmarshal(data, internalClientRes)
 	}
-	return json.Unmarshal(data, internalClientRes)
+	if err != nil {
+		log.Errorf("SendGetHeader err, %s %s\n", finalUrl, err)
+	}
+	return err
 }
