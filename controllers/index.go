@@ -11,6 +11,6 @@ import (
 )
 
 func IndexHTTP(c *routers.Context) {
-	rsp, err := algo.DoWithRoutersContext(c, "")
+	rsp, err := algo.DoWithRoutersContext(c, "", "")
 	c.JSON(response.FormatResponseV3(rsp, err))
 }

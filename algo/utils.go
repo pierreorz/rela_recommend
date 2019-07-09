@@ -27,7 +27,7 @@ func AlgoListInitToMap(algoList []IAlgo) map[string]IAlgo {
 }
 
 // 通过处理请求参数灵活处理所有算法
-func DoWithRoutersContext(c *routers.Context, appName string) (*RecommendResponse, error) {
+func DoWithRoutersContext(c *routers.Context, appName, typeName string) (*RecommendResponse, error) {
 	var ctx = &ContextBase{}
 	var params = &RecommendRequest{}
 	var err = request.Bind(c, params)
@@ -36,7 +36,7 @@ func DoWithRoutersContext(c *routers.Context, appName string) (*RecommendRespons
 
 		// url中的*type会出现前后/
 		appType := utils.CoalesceString(strings.Split(c.Params.ByName("type"), "/")...)
-		params.Type = utils.CoalesceString(appType, params.Type)
+		params.Type = utils.CoalesceString(typeName, appType, params.Type)
 
 		name := params.App
 		if len(params.Type) > 0 {

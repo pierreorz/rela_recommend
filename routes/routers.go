@@ -16,7 +16,7 @@ func RegisterRouters(router *routers.Routers) {
 	router.POST("/segment", segment.SegmentHTTP)
 
 
-	// router.POST("/recommend", controllers.IndexHTTP)
+	router.POST("/recommend", controllers.IndexHTTP)
 	router.GET("/recommend/test", controllers.TestHTTP)
 	router.POST("/recommend/matchList", match.MatchRecommendListHTTP)
 	router.POST("/recommend/liveList", live.LiveRecommendListHTTP)
