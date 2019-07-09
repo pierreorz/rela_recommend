@@ -5,7 +5,7 @@ import (
 	"errors"
 	"rela_recommend/factory"
 )
-const internalBackendRecommendMomentListUrl = "/internal//backend/moments/recommend"
+const internalBackendRecommendMomentListUrl = "/internal/backend/moments/recommend"
 
 type backendRecommendMomentDataRes struct {
 	TopTheme        int64						`json:"topTheme"`
