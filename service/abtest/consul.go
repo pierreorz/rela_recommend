@@ -76,6 +76,7 @@ func updateTest(app string, prefix string, kvs api.KVPairs) error{
 		}
 	}
 	testingMap[app] = testList
+	log.Infof("%s changed: %+v\n", prefix, testList)
 	return nil
 }
 
@@ -90,6 +91,7 @@ func updateWhite(app string, prefix string, kvs api.KVPairs) error{
 		}
 	}
 	whiteListMap[app] = whiteList
+	log.Infof("%s changed: %+v\n", prefix, whiteList)
 	return nil
 }
 
