@@ -16,6 +16,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"rela_recommend/cache/redisCluster"
 	"rela_recommend/service/segment"
+	"rela_recommend/service/abtest"
 )
 
 // mysql slave
@@ -63,11 +64,16 @@ func Init(cfg *conf.Config) {
 		panic("not utc+8, then going to quit")
 	}
 	// initDB(cfg)
+	initConsul(cfg)
 	initCache(cfg)
 	// initMongo(cfg)
 	// initCassandraSession(cfg)
 	initRpc(cfg)
 	initSegmenter(cfg)
+}
+
+func initConsul(cfg *conf.Config) {
+	abtest.BeginWatching("127.0.0.1:8500")
 }
 
 func initDB(cfg *conf.Config) {
