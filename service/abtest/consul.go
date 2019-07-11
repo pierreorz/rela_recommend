@@ -43,7 +43,7 @@ func watch_func(host string, app string, prefix string, handler func(string, str
 		if err != nil {
 			log.Errorf("%s error: %s, %+v\n", prefix, err, result)
 		}
-		log.Infof("%s changed: %+v\n", prefix, result)
+		// log.Infof("%s changed: %+v\n", prefix, result)
 	}
 	go func(){
 		if err = plan.Run(host); err != nil {
