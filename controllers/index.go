@@ -8,6 +8,7 @@ import (
 	_ "rela_recommend/algo/moment"
 	_ "rela_recommend/algo/moment/coarse"
 	_ "rela_recommend/algo/theme"
+	_ "rela_recommend/algo/live"
 )
 
 func IndexHTTP(c *routers.Context) {

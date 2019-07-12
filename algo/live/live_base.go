@@ -2,31 +2,9 @@ package live
 
 import(
 	"time"
-	"rela_recommend/algo"
-	rutils "rela_recommend/utils"
-	"rela_recommend/models/pika"
-	"rela_recommend/models/redis"
 	"rela_recommend/algo/utils"
 	"rela_recommend/service/abtest"
 )
-
-// 用户信息
-type UserInfo struct {
-	UserId int64
-	UserCache *pika.UserProfile
-	LiveProfile *redis.LiveProfile
-	UserConcerns *rutils.SetInt64
-}
-
-// 主播信息
-type LiveInfo struct {
-	UserId 		int64
-	UserCache 	*pika.UserProfile
-	LiveProfile *redis.LiveProfile
-	LiveCache 	*pika.LiveCache
-	RankInfo	*algo.RankInfo
-	Features 	*utils.Features
-}
 
 // 直播推荐算法上下文
 type LiveAlgoContext struct {
