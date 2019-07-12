@@ -56,7 +56,7 @@ func BuildContext(params *LiveRecommendRequest) (*live.LiveAlgoContext, error) {
 	rdsPikaCache := redis.NewLiveCacheModule(nil, &factory.CacheCluster, &factory.PikaCluster)
 
 	// 获取主播列表
-	allLives := GetCachedLiveList()
+	allLives := live.GetCachedLiveList()
 	if allLives == nil || len(allLives) == 0 {
 		var err error
 		allLives, err = liveCache.QueryLiveList()

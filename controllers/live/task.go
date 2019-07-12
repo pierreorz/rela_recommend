@@ -49,6 +49,6 @@ func refreshLiveList(duration time.Duration) {
 }
 
 // 启动自动刷新直播列表缓存
-func init() {
-	go refreshLiveList(2 * time.Second)
-}
+// func init() {
+// 	go refreshLiveList(2 * time.Second)
+// }

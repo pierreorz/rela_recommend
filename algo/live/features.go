@@ -96,10 +96,10 @@ func GetLiveFeaturesV2(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 	fs.Add(2, float32(userCache.Height))
 	fs.Add(3, float32(userCache.Weight))
 
-	if userInfo.LiveProfile != nil {
-		// 用户观看行为embedding
-		fs.AddArray(100, 30, userInfo.LiveProfile.LiveViewUserEmbedding)
-	}
+	// if userInfo.LiveProfile != nil {
+	// 	// 用户观看行为embedding
+	// 	fs.AddArray(100, 30, userInfo.LiveProfile.LiveViewUserEmbedding)
+	// }
 
 	// 主播连续特征 501 - 1000
 	if liveUserCache != nil {
@@ -117,10 +117,10 @@ func GetLiveFeaturesV2(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 	fs.Add(511, float32(ctx.GetCreateTime().Sub(liveCache.Live.CreateTime.Time).Seconds() / 60 / 60 / 24))			// 房间开播时长 min
 	fs.Add(512, liveCache.Score)					// 当前直播间观看人数
 
-	if liveInfo.LiveProfile != nil {
-		// 主播直播行为embedding
-		fs.AddArray(600, 30, liveInfo.LiveProfile.LiveViewLiveEmbedding)
-	}
+	// if liveInfo.LiveProfile != nil {
+	// 	// 主播直播行为embedding
+	// 	fs.AddArray(600, 30, liveInfo.LiveProfile.LiveViewLiveEmbedding)
+	// }
 
 	// 离散特征与交叉特征  10000 - 15000
 	fs.AddCategory(10000, 24, 0, ctx.GetCreateTime().Hour(), 0)			// 时间
