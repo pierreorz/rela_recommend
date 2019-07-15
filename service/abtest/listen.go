@@ -56,7 +56,7 @@ func init() {
 			{"name": "match_model", "desc": "匹配模型", "app": "match", "ids":[104708381],"factor_map":{"match_model":"QuickMatchTreeV1_4"}}
 		],
 		"live": [
-			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381],"factor_map":{"live_model":"LiveModelV1_3", "new_score": "0.6"}}
+			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381],"factor_map":{"model":"xgb_1.0", "new_score": "0.6"}}
 		],
 		"moment.near": [
 			{"name": "moment_model", "desc": "日志白名单", "app": "moment", "ids":[104708381],"factor_map":{"strategies": "time_level", "radius_range":"50km"}}
