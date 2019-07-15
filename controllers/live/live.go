@@ -43,7 +43,7 @@ func LiveRecommendListHTTP(c *routers.Context) {
 	}
 	params.LiveIds = utils.GetInt64s(params.LiveIdStr)
 
-	old := false
+	old := true
 	if old {
 		res := DoRecommend(&params)
 		c.JSON(response.FormatResponse(res, service.WarpError(nil, "", "")))
