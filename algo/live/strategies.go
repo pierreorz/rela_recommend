@@ -5,7 +5,7 @@ import(
 	"rela_recommend/algo"
 )
 
-// 按照6小时优先策略
+// 处理业务给出的置顶和推荐内容
 func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index)
 	rankInfo := dataInfo.GetRankInfo()
