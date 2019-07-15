@@ -34,13 +34,13 @@ func init() {
 					{"name": "v1.2", "percentage": 10, "factor_map": {"match_active_user_upper": "0.2"}}
 			]} ],
 		"live": [
-			{"name": "testing_model_v1_3", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daily_change": 1,
+			{"name": "testing_model_v1_4", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daily_change": 1,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-					{"name": "v1.0.0", "percentage": 15, "factor_map": {"new_score": "0.0", "live_model": "LiveModelV1_3"}},
-					{"name": "v1.2.6", "percentage": 15, "factor_map": {"new_score": "0.6", "live_model": "LiveModelV1_3"}},
-					{"name": "v1.2.5", "percentage": 15, "factor_map": {"new_score": "0.5", "live_model": "LiveModelV1_3"}},
-					{"name": "v1.2.4", "percentage": 15, "factor_map": {"new_score": "0.4", "live_model": "LiveModelV1_3"}},
-					{"name": "v1.2.3", "percentage": 15, "factor_map": {"new_score": "0.3", "live_model": "LiveModelV1_3"}}
+					{"name": "v1.0.0", "percentage": 15, "factor_map": {"new_score": "0.0", "model": "base"}},
+					{"name": "v1.3.3", "percentage": 15, "factor_map": {"new_score": "0.3", "model": "base"}},
+					{"name": "v1.3.5", "percentage": 15, "factor_map": {"new_score": "0.5", "model": "base"}},
+					{"name": "v1.4.3", "percentage": 15, "factor_map": {"new_score": "0.3", "model": "xgb_1.0"}},
+					{"name": "v1.4.5", "percentage": 15, "factor_map": {"new_score": "0.5", "model": "xgb_1.0"}}
 			]} ],
 		"moment.near": [
 			
