@@ -43,8 +43,31 @@ func LiveRecommendListHTTP(c *routers.Context) {
 	}
 	params.LiveIds = utils.GetInt64s(params.LiveIdStr)
 
-	res := DoRecommend(&params)
-	c.JSON(response.FormatResponse(res, service.WarpError(nil, "", "")))
+	old := false
+	if old {
+		res := DoRecommend(&params)
+		c.JSON(response.FormatResponse(res, service.WarpError(nil, "", "")))
+	} else {
+		var params2 = &algo.RecommendRequest{
+			Limit: params.Limit,
+			Offset: params.Offset,
+			Ua: params.Ua,
+			Lat: 0.0,
+			Lng: 0.0,
+			UserId: params.UserId,
+			DataIds: params.LiveIds,
+		}
+		ctx := &algo.ContextBase{}
+		err := ctx.Do(algo.GetAppInfo("live"), params2)
+		res2 := ctx.GetResponse()
+		res := LiveRecommendResponse{
+			Status: res2.Status,
+			Message: res2.Message,
+			RankId: res2.RankId,
+			LiveIds: res2.DataIds,
+		}
+		c.JSON(response.FormatResponse(res, service.WarpError(err, "", "")))
+	}
 }
 
 // 构建上下文

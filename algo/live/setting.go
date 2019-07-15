@@ -28,11 +28,13 @@ var loggerMap = map[string]algo.ILogger{
 
 // 精排算法
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
-	&algo.AlgoBase{AlgoName: "base", FilePath: workDir + "xgb_1.0.gz", 
+	&algo.AlgoBase{AlgoName: "base", FilePath: workDir + "gbdtlr_6_200_v1.3.gz", 
+				   Model: &utils.GradientBoostingLRClassifier{}, FeaturesFunc: GetLiveFeaturesV2 },
+	&algo.AlgoBase{AlgoName: "xgb_1.0", FilePath: workDir + "xgb_1.0.gz", 
 				   Model: &utils.XgboostClassifier{}, FeaturesFunc: GetLiveFeaturesV2 },
 })
 
-// 推荐日志
+// 推荐栏目
 var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "live", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "base", AlgoMap: algosMap, 
