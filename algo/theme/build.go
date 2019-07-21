@@ -19,6 +19,8 @@ func DoBuildData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	behaviorCache := redis.NewThemeBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
+
 	dataOldIds, err := rdsPikaCache.GetInt64List(params.UserId, "theme_recommend_list:%d")
 	if err == nil {
 		log.Warnf("theme recommend list is nil, %s\n", err)
@@ -69,7 +71,15 @@ func DoBuildData(ctx algo.IContext) error {
 	if err != nil {
 		log.Warnf("users list is err, %s\n", err)
 	}
+	themeUserBehaviorMap, err := behaviorCache.QueryUserBehaviorMap(params.UserId, dataIds)
+	if err != nil {
+		log.Warnf("theme UserBehavior err, %s\n", err)
+	}
 
+	themeBehaviorMap, err := behaviorCache.QueryBehaviorMap(dataIds)
+	if err != nil {
+		log.Warnf("theme Behavior err, %s\n", err)
+	}
 	var startBuildTime = time.Now()
 
 	userInfo := &UserInfo{
@@ -103,6 +113,8 @@ func DoBuildData(ctx algo.IContext) error {
 				MomentCache: mom.Moments,
 				MomentExtendCache: mom.MomentsExtend,
 				MomentProfile: mom.MomentsProfile,
+				UserBehavior: themeUserBehaviorMap[mom.Moments.Id],
+				ThemeBehavior: themeBehaviorMap[mom.Moments.Id],
 				RankInfo: &algo.RankInfo{IsTop: isTop, Recommends: recommends},
 			}
 			dataList = append(dataList, info)

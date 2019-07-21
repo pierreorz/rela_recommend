@@ -241,3 +241,95 @@ func (self *CachePikaModule) MGetStructs(obj interface{}, ids []int64, keyFormat
 		startJsonTime.Sub(startTime).Seconds(), endTime.Sub(startJsonTime).Seconds())
 	return objs, err
 }
+
+
+// 单线程转化json为struct Map.去除空值，不保证顺序
+func (self *CachePikaModule) Jsons2StructsMapBySingle(ids []int64, jsons []interface{}, obj interface{}) (*reflect.Value, error) {
+	startTime := time.Now()
+	objLen := len(jsons)
+	var keyObj int64 = 0
+	objKeyType := reflect.TypeOf(keyObj)
+	objEleType := reflect.TypeOf(obj)
+	objMapType := reflect.MapOf(objKeyType, objEleType)
+	objMap := reflect.MakeMapWithSize(objMapType, objLen)
+	ress, err := self.jsonsToValues(jsons, objEleType)
+	for i, res := range ress {
+		if res != nil {
+			objMap.SetMapIndex(reflect.ValueOf(ids[i]), *res)
+		}
+	}
+	finalLen := objMap.Len()
+	endTime := time.Now()
+	log.Infof("Jsons2StructsMapBySingle rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
+		"", len(jsons), len(jsons)-finalLen, finalLen, endTime.Sub(startTime).Seconds())
+	return &objMap, err
+}
+
+
+// 多线程转化json为struct.去除空值，不保证顺序
+func (self *CachePikaModule) Jsons2StructsMapByRoutine(ids []int64, jsons []interface{}, obj interface{}, partLen int) (*reflect.Value, error) {
+	startTime := time.Now()
+	objLen := len(jsons)
+
+	// var keyObj int64 = 0
+	objKeyType := reflect.TypeOf(ids).Elem()
+	objEleType := reflect.TypeOf(obj)
+	objMapType := reflect.MapOf(objKeyType, objEleType)
+	objMap := reflect.MakeMapWithSize(objMapType, objLen)
+	var err error
+
+	var lockHandler = &sync.RWMutex{}
+	wg := new(sync.WaitGroup)
+	for _, part := range utils.SplitPartIndex(objLen, partLen) {
+		wg.Add(1)
+		go func(ids []int64, part []interface{}) {
+			defer wg.Done()
+			partRes, partErr := self.jsonsToValues(part, objEleType)
+			lockHandler.Lock()
+			defer lockHandler.Unlock()
+			if err == nil {
+				err = partErr
+			}
+			for j, res := range partRes {
+				if res != nil {
+					objMap.SetMapIndex(reflect.ValueOf(ids[j]), *res)
+				}
+			}
+		}(ids[part.Start: part.End], jsons[part.Start: part.End])
+	}
+	wg.Wait()
+	finalLen := objMap.Len()
+	endTime := time.Now()
+	log.Infof("Jsons2StructsMapByRoutine rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
+		"", len(jsons), len(jsons)-finalLen, finalLen, 
+		endTime.Sub(startTime).Seconds())
+	return &objMap, err
+}
+
+func (self *CachePikaModule) Jsons2StructsMap(ids []int64, jsons []interface{}, obj interface{}) (*reflect.Value, error) {
+	var abtest = abtest.GetAbTest("", 0)
+	if self.ctx != nil {
+		abtest = self.ctx.GetAbTest()
+	}
+	threshold := abtest.GetInt("redis.json.map.thread.threshold", 200)
+	if len(jsons) > threshold {
+		jobs := abtest.GetInt("redis.json.map.thread.jobs", 4)
+		return self.Jsons2StructsMapByRoutine(ids, jsons, obj, jobs)
+	} else {
+		return self.Jsons2StructsMapBySingle(ids, jsons, obj)
+	}
+}
+
+func (self *CachePikaModule) MGetStructsMap(obj interface{}, ids []int64, keyFormater string, cacheTime int64, cacheNilTime int64) (*reflect.Value, error) {
+	startTime := time.Now()
+	ress, err := self.MGetSet(ids, keyFormater, cacheTime, cacheNilTime)
+	startJsonTime := time.Now()
+	objs, err := self.Jsons2StructsMap(ids, ress, obj)
+	objs.MapKeys()
+	endTime := time.Now()
+	log.Infof("MGetStructsMap:%s,rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f,read:%.4f,json:%.4f\n",
+		keyFormater, "", len(ids), len(ids)-objs.Len(), objs.Len(), 
+		endTime.Sub(startTime).Seconds(),
+		startJsonTime.Sub(startTime).Seconds(), endTime.Sub(startJsonTime).Seconds())
+	return objs, err
+}

@@ -38,6 +38,7 @@ type rdsConfig struct {
 	LedisDataAddr string `toml:"ledis_data_addr"`
 	RedisComAddr  string `toml:"redis_com_addr"`
 	RedisPushAddr string `toml:"redis_push_addr"`
+	BehaviorAddr  string `toml:"behavior_addr"`
 }
 
 type cassandraConfig struct {

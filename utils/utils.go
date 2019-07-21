@@ -404,6 +404,24 @@ func SplitList(list []interface{}, partLen int) [][]interface{} {
 	return arrs
 }
 
+type partIndex struct {
+	Start	int
+	End 	int
+}
+// 分隔数组
+func SplitPartIndex(dataLen, partLen int) []partIndex {
+	indexs := make([]partIndex, partLen)
+	dataLen, endLen := dataLen / partLen, dataLen % partLen
+	for i := 0; i < partLen; i++ {
+		startIndex, endIndex := i * dataLen, (i+1)*dataLen
+		if i == partLen - 1 {
+			endIndex += endLen
+		}
+		indexs[i] = partIndex{Start: startIndex, End: endIndex}
+	}
+	return indexs
+}
+
 // 返回第一个不为空的字符串
 func CoalesceString(strs ...string) string {
 	for _, str := range strs {

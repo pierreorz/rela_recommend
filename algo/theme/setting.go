@@ -9,7 +9,10 @@ var appName = "theme"
 var workDir = algo.GetWorkDir("/algo_files/theme/")
 
 var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildData}}
-var strategyMap = map[string]algo.IStrategy{}
+var strategyMap = map[string]algo.IStrategy{
+	"hot": &algo.StrategyBase{ DoSingle: DoHotBehaviorUpper },
+	"user_behavior": &algo.StrategyBase{ DoSingle: DoUserBehaviorUpper },
+}
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{}}
 var pagerMap = map[string]algo.IPager{
@@ -29,7 +32,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "theme", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
-	StrategyKey: "strategies", StrategyDefault: "", StrategyMap: strategyMap,
+	StrategyKey: "strategies", StrategyDefault: "hot,user_behavior", StrategyMap: strategyMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap})

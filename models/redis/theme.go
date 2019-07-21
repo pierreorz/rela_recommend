@@ -38,26 +38,42 @@ type ThemeUserBehavior struct {
 	DetailUnFollowReply		*Behavior	`json:"theme.detail:unfollow_replyer"`		// 关注评论者
 }
 
+// 是否曝光
+func (self *ThemeUserBehavior) IsListExposured() bool {
+	return self.ListExposure != nil && self.ListExposure.Count > 0
+}
+
+// 点击率
+func (self *ThemeUserBehavior) ListClickRate() float32 {
+	if self.IsListExposured() {
+		if self.ListClick != nil {
+			return self.ListClick.Count / self.ListExposure.Count
+		}
+	}
+	return 0.0
+}
+
+
 type ThemeBehaviorCacheModule struct {
 	CachePikaModule
 }
 
-func NewThemeBehaviorCacheModuleModule(ctx algo.IContext, cache *cache.Cache) *ThemeBehaviorCacheModule {
+func NewThemeBehaviorCacheModule(ctx algo.IContext, cache *cache.Cache) *ThemeBehaviorCacheModule {
 	return &ThemeBehaviorCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
 }
 
 // 读取话题相关用户行为
-func (self *ThemeBehaviorCacheModule) QueryThemeUserBehavior(userId int64, ids []int64) ([]ThemeUserBehavior, error) {
+func (self *ThemeBehaviorCacheModule) QueryUserBehaviorMap(userId int64, ids []int64) (map[int64]*ThemeUserBehavior, error) {
 	keyFormatter := fmt.Sprintf("behavior:theme:%d:%%d", userId)
-	ress, err := self.MGetStructs(ThemeUserBehavior{}, ids, keyFormatter, 0, 0)
-	objs := ress.Interface().([]ThemeUserBehavior)
+	ress, err := self.MGetStructsMap(&ThemeUserBehavior{}, ids, keyFormatter, 0, 0)
+	objs := ress.Interface().(map[int64]*ThemeUserBehavior)
 	return objs, err
 }
 
 // 读取话题相关行为
-func (self *ThemeBehaviorCacheModule) QueryThemeBehavior(ids []int64) ([]ThemeUserBehavior, error) {
+func (self *ThemeBehaviorCacheModule) QueryBehaviorMap(ids []int64) (map[int64]*ThemeUserBehavior, error) {
 	keyFormatter := "behavior:theme:%d"
-	ress, err := self.MGetStructs(ThemeUserBehavior{}, ids, keyFormatter, 0, 0)
-	objs := ress.Interface().([]ThemeUserBehavior)
+	ress, err := self.MGetStructsMap(&ThemeUserBehavior{}, ids, keyFormatter, 0, 0)
+	objs := ress.Interface().(map[int64]*ThemeUserBehavior)
 	return objs, err
 }

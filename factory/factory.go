@@ -31,6 +31,8 @@ var CacheLiveRds cache.Cache
 
 // redis cache
 var CacheCluster cache.Cache
+// Behavior cache
+var CacheBehaviorRds cache.Cache
 
 // pika
 var PikaCluster cache.Cache
@@ -136,6 +138,12 @@ func initCache(cfg *conf.Config) {
 	if err != nil {
 		log.Error(err.Error())
 	}
+
+	log.Infof("INIT ClusterAddr: %s ....", cfg.Rds.ClusterAddr)
+	CacheBehaviorRds, err = redis.NewRedisCache(cfg.Rds.BehaviorAddr, "", 0)
+	if err != nil {
+		log.Error(err.Error())
+	}
 }
 
 func initMongo(cfg *conf.Config) {
@@ -173,4 +181,5 @@ func Close() {
 	CacheLiveRds.Close()
 	CacheCluster.Close()
 	PikaCluster.Close()
+	CacheBehaviorRds.Close()
 }
