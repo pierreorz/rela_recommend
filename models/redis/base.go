@@ -21,6 +21,7 @@ type CachePikaModule struct {
 }
 
 // 读取缓存。cacheTime：redis的缓存时间；cacheNilTime: pika也不存在的key写入redis的缓存时间
+// 当 cacheTime 和 cacheNilTime 都小雨等于0 则不请求 store
 func (self *CachePikaModule) GetSet(id int64, keyFormater string, cacheTime int, cacheNilTime int) (interface{}, error) {
 	var startTime = time.Now()
 	var dataFrom = "cache"
@@ -33,7 +34,7 @@ func (self *CachePikaModule) GetSet(id int64, keyFormater string, cacheTime int,
 	}
 	var startStoreTime = time.Now()
 	var startStoreSetTime = time.Now()
-	if res == nil {  // 缓存没有获取到
+	if res == nil && self.store != nil && (cacheTime > 0 || cacheNilTime > 0)  {  // 缓存没有获取到
 		res, err = self.store.Get(key)
 		startStoreSetTime = time.Now()
 		if err == nil {
@@ -59,7 +60,12 @@ func (self *CachePikaModule) GetSet(id int64, keyFormater string, cacheTime int,
 	return res, err
 }
 
-// 读取缓存。cacheTime：redis的缓存时间；cacheNilTime: pika也不存在的key写入redis的缓存时间
+func (self *CachePikaModule) Get(id int64, keyFormater string) (interface{}, error) {
+	return self.GetSet(id, keyFormater, 0, 0)
+}
+
+// 读取缓存。cacheTime：redis的缓存时间，如果<=0则不缓存；cacheNilTime: pika也不存在的key写入redis的缓存时间，如果<=0则不缓存；
+// 当 cacheTime 和 cacheNilTime 都小雨等于0 则不请求 store
 func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime int64, cacheNilTime int64)([]interface{}, error) {
 	var startTime = time.Now()
 	dataLen := len(ids)
@@ -91,7 +97,7 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 	var startStoreTime = time.Now()
 	var startStoreSetTime = time.Now()
 	var setLen, setNilLen int = 0, 0
-	if len(notFoundIndexs) > 0 {
+	if len(notFoundIndexs) > 0 && self.store != nil && (cacheTime > 0 || cacheNilTime > 0) {
 		// 从持久化存储读取
 		ress2, err2 := self.store.Mget(notFoundKeys)
 		if err2 == nil {
@@ -125,6 +131,10 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 		startStoreTime.Sub(endCacheTime).Seconds(), startStoreSetTime.Sub(startStoreTime).Seconds(),
 		endTime.Sub(startStoreSetTime).Seconds())
 	return ress, err
+}
+
+func (self *CachePikaModule) MGet(ids []int64, keyFormater string)([]interface{}, error) {
+	return self.MGetSet(ids, keyFormater, 0, 0)
 }
 
 // 将interface类型转化为特定类型，顺序保证
