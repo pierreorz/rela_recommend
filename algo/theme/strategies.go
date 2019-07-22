@@ -16,7 +16,7 @@ func DoHotBehaviorUpper(ctx algo.IContext, index int) error {
 		if behavior.IsListExposured() {
 			count2 := float64(behavior.ListExposure.Count / avgCount)
 			countRate := count2 / (1 + count2)
-			upperRate = 5 * behavior.ListClickRate() * float32(countRate)
+			upperRate = 2 * behavior.ListClickRate() * float32(countRate)
 		}
 	}
 	rankInfo.Score = rankInfo.Score * (1.0 + upperRate)
@@ -43,10 +43,10 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 				clickRate := behavior.ListClickRate()
 				if clickRate <= 0.000001 {	// 没有点击直接降权
 					timeSpc := 1 / (1 + math.Abs(float64(currTime - behavior.ListExposure.LastTime)) / 60.0)
-					upperRate = -0.5 * float32(countRate + timeSpc)
+					upperRate = -float32(0.5 * countRate + 0.5 * timeSpc)
 				} else {
 					timeSpc := 1 / (1 + math.Abs(float64(currTime - behavior.ListClick.LastTime)) / 600.0)
-					upperRate = clickRate * float32(countRate + timeSpc)
+					upperRate = clickRate * float32(0.5 * countRate + 0.5 * timeSpc)
 				}
 			}
 		}
