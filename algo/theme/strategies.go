@@ -27,8 +27,8 @@ func DoHotBehaviorUpper(ctx algo.IContext, index int) error {
 type UserBehaviorStrategy struct { }
 func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 	var err error
-	var avgCount float32 = 1
-	var upperRate float32 = 0.2
+	var avgCount float32 = 2
+	var upperRate float32 = 0.1
 	var currTime = float32(ctx.GetCreateTime().Unix())
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -42,11 +42,11 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 				countRate := count2 / (1 + count2)
 				clickRate := behavior.ListClickRate()
 				if clickRate <= 0.000001 {	// 没有点击直接降权
-					timeSpc := 1 / (1 + math.Abs(float64(currTime - behavior.ListExposure.LastTime)) / 60.0)
-					upperRate = -float32(0.5 * countRate + 0.5 * timeSpc)
+					timeSpc := 1.0 / (1.0 + math.Abs(float64(currTime - behavior.ListExposure.LastTime)) / 60.0)
+					upperRate = -float32(countRate * timeSpc)
 				} else {
-					timeSpc := 1 / (1 + math.Abs(float64(currTime - behavior.ListClick.LastTime)) / 600.0)
-					upperRate = clickRate * float32(0.5 * countRate + 0.5 * timeSpc)
+					timeSpc := 1.0 / (1.0 + math.Abs(float64(currTime - behavior.ListClick.LastTime)) / 600.0)
+					upperRate =  clickRate * float32(countRate * timeSpc)
 				}
 			}
 		}
