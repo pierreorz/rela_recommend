@@ -16,7 +16,7 @@ func DoHotBehaviorUpper(ctx algo.IContext, index int) error {
 		if behavior.IsListExposured() {
 			count2 := float64(behavior.ListExposure.Count / avgCount)
 			countRate := count2 / (1 + count2)
-			upperRate = behavior.ListClickRate() * float32(countRate)
+			upperRate = 10 * behavior.ListClickRate() * float32(countRate)
 		}
 	}
 	rankInfo.Score = rankInfo.Score * (1.0 + upperRate)
@@ -27,7 +27,7 @@ func DoHotBehaviorUpper(ctx algo.IContext, index int) error {
 type UserBehaviorStrategy struct { }
 func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 	var err error
-	var avgCount float32 = 5
+	var avgCount float32 = 1
 	var upperRate float32 = 0.2
 	var currTime = float32(ctx.GetCreateTime().Unix())
 	for index := 0; index < ctx.GetDataLength(); index++ {
@@ -36,7 +36,7 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 
 		behavior := dataInfo.ThemeBehavior
 		if behavior != nil {
-			if behavior.IsListExposured() {
+			if behavior.ListExposure != nil && behavior.ListExposure.Count > 0 {
 				// 展示次数
 				count2 := float64(behavior.ListExposure.Count / avgCount)
 				countRate := count2 / (1 + count2)
