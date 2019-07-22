@@ -32,7 +32,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "theme", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
-	StrategyKey: "strategies", StrategyDefault: "hot,user_behavior", StrategyMap: strategyMap,
+	StrategyKey: "strategies", StrategyDefault: "", StrategyMap: strategyMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap})
