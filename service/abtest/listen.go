@@ -60,6 +60,9 @@ func init() {
 		],
 		"moment.near": [
 			{"name": "moment_model", "desc": "日志白名单", "app": "moment", "ids":[104708381],"factor_map":{"strategies": "time_level", "radius_range":"50km"}}
+		],
+		"theme": [
+			{"name": "theme_model", "desc": "话题白名单", "app": "theme", "ids":[104708381],"factor_map":{"strategies": "hot,user_behavior"}}
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {
