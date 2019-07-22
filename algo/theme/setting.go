@@ -11,7 +11,7 @@ var workDir = algo.GetWorkDir("/algo_files/theme/")
 var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildData}}
 var strategyMap = map[string]algo.IStrategy{
 	"hot": &algo.StrategyBase{ DoSingle: DoHotBehaviorUpper },
-	"user_behavior": &algo.StrategyBase{ DoSingle: DoUserBehaviorUpper },
+	"user_behavior": &UserBehaviorStrategy{},
 }
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{}}
