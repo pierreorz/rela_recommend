@@ -40,10 +40,10 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 				countRate := 2.0 / (1 + math.Exp(-float64(behavior.ListExposure.Count / avgCount))) -1
 				clickRate := behavior.ListClickRate()
 				if clickRate <= 0.000001 {	// 没有点击直接降权
-					timeSpc := 1 / (1 + math.Abs(float64(currTime - behavior.ListExposure.LastTime)) / 300.0)
+					timeSpc := 1 / (1 + math.Abs(float64(currTime - behavior.ListExposure.LastTime)) / 600.0)
 					upperRate = -float32(countRate) * float32(timeSpc)
 				} else {
-					timeSpc := 1 / (1 + math.Abs(float64(currTime - behavior.ListClick.LastTime)) / 300.0)
+					timeSpc := 1 / (1 + math.Abs(float64(currTime - behavior.ListClick.LastTime)) / 600.0)
 					upperRate = behavior.ListClickRate() * float32(countRate) * float32(timeSpc)
 				}
 			}
