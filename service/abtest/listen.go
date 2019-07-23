@@ -64,7 +64,7 @@ func init() {
 			{"name": "moment_model", "desc": "日志白名单", "app": "moment", "ids":[104708381],"factor_map":{"strategies": "time_level", "radius_range":"50km"}}
 		],
 		"theme": [
-			{"name": "theme_strategies", "desc": "实时策略", "app": "theme", "ids":[104708381],"factor_map":{"strategies": "hot,user_behavior"}}
+			{"name": "theme_strategies", "desc": "实时策略", "app": "theme", "ids":[104708381,524],"factor_map":{"strategies": "hot,user_behavior"}}
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {
