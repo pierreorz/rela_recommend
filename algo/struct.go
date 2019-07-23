@@ -88,6 +88,7 @@ type RecommendResponse struct {
 type RecommendItem struct {
 	Reason 		string				// 推荐理由
 	Score		float32				// 推荐分数
+	NeedReturn	bool				// 是否返回给前端
 }
 
 type RankInfo struct {
@@ -118,29 +119,35 @@ func (self *RankInfo) AddRecommend(reason string, score float32) {
 
 // 增加推荐理由，以,隔开：TOP,RECOMMEND
 func (self *RankInfo) ReasonString() string {
-	return self.getRecommendsString(",%s")
+	return self.getRecommendsString(false, func(reason string, score float32) string{
+		return fmt.Sprintf(",%s", reason) 
+	})
 }
 
 // 将推荐理由转化为字符串
 func (self *RankInfo) RecommendsString() string {
-	return self.getRecommendsString(",%s:%g")
+	return self.getRecommendsString(true, func(reason string, score float32) string{
+		return fmt.Sprintf(",%s:%g", reason, score) 
+	})
 }
 
-// 将推荐理由转化为字符串
-func(self *RankInfo) getRecommendsString(formatter string) string {
+// 将推荐理由转化为字符串, returnAll: 是否返回所有，false只返回客户端需要的内容
+func(self *RankInfo) getRecommendsString(returnAll bool, f func(string, float32) string) string {
 	var buffer bytes.Buffer
 	if self.IsTop > 0 {
-		buffer.WriteString(fmt.Sprintf(formatter, "TOP", 1))
+		buffer.WriteString(f("TOP", 1))
 	} else if self.IsTop < 0 {
-		buffer.WriteString(fmt.Sprintf(formatter, "BOTTOM", 1))
+		buffer.WriteString(f("BOTTOM", 1))
 	}
 
 	if self.Level > 0 {
-		buffer.WriteString(fmt.Sprintf(formatter, "LEVEL", self.Level))
+		buffer.WriteString(f("LEVEL", float32(self.Level)))
 	}
 
 	for _, recommend := range self.Recommends {
-		buffer.WriteString(fmt.Sprintf(formatter, recommend.Reason, recommend.Score))
+		if returnAll || recommend.NeedReturn {
+			buffer.WriteString(f(recommend.Reason, recommend.Score))
+		}
 	}
 	res := buffer.String()
 	return res[rutils.GetInt(len(res) > 0):]
