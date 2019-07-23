@@ -32,7 +32,7 @@ func DoHotBehaviorUpper(ctx algo.IContext, index int) error {
 type UserBehaviorStrategy struct { }
 func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 	var err error
-	var avgCount float64 = 2
+	var avgCount float64 = 5
 	var upperRate float32 = 0.05
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	for index := 0; index < ctx.GetDataLength(); index++ {
@@ -51,7 +51,7 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 				}
 				
 				// var lastNotClick float64 = rutils.IfElse(lastIsClick, 0.0, 1.0)		// 最后一次是否点击
-				var timeBase float64 = rutils.IfElse(hasClick, 3600.0, 600.0)		// 时间衰减速度
+				var timeBase float64 = rutils.IfElse(hasClick, 36000.0, 3600.0)		// 时间衰减速度
 
 				countScore := 1.0 - math.Exp(- behavior.ListExposure.Count / avgCount)
 				timeScore := math.Exp(- (currTime - lastTime) / timeBase)
