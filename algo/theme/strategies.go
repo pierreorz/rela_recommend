@@ -43,8 +43,13 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 		if behavior != nil {
 			if behavior.ListExposure != nil && behavior.ListExposure.Count > 0 {
 				clickRate := math.Max(0.000001, math.Min(1.0, behavior.ListClickRate()))
-				lastTime := math.Max(behavior.ListExposure.LastTime, behavior.ListClick.LastTime)
-				lastIsClick := behavior.ListClick.LastTime >= behavior.ListExposure.LastTime
+
+				lastTime := behavior.ListExposure.LastTime
+				lastIsClick := false
+				if behavior.ListClick != nil {
+					lastTime = math.Max(behavior.ListExposure.LastTime, behavior.ListClick.LastTime)
+					lastIsClick = behavior.ListClick.LastTime >= behavior.ListExposure.LastTime
+				}
 				
 				var lastNotClick float64 = rutils.IfElse(lastIsClick, 0.0, 1.0)		// 最后一次是否点击
 				var timeBase float64 = rutils.IfElse(lastIsClick, 600.0, 60.0)		// 时间衰减速度
