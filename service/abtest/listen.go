@@ -42,8 +42,12 @@ func init() {
 					{"name": "v1.4.3", "percentage": 15, "factor_map": {"new_score": "0.3", "model": "xgb_1.0"}},
 					{"name": "v1.4.5", "percentage": 15, "factor_map": {"new_score": "0.5", "model": "xgb_1.0"}}
 			]} ],
-		"moment.near": [
-			
+		"theme": [
+			{"name": "testing_real_v1_0", "desc": "测试实时策略", "app": "theme", "group": "", "status": 1, "daily_change": 1,
+				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
+					{"name": "v1.0.0", "percentage": 20, "factor_map": {"strategies": ""}},
+					{"name": "v1.1.0", "percentage": 20, "factor_map": {"strategies": "hot,user_behavior"}}
+			]}
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(ab_config), &testingMap); err != nil {
@@ -60,6 +64,9 @@ func init() {
 		],
 		"moment.near": [
 			{"name": "moment_model", "desc": "日志白名单", "app": "moment", "ids":[104708381],"factor_map":{"strategies": "time_level", "radius_range":"50km"}}
+		],
+		"theme": [
+			{"name": "theme_strategies", "desc": "实时策略", "app": "theme", "ids":[104708381],"factor_map":{"strategies": "hot,user_behavior"}}
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {
