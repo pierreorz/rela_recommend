@@ -9,14 +9,14 @@ import(
 )
 
 type Behavior struct {
-	Count			float32		`json:"count"`
-	LastTime		float32		`json:"last_time"`
+	Count			float64		`json:"count"`
+	LastTime		float64		`json:"last_time"`
 }
 
 // 话题用户行为缓存
 type ThemeUserBehavior struct {
-	CacheTime      			float32 	`json:"cache_time,omitempty"`				// 缓存时间
-	LastTime				float32 	`json:"last_time,omitempty"`				// 最后动作时间
+	CacheTime      			float64 	`json:"cache_time,omitempty"`				// 缓存时间
+	LastTime				float64 	`json:"last_time,omitempty"`				// 最后动作时间
 
 	ListExposure			*Behavior 	`json:"theme.list:exposure,omitempty"`		// 列表曝光
 	ListClick				*Behavior 	`json:"theme.list:click,omitempty"`			// 列表曝光
@@ -44,7 +44,7 @@ func (self *ThemeUserBehavior) IsListExposured() bool {
 }
 
 // 点击率
-func (self *ThemeUserBehavior) ListClickRate() float32 {
+func (self *ThemeUserBehavior) ListClickRate() float64 {
 	if self.IsListExposured() {
 		if self.ListClick != nil {
 			return self.ListClick.Count / self.ListExposure.Count

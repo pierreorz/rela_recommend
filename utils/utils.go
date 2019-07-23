@@ -431,3 +431,11 @@ func CoalesceString(strs ...string) string {
 	}
 	return ""
 }
+
+func IfElse(b bool, trueValue float64, falseValue float64) float64 {
+	if b {
+		return trueValue
+	} else {
+		return falseValue
+	}
+}

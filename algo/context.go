@@ -223,7 +223,6 @@ func(self *ContextBase) DoStrategies() error {
 	}
 	// 添加默认策略，计算推荐分数，计算推荐理由
 	strategies = append(strategies, &StrategyBase{ DoSingle: StrategyScoreFunc })
-	strategies = append(strategies, &StrategyBase{ DoSingle: StrategyReasonsFunc })
 	for _, strategy := range strategies {
 		err = strategy.Do(self)
 		if err != nil {

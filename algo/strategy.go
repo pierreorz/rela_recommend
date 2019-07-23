@@ -3,7 +3,6 @@ package algo
 import (
 	"sort"
 	"math"
-	"strings"
 	"rela_recommend/log"
 )
 
@@ -43,23 +42,6 @@ func StrategyScoreFunc(ctx IContext, index int) error {
 	for _, item := range rankInfo.Recommends {
 		if item.Score > 0 {
 			rankInfo.Score *= item.Score
-		}
-	}
-	return nil
-}
-
-// 计算推荐理由
-func StrategyReasonsFunc(ctx IContext, index int) error {
-	dataInfo := ctx.GetDataByIndex(index)
-	rankInfo := dataInfo.GetRankInfo()
-	if rankInfo.IsTop > 0 {
-		rankInfo.AddReason("TOP")
-	} else if rankInfo.IsTop < 0 {
-		rankInfo.AddReason("BOTTOM")
-	}
-	for _, item := range rankInfo.Recommends {
-		if item.Score > 0 {
-			rankInfo.AddReason(strings.ToUpper(item.Reason))
 		}
 	}
 	return nil
@@ -130,7 +112,7 @@ func (self *PagerBase) Do(ctx IContext) error {
 			DataId: currData.GetDataId(), 
 			Index: rankInfo.Index,
 			Score: rankInfo.Score,
-			Reason: rankInfo.Reason })
+			Reason: rankInfo.ReasonString() })
 	}
 	response := &RecommendResponse{RankId: ctx.GetRankId(), DataIds: returnIds, DataList: returnObjs, Status: "ok"}
 	ctx.SetResponse(response)
@@ -155,6 +137,7 @@ func (self *LoggerBase) Do(ctx IContext) error {
 								Algo: rankInfo.AlgoName,
 								AlgoScore: rankInfo.AlgoScore,
 								Score: rankInfo.Score,
+								RecommendScores: rankInfo.RecommendsString(),
 								Features: rankInfo.GetFeaturesString(),
 								AbMap: ctx.GetAbTest().GetTestings() }
 			log.Infof("%+v\n", logStr)

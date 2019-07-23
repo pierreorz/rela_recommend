@@ -7,6 +7,7 @@ import (
 	// "reflect"
 	"bytes"
 	"rela_recommend/algo/utils"
+	rutils "rela_recommend/utils"
 )
 
 type AppInfo struct {
@@ -49,6 +50,7 @@ type RecommendLog struct {
 	Algo string
 	AlgoScore float32
 	Score float32
+	RecommendScores string
 	Features string
 	AbMap string
 }
@@ -98,7 +100,6 @@ type RankInfo struct {
 	AlgoScore 	float32					// 算法得分
 	Score 		float32					// 最终得分
 	Index 		int						// 排在第几
-	Reason		string					// 推荐理由
 }
 
 // 获取Features的字符串形式：1:1.0,1000:1.0,99:1.0
@@ -110,14 +111,39 @@ func (self *RankInfo) GetFeaturesString() string {
 	}
 }
 
+func (self *RankInfo) AddRecommend(reason string, score float32) {
+	item := RecommendItem{Reason: reason, Score: score}
+	self.Recommends = append(self.Recommends, item)
+}
+
 // 增加推荐理由，以,隔开：TOP,RECOMMEND
-func (self *RankInfo) AddReason(reason string) string {
-	if len(self.Reason) > 0 {
-		self.Reason = self.Reason + "," + reason
-	} else {
-		self.Reason = reason
+func (self *RankInfo) ReasonString() string {
+	return self.getRecommendsString(",%s")
+}
+
+// 将推荐理由转化为字符串
+func (self *RankInfo) RecommendsString() string {
+	return self.getRecommendsString(",%s:%g")
+}
+
+// 将推荐理由转化为字符串
+func(self *RankInfo) getRecommendsString(formatter string) string {
+	var buffer bytes.Buffer
+	if self.IsTop > 0 {
+		buffer.WriteString(fmt.Sprintf(formatter, "TOP", 1))
+	} else if self.IsTop < 0 {
+		buffer.WriteString(fmt.Sprintf(formatter, "BOTTOM", 1))
 	}
-	return self.Reason
+
+	if self.Level > 0 {
+		buffer.WriteString(fmt.Sprintf(formatter, "LEVEL", self.Level))
+	}
+
+	for _, recommend := range self.Recommends {
+		buffer.WriteString(fmt.Sprintf(formatter, recommend.Reason, recommend.Score))
+	}
+	res := buffer.String()
+	return res[rutils.GetInt(len(res) > 0):]
 }
 
 //********************************* 特征

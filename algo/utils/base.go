@@ -50,6 +50,11 @@ func Expit(score float32) float32 {
 	return 1.0 / (1.0 + float32(math.Exp(-float64(score))))
 }
 
+// 1/(1+exp(-log(x)))
+func ExpLogit(score float64) float64 {
+	return 1.0 / (1.0 + math.Exp(-math.Log(score)))
+}
+
 // 数组相乘的和
 func ArrayMultSum(arr1, arr2 []float32) float32 {
 	var sum float32 = 0.0
