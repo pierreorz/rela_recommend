@@ -33,7 +33,7 @@ type UserBehaviorStrategy struct { }
 func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 	var err error
 	var avgCount float64 = 2
-	var upperRate float32 = 0.1
+	var upperRate float32 = 0.05
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -44,19 +44,18 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 			if behavior.ListExposure != nil && behavior.ListExposure.Count > 0 {
 				clickRate := math.Max(0.000001, math.Min(1.0, behavior.ListClickRate()))
 
+				hasClick := behavior.ListClick != nil
 				lastTime := behavior.ListExposure.LastTime
-				lastIsClick := false
-				if behavior.ListClick != nil {
+				if hasClick {
 					lastTime = math.Max(behavior.ListExposure.LastTime, behavior.ListClick.LastTime)
-					lastIsClick = behavior.ListClick.LastTime >= behavior.ListExposure.LastTime
 				}
 				
-				var lastNotClick float64 = rutils.IfElse(lastIsClick, 0.0, 1.0)		// 最后一次是否点击
-				var timeBase float64 = rutils.IfElse(lastIsClick, 600.0, 60.0)		// 时间衰减速度
+				// var lastNotClick float64 = rutils.IfElse(lastIsClick, 0.0, 1.0)		// 最后一次是否点击
+				var timeBase float64 = rutils.IfElse(hasClick, 3600.0, 600.0)		// 时间衰减速度
 
 				countScore := 1.0 - math.Exp(- behavior.ListExposure.Count / avgCount)
 				timeScore := math.Exp(- (currTime - lastTime) / timeBase)
-				clickScore := 2 * utils.ExpLogit(clickRate) - lastNotClick
+				clickScore := 2 * (2 * utils.ExpLogit(clickRate) - 0.5)
 				upperRate =  float32(clickScore * countScore * timeScore)
 			}
 		}
