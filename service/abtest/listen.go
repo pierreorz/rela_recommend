@@ -12,7 +12,7 @@ func init() {
 	// 因子默认值
 	default_config := `{
 		"match": {"match_model": "QuickMatchTreeV1_0", "default_key": "test"},
-		"live": {"live_model": "LiveModelV1_3", "new_score": "0.5"},
+		"live": {"model": "xgb_1.0", "new_score": "0.5"},
 		"moment": {"strategies": "time_level", "radius_range":"300km"},
 		"moment.near": {"strategies": "time_level", "radius_range":"50km"}
 	}`
@@ -34,13 +34,11 @@ func init() {
 					{"name": "v1.2", "percentage": 10, "factor_map": {"match_active_user_upper": "0.2"}}
 			]} ],
 		"live": [
-			{"name": "testing_model_v1_4", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daily_change": 1,
+			{"name": "testing_model_v1_5", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daily_change": 1,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-					{"name": "v1.0.0", "percentage": 15, "factor_map": {"new_score": "0.0", "model": "base"}},
-					{"name": "v1.3.3", "percentage": 15, "factor_map": {"new_score": "0.3", "model": "base"}},
-					{"name": "v1.3.5", "percentage": 15, "factor_map": {"new_score": "0.5", "model": "base"}},
-					{"name": "v1.4.3", "percentage": 15, "factor_map": {"new_score": "0.3", "model": "xgb_1.0"}},
-					{"name": "v1.4.5", "percentage": 15, "factor_map": {"new_score": "0.5", "model": "xgb_1.0"}}
+					{"name": "v1.0.0", "percentage": 20, "factor_map": {"new_score": "0.0", "model": "base"}},
+					{"name": "v1.3.5", "percentage": 20, "factor_map": {"new_score": "0.5", "model": "base"}},
+					{"name": "v1.4.5", "percentage": 20, "factor_map": {"new_score": "0.5", "model": "xgb_1.0"}}
 			]} ],
 		"theme": [
 			{"name": "testing_real_v1_0", "desc": "测试实时策略", "app": "theme", "group": "", "status": 1, "daily_change": 1,
@@ -60,7 +58,7 @@ func init() {
 			{"name": "match_model", "desc": "匹配模型", "app": "match", "ids":[104708381],"factor_map":{"match_model":"QuickMatchTreeV1_4"}}
 		],
 		"live": [
-			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381],"factor_map":{"model":"xgb_1.0", "new_score": "0.6"}}
+			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381],"factor_map":{"model":"xgb_1.0", "new_score": "0.5"}}
 		],
 		"moment.near": [
 			{"name": "moment_model", "desc": "日志白名单", "app": "moment", "ids":[104708381],"factor_map":{"strategies": "time_level", "radius_range":"50km"}}
