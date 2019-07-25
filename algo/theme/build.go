@@ -21,23 +21,26 @@ func DoBuildData(ctx algo.IContext) error {
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := redis.NewThemeBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 
-	dataOldIds, err := rdsPikaCache.GetInt64List(params.UserId, "theme_recommend_list:%d")
-	if err == nil {
-		log.Warnf("theme recommend list is nil, %s\n", err)
-	}
-	if len(dataOldIds) == 0{
-		dataOldIds, _ = rdsPikaCache.GetInt64List(-999999999, "theme_recommend_list:%d")
-	}
-
 	// search list
 	var startSearchTime = time.Now()
 	dataIdList := params.DataIds
-	if ctx.GetAbTest().GetBool("recommend_new", false) { // dataIdList == nil || len(dataIdList) == 0 {
-		startNewTime := float32(ctx.GetCreateTime().Unix() - 24 * 60 * 60)
-		dataIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000,
-												 "theme", startNewTime , "800km")
-		if err != nil {
-			return err
+	newIdList := []int64{}
+	if  (dataIdList == nil || len(dataIdList) == 0) {
+		dataIdList, err := rdsPikaCache.GetInt64List(params.UserId, "theme_recommend_list:%d")
+		if err == nil {
+			log.Warnf("theme recommend list is nil, %s\n", err)
+		}
+		if len(dataIdList) == 0{
+			dataIdList, _ = rdsPikaCache.GetInt64List(-999999999, "theme_recommend_list:%d")
+		}
+	
+		if ctx.GetAbTest().GetBool("recommend_new", false) {
+			startNewTime := float32(ctx.GetCreateTime().Unix() - 24 * 60 * 60)
+			newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 500,
+													 "theme", startNewTime , "800km")
+			if err != nil {
+				log.Warnf("theme new list error %s\n", err)
+			}
 		}
 	}
 	//backend recommend list
@@ -52,7 +55,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	// 获取日志内容
 	var startMomentTime = time.Now()
-	var dataIds = utils.NewSetInt64FromArray(dataIdList).AppendArray(dataOldIds).AppendArray(recIds).ToList()
+	var dataIds = utils.NewSetInt64FromArray(dataIdList).AppendArray(newIdList).AppendArray(recIds).ToList()
 	moms, err := momentCache.QueryMomentsByIds(dataIds)
 	userIds := make([]int64, 0)
 	if err != nil {
@@ -125,7 +128,7 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
 	log.Infof("rankid %s,totallen:%d,oldlen:%d,searchlen:%d;backendlen:%d;total:%.3f,old:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,build:%.3f\n",
-			  ctx.GetRankId(), len(dataIds), len(dataOldIds), len(dataIdList), len(recIds),
+			  ctx.GetRankId(), len(dataIds), len(dataIdList), len(newIdList), len(recIds),
 			  endTime.Sub(startTime).Seconds(), startSearchTime.Sub(startTime).Seconds(), 
 			  startBackEndTime.Sub(startSearchTime).Seconds(), startMomentTime.Sub(startBackEndTime).Seconds(),
 			  startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(),
