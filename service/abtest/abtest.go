@@ -136,7 +136,7 @@ func (self *AbTest) GetString(key string, defVal string) string {
 func (self *AbTest) GetBool(key string, defVal bool) bool {
 	if val, ok := self.FactorMap[key]; ok {
 		val = strings.ToLower(val)
-		return val != "0" && val != "f" && val != "false" && val != "no"
+		return val != "" && val != "0" && val != "f" && val != "false" && val != "no"
 	}
 	return defVal
 }
