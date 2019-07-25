@@ -26,7 +26,7 @@ func DoBuildData(ctx algo.IContext) error {
 	dataIdList := params.DataIds
 	newIdList := []int64{}
 	if  (dataIdList == nil || len(dataIdList) == 0) {
-		dataIdList, err := rdsPikaCache.GetInt64List(params.UserId, "theme_recommend_list:%d")
+		dataIdList, err = rdsPikaCache.GetInt64List(params.UserId, "theme_recommend_list:%d")
 		if err == nil {
 			log.Warnf("theme recommend list is nil, %s\n", err)
 		}
