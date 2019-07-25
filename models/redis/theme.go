@@ -35,6 +35,7 @@ type ThemeUserBehavior struct {
 	ListRecommendExposure	*Behavior 	`json:"theme.recommend:exposure,omitempty"`		// 列表曝光
 	ListRecommendClick		*Behavior 	`json:"theme.recommend:click,omitempty"`		// 列表曝光
 
+	DetailExposure			*Behavior 	`json:"theme.detail:exposure"`					// 详情页曝光
 	DetailLike				*Behavior 	`json:"theme.detail:like_theme"`				// 详情页喜欢
 	DetailUnLike			*Behavior 	`json:"theme.detail:unlike_theme"`				// 详情页喜欢
 	DetailComment			*Behavior	`json:"theme.detail:comment"`					// 详情页评论
@@ -42,9 +43,9 @@ type ThemeUserBehavior struct {
 	DetailFollowThemer		*Behavior	`json:"theme.detail:follow_themer"`				// 详情页关注
 	DetailUnFollowThemer	*Behavior	`json:"theme.detail:unfollow_themer"`			// 详情页关注
 
+	DetailExposureReply		*Behavior	`json:"theme.detail:exposure_reply"`			// 详情页评论曝光
 	DetailLikeReply			*Behavior 	`json:"theme.detail:like_reply"`				// 详情页评论喜欢
 	DetailUnLikeReply		*Behavior 	`json:"theme.detail:unlike_reply"`				// 详情页评论喜欢
-	DetailExposureReply		*Behavior	`json:"theme.detail:exposure_reply"`			// 详情页评论曝光
 	DetailCommentReply		*Behavior 	`json:"theme.detail:comment_reply"`				// 详情页评论评论
 	DetailShareReply		*Behavior	`json:"theme.detail:share_reply"`				// 详情页评论分享
 	DetailFollowReply		*Behavior	`json:"theme.detail:follow_replyer"`			// 关注评论者
