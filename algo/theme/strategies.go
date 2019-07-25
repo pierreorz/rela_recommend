@@ -15,10 +15,12 @@ func DoHotBehaviorUpper(ctx algo.IContext, index int) error {
 	var upperRate float32 = 0.1
 	behavior := dataInfo.ThemeBehavior
 	if behavior != nil {
-		if behavior.ListExposure != nil && behavior.ListExposure.Count > 0 {
-			clickRate := math.Max(0.000001, math.Min(1.0, behavior.ListClickRate()))
+		exposureBehavior := behavior.GetTotalListExposure()
+		if exposureBehavior != nil && exposureBehavior.Count > 0 {
+			clickBehavior := behavior.GetTotalListClick()
+			clickRate := math.Max(0.000001, math.Min(1.0, clickBehavior.Count / exposureBehavior.Count))
 
-			countScore := 1.0 - math.Exp(- behavior.ListExposure.Count / avgCount)
+			countScore := 1.0 - math.Exp(- exposureBehavior.Count / avgCount)
 			clickScore := utils.ExpLogit(clickRate)
 			upperRate = float32(clickScore * countScore)
 		}
@@ -41,19 +43,21 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 
 		behavior := dataInfo.UserBehavior
 		if behavior != nil {
-			if behavior.ListExposure != nil && behavior.ListExposure.Count > 0 {
-				clickRate := math.Max(0.000001, math.Min(1.0, behavior.ListClickRate()))
+			exposureBehavior := behavior.GetTotalListExposure()
+			if exposureBehavior != nil && exposureBehavior.Count > 0 {
+				clickBehavior := behavior.GetTotalListClick()
+				clickRate := math.Max(0.000001, math.Min(1.0, clickBehavior.Count / exposureBehavior.Count))
 
-				hasClick := behavior.ListClick != nil
-				lastTime := behavior.ListExposure.LastTime
+				hasClick := clickBehavior.Count > 0
+				lastTime := exposureBehavior.LastTime
 				if hasClick {
-					lastTime = math.Max(behavior.ListExposure.LastTime, behavior.ListClick.LastTime)
+					lastTime = math.Max(exposureBehavior.LastTime, clickBehavior.LastTime)
 				}
 				
 				// var lastNotClick float64 = rutils.IfElse(lastIsClick, 0.0, 1.0)		// 最后一次是否点击
 				var timeBase float64 = rutils.IfElse(hasClick, 36000.0, 3600.0)		// 时间衰减速度
 
-				countScore := 1.0 - math.Exp(- behavior.ListExposure.Count / avgCount)
+				countScore := 1.0 - math.Exp(- exposureBehavior.Count / avgCount)
 				timeScore := math.Exp(- (currTime - lastTime) / timeBase)
 				clickScore := 2 * (2 * utils.ExpLogit(clickRate) - 0.5)
 				upperRate =  float32(clickScore * countScore * timeScore)
