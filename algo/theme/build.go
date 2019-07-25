@@ -36,7 +36,7 @@ func DoBuildData(ctx algo.IContext) error {
 	
 		if ctx.GetAbTest().GetBool("recommend_new", false) {
 			startNewTime := float32(ctx.GetCreateTime().Unix() - 24 * 60 * 60)
-			newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 500,
+			newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 200,
 													 "theme", startNewTime , "800km")
 			if err != nil {
 				log.Warnf("theme new list error %s\n", err)
