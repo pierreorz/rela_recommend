@@ -18,8 +18,10 @@ type Behavior struct {
 func MergeBehaviors(behaviors ...*Behavior) *Behavior {
 	res := &Behavior{}
 	for _, behavior := range behaviors {
-		res.Count += behavior.Count
-		res.LastTime = math.Max(res.LastTime, behavior.LastTime)
+		if behavior != nil {
+			res.Count += behavior.Count
+			res.LastTime = math.Max(res.LastTime, behavior.LastTime)
+		}
 	}
 	return res
 }
