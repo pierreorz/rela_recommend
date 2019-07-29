@@ -12,7 +12,7 @@ func DoHotBehaviorUpper(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	var avgCount float64 = 1000
-	var upperRate float32 = 0.1
+	var upperRate float32 = 0.0
 	behavior := dataInfo.ThemeBehavior
 	if behavior != nil {
 		exposureBehavior := behavior.GetTotalListExposure()
@@ -35,7 +35,7 @@ type UserBehaviorStrategy struct { }
 func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 	var err error
 	var avgCount float64 = 5
-	var upperRate float32 = 0.05
+	var upperRate float32 = 0.01
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
