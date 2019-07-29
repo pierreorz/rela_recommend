@@ -25,7 +25,9 @@ func DoHotBehaviorUpper(ctx algo.IContext, index int) error {
 			upperRate = float32(clickScore * countScore)
 		}
 	}
-	rankInfo.AddRecommend("ThemeBehavior", 1.0 + upperRate)
+	if upperRate > 0 {
+		rankInfo.AddRecommend("ThemeBehavior", 1.0 + upperRate)
+	}
 	
 	return nil
 }
@@ -35,11 +37,12 @@ type UserBehaviorStrategy struct { }
 func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 	var err error
 	var avgCount float64 = 5
-	var upperRate float32 = 0.01
+	var upperRate float32 = 0.0
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
+		upperRate = 0.001
 
 		behavior := dataInfo.UserBehavior
 		if behavior != nil {
@@ -63,7 +66,9 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 				upperRate =  float32(clickScore * countScore * timeScore)
 			}
 		}
-		rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
+		if upperRate > 0 {
+			rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
+		}
 	}
 	return err
 }
