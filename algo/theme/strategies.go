@@ -25,7 +25,7 @@ func DoHotBehaviorUpper(ctx algo.IContext, index int) error {
 			upperRate = float32(clickScore * countScore)
 		}
 	}
-	if upperRate > 0 {
+	if upperRate != 0.0 {
 		rankInfo.AddRecommend("ThemeBehavior", 1.0 + upperRate)
 	}
 	
@@ -66,7 +66,7 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 				upperRate =  float32(clickScore * countScore * timeScore)
 			}
 		}
-		if upperRate > 0 {
+		if upperRate != 0.0 {
 			rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
 		}
 	}
