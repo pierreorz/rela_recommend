@@ -42,7 +42,7 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		upperRate = 0.001
+		upperRate = 0.0
 
 		behavior := dataInfo.UserBehavior
 		if behavior != nil {
