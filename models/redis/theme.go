@@ -2,29 +2,11 @@ package redis
 
 import(
 	"fmt"
-	"math"
 	// "encoding/json"
 	// "rela_recommend/log"
 	"rela_recommend/cache"
 	"rela_recommend/algo"
 )
-
-type Behavior struct {
-	Count			float64		`json:"count"`
-	LastTime		float64		`json:"last_time"`
-}
-
-// 合并行为
-func MergeBehaviors(behaviors ...*Behavior) *Behavior {
-	res := &Behavior{}
-	for _, behavior := range behaviors {
-		if behavior != nil {
-			res.Count += behavior.Count
-			res.LastTime = math.Max(res.LastTime, behavior.LastTime)
-		}
-	}
-	return res
-}
 
 // 话题用户行为缓存
 type ThemeUserBehavior struct {
@@ -50,8 +32,8 @@ type ThemeUserBehavior struct {
 	DetailUnLikeReply		*Behavior 	`json:"theme.detail:unlike_reply"`				// 详情页评论喜欢
 	DetailCommentReply		*Behavior 	`json:"theme.detail:comment_reply"`				// 详情页评论评论
 	DetailShareReply		*Behavior	`json:"theme.detail:share_reply"`				// 详情页评论分享
-	DetailFollowReply		*Behavior	`json:"theme.detail:follow_replyer"`			// 关注评论者
-	DetailUnFollowReply		*Behavior	`json:"theme.detail:unfollow_replyer"`			// 取消关注评论者
+	DetailFollowReplyer		*Behavior	`json:"theme.detail:follow_replyer"`			// 关注评论者
+	DetailUnFollowReplyer	*Behavior	`json:"theme.detail:unfollow_replyer"`			// 取消关注评论者
 }
 
 // 获取总列表曝光
@@ -64,14 +46,13 @@ func (self *ThemeUserBehavior) GetTotalListClick() *Behavior {
 	return MergeBehaviors(self.ListClick, self.ListRecommendClick)
 }
 
-// 点击率
-func (self *ThemeUserBehavior) GetTotalListClickRate() float64 {
-	exposureBehavior := self.GetTotalListExposure()
-	if exposureBehavior != nil && exposureBehavior.Count > 0 {
-		clickBehavior := self.GetTotalListClick()
-		return clickBehavior.Count / exposureBehavior.Count
-	}
-	return 0.0
+// 获取总交互汇总
+func (self *ThemeUserBehavior) GetTotalInteract() *Behavior {
+	return MergeBehaviors(
+		self.DetailLike, self.DetailLikeReply, 
+		self.DetailComment, self.DetailCommentReply,
+		self.DetailShare, self.DetailShareReply,
+		self.DetailFollowThemer, self.DetailFollowReplyer,)
 }
 
 
