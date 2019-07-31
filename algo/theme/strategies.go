@@ -62,7 +62,7 @@ func (self *UserBehaviorStrategy) Do(ctx algo.IContext) error {
 
 				countScore := 1.0 - math.Exp(- exposureBehavior.Count / avgCount)
 				timeScore := math.Exp(- (currTime - lastTime) / timeBase)
-				clickScore := 2 * (2 * utils.ExpLogit(clickRate) - 0.5)
+				clickScore := 2 * (utils.ExpLogit(clickRate) - 0.5)
 				upperRate =  float32(clickScore * countScore * timeScore)
 			}
 		}

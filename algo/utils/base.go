@@ -6,7 +6,6 @@ import (
 	"compress/gzip"
 	"io/ioutil"
 	"encoding/json"
-	"math"
 	"reflect"
 	"rela_recommend/log"
 )
@@ -43,27 +42,6 @@ func SplitIndexs(lens int, batch int) [][]int {
 		arrs[index] = append(arrs[index], i)
 	}
 	return arrs
-}
-
-// Sigmoid 函数
-func Expit(score float32) float32 {
-	return 1.0 / (1.0 + float32(math.Exp(-float64(score))))
-}
-
-// 1/(1+exp(-log(x)))
-func ExpLogit(score float64) float64 {
-	return 1.0 / (1.0 + math.Exp(-math.Log(score)))
-}
-
-// 数组相乘的和
-func ArrayMultSum(arr1, arr2 []float32) float32 {
-	var sum float32 = 0.0
-	if arr1 != nil && arr2 != nil && len(arr1) == len(arr2) {
-		for i, arr1i := range arr1 {
-			sum += arr1i * arr2[i]
-		}
-	}
-	return sum
 }
 
 // 模型加载 json -> gzip 
