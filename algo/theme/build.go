@@ -106,7 +106,7 @@ func DoBuildData(ctx algo.IContext) error {
 			var recommends = []algo.RecommendItem{}
 			if recMap != nil {
 				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
-					recommends = append(recommends, algo.RecommendItem{ Reason: "RECOMMEND", Score: 2.0 })
+					recommends = append(recommends, algo.RecommendItem{ Reason: "RECOMMEND", Score: 1.1 })
 				}
 			}
 				
