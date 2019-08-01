@@ -38,6 +38,10 @@ type AppInfo struct {
 	LoggerKey string
 	LoggerDefault string
 	LoggerMap map[string]ILogger
+	// 富策略，同时包含加载数据/执行策略/记录内容
+	RichStrategyKey string
+	RichStrategyDefault string
+	RichStrategyMap map[string]IStrategy
 }
 
 //********************************* 服务端日志
@@ -94,6 +98,7 @@ type RecommendItem struct {
 type RankInfo struct {
 	Features 	*utils.Features			// 特征
 	IsTop		int 					// 1: 置顶， 0: 默认， -1:置底
+	IsPaged		int						// 是否被分页展示过
 	Level		int						// 推荐优先级
 	Recommends	[]RecommendItem	// 推荐系数
 	Punish		float32					// 惩罚系数

@@ -1,6 +1,7 @@
 package redis
 
 import(
+	"fmt"
 	"errors"
 	"rela_recommend/cache"
 	"rela_recommend/utils"
@@ -57,7 +58,7 @@ func (self *LiveCacheModule) QueryLiveProfileByUserAndUsers(userId int64, userId
 
 // 从缓存中获取以逗号分割的字符串，并转化成int64. 如 keys11  1,2,3,4,5
 func (self *LiveCacheModule) GetInt64List(id int64, keyFormatter string) ([]int64, error) {
-	res, err := self.GetSet(id, keyFormatter, 24 * 60 * 60, 1 * 60 * 60)
+	res, err := self.GetSet(fmt.Sprintf(keyFormatter, id), 24 * 60 * 60, 1 * 60 * 60)
 	if err == nil {
 		return utils.GetInt64s(utils.GetString(res)), nil
 	}

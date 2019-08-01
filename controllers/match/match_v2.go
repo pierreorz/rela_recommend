@@ -2,6 +2,7 @@ package match
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/algo/base"
 	"rela_recommend/algo/match"
 	"rela_recommend/factory"
 	"rela_recommend/log"
@@ -26,7 +27,7 @@ func MatchRecommendListV2HTTP(c *routers.Context) {
 		SorterKey: "sorter", SorterMap: nil,
 		PagerKey: "pager", PagerMap: nil,
 		LoggerKey: "loggers", LoggerMap: nil}
-	ctx := &algo.ContextBase{}
+	ctx := &base.ContextBase{}
 	err := ctx.Do(app, params)
 	c.JSON(response.FormatResponse(ctx.GetResponse(), service.WarpError(err, "", "")))
 }

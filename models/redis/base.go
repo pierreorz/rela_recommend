@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"errors"
 	"reflect"
 	"encoding/json"
 	"rela_recommend/log"
@@ -22,11 +23,10 @@ type CachePikaModule struct {
 
 // 读取缓存。cacheTime：redis的缓存时间；cacheNilTime: pika也不存在的key写入redis的缓存时间
 // 当 cacheTime 和 cacheNilTime 都小雨等于0 则不请求 store
-func (self *CachePikaModule) GetSet(id int64, keyFormater string, cacheTime int, cacheNilTime int) (interface{}, error) {
+func (self *CachePikaModule) GetSet(key string, cacheTime int, cacheNilTime int) (interface{}, error) {
 	var startTime = time.Now()
 	var dataFrom = "cache"
 	var message = ""
-	key := fmt.Sprintf(keyFormater, id)
 	res, err := self.cache.Get(key)
 	var endCacheTime = time.Now()
 	if err != nil {
@@ -52,16 +52,16 @@ func (self *CachePikaModule) GetSet(id int64, keyFormater string, cacheTime int,
 		}
 	}
 	var endTime = time.Now()
-	log.Infof("GetSet rankId:%s,Key:%s,id:%d,from:%s,total:%.3f,cache:%.3f,store:%.3f,2cache:%.3f,msg:%s\n",
-		"", keyFormater, id, dataFrom,
+	log.Infof("GetSet rankId:%s,Key:%s,from:%s,total:%.3f,cache:%.3f,store:%.3f,2cache:%.3f,msg:%s\n",
+		"", key, dataFrom,
 		endTime.Sub(startTime).Seconds(), endCacheTime.Sub(startTime).Seconds(), 
 		startStoreSetTime.Sub(startStoreTime).Seconds(), endTime.Sub(startStoreSetTime).Seconds(),
 		message)
 	return res, err
 }
 
-func (self *CachePikaModule) Get(id int64, keyFormater string) (interface{}, error) {
-	return self.GetSet(id, keyFormater, 0, 0)
+func (self *CachePikaModule) Get(key string) (interface{}, error) {
+	return self.GetSet(key, 0, 0)
 }
 
 // 读取缓存。cacheTime：redis的缓存时间，如果<=0则不缓存；cacheNilTime: pika也不存在的key写入redis的缓存时间，如果<=0则不缓存；
@@ -332,4 +332,40 @@ func (self *CachePikaModule) MGetStructsMap(obj interface{}, ids []int64, keyFor
 		endTime.Sub(startTime).Seconds(),
 		startJsonTime.Sub(startTime).Seconds(), endTime.Sub(startJsonTime).Seconds())
 	return objs, err
+}
+
+// 获取单个缓存对象
+func (self *CachePikaModule) GetSetStruct(key string, obj interface{}, cacheTime int, cacheNilTime int) error {
+	res, err := self.GetSet(key, cacheTime, cacheNilTime)
+	if err == nil {
+		bytes, ok := res.([]byte)
+		if ok {
+			err = json.Unmarshal(bytes, obj)
+		} else {
+			err = errors.New("cache data not []byte")
+		}
+	}
+	return err
+}
+
+// 仅仅从redis中 获取单个缓存对象
+func (self *CachePikaModule) GetStruct(key string, obj interface{}) error {
+	return self.GetSetStruct(key, obj, 0, 0)
+}
+
+// 缓存对象
+func (self *CachePikaModule) SetStruct(key string, obj interface{}, cacheTime int, cacheNilTime int) error {
+	var err error
+	var res interface{}
+	if obj != nil {
+		res, err = json.Marshal(obj)
+		if err == nil {
+			err = self.cache.SetEx(key, res, cacheTime)
+		}
+	} else {
+		if cacheNilTime > 0 {
+			err = self.cache.SetEx(key, "", cacheNilTime)
+		}
+	}
+	return err
 }

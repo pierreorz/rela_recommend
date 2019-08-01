@@ -5,6 +5,7 @@ import (
 	"math"
 	"time"
 	"rela_recommend/algo"
+	"rela_recommend/algo/base"
 	"rela_recommend/algo/live"
 	"rela_recommend/log"
 	"rela_recommend/factory"
@@ -57,7 +58,7 @@ func LiveRecommendListHTTP(c *routers.Context) {
 			UserId: params.UserId,
 			DataIds: params.LiveIds,
 		}
-		ctx := &algo.ContextBase{}
+		ctx := &base.ContextBase{}
 		err := ctx.Do(algo.GetAppInfo("live"), params2)
 		res2 := ctx.GetResponse()
 		res := LiveRecommendResponse{

@@ -2,6 +2,7 @@ package moment
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/algo/base"
 	"rela_recommend/log"
 	"rela_recommend/utils/routers"
 	"rela_recommend/service"
@@ -17,7 +18,7 @@ func RecommendListHTTP(c *routers.Context) {
 		return
 	}
 
-	ctx := &algo.ContextBase{}
+	ctx := &base.ContextBase{}
 	err := ctx.Do(algo.GetAppInfo("moment.near"), params)
 	c.JSON(response.FormatResponse(ctx.GetResponse(), service.WarpError(err, "", "")))
 }

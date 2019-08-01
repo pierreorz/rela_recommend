@@ -71,13 +71,17 @@ func (self SorterBase) Less(i, j int) bool {
 	if ranki.IsTop != rankj.IsTop {
 		return ranki.IsTop > rankj.IsTop		// IsTop ： 倒序， 是否置顶
 	} else {
-		if ranki.Level != rankj.Level {
-			return ranki.Level > rankj.Level		// Level : 倒序， 推荐星数
+		if ranki.IsPaged != rankj.IsPaged {			// IsPaged: 已经被分页展示过的显示在上方
+			return ranki.IsPaged > rankj.IsPaged
 		} else {
-			if ranki.Score != rankj.Score {
-				return ranki.Score > rankj.Score		// Score : 倒序， 推荐分数
+			if ranki.Level != rankj.Level {
+				return ranki.Level > rankj.Level		// Level : 倒序， 推荐星数
 			} else {
-				return listi.GetDataId() < listj.GetDataId()	// UserId : 正序
+				if ranki.Score != rankj.Score {
+					return ranki.Score > rankj.Score		// Score : 倒序， 推荐分数
+				} else {
+					return listi.GetDataId() < listj.GetDataId()	// UserId : 正序
+				}
 			}
 		}
 	}
