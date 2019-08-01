@@ -14,6 +14,7 @@ import (
 func DoBuildData(ctx algo.IContext) error {
 	var err error
 	var startTime = time.Now()
+	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
@@ -21,7 +22,7 @@ func DoBuildData(ctx algo.IContext) error {
 	// search list
 	dataIdList := params.DataIds
 	if dataIdList == nil || len(dataIdList) == 0 {
-		radiusRange := ctx.GetAbTest().GetString("radius_range", "50km")
+		radiusRange := abtest.GetString("radius_range", "50km")
 		dataIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000, 
 												 "text_image,video,text,image", 0.0, radiusRange)
 		if err != nil {
@@ -32,8 +33,8 @@ func DoBuildData(ctx algo.IContext) error {
 	// backend recommend list
 	var startBackEndTime = time.Now()
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
-	if false {	// 等待该接口5.0上线，别忘记配置conf文件
-		recIds, topMap, recMap, err = api.CallBackendRecommendMomentList(1)
+	if abtest.GetBool("is_switched_backend_recommend", false) {	// 是否开启后台推荐日志
+		recIds, topMap, recMap, err = api.CallBackendRecommendMomentList(2)
 		if err != nil {
 			log.Warnf("backend recommend list is err, %s\n", err)
 		}
@@ -83,7 +84,7 @@ func DoBuildData(ctx algo.IContext) error {
 			var recommends = []algo.RecommendItem{}
 			if recMap != nil {
 				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
-					recommends = append(recommends, algo.RecommendItem{ Reason: "RECOMMEND", Score: 2.0 })
+					recommends = append(recommends, algo.RecommendItem{ Reason: "RECOMMEND", Score: 1.1, NeedReturn: true })
 				}
 			}
 				
