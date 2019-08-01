@@ -47,7 +47,7 @@ func DoBuildData(ctx algo.IContext) error {
 	//backend recommend list
 	var startBackEndTime = time.Now()
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
-	if true {	// 等待该接口5.0上线，别忘记配置conf文件
+	if abtest.GetBool("backend_recommend_switched", true) {	// 等待该接口5.0上线，别忘记配置conf文件
 		recIds, topMap, recMap, err = api.CallBackendRecommendMomentList(1)
 		if err != nil {
 			log.Warnf("backend recommend list is err, %s\n", err)
