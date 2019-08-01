@@ -33,7 +33,7 @@ func DoBuildData(ctx algo.IContext) error {
 	// backend recommend list
 	var startBackEndTime = time.Now()
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
-	if abtest.GetBool("is_switched_backend_recommend", false) {	// 是否开启后台推荐日志
+	if abtest.GetBool("backend_recommend_switched", false) {	// 是否开启后台推荐日志
 		recIds, topMap, recMap, err = api.CallBackendRecommendMomentList(2)
 		if err != nil {
 			log.Warnf("backend recommend list is err, %s\n", err)
@@ -67,6 +67,7 @@ func DoBuildData(ctx algo.IContext) error {
 		UserId: params.UserId,
 		UserCache: user}
 
+	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.1)
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
 		if mom.Moments != nil && mom.Moments.Id > 0 {
@@ -84,7 +85,7 @@ func DoBuildData(ctx algo.IContext) error {
 			var recommends = []algo.RecommendItem{}
 			if recMap != nil {
 				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
-					recommends = append(recommends, algo.RecommendItem{ Reason: "RECOMMEND", Score: 1.1, NeedReturn: true })
+					recommends = append(recommends, algo.RecommendItem{ Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true })
 				}
 			}
 				

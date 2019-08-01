@@ -15,6 +15,7 @@ import (
 func DoBuildData(ctx algo.IContext) error {
 	var err error
 	var startTime = time.Now()
+	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
@@ -34,7 +35,7 @@ func DoBuildData(ctx algo.IContext) error {
 			dataIdList, _ = rdsPikaCache.GetInt64List(-999999999, "theme_recommend_list:%d")
 		}
 	
-		if ctx.GetAbTest().GetBool("recommend_new", false) {
+		if abtest.GetBool("recommend_new", false) {
 			startNewTime := float32(ctx.GetCreateTime().Unix() - 24 * 60 * 60)
 			newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 200,
 													 "theme", startNewTime , "800km")
@@ -89,6 +90,7 @@ func DoBuildData(ctx algo.IContext) error {
 		UserId: params.UserId,
 		UserCache: user}
 		
+	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.1)
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
 		if mom.Moments != nil && mom.Moments.Id > 0 {
@@ -106,7 +108,7 @@ func DoBuildData(ctx algo.IContext) error {
 			var recommends = []algo.RecommendItem{}
 			if recMap != nil {
 				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
-					recommends = append(recommends, algo.RecommendItem{ Reason: "RECOMMEND", Score: 1.1, NeedReturn: true })
+					recommends = append(recommends, algo.RecommendItem{ Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true })
 				}
 			}
 				
