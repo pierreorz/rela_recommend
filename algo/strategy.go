@@ -166,3 +166,11 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 			  returnLen, pfm.ToString())
 	return nil
 }
+
+
+type IRichStrategy interface {
+	New(ctx IContext) IRichStrategy
+	BuildData() error		// 加载数据
+	Strategy() error		// 执行策略
+	Logger() error			// 记录结果
+}

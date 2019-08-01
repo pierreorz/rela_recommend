@@ -2,6 +2,7 @@ package theme
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/algo/base"
 	"rela_recommend/algo/utils"
 )
 
@@ -21,6 +22,10 @@ var loggerMap = map[string]algo.ILogger{
 	"features": &algo.LoggerBase{},
 	"performs": &algo.LoggerPerforms{}}
 
+var richStrategyMap = map[string]algo.IRichStrategy {
+		"paged": &base.PagedRichStrategy{},
+	}
+
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "mods_1.0.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeatures },
@@ -35,4 +40,5 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	StrategyKey: "strategies", StrategyDefault: "", StrategyMap: strategyMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
-	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap})
+	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap,
+	RichStrategyKey: "rich_strategies", RichStrategyDefault:"", RichStrategyMap: richStrategyMap})

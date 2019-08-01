@@ -41,7 +41,7 @@ type AppInfo struct {
 	// 富策略，同时包含加载数据/执行策略/记录内容
 	RichStrategyKey string
 	RichStrategyDefault string
-	RichStrategyMap map[string]IStrategy
+	RichStrategyMap map[string]IRichStrategy
 }
 
 //********************************* 服务端日志

@@ -21,6 +21,10 @@ type CachePikaModule struct {
 	ctx algo.IContext
 }
 
+func NewCachePikaModule(ctx algo.IContext, cache cache.Cache) *CachePikaModule {
+	return &CachePikaModule{ctx: ctx, cache: cache}
+}
+
 // 读取缓存。cacheTime：redis的缓存时间；cacheNilTime: pika也不存在的key写入redis的缓存时间
 // 当 cacheTime 和 cacheNilTime 都小雨等于0 则不请求 store
 func (self *CachePikaModule) GetSet(key string, cacheTime int, cacheNilTime int) (interface{}, error) {

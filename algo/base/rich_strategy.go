@@ -7,21 +7,14 @@ import (
 	"rela_recommend/models/redis"
 )
 
-type IRichStrategy interface {
-	New(ctx algo.IContext) IRichStrategy
-	BuildData() error		// 加载数据
-	Strategy() error		// 执行策略
-	Logger() error			// 记录结果
-}
-
-
+// 分页历史处理策略
 type PagedRichStrategy struct {
 	ctx				algo.IContext
 	pageIdsMap		map[int64]int
-	cacheModule		*redis.ThemeBehaviorCacheModule
+	cacheModule		*redis.CachePikaModule
 }
 
-func (self *PagedRichStrategy) New(ctx algo.IContext) IRichStrategy {
+func (self *PagedRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {
 	return &PagedRichStrategy{ctx: ctx}
 }
 
@@ -31,7 +24,7 @@ func (self *PagedRichStrategy) CacheKey() string {
 }
 
 func (self *PagedRichStrategy) BuildData() error {
-	self.cacheModule = redis.NewThemeBehaviorCacheModule(self.ctx, &factory.CacheBehaviorRds)
+	self.cacheModule = redis.NewCachePikaModule(self.ctx, factory.CacheBehaviorRds)
 	params := self.ctx.GetRequest()
 	if params.Offset > 0 {		// 只有非第一页才获取缓存
 		return self.cacheModule.GetStruct(self.CacheKey(), self.pageIdsMap)
