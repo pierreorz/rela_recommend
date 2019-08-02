@@ -361,6 +361,8 @@ func (self *CachePikaModule) GetStruct(key string, obj interface{}) error {
 func (self *CachePikaModule) SetStruct(key string, obj interface{}, cacheTime int, cacheNilTime int) error {
 	var err error
 	var res interface{}
+
+	var startTime = time.Now()
 	if obj != nil {
 		res, err = json.Marshal(obj)
 		if err == nil {
@@ -371,5 +373,8 @@ func (self *CachePikaModule) SetStruct(key string, obj interface{}, cacheTime in
 			err = self.cache.SetEx(key, "", cacheNilTime)
 		}
 	}
+	var endTime = time.Now()
+	log.Infof("SetStruct rankId:%s,Key:%s,total:%.3f,msg:%s\n",
+		"", key, endTime.Sub(startTime).Seconds(), err)
 	return err
 }
