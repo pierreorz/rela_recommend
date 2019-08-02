@@ -29,7 +29,9 @@ func (self *PagedRichStrategy) CacheKey() string {
 func (self *PagedRichStrategy) BuildData() error {
 	params := self.ctx.GetRequest()
 	if params.Offset > 0 {		// 只有非第一页才获取缓存
-		return self.cacheModule.GetStruct(self.CacheKey(), self.pageIdsMap)
+		go func(){
+			self.cacheModule.GetStruct(self.CacheKey(), self.pageIdsMap)
+		}()
 	}
 	return nil
 }
@@ -55,7 +57,9 @@ func (self *PagedRichStrategy) Logger() error {
 	}
 	
 	if len(self.pageIdsMap) > 0 {
-		return self.cacheModule.SetStruct(self.CacheKey(), self.pageIdsMap, 30 * 60, 0)
+		go func(){
+			self.cacheModule.SetStruct(self.CacheKey(), self.pageIdsMap, 30 * 60, 0)
+		}()
 	}
 	return nil
 }
