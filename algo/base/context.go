@@ -129,7 +129,6 @@ func (self *ContextBase) DoInit() error {
 	}
 
 	// 初始化要执行的富策略
-	log.Infof("%s find richstrategy %s: %s, %+v", self.App.Name, self.App.RichStrategyKey, self.App.RichStrategyDefault, self.App.RichStrategyMap)
 	self.richStrategies = make(map[string]algo.IRichStrategy, 0)
 	if self.App.RichStrategyMap != nil {
 		for _, name := range self.AbTest.GetStrings(self.App.RichStrategyKey, self.App.RichStrategyDefault) {
@@ -140,7 +139,6 @@ func (self *ContextBase) DoInit() error {
 			}
 		}
 	}
-	log.Infof("%s find richstrategy %+v", self.App.Name, self.richStrategies)
 	return err
 }
 
