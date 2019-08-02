@@ -49,7 +49,6 @@ func (self *PagedRichStrategy) Strategy() error {
 	return nil
 }
 
-
 func (self *PagedRichStrategy) Logger() error {
 	abtest := self.ctx.GetAbTest()
 	params := self.ctx.GetRequest()
@@ -67,5 +66,3 @@ func (self *PagedRichStrategy) Logger() error {
 	log.Infof("%s paged save %d len %d", abtest.App, params.Offset, len(self.pageIdsMap))
 	return nil
 }
-
-
