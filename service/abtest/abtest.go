@@ -135,8 +135,8 @@ func (self *AbTest) GetString(key string, defVal string) string {
 }
 
 func (self *AbTest) GetStrings(key string, defVals string) []string {
-	res := make([]string, 0)
 	strs := self.GetString(key, defVals)
+	res := make([]string, 0)
 	for _, str := range strings.Split(strs, ",") {
 		if len(res) > 0 {
 			res = append(res, str)

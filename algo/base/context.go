@@ -129,6 +129,7 @@ func (self *ContextBase) DoInit() error {
 	}
 
 	// 初始化要执行的富策略
+	self.richStrategies = make(map[string]algo.IRichStrategy, 0)
 	if self.App.RichStrategyMap != nil {
 		for _, name := range self.AbTest.GetStrings(self.App.RichStrategyKey, self.App.RichStrategyDefault) {
 			if strategy, ok := self.App.RichStrategyMap[name]; ok && strategy != nil {
