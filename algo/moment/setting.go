@@ -2,6 +2,7 @@ package moment
 
 import(
 	"rela_recommend/algo"
+	"rela_recommend/algo/base"
 	"rela_recommend/algo/utils"
 )
 
@@ -22,6 +23,10 @@ var loggerMap = map[string]algo.ILogger{
 	"features": &algo.LoggerBase{},
 	"performs": &algo.LoggerPerforms{},
 }
+var richStrategyMap = map[string]algo.IRichStrategy {
+	"paged": &base.PagedRichStrategy{},
+}
+
 
 // 精排算法
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
@@ -37,7 +42,8 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	StrategyKey: "strategies", StrategyDefault: "time_level", StrategyMap: strategyMap, 
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
-	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap})
+	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap,
+	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged", RichStrategyMap: richStrategyMap})
 
 // 日志附近的人
 var _ = algo.AddAppInfo(&algo.AppInfo{
@@ -47,4 +53,5 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	StrategyKey: "strategies", StrategyDefault: "time_level", StrategyMap: strategyMap, 
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
-	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap})
+	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap,
+	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged", RichStrategyMap: richStrategyMap})
