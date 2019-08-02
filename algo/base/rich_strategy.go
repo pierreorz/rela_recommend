@@ -18,7 +18,7 @@ type PagedRichStrategy struct {
 func (self *PagedRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {
 	return &PagedRichStrategy{
 		ctx: ctx, 
-		pageIdsMap: make(map[int64]int, 0),
+		pageIdsMap: map[int64]int{},
 		cacheModule: redis.NewCachePikaModule(ctx, factory.CacheBehaviorRds)}
 }
 
@@ -31,7 +31,7 @@ func (self *PagedRichStrategy) BuildData() error {
 	abtest := self.ctx.GetAbTest()
 	params := self.ctx.GetRequest()
 	if params.Offset > 0 {		// 只有非第一页才获取缓存
-		self.cacheModule.GetStruct(self.CacheKey(), self.pageIdsMap)
+		self.cacheModule.GetStruct(self.CacheKey(), &self.pageIdsMap)
 	}
 	log.Infof("%s paged load %d len %d", abtest.App, params.Offset, len(self.pageIdsMap))
 	return nil
