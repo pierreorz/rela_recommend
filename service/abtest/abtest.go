@@ -133,6 +133,18 @@ func (self *AbTest) GetString(key string, defVal string) string {
 	}
 	return defVal
 }
+
+func (self *AbTest) GetStrings(key string, defVals string) []string {
+	res := make([]string, 0)
+	strs := self.GetString(key, defVals)
+	for _, str := range strings.Split(strs, ",") {
+		if len(res) > 0 {
+			res = append(res, str)
+		}
+	}
+	return res
+}
+
 func (self *AbTest) GetBool(key string, defVal bool) bool {
 	if val, ok := self.FactorMap[key]; ok {
 		val = strings.ToLower(val)

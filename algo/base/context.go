@@ -26,6 +26,9 @@ type ContextBase struct {
 
 	Performs *performs.Performs
 	Response *algo.RecommendResponse
+
+	// 要执行的富策略
+	richStrategies	map[string]algo.IRichStrategy
 }
 
 func(self *ContextBase) GetRankId() string {
@@ -124,6 +127,17 @@ func (self *ContextBase) DoInit() error {
 			err = errors.New("algo not found:" + modelName)
 		}
 	}
+
+	// 初始化要执行的富策略
+	if self.App.RichStrategyMap != nil {
+		for _, name := range self.AbTest.GetStrings(self.App.RichStrategyKey, self.App.RichStrategyDefault) {
+			if strategy, ok := self.App.RichStrategyMap[name]; ok && strategy != nil {
+				self.richStrategies[name] = strategy.New(self)
+			} else {
+				log.Warnf("%s can't find richstrategy %s", self.App.Name, name)
+			}
+		}
+	}
 	return err
 }
 
@@ -139,6 +153,13 @@ func(self *ContextBase) DoBuildData() error {
 			} else {
 				err = errors.New("builder not found:" + name)
 			}
+		}
+	}
+
+	// 执行富策略的加载数据
+	for name, richStrategiy := range self.richStrategies { 
+		if partErr := richStrategiy.BuildData(); partErr != nil {
+			log.Warnf("%s rich strategy strategy err %s: %s", app.Name, name, partErr)
 		}
 	}
 	return err
@@ -184,6 +205,13 @@ func(self *ContextBase) DoStrategies() error {
 		err = strategy.Do(self)
 		if err != nil {
 			break
+		}
+	}
+
+	// 执行富策略的策略
+	for name, richStrategiy := range self.richStrategies { 
+		if partErr := richStrategiy.Strategy(); partErr != nil {
+			log.Warnf("%s rich strategy strategy err %s: %s", app.Name, name, partErr)
 		}
 	}
 	return err
@@ -241,6 +269,12 @@ func(self *ContextBase) DoLog() error {
 					log.Warnf("%s can't find logger %s", app.Name, name)
 				}
 			}
+		}
+	}
+	// 执行富策略的日志部分
+	for name, richStrategiy := range self.richStrategies { 
+		if partErr := richStrategiy.Logger(); partErr != nil {
+			log.Warnf("%s rich strategy logger err %s: %s", app.Name, name, partErr)
 		}
 	}
 
