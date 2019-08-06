@@ -43,7 +43,7 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, itembehavior *behavior.UserBeha
 // 按用户访问行为进行策略提降权
 func UserBehaviorStrategyFunc(ctx algo.IContext, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
-	var avgExpCount float64 = 3
+	var avgExpCount float64 = 2
 	var currTime = float64(ctx.GetCreateTime().Unix())
 
 	listCountScore, listRateScore, listTimeScore := strategy.BehaviorCountRateTimeScore(
