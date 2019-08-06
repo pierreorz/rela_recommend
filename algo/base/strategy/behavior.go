@@ -2,6 +2,7 @@ package strategy
 
 
 import (
+	"rela_recommend/log"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/models/behavior"
@@ -48,6 +49,7 @@ func (self *BaseBehaviorRichStrategy) BuildData() error {
 }
 
 func (self *BaseBehaviorRichStrategy) Strategy() error {
+	log.Infof("BaseBehaviorRichStrategy start\n")
 	if self.UserStrategyFunc != nil && self.UserBehaviorMap != nil {
 		return self.UserStrategyFunc(self.ctx, self.UserBehaviorMap)
 	}
@@ -62,15 +64,18 @@ func (self *BaseBehaviorRichStrategy) Strategy() error {
 			if self.UserBehaviorMap != nil {
 				if behavior, ok := self.UserBehaviorMap[dataId]; ok && behavior != nil {
 					self.UserStrategyItemFunc(self.ctx, behavior, rankInfo)
+					log.Infof("BaseBehaviorRichStrategy user item %+v %+v\n, rankInfo", behavior, rankInfo)
 				}
 			}
 			if self.ItemBehaviorMap != nil {
 				if behavior, ok := self.ItemBehaviorMap[dataId]; ok && behavior != nil {
 					self.ItemStrategyItemFunc(self.ctx, behavior, rankInfo)
+					log.Infof("BaseBehaviorRichStrategy user item %+v %+v\n, rankInfo", behavior, rankInfo)
 				}
 			}
 		}
 	}
+	log.Infof("BaseBehaviorRichStrategy end\n")
 	return nil
 }
 
