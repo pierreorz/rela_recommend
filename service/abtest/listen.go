@@ -43,8 +43,8 @@ func init() {
 		"theme": [
 			{"name": "testing_real_v1_0", "desc": "测试实时策略", "app": "theme", "group": "", "status": 1, "daily_change": 1,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-					{"name": "v1.0.0", "percentage": 20, "factor_map": {"strategies": ""}},
-					{"name": "v1.1.0", "percentage": 20, "factor_map": {"strategies": "hot,user_behavior"}}
+					{"name": "v1.0.0", "percentage": 20, "factor_map": {"rich_strategies": "paged"}},
+					{"name": "v1.1.0", "percentage": 20, "factor_map": {"rich_strategies": "paged,behavior"}}
 			]}
 		]
 	}`
