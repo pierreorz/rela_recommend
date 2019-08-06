@@ -37,11 +37,11 @@ func (self *BaseBehaviorRichStrategy) BuildData() error {
 	app := self.ctx.GetAppInfo()
 	params := self.ctx.GetRequest()
 	if userBehavior, err := self.cacheModule.QueryUserBehaviorMap(
-			app.Module, params.UserId, params.DataIds); err != nil {
+			app.Module, params.UserId, self.ctx.GetDataIds()); err != nil {
 		self.UserBehaviorMap =	userBehavior
 	}
 	if itemBehavior, err := self.cacheModule.QueryItemBehaviorMap(
-			app.Module, params.DataIds); err != nil {
+			app.Module, self.ctx.GetDataIds()); err != nil {
 		self.ItemBehaviorMap =	itemBehavior
 	}
 	return nil
