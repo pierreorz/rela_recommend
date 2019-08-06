@@ -47,12 +47,6 @@ func (self *UserBehavior) GetMomentListInteract() *Behavior {
 		"moment.friend:like", "moment.friend:comment", "moment.friend:share", "moment.friend:follow",
 		"aroundmoment:like", "aroundmoment:comment", "aroundmoment:share", "aroundmoment:follow",
 		"moment.recommend:like", "moment.recommend:comment", "moment.recommend:share", "moment.recommend:follow",
-	)
-}
-
-// 详情页互动行为
-func (self *UserBehavior) GetMomentDetailInteract() *Behavior {
-	return self.Gets(
 		"moment.detail:like", "moment.detail:comment", "moment.detail:share", "moment.detail:follow",
 	)
 }

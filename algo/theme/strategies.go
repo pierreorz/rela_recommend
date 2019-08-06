@@ -20,7 +20,7 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, itembehavior *behavior.UserBeha
 						 0.6 * infoCountScore * infoRateScore * infoTimeScore)
 
 	if upperRate != 0.0 {
-		rankInfo.AddRecommend("ThemeBehavior", 1.0 + upperRate)
+		rankInfo.AddRecommend("ItemBehavior", 1.0 + upperRate)
 	}
 	return err
 }
