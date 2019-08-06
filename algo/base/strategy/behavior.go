@@ -58,7 +58,7 @@ func (self *BaseBehaviorRichStrategy) Strategy() error {
 		err = self.ItemStrategyFunc(self.ctx, self.UserBehaviorMap)
 	}
 	if self.UserStrategyItemFunc != nil || self.ItemStrategyItemFunc != nil {
-		log.Infof("BaseBehaviorRichStrategy item start\n")
+		log.Infof("BaseBehaviorRichStrategy item start %+v\n", self)
 		for index := 0; index < self.ctx.GetDataLength(); index++ {
 			dataInfo := self.ctx.GetDataByIndex(index)
 			dataId := dataInfo.GetDataId()
