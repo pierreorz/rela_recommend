@@ -4,6 +4,7 @@ import(
 	"rela_recommend/algo"
 	"rela_recommend/algo/base"
 	"rela_recommend/algo/utils"
+	"rela_recommend/algo/base/strategy"
 )
 
 var workDir = algo.GetWorkDir("/algo_files/moment/")
@@ -25,6 +26,9 @@ var loggerMap = map[string]algo.ILogger{
 }
 var richStrategyMap = map[string]algo.IRichStrategy {
 	"paged": &base.PagedRichStrategy{},
+	"behavior": &strategy.BaseBehaviorRichStrategy{
+		UserStrategyItemFunc: UserBehaviorStrategyFunc,
+		ItemStrategyItemFunc: ItemBehaviorStrategyFunc},
 }
 
 
@@ -43,7 +47,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap,
-	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged", RichStrategyMap: richStrategyMap})
+	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged,behavior", RichStrategyMap: richStrategyMap})
 
 // 日志附近的人
 var _ = algo.AddAppInfo(&algo.AppInfo{
@@ -54,4 +58,4 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap,
-	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged", RichStrategyMap: richStrategyMap})
+	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged,behavior", RichStrategyMap: richStrategyMap})

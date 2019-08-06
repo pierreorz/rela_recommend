@@ -1,6 +1,7 @@
 package base
 
 import (
+	// "fmt"
 	"time"
 	"errors"
 	"strings"
@@ -192,7 +193,7 @@ func(self *ContextBase) DoStrategies() error {
 			log.Warnf("%s rich strategy strategy err %s: %s", app.Name, name, partErr)
 		}
 	}
-	
+
 	var strategies = []algo.IStrategy{}
 	if app.StrategyMap != nil {
 		var namestr = self.AbTest.GetString(app.StrategyKey, app.StrategyDefault)
@@ -206,6 +207,15 @@ func(self *ContextBase) DoStrategies() error {
 				}
 			}
 		}
+
+		// for name, strategy := range app.StrategyMap {
+		// 	if self.AbTest.GetBool(fmt.Sprintf("switch_strategy_%s", name), true) {
+		// 		strategies = append(strategies, strategy)
+		// 		if err = strategy.Do(self); err != nil {
+		// 			log.Warnf("app %s strategy %s error %s", app.Name, name, err)
+		// 		}
+		// 	}
+		// }
 	}
 	// 添加默认策略，计算推荐分数，计算推荐理由
 	strategies = append(strategies, &algo.StrategyBase{ DoSingle: algo.StrategyScoreFunc })
