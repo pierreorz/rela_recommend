@@ -47,7 +47,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap,
-	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged,behavior", RichStrategyMap: richStrategyMap})
+	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged", RichStrategyMap: richStrategyMap})
 
 // 日志附近的人
 var _ = algo.AddAppInfo(&algo.AppInfo{
@@ -58,4 +58,4 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap,
-	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged,behavior", RichStrategyMap: richStrategyMap})
+	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged", RichStrategyMap: richStrategyMap})

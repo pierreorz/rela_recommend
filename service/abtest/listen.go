@@ -61,7 +61,11 @@ func init() {
 			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381],"factor_map":{"model":"xgb_1.0", "new_score": "0.5"}}
 		],
 		"moment.near": [
+			{"name": "moment_near_strategies", "desc": "实时策略", "app": "moment.near", "ids":[104708381,524,105350087,104125110],"factor_map":{"rich_strategies": "paged,behavior"}},
 			{"name": "moment_model", "desc": "日志白名单", "app": "moment", "ids":[104708381],"factor_map":{"strategies": "time_level", "radius_range":"50km"}}
+		],
+		"moment": [
+			{"name": "moment_strategies", "desc": "实时策略", "app": "moment", "ids":[104708381,524,105350087,104125110],"factor_map":{"rich_strategies": "paged,behavior"}},
 		],
 		"theme": [
 			{"name": "theme_strategies", "desc": "实时策略", "app": "theme", "ids":[104708381,524,105350087,104125110],"factor_map":{"rich_strategies": "paged,behavior"}},
