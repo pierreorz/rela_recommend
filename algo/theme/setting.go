@@ -3,6 +3,7 @@ package theme
 import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base"
+	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
 )
 
@@ -10,10 +11,7 @@ var appName = "theme"
 var workDir = algo.GetWorkDir("/algo_files/theme/")
 
 var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildData}}
-var strategyMap = map[string]algo.IStrategy{
-	"hot": &algo.StrategyBase{ DoSingle: DoHotBehaviorUpper },
-	"user_behavior": &UserBehaviorStrategy{},
-}
+var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{}}
 var pagerMap = map[string]algo.IPager{
@@ -24,6 +22,9 @@ var loggerMap = map[string]algo.ILogger{
 
 var richStrategyMap = map[string]algo.IRichStrategy {
 		"paged": &base.PagedRichStrategy{},
+		"behavior": &strategy.BaseBehaviorRichStrategy{
+			UserStrategyItemFunc: UserBehaviorStrategyFunc,
+			ItemStrategyItemFunc: ItemBehaviorStrategyFunc},
 	}
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
@@ -34,7 +35,7 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 
 // 话题推荐列表
 var _ = algo.AddAppInfo(&algo.AppInfo{
-	Name: "theme", Path: workDir,
+	Name: "theme", Module: "theme", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
 	StrategyKey: "strategies", StrategyDefault: "", StrategyMap: strategyMap,

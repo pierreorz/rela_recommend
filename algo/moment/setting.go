@@ -36,7 +36,7 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 
 // 推荐日志
 var _ = algo.AddAppInfo(&algo.AppInfo{
-	Name: "moment", Path: workDir,
+	Name: "moment", Module: "moment", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap, 
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
 	StrategyKey: "strategies", StrategyDefault: "time_level", StrategyMap: strategyMap, 
@@ -47,7 +47,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 
 // 日志附近的人
 var _ = algo.AddAppInfo(&algo.AppInfo{
-	Name: "moment.near", Path: workDir,
+	Name: "moment.near", Module: "moment", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap, 
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
 	StrategyKey: "strategies", StrategyDefault: "time_level", StrategyMap: strategyMap, 

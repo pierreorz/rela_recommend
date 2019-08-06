@@ -36,7 +36,7 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 
 // 推荐栏目
 var _ = algo.AddAppInfo(&algo.AppInfo{
-	Name: "live", Path: workDir,
+	Name: "live", Module: "live", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "base", AlgoMap: algosMap, 
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
 	StrategyKey: "strategies", StrategyDefault: "top_recommend_level,old_score", StrategyMap: strategyMap, 

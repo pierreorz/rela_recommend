@@ -22,8 +22,6 @@ type DataInfo struct {
 	MomentCache 		*redis.Moments
 	MomentExtendCache 	*redis.MomentsExtend
 	MomentProfile		*redis.MomentsProfile
-	UserBehavior		*redis.ThemeUserBehavior	// 用户对日志的行为
-	ThemeBehavior		*redis.ThemeUserBehavior	// 日志本身的行为
 	RankInfo			*algo.RankInfo
 	Features 			*utils.Features
 }
