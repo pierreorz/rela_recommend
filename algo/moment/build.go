@@ -101,6 +101,7 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	}
 	ctx.SetUserInfo(userInfo)
+	ctx.SetDataIds(dataIds)
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
 	log.Infof("rankid %s,totallen:%d,searchlen:%d;backendlen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,build:%.3f\n",
