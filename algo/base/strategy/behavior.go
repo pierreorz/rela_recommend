@@ -38,11 +38,11 @@ func (self *BaseBehaviorRichStrategy) BuildData() error {
 	app := self.ctx.GetAppInfo()
 	params := self.ctx.GetRequest()
 	if userBehavior, err := self.cacheModule.QueryUserBehaviorMap(
-			app.Module, params.UserId, self.ctx.GetDataIds()); err != nil {
+			app.Module, params.UserId, self.ctx.GetDataIds()); err == nil {
 		self.UserBehaviorMap =	userBehavior
 	}
 	if itemBehavior, err := self.cacheModule.QueryItemBehaviorMap(
-			app.Module, self.ctx.GetDataIds()); err != nil {
+			app.Module, self.ctx.GetDataIds()); err == nil {
 		self.ItemBehaviorMap =	itemBehavior
 	}
 	return nil
@@ -50,7 +50,6 @@ func (self *BaseBehaviorRichStrategy) BuildData() error {
 
 func (self *BaseBehaviorRichStrategy) Strategy() error {
 	var err error
-	log.Infof("BaseBehaviorRichStrategy start\n")
 	if self.UserStrategyFunc != nil && self.UserBehaviorMap != nil {
 		err = self.UserStrategyFunc(self.ctx, self.UserBehaviorMap)
 	}
@@ -58,27 +57,22 @@ func (self *BaseBehaviorRichStrategy) Strategy() error {
 		err = self.ItemStrategyFunc(self.ctx, self.UserBehaviorMap)
 	}
 	if self.UserStrategyItemFunc != nil || self.ItemStrategyItemFunc != nil {
-		log.Infof("BaseBehaviorRichStrategy item start %+v\n", self)
 		for index := 0; index < self.ctx.GetDataLength(); index++ {
 			dataInfo := self.ctx.GetDataByIndex(index)
 			dataId := dataInfo.GetDataId()
 			rankInfo := dataInfo.GetRankInfo()
 			if self.UserBehaviorMap != nil {
-				log.Infof("BaseBehaviorRichStrategy user item %d not nil\n", index)
 				if behavior, ok := self.UserBehaviorMap[dataId]; ok && behavior != nil {
 					self.UserStrategyItemFunc(self.ctx, behavior, rankInfo)
-					log.Infof("BaseBehaviorRichStrategy user item %d %+v %+v\n", index, behavior, rankInfo)
 				}
 			}
 			if self.ItemBehaviorMap != nil {
 				if behavior, ok := self.ItemBehaviorMap[dataId]; ok && behavior != nil {
 					self.ItemStrategyItemFunc(self.ctx, behavior, rankInfo)
-					log.Infof("BaseBehaviorRichStrategy user item %d %+v %+v\n", index, behavior, rankInfo)
 				}
 			}
 		}
 	}
-	log.Infof("BaseBehaviorRichStrategy end\n")
 	return err
 }
 
