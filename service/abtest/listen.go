@@ -65,7 +65,7 @@ func init() {
 			{"name": "moment_model", "desc": "日志白名单", "app": "moment", "ids":[104708381],"factor_map":{"strategies": "time_level", "radius_range":"50km"}}
 		],
 		"moment": [
-			{"name": "moment_strategies", "desc": "实时策略", "app": "moment", "ids":[104708381,524,105350087,104125110],"factor_map":{"rich_strategies": "paged,behavior"}},
+			{"name": "moment_strategies", "desc": "实时策略", "app": "moment", "ids":[104708381,524,105350087,104125110],"factor_map":{"rich_strategies": "paged,behavior"}}
 		],
 		"theme": [
 			{"name": "theme_strategies", "desc": "实时策略", "app": "theme", "ids":[104708381,524,105350087,104125110],"factor_map":{"rich_strategies": "paged,behavior"}},
