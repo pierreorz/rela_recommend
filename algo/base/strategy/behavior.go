@@ -49,34 +49,37 @@ func (self *BaseBehaviorRichStrategy) BuildData() error {
 }
 
 func (self *BaseBehaviorRichStrategy) Strategy() error {
+	var err error
 	log.Infof("BaseBehaviorRichStrategy start\n")
 	if self.UserStrategyFunc != nil && self.UserBehaviorMap != nil {
-		return self.UserStrategyFunc(self.ctx, self.UserBehaviorMap)
+		err = self.UserStrategyFunc(self.ctx, self.UserBehaviorMap)
 	}
 	if self.ItemStrategyFunc != nil && self.ItemBehaviorMap != nil {
-		return self.ItemStrategyFunc(self.ctx, self.UserBehaviorMap)
+		err = self.ItemStrategyFunc(self.ctx, self.UserBehaviorMap)
 	}
 	if self.UserStrategyItemFunc != nil || self.ItemStrategyItemFunc != nil {
+		log.Infof("BaseBehaviorRichStrategy item start\n")
 		for index := 0; index < self.ctx.GetDataLength(); index++ {
 			dataInfo := self.ctx.GetDataByIndex(index)
 			dataId := dataInfo.GetDataId()
 			rankInfo := dataInfo.GetRankInfo()
 			if self.UserBehaviorMap != nil {
+				log.Infof("BaseBehaviorRichStrategy user item %d not nil\n", index)
 				if behavior, ok := self.UserBehaviorMap[dataId]; ok && behavior != nil {
 					self.UserStrategyItemFunc(self.ctx, behavior, rankInfo)
-					log.Infof("BaseBehaviorRichStrategy user item %+v %+v\n, rankInfo", behavior, rankInfo)
+					log.Infof("BaseBehaviorRichStrategy user item %d %+v %+v\n", index, behavior, rankInfo)
 				}
 			}
 			if self.ItemBehaviorMap != nil {
 				if behavior, ok := self.ItemBehaviorMap[dataId]; ok && behavior != nil {
 					self.ItemStrategyItemFunc(self.ctx, behavior, rankInfo)
-					log.Infof("BaseBehaviorRichStrategy user item %+v %+v\n, rankInfo", behavior, rankInfo)
+					log.Infof("BaseBehaviorRichStrategy user item %d %+v %+v\n", index, behavior, rankInfo)
 				}
 			}
 		}
 	}
 	log.Infof("BaseBehaviorRichStrategy end\n")
-	return nil
+	return err
 }
 
 func (self *BaseBehaviorRichStrategy) Logger() error {
