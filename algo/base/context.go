@@ -186,6 +186,13 @@ func(self *ContextBase) DoStrategies() error {
 	var err error
 	app := self.GetAppInfo()
 
+	// 执行富策略的策略
+	for name, richStrategiy := range self.richStrategies { 
+		if partErr := richStrategiy.Strategy(); partErr != nil {
+			log.Warnf("%s rich strategy strategy err %s: %s", app.Name, name, partErr)
+		}
+	}
+	
 	var strategies = []algo.IStrategy{}
 	if app.StrategyMap != nil {
 		var namestr = self.AbTest.GetString(app.StrategyKey, app.StrategyDefault)
@@ -209,12 +216,6 @@ func(self *ContextBase) DoStrategies() error {
 		}
 	}
 
-	// 执行富策略的策略
-	for name, richStrategiy := range self.richStrategies { 
-		if partErr := richStrategiy.Strategy(); partErr != nil {
-			log.Warnf("%s rich strategy strategy err %s: %s", app.Name, name, partErr)
-		}
-	}
 	return err
 }
 
