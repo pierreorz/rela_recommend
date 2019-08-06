@@ -2,7 +2,6 @@ package strategy
 
 
 import (
-	"rela_recommend/log"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/models/behavior"
