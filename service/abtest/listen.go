@@ -11,10 +11,11 @@ var whiteListMap map[string][]WhiteName = make(map[string][]WhiteName, 0)
 func init() {
 	// 因子默认值
 	default_config := `{
-		"match": {"match_model": "QuickMatchTreeV1_0", "default_key": "test"},
+		"match": {"match_model": "QuickMatchTreeV1_0"},
 		"live": {"model": "xgb_1.0", "new_score": "0.5"},
 		"moment": {"strategies": "time_level", "radius_range":"300km", "backend_recommend_switched": "1"},
-		"moment.near": {"strategies": "time_level", "radius_range":"50km"}
+		"moment.near": {"strategies": "time_level", "radius_range":"50km"},
+		"theme": {"recommend_new": "1", "backend_recommend_switched": "1"}
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
 		log.Error(err.Error())
@@ -39,14 +40,7 @@ func init() {
 					{"name": "v1.0.0", "percentage": 20, "factor_map": {"new_score": "0.0", "model": "base"}},
 					{"name": "v1.3.5", "percentage": 20, "factor_map": {"new_score": "0.5", "model": "base"}},
 					{"name": "v1.4.5", "percentage": 20, "factor_map": {"new_score": "0.5", "model": "xgb_1.0"}}
-			]} ],
-		"theme": [
-			{"name": "testing_real_v1_0", "desc": "测试实时策略", "app": "theme", "group": "", "status": 1, "daily_change": 1,
-				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
-					{"name": "v1.0.0", "percentage": 20, "factor_map": {"rich_strategies": "paged"}},
-					{"name": "v1.1.0", "percentage": 20, "factor_map": {"rich_strategies": "paged,behavior"}}
-			]}
-		]
+			]} ]
 	}`
 	if err := json.Unmarshal(([]byte)(ab_config), &testingMap); err != nil {
 		log.Error(err.Error())
@@ -54,22 +48,10 @@ func init() {
 	// 白名单
 	white_config := `{
 		"match": [
-			{"name": "test_test", "desc": "测试", "app": "match", "ids":[1,2,3],"factor_map":{"white_test":"1"}},
 			{"name": "match_model", "desc": "匹配模型", "app": "match", "ids":[104708381],"factor_map":{"match_model":"QuickMatchTreeV1_4"}}
 		],
 		"live": [
 			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381],"factor_map":{"model":"xgb_1.0", "new_score": "0.5"}}
-		],
-		"moment.near": [
-			{"name": "moment_near_strategies", "desc": "实时策略", "app": "moment.near", "ids":[104708381,524,105350087,104125110],"factor_map":{"rich_strategies": "paged,behavior"}},
-			{"name": "moment_model", "desc": "日志白名单", "app": "moment", "ids":[104708381],"factor_map":{"strategies": "time_level", "radius_range":"50km"}}
-		],
-		"moment": [
-			{"name": "moment_strategies", "desc": "实时策略", "app": "moment", "ids":[104708381,524,105350087,104125110],"factor_map":{"rich_strategies": "paged,behavior"}}
-		],
-		"theme": [
-			{"name": "theme_strategies", "desc": "实时策略", "app": "theme", "ids":[104708381,524,105350087,104125110],"factor_map":{"rich_strategies": "paged,behavior"}},
-			{"name": "recommend_new", "desc": "推荐新话题", "app": "theme", "ids":[104708381,524,105350087,104125110],"factor_map":{"recommend_new": "1"}}
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {
