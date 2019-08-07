@@ -33,8 +33,8 @@ var appInfo = &algo.AppInfo{
 	Name: appName, Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
-	StrategyKey: "strategies", StrategyDefault: "", StrategyMap: nil,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: nil,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
-	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap}
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap}
 var _ = algo.AddAppInfo(appInfo)

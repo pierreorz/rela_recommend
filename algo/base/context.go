@@ -1,10 +1,9 @@
 package base
 
 import (
-	// "fmt"
+	"fmt"
 	"time"
 	"errors"
-	"strings"
 	"rela_recommend/algo"
 	"rela_recommend/log"
 	uutils "rela_recommend/utils"
@@ -29,7 +28,7 @@ type ContextBase struct {
 	Response *algo.RecommendResponse
 
 	// 要执行的富策略
-	richStrategies	map[string]algo.IRichStrategy
+	richStrategies	*algo.KeyWeightSorter
 }
 
 func(self *ContextBase) GetRankId() string {
@@ -130,13 +129,12 @@ func (self *ContextBase) DoInit() error {
 	}
 
 	// 初始化要执行的富策略
-	self.richStrategies = make(map[string]algo.IRichStrategy, 0)
+	self.richStrategies = &algo.KeyWeightSorter{}
 	if self.App.RichStrategyMap != nil {
-		for _, name := range self.AbTest.GetStrings(self.App.RichStrategyKey, self.App.RichStrategyDefault) {
-			if strategy, ok := self.App.RichStrategyMap[name]; ok && strategy != nil {
-				self.richStrategies[name] = strategy.New(self)
-			} else {
-				log.Warnf("%s can't find richstrategy %s", self.App.Name, name)
+		keyFormatter := uutils.CoalesceString(self.App.RichStrategyKeyFormatter, "rich_strategy:%s:weight")
+		for name, strategy := range self.App.RichStrategyMap {
+			if weight := self.AbTest.GetInt(fmt.Sprintf(keyFormatter, name), 0); weight >= 0 {
+				self.richStrategies.Append(name, strategy.New(self), weight)
 			}
 		}
 	}
@@ -159,11 +157,12 @@ func(self *ContextBase) DoBuildData() error {
 	}
 
 	// 执行富策略的加载数据
-	for name, richStrategiy := range self.richStrategies { 
-		if partErr := richStrategiy.BuildData(); partErr != nil {
-			log.Warnf("%s rich strategy strategy err %s: %s", app.Name, name, partErr)
+	self.richStrategies.Foreach(func(key string, value interface{}) error {
+		if partErr := value.(algo.IRichStrategy).BuildData(); partErr != nil {
+			log.Warnf("%s rich strategy build data err %s: %s", app.Name, key, partErr)
 		}
-	}
+		return nil
+	})
 	return err
 }
 
@@ -188,44 +187,33 @@ func(self *ContextBase) DoStrategies() error {
 	app := self.GetAppInfo()
 
 	// 执行富策略的策略
-	for name, richStrategiy := range self.richStrategies { 
-		if partErr := richStrategiy.Strategy(); partErr != nil {
-			log.Warnf("%s rich strategy strategy err %s: %s", app.Name, name, partErr)
+	self.richStrategies.Foreach(func(key string, value interface{}) error {
+		if partErr := value.(algo.IRichStrategy).Strategy(); partErr != nil {
+			log.Warnf("%s rich strategy strategy err %s: %s", app.Name, key, partErr)
 		}
-	}
+		return nil
+	})
 
-	var strategies = []algo.IStrategy{}
+	strategySorter := &algo.KeyWeightSorter{}
 	if app.StrategyMap != nil {
-		var namestr = self.AbTest.GetString(app.StrategyKey, app.StrategyDefault)
-		var names = strings.Split(namestr, ",")
-		for _, name := range names {
-			if len(name) > 0 {
-				if strategy, ok := app.StrategyMap[name]; ok {
-					strategies = append(strategies, strategy)
-				} else {
-					log.Warnf("%s can't find strategy %s", app.Name, name)
-				}
+		keyFormatter := uutils.CoalesceString(app.StrategyKeyFormatter, "strategy:%s:weight")
+		for name, strategy := range app.StrategyMap {
+			if weight := self.AbTest.GetInt(fmt.Sprintf(keyFormatter, name), 0); weight >= 0 {
+				strategySorter.Append(name, strategy, weight)
 			}
 		}
-
-		// for name, strategy := range app.StrategyMap {
-		// 	if self.AbTest.GetBool(fmt.Sprintf("switch_strategy_%s", name), true) {
-		// 		strategies = append(strategies, strategy)
-		// 		if err = strategy.Do(self); err != nil {
-		// 			log.Warnf("app %s strategy %s error %s", app.Name, name, err)
-		// 		}
-		// 	}
-		// }
 	}
+	
 	// 添加默认策略，计算推荐分数，计算推荐理由
-	strategies = append(strategies, &algo.StrategyBase{ DoSingle: algo.StrategyScoreFunc })
-	for _, strategy := range strategies {
-		err = strategy.Do(self)
-		if err != nil {
-			break
-		}
-	}
+	strategySorter.Append("default_recommend_score", &algo.StrategyBase{ DoSingle: algo.StrategyScoreFunc }, 1000)
 
+	// 执行策略
+	strategySorter.Foreach(func(key string, value interface{})error {
+		if err = value.(algo.IStrategy).Do(self); err != nil {
+			log.Warnf("%s strategy %s error: %s", app.Name, key, err)
+		}
+		return nil
+	})
 	return err
 }
 
@@ -268,28 +256,28 @@ func(self *ContextBase) DoLog() error {
 	var err error
 	app := self.GetAppInfo()
 	if app.LoggerMap != nil {
-		var namestr = self.AbTest.GetString(app.LoggerKey, app.LoggerDefault)
-		var names = strings.Split(namestr, ",")
-		for _, name := range names {
-			if len(name) > 0 {
-				if logger, ok := app.LoggerMap[name]; ok {
-					err = logger.Do(self)
-					if err != nil {
-						break
-					}
-				} else {
-					log.Warnf("%s can't find logger %s", app.Name, name)
-				}
+		loggerSorter := &algo.KeyWeightSorter{}
+		keyFormatter := uutils.CoalesceString(app.LoggerKeyFormatter, "logger:%s:weight")
+		for name, logger := range app.LoggerMap {
+			if weight := self.AbTest.GetInt(fmt.Sprintf(keyFormatter, name), 0); weight >= 0 {
+				loggerSorter.Append(name, logger, weight)
 			}
 		}
-	}
-	// 执行富策略的日志部分
-	for name, richStrategiy := range self.richStrategies { 
-		if partErr := richStrategiy.Logger(); partErr != nil {
-			log.Warnf("%s rich strategy logger err %s: %s", app.Name, name, partErr)
-		}
+		loggerSorter.Foreach(func(key string, value interface{})error {
+			if err = value.(algo.ILogger).Do(self); err != nil {
+				log.Warnf("%s logger %s error: %s", app.Name, key, err)
+			}
+			return nil
+		})
 	}
 
+	// 执行富策略的日志部分
+	self.richStrategies.Foreach(func(key string, value interface{}) error {
+		if partErr := value.(algo.IRichStrategy).Logger(); partErr != nil {
+			log.Warnf("%s rich strategy logger err %s: %s", app.Name, key, partErr)
+		}
+		return nil
+	})
 	return err
 }
 

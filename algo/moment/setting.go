@@ -2,7 +2,6 @@ package moment
 
 import(
 	"rela_recommend/algo"
-	"rela_recommend/algo/base"
 	"rela_recommend/algo/utils"
 	"rela_recommend/algo/base/strategy"
 )
@@ -12,7 +11,7 @@ var workDir = algo.GetWorkDir("/algo_files/moment/")
 var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildData}}
 var strategyMap = map[string]algo.IStrategy{
 	"time_level": &algo.StrategyBase{ DoSingle: DoTimeLevel },
-	"time_frist": &algo.StrategyBase{ DoSingle: DoTimeFirstLevel },
+	// "time_frist": &algo.StrategyBase{ DoSingle: DoTimeFirstLevel },
 }
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{},
@@ -25,7 +24,7 @@ var loggerMap = map[string]algo.ILogger{
 	"performs": &algo.LoggerPerforms{},
 }
 var richStrategyMap = map[string]algo.IRichStrategy {
-	"paged": &base.PagedRichStrategy{},
+	"paged": &strategy.PagedRichStrategy{},
 	"behavior": &strategy.BaseBehaviorRichStrategy{
 		UserStrategyItemFunc: UserBehaviorStrategyFunc,
 		ItemStrategyItemFunc: ItemBehaviorStrategyFunc},
@@ -43,19 +42,19 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "moment", Module: "moment", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap, 
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
-	StrategyKey: "strategies", StrategyDefault: "time_level", StrategyMap: strategyMap, 
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
-	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap,
-	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged", RichStrategyMap: richStrategyMap})
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
 
 // 日志附近的人
 var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "moment.near", Module: "moment", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap, 
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
-	StrategyKey: "strategies", StrategyDefault: "time_level", StrategyMap: strategyMap, 
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
-	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap,
-	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged", RichStrategyMap: richStrategyMap})
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})

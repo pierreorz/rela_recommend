@@ -39,7 +39,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "live", Module: "live", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "base", AlgoMap: algosMap, 
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
-	StrategyKey: "strategies", StrategyDefault: "top_recommend_level,old_score", StrategyMap: strategyMap, 
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
-	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap})
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap})

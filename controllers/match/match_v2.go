@@ -23,10 +23,10 @@ func MatchRecommendListV2HTTP(c *routers.Context) {
 	app := &algo.AppInfo{
 		Name: "match",
 		AlgoKey: "model", AlgoMap: match.MatchAlgosMap,
-		StrategyKey: "strategies", StrategyMap: nil,
 		SorterKey: "sorter", SorterMap: nil,
 		PagerKey: "pager", PagerMap: nil,
-		LoggerKey: "loggers", LoggerMap: nil}
+		StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: nil,
+		LoggerMap: nil}
 	ctx := &base.ContextBase{}
 	err := ctx.Do(app, params)
 	c.JSON(response.FormatResponse(ctx.GetResponse(), service.WarpError(err, "", "")))

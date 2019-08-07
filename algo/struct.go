@@ -4,7 +4,7 @@ package algo
 import (
 	"math"
 	"fmt"
-	// "reflect"
+	"sort"
 	"bytes"
 	"rela_recommend/algo/utils"
 	rutils "rela_recommend/utils"
@@ -24,10 +24,6 @@ type AppInfo struct {
 	BuilderKey string
 	BuilderDefault string
 	BuilderMap map[string]IBuilder
-	// 策略的abtest key
-	StrategyKey string
-	StrategyDefault string
-	StrategyMap map[string]IStrategy
 	// 排序的abtest key
 	SorterKey string
 	SorterDefault string
@@ -36,13 +32,14 @@ type AppInfo struct {
 	PagerKey string
 	PagerDefault string
 	PagerMap map[string]IPager
+	// 策略的abtest key
+	StrategyKeyFormatter string
+	StrategyMap map[string]IStrategy
 	// 日志的abtest key
-	LoggerKey string
-	LoggerDefault string
+	LoggerKeyFormatter string
 	LoggerMap map[string]ILogger
 	// 富策略，同时包含加载数据/执行策略/记录内容
-	RichStrategyKey string
-	RichStrategyDefault string
+	RichStrategyKeyFormatter string
 	RichStrategyMap map[string]IRichStrategy
 }
 
@@ -300,3 +297,55 @@ type IModel interface {
 // 	}
 // 	return scores
 // }
+
+// 权重进行升序排序
+type KeyWeight struct {
+	Key		string
+	Value 	interface{}
+	Weight 	int
+}
+
+type KeyWeightSorter struct {
+	list 	[]KeyWeight
+	sorted	bool
+}
+func (self *KeyWeightSorter) Swap(i, j int) {
+	self.list[i], self.list[j] = self.list[j], self.list[i]
+}
+func (self *KeyWeightSorter) Len() int { return len(self.list) }
+func (self *KeyWeightSorter) Less(i, j int) bool { // 权重正序
+	if self.list[i].Weight != self.list[j].Weight {
+		return self.list[i].Weight < self.list[j].Weight
+	} else {
+		return self.list[i].Key < self.list[j].Key
+	}
+}
+func (self *KeyWeightSorter) Append(key string, value interface{}, weight int) bool {
+	self.sorted = false
+	self.list = append(self.list, KeyWeight{Key: key, Value: value, Weight: weight})
+	return true
+}
+func (self *KeyWeightSorter) Sort() []KeyWeight {
+	if !self.sorted {
+		self.sorted = true
+		sort.Sort(self)	
+	}
+	return self.list
+}
+func (self *KeyWeightSorter) Get(key string) *KeyWeight {
+	for _, item := range self.list {
+		if item.Key == key {
+			return &item
+		}
+	}
+	return nil
+}
+func (self *KeyWeightSorter) Foreach(itemFunc func(string, interface{}) error) error {
+	var err error
+	for _, item := range self.Sort() {
+		if partErr := itemFunc(item.Key, item.Value); partErr != nil {
+			err = partErr
+		}
+	}
+	return err
+}

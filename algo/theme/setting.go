@@ -2,7 +2,6 @@ package theme
 
 import (
 	"rela_recommend/algo"
-	"rela_recommend/algo/base"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
 )
@@ -21,7 +20,7 @@ var loggerMap = map[string]algo.ILogger{
 	"performs": &algo.LoggerPerforms{}}
 
 var richStrategyMap = map[string]algo.IRichStrategy {
-		"paged": &base.PagedRichStrategy{},
+		"paged": &strategy.PagedRichStrategy{},
 		"behavior": &strategy.BaseBehaviorRichStrategy{
 			UserStrategyItemFunc: UserBehaviorStrategyFunc,
 			ItemStrategyItemFunc: ItemBehaviorStrategyFunc},
@@ -38,8 +37,8 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "theme", Module: "theme", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
-	StrategyKey: "strategies", StrategyDefault: "", StrategyMap: strategyMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
-	LoggerKey: "loggers", LoggerDefault: "features,performs", LoggerMap: loggerMap,
-	RichStrategyKey: "rich_strategies", RichStrategyDefault:"paged", RichStrategyMap: richStrategyMap})
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})

@@ -439,3 +439,11 @@ func IfElse(b bool, trueValue float64, falseValue float64) float64 {
 		return falseValue
 	}
 }
+
+func IfElseString(b bool, trueValue string, falseValue string) string {
+	if b {
+		return trueValue
+	} else {
+		return falseValue
+	}
+}
