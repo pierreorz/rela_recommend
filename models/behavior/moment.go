@@ -38,14 +38,14 @@ package behavior
 
 // 获取总列表曝光
 func (self *UserBehavior) GetMomentListExposure() *Behavior {
-	return self.Gets("moment.friend:exposure", "aroundmoment:exposure", "moment.recommend:exposure")
+	return self.Gets("moment.friend:exposure", "moment.around:exposure", "moment.recommend:exposure")
 }
 
 // 获取总互动行为
 func (self *UserBehavior) GetMomentListInteract() *Behavior {
 	return self.Gets(
 		"moment.friend:like", "moment.friend:comment", "moment.friend:share", "moment.friend:follow",
-		"aroundmoment:like", "aroundmoment:comment", "aroundmoment:share", "aroundmoment:follow",
+		"moment.around:like", "moment.around:comment", "moment.around:share", "moment.around:follow",
 		"moment.recommend:like", "moment.recommend:comment", "moment.recommend:share", "moment.recommend:follow",
 		"moment.detail:like", "moment.detail:comment", "moment.detail:share", "moment.detail:follow",
 	)
