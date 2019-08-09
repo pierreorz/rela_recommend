@@ -58,7 +58,7 @@ func (self *PagedRichStrategy) Logger() error {
 	
 	if len(self.pageIdsMap) > 0 {
 		go func(){
-			self.cacheModule.SetStruct(self.CacheKey(), self.pageIdsMap, 30 * 60, 0)
+			self.cacheModule.SetStruct(self.CacheKey(), self.pageIdsMap, 60 * 60, 0)
 		}()
 	}
 	return nil
