@@ -23,7 +23,8 @@ func (self *PagedRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {
 
 func (self *PagedRichStrategy) CacheKey() string {
 	abtest := self.ctx.GetAbTest()
-	return fmt.Sprintf("algo:paged:%s:%d", abtest.App, abtest.DataId)
+	params := self.ctx.GetRequest()
+	return fmt.Sprintf("algo:paged_index:%s:%d", abtest.App, params.UserId)
 }
 
 func (self *PagedRichStrategy) BuildData() error {
@@ -40,7 +41,9 @@ func (self *PagedRichStrategy) Strategy() error {
 		rankInfo := dataInfo.GetRankInfo()
 		dataId := dataInfo.GetDataId()
 		if value, ok := self.pageIdsMap[dataId]; ok {
-			rankInfo.IsPaged = value
+			rankInfo.PagedIndex = value
+		} else {
+			rankInfo.PagedIndex = 9999999
 		}
 	}
 	return nil
@@ -48,8 +51,8 @@ func (self *PagedRichStrategy) Strategy() error {
 
 func (self *PagedRichStrategy) Logger() error {
 	if response := self.ctx.GetResponse(); response != nil {
-		for _, item := range response.DataIds {
-			self.pageIdsMap[item] = 1
+		for _, item := range response.DataList {
+			self.pageIdsMap[item.DataId] = item.Index
 		}
 	}
 	

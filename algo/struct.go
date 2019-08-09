@@ -97,7 +97,7 @@ type RecommendItem struct {
 type RankInfo struct {
 	Features 	*utils.Features			// 特征
 	IsTop		int 					// 1: 置顶， 0: 默认， -1:置底
-	IsPaged		int						// 是否被分页展示过
+	PagedIndex	int						// 分页展示过的index
 	Level		int						// 推荐优先级
 	Recommends	[]RecommendItem	// 推荐系数
 	Punish		float32					// 惩罚系数
