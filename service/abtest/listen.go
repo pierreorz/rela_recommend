@@ -40,6 +40,12 @@ func init() {
 					{"name": "v1.0.0", "percentage": 20, "factor_map": {"new_score": "0.0", "model": "base"}},
 					{"name": "v1.3.5", "percentage": 20, "factor_map": {"new_score": "0.5", "model": "base"}},
 					{"name": "v1.4.5", "percentage": 20, "factor_map": {"new_score": "0.5", "model": "xgb_1.0"}}
+			]} ],
+		"theme": [
+			{"name": "testing_user_behavior_lower_v1_0", "desc": "测试用户行为降低", "app": "theme", "group": "", "status": 1, "daily_change": 0,
+				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
+					{"name": "v1.0", "percentage": 50, "factor_map": {"user_behavior_upper_switch": "true"}},
+					{"name": "v1.1", "percentage": 50, "factor_map": {"user_behavior_upper_switch": "false"}}
 			]} ]
 	}`
 	if err := json.Unmarshal(([]byte)(ab_config), &testingMap); err != nil {
@@ -54,7 +60,7 @@ func init() {
 			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381],"factor_map":{"model":"xgb_1.0", "new_score": "0.5"}}
 		],
 		"theme": [
-			{"name": "theme_behavior", "desc": "话题行为", "app": "theme", "ids":[104708381],"factor_map":{"user_behavior_upper_switch":"false"}}
+			{"name": "theme_behavior", "desc": "话题行为", "app": "theme", "ids":[104708381, 524],"factor_map":{"user_behavior_upper_switch":"false"}}
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {
