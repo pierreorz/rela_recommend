@@ -52,6 +52,9 @@ func init() {
 		],
 		"live": [
 			{"name": "live_model", "desc": "直播模型", "app": "live", "ids":[104708381],"factor_map":{"model":"xgb_1.0", "new_score": "0.5"}}
+		],
+		"theme": [
+			{"name": "theme_behavior", "desc": "话题行为", "app": "theme", "ids":[104708381],"factor_map":{"user_behavior_upper_switch":"false"}}
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {
