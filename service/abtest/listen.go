@@ -14,7 +14,7 @@ func init() {
 		"match": {"match_model": "QuickMatchTreeV1_0"},
 		"live": {"model": "xgb_1.0", "new_score": "0.5"},
 		"moment": {"strategies": "time_level", "radius_range":"300km", "backend_recommend_switched": "1"},
-		"moment.near": {"strategies": "time_level", "radius_range":"50km", "moment_types":"text_image,video,text,image,theme,themereply"},
+		"moment.near": {"strategies": "time_level", "radius_range":"50km"},
 		"theme": {"recommend_new": "1", "backend_recommend_switched": "1"}
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
