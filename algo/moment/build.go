@@ -23,8 +23,9 @@ func DoBuildData(ctx algo.IContext) error {
 	dataIdList := params.DataIds
 	if dataIdList == nil || len(dataIdList) == 0 {
 		radiusRange := abtest.GetString("radius_range", "50km")
+		momentTypes := abtest.GetString("moment_types", "text_image,video,text,image")
 		dataIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000, 
-												 "text_image,video,text,image", 0.0, radiusRange)
+			momentTypes, 0.0, radiusRange)
 		if err != nil {
 			return err
 		}
