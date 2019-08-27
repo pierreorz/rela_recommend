@@ -2,6 +2,8 @@ package redis
 
 import(
 	"time"
+	"fmt"
+	"rela_recommend/utils"
 	// "encoding/json"
 	// "rela_recommend/log"
 	"rela_recommend/cache"
@@ -111,4 +113,19 @@ func (self *MomentCacheModule) QueryMomentsByIds(ids []int64) ([]MomentsAndExten
 	ress, err := self.MGetStructs(MomentsAndExtend{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
 	objs := ress.Interface().([]MomentsAndExtend)
 	return objs, err
+}
+
+func (self *MomentCacheModule) GetInt64ListOrDefault(id int64, defaultId int64, keyFormatter string) ([]int64, error) {
+	var resInt64s = make([]int64, 0)
+	res, err := self.GetSet(fmt.Sprintf(keyFormatter, id), 24 * 60 * 60, 1 * 60 * 60)
+	if err == nil {
+		resInt64s = utils.GetInt64s(utils.GetString(res))
+	}
+	if len(resInt64s) == 0 {
+		res, err := self.GetSet(fmt.Sprintf(keyFormatter, defaultId), 24 * 60 * 60, 1 * 60 * 60)
+		if err == nil {
+			resInt64s = utils.GetInt64s(utils.GetString(res))
+		}
+	}
+	return resInt64s, err
 }

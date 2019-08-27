@@ -18,17 +18,30 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-
+	
 	// search list
 	dataIdList := params.DataIds
 	if dataIdList == nil || len(dataIdList) == 0 {
-		radiusRange := abtest.GetString("radius_range", "50km")
+		// 获取推荐日志
+		recIdList := make([]int64, 0)
+		recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
+		if len(recListKeyFormatter) > 0 {
+			recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
+		}
+
+		// 获取最新日志
 		momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
-		dataIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 1000, 
-			momentTypes, 0.0, radiusRange)
+		radiusRange := abtest.GetString("radius_range", "50km")
+		newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60 * 60 * 24 * 30 * 3)
+		newMomentLen := abtest.GetInt("new_moment_len", 1000)
+		
+		newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
+		newIdList, err := search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen, 
+			momentTypes, newMomentStartTime, radiusRange)
 		if err != nil {
 			return err
 		}
+		dataIdList = append(recIdList, newIdList...)
 	}
 
 	// backend recommend list
