@@ -61,6 +61,9 @@ func init() {
 		],
 		"theme": [
 			{"name": "theme_behavior", "desc": "话题行为", "app": "theme", "ids":[104708381, 524],"factor_map":{"user_behavior_upper_switch":"false"}}
+		],
+		"moment": [
+			{"name": "moment_hot", "desc": "热门日志", "app": "moment", "ids":[104708381, 524],"factor_map":{"new_moment_len":"300", "new_moment_offset_second": "86400", "recommend_list_key": "moment_recommend_list:%d"}}
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {
