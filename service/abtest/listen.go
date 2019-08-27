@@ -19,6 +19,7 @@ func init() {
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
 		log.Error(err.Error())
+		panic(err.Error())
 	}
 	// 测试记录. 测试名称为0-9a-zA-z_组成
 	ab_config := `{
@@ -50,6 +51,7 @@ func init() {
 	}`
 	if err := json.Unmarshal(([]byte)(ab_config), &testingMap); err != nil {
 		log.Error(err.Error())
+		panic(err.Error())
 	}
 	// 白名单
 	white_config := `{
@@ -68,6 +70,7 @@ func init() {
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {
 		log.Error(err.Error())
+		panic(err.Error())
 	}
 }
 
