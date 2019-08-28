@@ -31,16 +31,18 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 
 		// 获取最新日志
-		momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
-		radiusRange := abtest.GetString("radius_range", "50km")
-		newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60 * 60 * 24 * 30 * 3)
 		newMomentLen := abtest.GetInt("new_moment_len", 1000)
-		
-		newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
-		newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen, 
-			momentTypes, newMomentStartTime, radiusRange)
-		if err != nil {
-			return err
+		if newMomentLen > 0 {
+			momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
+			radiusRange := abtest.GetString("radius_range", "50km")
+			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60 * 60 * 24 * 30 * 3)
+			
+			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
+			newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen, 
+				momentTypes, newMomentStartTime, radiusRange)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
