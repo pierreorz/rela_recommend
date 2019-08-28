@@ -32,6 +32,10 @@ func DoBuildData(ctx algo.IContext) error {
 
 		// 获取最新日志
 		newMomentLen := abtest.GetInt("new_moment_len", 1000)
+		if len(recIdList) == 0 {
+			newMomentLen = 1000
+			log.Warnf("recommend list is none, using new, pls check!\n")
+		}
 		if newMomentLen > 0 {
 			momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 			radiusRange := abtest.GetString("radius_range", "50km")
