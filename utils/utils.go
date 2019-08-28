@@ -380,6 +380,18 @@ func NewSetInt64FromArray(vals []int64) *SetInt64 {
 	return &set
 }
 
+func NewSetInt64FromArrays(vals ...[]int64) *SetInt64 {
+	set := SetInt64{}
+	for i, val := range vals {
+		if i == 0 {
+			set.FromArray(val)
+		} else {
+			set.AppendArray(val)
+		}
+	}
+	return &set
+}
+
 // int是否在int数组内
 func IsInInts(v int, vs []int) bool {
 	for _, vv := range vs {

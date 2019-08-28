@@ -21,9 +21,10 @@ func DoBuildData(ctx algo.IContext) error {
 	
 	// search list
 	dataIdList := params.DataIds
+	recIdList := make([]int64, 0)
+	newIdList := make([]int64, 0)
 	if dataIdList == nil || len(dataIdList) == 0 {
 		// 获取推荐日志
-		recIdList := make([]int64, 0)
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
 		if len(recListKeyFormatter) > 0 {
 			recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
@@ -36,12 +37,11 @@ func DoBuildData(ctx algo.IContext) error {
 		newMomentLen := abtest.GetInt("new_moment_len", 1000)
 		
 		newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
-		newIdList, err := search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen, 
+		newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen, 
 			momentTypes, newMomentStartTime, radiusRange)
 		if err != nil {
 			return err
 		}
-		dataIdList = append(recIdList, newIdList...)
 	}
 
 	// backend recommend list
@@ -56,7 +56,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	// 获取日志内容
 	var startMomentTime = time.Now()
-	var dataIds = utils.NewSetInt64FromArray(dataIdList).AppendArray(recIds).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds).ToList()
 	moms, err := momentCache.QueryMomentsByIds(dataIds)
 	userIds := make([]int64, 0)
 	if err != nil {
@@ -118,8 +118,8 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataIds(dataIds)
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
-	log.Infof("rankid %s,totallen:%d,searchlen:%d;backendlen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,build:%.3f\n",
-			  ctx.GetRankId(), len(dataIds), len(dataIdList), len(recIds),
+	log.Infof("rankid %s,totallen:%d,paramlen:%d,reclen:%d,searchlen:%d;backendlen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,build:%.3f\n",
+			  ctx.GetRankId(), len(dataIds), len(dataIdList), len(recIdList), len(newIdList), len(recIds),
 			  endTime.Sub(startTime).Seconds(), startBackEndTime.Sub(startTime).Seconds(), 
 			  startMomentTime.Sub(startBackEndTime).Seconds(),
 			  startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(),
