@@ -13,7 +13,7 @@ func init() {
 	default_config := `{
 		"match": {"match_model": "QuickMatchTreeV1_0"},
 		"live": {"model": "xgb_1.0", "new_score": "0.5"},
-		"moment": {"strategies": "time_level", "radius_range":"300km", "backend_recommend_switched": "1"},
+		"moment": {"strategies": "time_level", "radius_range":"300km", "backend_recommend_switched": "1", "new_moment_len":"0", "new_moment_offset_second": "600", "recommend_list_key": "moment_recommend_list:%d", "strategy:time_level:weight": "-1"},
 		"moment.near": {"strategies": "time_level", "radius_range":"50km"},
 		"theme": {"recommend_new": "1", "backend_recommend_switched": "1"}
 	}`
@@ -63,9 +63,6 @@ func init() {
 		],
 		"theme": [
 			{"name": "theme_behavior", "desc": "话题行为", "app": "theme", "ids":[104708381, 524],"factor_map":{"user_behavior_upper_switch":"false"}}
-		],
-		"moment": [
-			{"name": "moment_hot", "desc": "热门日志", "app": "moment", "ids":[104708381, 524, 104205897],"factor_map":{"new_moment_len":"0", "new_moment_offset_second": "600", "recommend_list_key": "moment_recommend_list:%d","strategy:time_level:weight": "-1"}}
 		]
 	}`
 	if err := json.Unmarshal(([]byte)(white_config), &whiteListMap); err != nil {
