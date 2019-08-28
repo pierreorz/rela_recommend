@@ -36,7 +36,7 @@ func init() {
 					{"name": "v1.2", "percentage": 10, "factor_map": {"match_active_user_upper": "0.2"}}
 			]} ],
 		"live": [
-			{"name": "testing_model_v1_5", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daily_change": 1,
+			{"name": "testing_model_v1_6", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daily_change": 0,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
 					{"name": "v1.0.0", "percentage": 20, "factor_map": {"new_score": "0.0", "model": "base"}},
 					{"name": "v1.3.5", "percentage": 20, "factor_map": {"new_score": "0.5", "model": "base"}},
