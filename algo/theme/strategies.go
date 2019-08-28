@@ -8,8 +8,8 @@ import(
 
 func ItemBehaviorStrategyFunc(ctx algo.IContext, itembehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
-	var avgExpCount float64 = 1000
-	var avgInfCount float64 = 50
+	var avgExpCount float64 = 20000
+	var avgInfCount float64 = 500
 
 	listCountScore, listRateScore, listTimeScore := strategy.BehaviorCountRateTimeScore(
 		itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), avgExpCount, 0, 0, 0)
