@@ -117,12 +117,12 @@ func (self *MomentCacheModule) QueryMomentsByIds(ids []int64) ([]MomentsAndExten
 
 func (self *MomentCacheModule) GetInt64ListOrDefault(id int64, defaultId int64, keyFormatter string) ([]int64, error) {
 	var resInt64s = make([]int64, 0)
-	res, err := self.GetSet(fmt.Sprintf(keyFormatter, id), 24 * 60 * 60, 1 * 60 * 60)
+	res, err := self.GetSet(fmt.Sprintf(keyFormatter, id), 6 * 60 * 60, 1 * 60 * 60)
 	if err == nil {
 		resInt64s = utils.GetInt64s(utils.GetString(res))
 	}
 	if len(resInt64s) == 0 {
-		res, err := self.GetSet(fmt.Sprintf(keyFormatter, defaultId), 24 * 60 * 60, 1 * 60 * 60)
+		res, err := self.GetSet(fmt.Sprintf(keyFormatter, defaultId), 6 * 60 * 60, 1 * 60 * 60)
 		if err == nil {
 			resInt64s = utils.GetInt64s(utils.GetString(res))
 		}
