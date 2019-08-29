@@ -30,7 +30,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, userbehavior *behavior.UserBeha
 	var err error
 	var upperRate float32
 	// var abTest = ctx.GetAbTest()
-	var avgExpCount float64 = 3
+	var avgExpCount float64 = 2
 	var avgInfCount float64 = 1
 	var currTime = float64(ctx.GetCreateTime().Unix())
 
