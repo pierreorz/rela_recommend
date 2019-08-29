@@ -46,12 +46,11 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, userbehavior *behavior.UserBeha
 	var avgExpCount float64 = 2
 	var currTime = float64(ctx.GetCreateTime().Unix())
 
-	listCountScore, listRateScore, listTimeScore := strategy.BehaviorCountRateTimeScore(
+	listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
 		userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract(), 
-		avgExpCount, currTime, 3600, 36000)
+		avgExpCount, currTime, 36000, 18000)
 	
-	listRateScore = 2 * (listRateScore - 0.5)
-	upperRate := float32(listCountScore * listRateScore * listTimeScore)
+	upperRate := -float32(listCountScore * listTimeScore)
 	
 	if upperRate != 0.0 {
 		rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
