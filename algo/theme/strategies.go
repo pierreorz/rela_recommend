@@ -29,15 +29,15 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, itembehavior *behavior.UserBeha
 func UserBehaviorStrategyFunc(ctx algo.IContext, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
 	var upperRate float32
-	var abTest = ctx.GetAbTest()
+	// var abTest = ctx.GetAbTest()
 	var avgExpCount float64 = 2
 	var avgInfCount float64 = 1
 	var currTime = float64(ctx.GetCreateTime().Unix())
 
-	listCountScore, listRateScore, listTimeScore := strategy.BehaviorCountRateTimeScore(
+	listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
 		userbehavior.GetThemeListExposure(), userbehavior.GetThemeListInteract(), 
 		avgExpCount, currTime, 36000, 9000)
-	infoCountScore, infoRateScore, infoTimeScore := strategy.BehaviorCountRateTimeScore(
+	infoCountScore, _, infoTimeScore := strategy.BehaviorCountRateTimeScore(
 		userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract(), 
 		avgInfCount, currTime, 36000, 9000)
 
