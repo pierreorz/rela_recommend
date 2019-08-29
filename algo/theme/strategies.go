@@ -30,7 +30,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, userbehavior *behavior.UserBeha
 	var err error
 	var upperRate float32
 	// var abTest = ctx.GetAbTest()
-	var avgExpCount float64 = 2
+	var avgExpCount float64 = 3
 	var avgInfCount float64 = 1
 	var currTime = float64(ctx.GetCreateTime().Unix())
 
@@ -41,7 +41,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, userbehavior *behavior.UserBeha
 		userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract(), 
 		avgInfCount, currTime, 36000, 18000)
 
-	upperRate = - float32(0.4 * listCountScore * listTimeScore + 0.6 * infoCountScore * infoTimeScore)
+	upperRate = - float32(0.3 * listCountScore * listTimeScore + 0.7 * infoCountScore * infoTimeScore)
 	if upperRate != 0.0 {
 		rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
 	}
