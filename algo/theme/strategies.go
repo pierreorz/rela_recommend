@@ -30,26 +30,18 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, userbehavior *behavior.UserBeha
 	var err error
 	var upperRate float32
 	var abTest = ctx.GetAbTest()
-	var avgExpCount float64 = 5
+	var avgExpCount float64 = 2
 	var avgInfCount float64 = 1
 	var currTime = float64(ctx.GetCreateTime().Unix())
 
 	listCountScore, listRateScore, listTimeScore := strategy.BehaviorCountRateTimeScore(
 		userbehavior.GetThemeListExposure(), userbehavior.GetThemeListInteract(), 
-		avgExpCount, currTime, 3600, 36000)
+		avgExpCount, currTime, 36000, 9000)
 	infoCountScore, infoRateScore, infoTimeScore := strategy.BehaviorCountRateTimeScore(
 		userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract(), 
-		avgInfCount, currTime, 3600, 36000)
+		avgInfCount, currTime, 36000, 9000)
 
-	if abTest.GetBool("user_behavior_upper_switch", true) { // 用户行为提权
-		listRateScore = 2 * (listRateScore - 0.5)  // 点击概率很低的时候进行降权
-		upperRate = float32(0.4 * listCountScore * listRateScore * listTimeScore + 
-							0.6 * infoCountScore * infoRateScore * infoTimeScore)
-	} else {  // 用户行为降权
-		upperRate = - float32(0.4 * listCountScore * listRateScore * listTimeScore + 
-			0.6 * infoCountScore * infoRateScore * infoTimeScore)
-	}
-	
+	upperRate = - float32(0.4 * listCountScore * listTimeScore + 0.6 * infoCountScore * infoTimeScore)
 	if upperRate != 0.0 {
 		rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
 	}
