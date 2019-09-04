@@ -21,7 +21,7 @@ func BehaviorCountRateTimeScore(expBe *behavior.Behavior, actBe *behavior.Behavi
 		rate := math.Max(0.000001, math.Min(1.0, actBe.Count / expBe.Count))
 		rateScore = utils.ExpLogit(rate)
 		if curTime > 0 && expTimeBase > 0 && actTimeBase > 0 { // 时间衰减
-			lastTime := rutils.IfElse(hasAct, actBe.LastTime, expBe.LastTime)
+			lastTime := math.Max(actBe.LastTime, expBe.LastTime)
 			timeBase := rutils.IfElse(hasAct, actTimeBase, expTimeBase)
 			timeScore = math.Exp(- (curTime - lastTime) / timeBase)
 		}
