@@ -42,3 +42,25 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
 	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+// 新话题列表
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "theme.new", Module: "theme", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
+	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+// 一周精选话题列表
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "theme.weekly_hot_reply", Module: "theme", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
+	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})

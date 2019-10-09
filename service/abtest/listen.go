@@ -46,6 +46,22 @@ func init() {
 				"logger:performs:weight": "2", 
 
 				"rich_strategy:paged:weight": "1", 
+				"rich_strategy:behavior:weight": "1"},
+		"theme.new": {"recommend_new": "1", "backend_recommend_switched": "0", 
+				"recommend_list_key": "",
+
+				"logger:features:weight": "1", 
+				"logger:performs:weight": "2", 
+
+				"rich_strategy:paged:weight": "1", 
+				"rich_strategy:behavior:weight": "1"},
+		"theme.hotweek": {"recommend_new": "0", "backend_recommend_switched": "0", 
+				"recommend_list_key": "theme_hotweek_recommend_list:%d",
+				
+				"logger:features:weight": "1", 
+				"logger:performs:weight": "2", 
+
+				"rich_strategy:paged:weight": "1", 
 				"rich_strategy:behavior:weight": "1"}
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
