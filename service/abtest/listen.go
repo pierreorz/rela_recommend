@@ -12,10 +12,41 @@ func init() {
 	// 因子默认值
 	default_config := `{
 		"match": {"match_model": "QuickMatchTreeV1_0"},
-		"live": {"model": "xgb_1.0", "new_score": "0.5"},
-		"moment": {"strategies": "time_level", "radius_range":"300km", "backend_recommend_switched": "1", "new_moment_len":"0", "new_moment_offset_second": "600", "recommend_list_key": "moment_recommend_list:%d", "strategy:time_level:weight": "-1"},
-		"moment.near": {"strategies": "time_level", "radius_range":"50km"},
-		"theme": {"recommend_new": "1", "backend_recommend_switched": "1"}
+		"live": {"model": "xgb_1.0", "new_score": "0.5", 
+
+				"logger:features:weight": "1", 
+				"logger:performs:weight": "2", 
+
+				"strategy:top_recommend_level:weight": "1", 
+				"strategy:old_score:weight": "2"},
+		"moment": {"strategies": "time_level", "radius_range":"300km", 
+				"backend_recommend_switched": "1", "new_moment_len":"0", 
+				"new_moment_offset_second": "600", 
+				"recommend_list_key": "moment_recommend_list:%d", 
+
+				"logger:features:weight": "1", 
+				"logger:performs:weight": "2", 
+
+				"strategy:time_level:weight": "0", 
+
+				"rich_strategy:paged:weight": "1", 
+				"rich_strategy:behavior:weight": "1"},
+		"moment.near": {"strategies": "time_level", "radius_range":"50km", 
+
+				"logger:features:weight": "1", 
+				"logger:performs:weight": "2", 
+
+				"strategy:time_level:weight": "1", 
+
+				"rich_strategy:paged:weight": "1", 
+				"rich_strategy:behavior:weight": "1"},
+		"theme": {"recommend_new": "1", "backend_recommend_switched": "1", 
+
+				"logger:features:weight": "1", 
+				"logger:performs:weight": "2", 
+
+				"rich_strategy:paged:weight": "1", 
+				"rich_strategy:behavior:weight": "1"}
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
 		log.Error(err.Error())

@@ -133,7 +133,7 @@ func (self *ContextBase) DoInit() error {
 	if self.App.RichStrategyMap != nil {
 		keyFormatter := uutils.CoalesceString(self.App.RichStrategyKeyFormatter, "rich_strategy:%s:weight")
 		for name, strategy := range self.App.RichStrategyMap {
-			if weight := self.AbTest.GetInt(fmt.Sprintf(keyFormatter, name), 0); weight >= 0 {
+			if weight := self.AbTest.GetInt(fmt.Sprintf(keyFormatter, name), 0); weight > 0 {
 				self.richStrategies.Append(name, strategy.New(self), weight)
 			}
 		}
@@ -198,7 +198,7 @@ func(self *ContextBase) DoStrategies() error {
 	if app.StrategyMap != nil {
 		keyFormatter := uutils.CoalesceString(app.StrategyKeyFormatter, "strategy:%s:weight")
 		for name, strategy := range app.StrategyMap {
-			if weight := self.AbTest.GetInt(fmt.Sprintf(keyFormatter, name), 0); weight >= 0 {
+			if weight := self.AbTest.GetInt(fmt.Sprintf(keyFormatter, name), 0); weight > 0 {
 				strategySorter.Append(name, strategy, weight)
 			}
 		}
@@ -259,7 +259,7 @@ func(self *ContextBase) DoLog() error {
 		loggerSorter := &algo.KeyWeightSorter{}
 		keyFormatter := uutils.CoalesceString(app.LoggerKeyFormatter, "logger:%s:weight")
 		for name, logger := range app.LoggerMap {
-			if weight := self.AbTest.GetInt(fmt.Sprintf(keyFormatter, name), 0); weight >= 0 {
+			if weight := self.AbTest.GetInt(fmt.Sprintf(keyFormatter, name), 0); weight > 0 {
 				loggerSorter.Append(name, logger, weight)
 			}
 		}
