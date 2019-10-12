@@ -24,6 +24,7 @@ var richStrategyMap = map[string]algo.IRichStrategy {
 		"behavior": &strategy.BaseBehaviorRichStrategy{
 			UserStrategyItemFunc: UserBehaviorStrategyFunc,
 			ItemStrategyItemFunc: ItemBehaviorStrategyFunc},
+		"self_upper": &strategy.BaseRichStrategy{ StrategyItemFunc: SelfUpperStrategyItem },
 	}
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
@@ -45,7 +46,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 
 // 新话题列表
 var _ = algo.AddAppInfo(&algo.AppInfo{
-	Name: "theme.new", Module: "theme", Path: workDir,
+	Name: "theme.news", Module: "theme", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
@@ -56,7 +57,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 
 // 一周精选话题列表
 var _ = algo.AddAppInfo(&algo.AppInfo{
-	Name: "theme.weekly_hot_reply", Module: "theme", Path: workDir,
+	Name: "theme.hotweek", Module: "theme", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,

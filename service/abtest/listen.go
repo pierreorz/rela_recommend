@@ -62,7 +62,8 @@ func init() {
 				"logger:performs:weight": "2", 
 
 				"rich_strategy:paged:weight": "1", 
-				"rich_strategy:behavior:weight": "1"}
+				"rich_strategy:behavior:weight": "1", 
+				"rich_strategy:self_upper:weight": "1"}
 	}`
 	if err := json.Unmarshal(([]byte)(default_config), &defaultFactorMap); err != nil {
 		log.Error(err.Error())

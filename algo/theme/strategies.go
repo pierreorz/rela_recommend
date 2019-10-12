@@ -48,3 +48,16 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, userbehavior *behavior.UserBeha
 	
 	return err
 }
+
+// 用户自己的内容提权
+func SelfUpperStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+	if dataInfo != nil && dataInfo.MomentCache != nil && ctx.GetUserInfo() != nil {
+		user := ctx.GetUserInfo().(*UserInfo)
+		if dataInfo.MomentCache.UserId == user.UserId {
+			upperRate := ctx.GetAbTest().GetFloat("rich_strategy:self_upper:score", 0.3)
+			rankInfo.AddRecommend("SelfUpper", 1.0 + upperRate)
+		}
+	}
+	return nil
+}
