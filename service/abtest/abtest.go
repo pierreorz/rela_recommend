@@ -105,10 +105,10 @@ func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[str
 	if defVal, ok := defMap[self.App]; ok {
 		self.update(defVal)
 	}
-	// 选择测试组
+	// 选择测试组, status状态： （-1: 已取消 0: 已删除 1: 待执行 2：运行中 3：已结束 ）
 	if testList, ok := testingMap[self.App]; ok {
 		for _, test := range testList {
-			if test.App == self.App && test.Status == 1 && test.BeginTime.Before(self.CurrentTime) && test.EndTime.After(self.CurrentTime) {
+			if test.App == self.App && test.Status == 2 && test.BeginTime.Before(self.CurrentTime) && test.EndTime.After(self.CurrentTime) {
 				self.updateTesting(test)
 			}
 		}

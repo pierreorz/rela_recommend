@@ -55,26 +55,26 @@ func init() {
 	// 测试记录. 测试名称为0-9a-zA-z_组成
 	ab_config := `{
 		"match": [
-			{"name": "testing_model", "desc": "测试模型版本", "app": "match", "group": "", "status": 1, "daily_change": 0,
+			{"name": "testing_model", "desc": "测试模型版本", "app": "match", "group": "", "status": 2, "daily_change": 0,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
 					{"name": "v1.0", "desc": "", "percentage": 40, "factor_map": {"match_model": "QuickMatchTreeV1_0"}},
 					{"name": "v1.3", "desc": "", "percentage": 40, "factor_map": {"match_model": "QuickMatchTreeV1_3"}},
 					{"name": "v1.4", "desc": "", "percentage": 20, "factor_map": {"match_model": "QuickMatchTreeV1_4"}}
 			]}, 
-			{"name": "testing_upper", "desc": "测试活跃加权", "app": "match", "group": "", "status": 1, "daily_change": 1,
+			{"name": "testing_upper", "desc": "测试活跃加权", "app": "match", "group": "", "status": 2, "daily_change": 1,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
 					{"name": "v1.0", "percentage": 10, "factor_map": {"match_active_user_upper": "0.1"}},
 					{"name": "v1.2", "percentage": 10, "factor_map": {"match_active_user_upper": "0.2"}}
 			]} ],
 		"live": [
-			{"name": "testing_model_v1_6", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 1, "daily_change": 0,
+			{"name": "testing_model_v1_6", "desc": "测试直播模型版本", "app": "live", "group": "", "status": 2, "daily_change": 0,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
 					{"name": "v1.0.0", "percentage": 20, "factor_map": {"new_score": "0.0", "model": "base"}},
 					{"name": "v1.3.5", "percentage": 20, "factor_map": {"new_score": "0.5", "model": "base"}},
 					{"name": "v1.4.5", "percentage": 20, "factor_map": {"new_score": "0.5", "model": "xgb_1.0"}}
 			]} ],
 		"theme": [
-			{"name": "testing_user_behavior_lower_v1_0", "desc": "测试用户行为降低", "app": "theme", "group": "", "status": 1, "daily_change": 0,
+			{"name": "testing_user_behavior_lower_v1_0", "desc": "测试用户行为降低", "app": "theme", "group": "", "status": 2, "daily_change": 0,
 				"begin_time": "2018-01-01T09:00:00Z", "end_time": "2020-01-01T09:00:00Z", "versions": [
 					{"name": "v1.0", "percentage": 50, "factor_map": {"user_behavior_upper_switch": "true"}},
 					{"name": "v1.1", "percentage": 50, "factor_map": {"user_behavior_upper_switch": "false"}}
