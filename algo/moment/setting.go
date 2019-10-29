@@ -36,6 +36,10 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "moment_xg_v1.1.model", 
 				   Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
 })
+var algosMapV2 = algo.AlgoListInitToMap([]algo.IAlgo{
+	&algo.AlgoBase{AlgoName: "model_v2", FilePath: workDir + "moment_1.2.dumps",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
+})
 
 // 推荐日志
 var _ = algo.AddAppInfo(&algo.AppInfo{
