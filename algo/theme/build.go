@@ -27,7 +27,7 @@ func DoBuildData(ctx algo.IContext) error {
 	newIdList := []int64{}
 	if  (dataIdList == nil || len(dataIdList) == 0) {
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_recommend_list:%d")
-		if len(recListKeyFormatter) > 0 {
+		if len(recListKeyFormatter) > 5 {
 			dataIdList, err = rdsPikaCache.GetInt64List(params.UserId, recListKeyFormatter)
 			if err == nil {
 				log.Warnf("theme recommend list is nil, %s\n", err)
@@ -37,13 +37,14 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		}
 	
-		if abtest.GetBool("recommend_new", false) {
+		newMomentLen := abtest.GetInt("new_moment_len", 100)
+		if newMomentLen > 0 {
 			momentTypes := abtest.GetString("new_moment_types", "theme")
 			radiusRange := abtest.GetString("new_moment_radius_range", "1000km")
 			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60 * 60 * 24)
-
+			
 			startNewTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
-			newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 100,
+			newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
 													   momentTypes, startNewTime , radiusRange)
 			if err != nil {
 				log.Warnf("theme new list error %s\n", err)

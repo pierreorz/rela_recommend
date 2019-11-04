@@ -26,7 +26,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if dataIdList == nil || len(dataIdList) == 0 {
 		// 获取推荐日志
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
-		if len(recListKeyFormatter) > 0 {
+		if len(recListKeyFormatter) > 5 {
 			recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
 		}
 
