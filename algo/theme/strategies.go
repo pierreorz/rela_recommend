@@ -28,22 +28,25 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 
 func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
-	var upperRate float32
 	var abTest = ctx.GetAbTest()
-	var avgExpCount float64 = 3
-	var avgInfCount float64 = 1
 	var currTime = float64(ctx.GetCreateTime().Unix())
 
-	listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
-		userbehavior.GetThemeListExposure(), userbehavior.GetThemeListInteract(), 
-		avgExpCount, currTime, 18000, 18000)
-	infoCountScore, _, infoTimeScore := strategy.BehaviorCountRateTimeScore(
-		userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract(), 
-		avgInfCount, currTime, 36000, 18000)
-
-	upperRate = - float32(0.3 * listCountScore * listTimeScore + 0.7 * infoCountScore * infoTimeScore)
-	if upperRate != 0.0 {
-		rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
+	if userbehavior != nil {
+		var upperRate float32
+		var avgExpCount float64 = 3
+		var avgInfCount float64 = 1
+	
+		listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
+			userbehavior.GetThemeListExposure(), userbehavior.GetThemeListInteract(), 
+			avgExpCount, currTime, 18000, 18000)
+		infoCountScore, _, infoTimeScore := strategy.BehaviorCountRateTimeScore(
+			userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract(), 
+			avgInfCount, currTime, 36000, 18000)
+	
+		upperRate = - float32(0.3 * listCountScore * listTimeScore + 0.7 * infoCountScore * infoTimeScore)
+		if upperRate != 0.0 {
+			rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
+		}
 	}
 	
 	// 首次在一定时间内看到置顶，后续不置顶; 0 关闭，大于等于1 为打开多久时间内会置顶一次
@@ -52,9 +55,13 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 		if dataInfo != nil && dataInfo.MomentCache != nil && ctx.GetUserInfo() != nil {
 			user := ctx.GetUserInfo().(*UserInfo)
 			if dataInfo.MomentCache.UserId == user.UserId {
-				behaviors := userbehavior.Gets("theme.hotweek:exposure", "theme.hotweek:click")
+				lastBehaviorTime := 0.0
+				if userbehavior != nil {
+					behaviors := userbehavior.Gets("theme.hotweek:exposure", "theme.hotweek:click")
+					lastBehaviorTime = behaviors.LastTime
+				}
 
-				if currTime - behaviors.LastTime <= selfTopTime {
+				if currTime - lastBehaviorTime <= selfTopTime {
 					rankInfo.IsTop = 1
 				}
 			}

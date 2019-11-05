@@ -43,18 +43,20 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 // 按用户访问行为进行策略提降权
 func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
-	var avgExpCount float64 = 2
 	var currTime = float64(ctx.GetCreateTime().Unix())
+	
+	if userbehavior != nil {
+		var avgExpCount float64 = 2
 
-	listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
-		userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract(), 
-		avgExpCount, currTime, 36000, 18000)
-	
-	upperRate := -float32(listCountScore * listTimeScore)
-	
-	if upperRate != 0.0 {
-		rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
+		listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
+			userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract(), 
+			avgExpCount, currTime, 36000, 18000)
+		
+		upperRate := -float32(listCountScore * listTimeScore)
+		
+		if upperRate != 0.0 {
+			rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
+		}
 	}
-	
 	return err
 }

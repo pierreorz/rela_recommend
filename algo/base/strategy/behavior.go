@@ -61,9 +61,8 @@ func (self *BaseBehaviorRichStrategy) Strategy() error {
 			dataId := dataInfo.GetDataId()
 			rankInfo := dataInfo.GetRankInfo()
 			if self.UserBehaviorMap != nil {
-				if behavior, ok := self.UserBehaviorMap[dataId]; ok && behavior != nil {
-					self.UserStrategyItemFunc(self.ctx, dataInfo, behavior, rankInfo)
-				}
+				behavior, _ := self.UserBehaviorMap[dataId]
+				self.UserStrategyItemFunc(self.ctx, dataInfo, behavior, rankInfo)
 			}
 			if self.ItemBehaviorMap != nil {
 				if behavior, ok := self.ItemBehaviorMap[dataId]; ok && behavior != nil {
