@@ -57,7 +57,8 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 			if dataInfo.MomentCache.UserId == user.UserId {
 				lastBehaviorTime := 0.0
 				if userbehavior != nil {
-					behaviors := userbehavior.Gets("theme.hotweek:exposure", "theme.hotweek:click")
+					activities := abTest.GetStrings("rich_strategy:behavior:self_top_actvivties", "theme.hotweek:exposure,theme.hotweek:click")
+					behaviors := userbehavior.Gets(activities...)
 					lastBehaviorTime = behaviors.LastTime
 				}
 
