@@ -61,7 +61,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 					lastBehaviorTime = behaviors.LastTime
 				}
 
-				if currTime - lastBehaviorTime <= selfTopTime {
+				if currTime - lastBehaviorTime >= selfTopTime {
 					rankInfo.IsTop = 1
 				}
 			}
