@@ -24,7 +24,7 @@ func DoTimeFirstLevel(ctx algo.IContext, index int) error {
 }
 
 // 按数据被访问行为进行策略提降权
-func ItemBehaviorStrategyFunc(ctx algo.IContext, itembehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
+func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itembehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
 	var avgExpCount float64 = 50
 
@@ -41,7 +41,7 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, itembehavior *behavior.UserBeha
 
 
 // 按用户访问行为进行策略提降权
-func UserBehaviorStrategyFunc(ctx algo.IContext, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
+func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
 	var avgExpCount float64 = 2
 	var currTime = float64(ctx.GetCreateTime().Unix())

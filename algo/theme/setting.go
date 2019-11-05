@@ -24,7 +24,7 @@ var richStrategyMap = map[string]algo.IRichStrategy {
 		"behavior": &strategy.BaseBehaviorRichStrategy{
 			UserStrategyItemFunc: UserBehaviorStrategyFunc,
 			ItemStrategyItemFunc: ItemBehaviorStrategyFunc},
-		"self_upper": &strategy.BaseRichStrategy{ StrategyItemFunc: SelfUpperStrategyItem },
+		// "self_upper": &strategy.BaseRichStrategy{ StrategyItemFunc: SelfUpperStrategyItem },
 	}
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{

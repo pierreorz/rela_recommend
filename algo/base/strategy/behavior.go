@@ -16,10 +16,10 @@ type BaseBehaviorRichStrategy struct {
 	ItemBehaviorMap			map[int64]*behavior.UserBehavior
 
 	UserStrategyFunc		func(algo.IContext, map[int64]*behavior.UserBehavior) error
-	UserStrategyItemFunc	func(algo.IContext, *behavior.UserBehavior, *algo.RankInfo) error
+	UserStrategyItemFunc	func(algo.IContext, algo.IDataInfo, *behavior.UserBehavior, *algo.RankInfo) error
 
 	ItemStrategyFunc		func(algo.IContext, map[int64]*behavior.UserBehavior) error
-	ItemStrategyItemFunc	func(algo.IContext, *behavior.UserBehavior, *algo.RankInfo) error
+	ItemStrategyItemFunc	func(algo.IContext, algo.IDataInfo, *behavior.UserBehavior, *algo.RankInfo) error
 }
 
 func (self *BaseBehaviorRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {
@@ -62,12 +62,12 @@ func (self *BaseBehaviorRichStrategy) Strategy() error {
 			rankInfo := dataInfo.GetRankInfo()
 			if self.UserBehaviorMap != nil {
 				if behavior, ok := self.UserBehaviorMap[dataId]; ok && behavior != nil {
-					self.UserStrategyItemFunc(self.ctx, behavior, rankInfo)
+					self.UserStrategyItemFunc(self.ctx, dataInfo, behavior, rankInfo)
 				}
 			}
 			if self.ItemBehaviorMap != nil {
 				if behavior, ok := self.ItemBehaviorMap[dataId]; ok && behavior != nil {
-					self.ItemStrategyItemFunc(self.ctx, behavior, rankInfo)
+					self.ItemStrategyItemFunc(self.ctx, dataInfo, behavior, rankInfo)
 				}
 			}
 		}
