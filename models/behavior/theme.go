@@ -24,12 +24,12 @@ package behavior
 
 // 获取列表曝光行为
 func (self *UserBehavior) GetThemeListExposure() *Behavior {
-	return self.Gets("theme.recommend:exposure", "theme.list:exposure")
+	return self.Gets("theme.recommend:exposure", "theme.list:exposure", "theme.news:exposure", "theme.hotweek:exposure")
 }
 
 // 获取列表互动行为
 func (self *UserBehavior) GetThemeListInteract() *Behavior {
-	return self.Gets("theme.recommend:click", "theme.list:click")
+	return self.Gets("theme.recommend:click", "theme.list:click", "theme.news:click", "theme.hotweek:click")
 }
 
 // 详情页曝光行为
