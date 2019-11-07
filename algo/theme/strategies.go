@@ -73,16 +73,16 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 }
 
 // 内容较短，包含关键词的内容沉底
-func DownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+func TextDownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	var abTest = ctx.GetAbTest()
 	dataInfo := iDataInfo.(*DataInfo)
 	if dataInfo != nil && dataInfo.MomentCache != nil && ctx.GetUserInfo() != nil {
-		downLen := abTest.GetInt("rich_strategy:down:len", 8)
-		downWords := abTest.GetStrings("rich_strategy:down:words", "对象,加群,骗子")
+		downLen := abTest.GetInt("rich_strategy:textdown:len", 8)
+		downWords := abTest.GetStrings("rich_strategy:textdown:words", "对象,加群,骗子")
 
 		text := dataInfo.MomentCache.MomentsText
 		if len(text) < downLen || utils.StringContains(text, downWords) {
-			rankInfo.AddRecommend("Down", -1)
+			rankInfo.AddRecommend("TextDown", -1)
 		}
 	}
 	return nil
