@@ -1,6 +1,7 @@
 package theme
 
 import(
+	"rela_recommend/utils"
 	"rela_recommend/algo"
 	"rela_recommend/models/behavior"
 	"rela_recommend/algo/base/strategy"
@@ -71,15 +72,18 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	return err
 }
 
-// 用户自己的内容提权
-// func SelfUpperStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
-// 	dataInfo := iDataInfo.(*DataInfo)
-// 	if dataInfo != nil && dataInfo.MomentCache != nil && ctx.GetUserInfo() != nil {
-// 		user := ctx.GetUserInfo().(*UserInfo)
-// 		if dataInfo.MomentCache.UserId == user.UserId {
-// 			upperRate := ctx.GetAbTest().GetFloat("rich_strategy:self_upper:score", 0.3)
-// 			rankInfo.AddRecommend("SelfUpper", 1.0 + upperRate)
-// 		}
-// 	}
-// 	return nil
-// }
+// 内容较短，包含关键词的内容沉底
+func DownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	var abTest = ctx.GetAbTest()
+	dataInfo := iDataInfo.(*DataInfo)
+	if dataInfo != nil && dataInfo.MomentCache != nil && ctx.GetUserInfo() != nil {
+		downLen := abTest.GetInt("rich_strategy:down:len", 8)
+		downWords := abTest.GetStrings("rich_strategy:down:words", "对象,加群,骗子")
+
+		text := dataInfo.MomentCache.MomentsText
+		if len(text) < downLen || utils.StringContains(text, downWords) {
+			rankInfo.AddRecommend("Down", -1)
+		}
+	}
+	return nil
+}

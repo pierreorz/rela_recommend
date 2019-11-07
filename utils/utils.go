@@ -459,3 +459,13 @@ func IfElseString(b bool, trueValue string, falseValue string) string {
 		return falseValue
 	}
 }
+
+// 字符串中是否存在某个字符，任意一个返回true
+func StringContains(str string, words []string) bool {
+	for _, word := range words {
+		if strings.Contains(str, word) {
+			return true
+		}
+	}
+	return false
+}
