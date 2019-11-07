@@ -1,6 +1,7 @@
 package theme
 
 import(
+	"unicode/utf8"
 	"rela_recommend/utils"
 	"rela_recommend/algo"
 	"rela_recommend/models/behavior"
@@ -34,7 +35,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 
 	if userbehavior != nil {
 		var upperRate float32
-		var avgExpCount float64 = 3
+		var avgExpCount float64 = 2
 		var avgInfCount float64 = 1
 	
 		listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
@@ -44,7 +45,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 			userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract(), 
 			avgInfCount, currTime, 36000, 18000)
 	
-		upperRate = - float32(0.3 * listCountScore * listTimeScore + 0.7 * infoCountScore * infoTimeScore)
+		upperRate = - float32(0.4 * listCountScore * listTimeScore + 0.6 * infoCountScore * infoTimeScore)
 		if upperRate != 0.0 {
 			rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
 		}
@@ -81,7 +82,7 @@ func TextDownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 		downWords := abTest.GetStrings("rich_strategy:text_down:words", "对象,加群,骗子")
 
 		text := dataInfo.MomentCache.MomentsText
-		if len(text) < downLen || utils.StringContains(text, downWords) {
+		if utf8.RuneCountInString(text) < downLen || utils.StringContains(text, downWords) {
 			rankInfo.AddRecommend("TextDown", 0.01)
 		}
 	}
