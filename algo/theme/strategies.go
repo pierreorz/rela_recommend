@@ -82,7 +82,7 @@ func TextDownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 
 		text := dataInfo.MomentCache.MomentsText
 		if len(text) < downLen || utils.StringContains(text, downWords) {
-			rankInfo.AddRecommend("TextDown", -1)
+			rankInfo.AddRecommend("TextDown", 0.01)
 		}
 	}
 	return nil
