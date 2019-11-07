@@ -1,6 +1,7 @@
 package theme
 
 import(
+	"math"
 	"unicode/utf8"
 	"rela_recommend/utils"
 	"rela_recommend/algo"
@@ -45,7 +46,8 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 			userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract(), 
 			avgInfCount, currTime, 36000, 18000)
 	
-		upperRate = - float32(0.4 * listCountScore * listTimeScore + 0.6 * infoCountScore * infoTimeScore)
+		// upperRate = - float32(0.4 * listCountScore * listTimeScore + 0.6 * infoCountScore * infoTimeScore)
+		upperRate = - float32(math.Max(listCountScore * listTimeScore, infoCountScore * infoTimeScore))
 		if upperRate != 0.0 {
 			rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
 		}
