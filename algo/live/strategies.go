@@ -21,7 +21,8 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 			rankInfo.IsTop = -1
 		} else if live.LiveCache.RecommandLevel > 0 {				// 降低权重
 			level := math.Min(float64(live.LiveCache.RecommandLevel), 100.0)
-			rankInfo.Punish = float32(100.0 - level) / 100.0
+			// rankInfo.Punish = float32(100.0 - level) / 100.0
+			rankInfo.AddRecommend("Down", float32(100.0 - level) / 100.0)
 		}
 	}
 	return nil
