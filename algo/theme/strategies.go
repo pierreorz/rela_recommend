@@ -77,8 +77,8 @@ func TextDownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 	var abTest = ctx.GetAbTest()
 	dataInfo := iDataInfo.(*DataInfo)
 	if dataInfo != nil && dataInfo.MomentCache != nil && ctx.GetUserInfo() != nil {
-		downLen := abTest.GetInt("rich_strategy:textdown:len", 8)
-		downWords := abTest.GetStrings("rich_strategy:textdown:words", "对象,加群,骗子")
+		downLen := abTest.GetInt("rich_strategy:text_down:len", 8)
+		downWords := abTest.GetStrings("rich_strategy:text_down:words", "对象,加群,骗子")
 
 		text := dataInfo.MomentCache.MomentsText
 		if len(text) < downLen || utils.StringContains(text, downWords) {
