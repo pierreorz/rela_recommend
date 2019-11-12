@@ -1,19 +1,22 @@
 package match
 
-import(
+import (
 	"rela_recommend/algo"
 	"rela_recommend/models/pika"
+	"rela_recommend/models/redis"
 )
 
 type UserInfo struct {
-	UserId int64
-	UserCache *pika.UserProfile
+	UserId       int64
+	UserCache    *pika.UserProfile
+	MatchProfile *redis.MatchProfile
 }
 
 type DataInfo struct {
-	DataId 				int64
-	UserCache 			*pika.UserProfile
-	RankInfo			*algo.RankInfo
+	DataId       int64
+	UserCache    *pika.UserProfile
+	MatchProfile *redis.MatchProfile
+	RankInfo     *algo.RankInfo
 }
 
 func (self *DataInfo) GetDataId() int64 {
