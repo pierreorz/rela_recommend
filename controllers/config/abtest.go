@@ -22,7 +22,7 @@ func AbTestHTTP(c *routers.Context) {
 		c.JSON(response.FormatResponse(nil, service.WarpError(service.ErrInvaPara, "", "")))
 		return
 	}
-	ab := abtest.GetAbTest(params.App, params.UserId)
+	ab := abtest.GetAbTestWithSetting(params.App, params.UserId, params.ParamsMap)
 	c.JSON(response.FormatResponseV3(ab, nil))
 }
 

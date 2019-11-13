@@ -62,7 +62,8 @@ func MatchRecommendListHTTP(c *routers.Context) {
 
 func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommendResponse {
 	var startTime = time.Now()
-	rank_id := utils.UniqueId()
+	matchAb := abtest.GetAbTest("match", params.UserId)
+	rank_id := matchAb.RankId
 	// 加载用户缓存
 	var startCacheTime = time.Now()
 	aulm := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
@@ -81,7 +82,7 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 	}
 	ctx := quick_match.QuickMatchContext{
 		RankId: rank_id, Ua: params.Ua,
-		AbTest: abtest.GetAbTest("match", params.UserId),
+		AbTest: matchAb,
 		User: userInfo, UserList: usersInfo}
 	dataLen := len(ctx.UserList)
 	// 算法预测打分
