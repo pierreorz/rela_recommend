@@ -2,17 +2,18 @@ package match
 
 import(
 	"rela_recommend/algo"
-	"rela_recommend/models/pika"
+	// "rela_recommend/models/pika"
+	"rela_recommend/models/redis"
 )
 
 type UserInfo struct {
 	UserId int64
-	UserCache *pika.UserProfile
+	UserCache *redis.UserProfile
 }
 
 type DataInfo struct {
 	DataId 				int64
-	UserCache 			*pika.UserProfile
+	UserCache 			*redis.UserProfile
 	RankInfo			*algo.RankInfo
 }
 

@@ -3,6 +3,7 @@ package service
 import (
 	"math"
 	models "rela_recommend/models/pika"
+	"rela_recommend/models/redis"
 	"rela_recommend/utils"
 	"strings"
 	"time"
@@ -476,4 +477,185 @@ func getUserReceiverAffection(from int, to int, i int, j int) float32 {
 		return 1
 	}
 	return 0
+}
+
+
+func UserRow2(user *redis.UserProfile, receiver *redis.UserProfile) []float32 {
+	arr := make([]float32, 0)
+	// 0 - 59: User_Role_Receiver_Role
+	for i := 0; i <= 7; i++ {
+		jMax := 7
+		if i >= 6 {
+			jMax = 5
+		}
+		for j := 0; j <= jMax; j++ {
+			arr = append(arr, getUserReceiverRoleMatch(user.RoleName, receiver.RoleName, i, j))
+		}
+	}
+	// 60 - 140: User_Affection_Receiver_Affection
+	for i := -1; i <= 7; i++ {
+		for j := -1; j <= 7; j++ {
+			arr = append(arr, getUserReceiverAffection(user.Affection, receiver.Affection, i, j))
+		}
+	}
+	// 141 - 144: User_IsMatch_Receiver_IsMatch
+	userMatchReceiver := IsMatch(user.WantRole, receiver.RoleName)
+	receiverMatchUser := IsMatch(receiver.WantRole, user.RoleName)
+	var res = userMatchReceiver + receiverMatchUser
+	arr = append(arr, propEqualString(res, "00"))
+	arr = append(arr, propEqualString(res, "01"))
+	arr = append(arr, propEqualString(res, "10"))
+	arr = append(arr, propEqualString(res, "11"))
+	// 145 - 149: User_Age_bkt
+	for _, ar := range userAgeRange {
+		arr = append(arr, propBkt(ar[0], ar[1], user.Age))
+	}
+	// 150 - 155: User_Height_bkt
+	for _, ar := range userHeightRange {
+		arr = append(arr, propBkt(ar[0], ar[1], user.Height))
+	}
+	// 150 - 159: User_Weight_bkt
+	for _, ar := range userWeightRange {
+		arr = append(arr, propBkt(ar[0], ar[1], user.Weight))
+	}
+	// 160 - 164: Receiver_Age_bkt
+	for _, ar := range receiverAgeRange {
+		arr = append(arr, propBkt(ar[0], ar[1], receiver.Age))
+	}
+	// 165 - 169: Receiver_Height_bkt
+	for _, ar := range receiverHeightRange {
+		arr = append(arr, propBkt(ar[0], ar[1], receiver.Height))
+	}
+	// 170 - 174: Receiver_Weight_bkt
+	for _, ar := range receiverWeightRange {
+		arr = append(arr, propBkt(ar[0], ar[1], receiver.Weight))
+	}
+	// 175 - 183: User_MomentsCount_bkt
+	for _, ar := range userMomentsCountRange {
+		arr = append(arr, propBkt(ar[0], ar[1], user.MomentsCount))
+	}
+	// 184 - 193: Receiver_MomentsCount_bkt
+	for _, ar := range receiverMomentsCountRange {
+		arr = append(arr, propBkt(ar[0], ar[1], receiver.MomentsCount))
+	}
+	// 194 - 198: User_Ratio_bkt
+	for _, ar := range userRatio {
+		arr = append(arr, propBkt(ar[0], ar[1], user.Ratio))
+	}
+	// 199 - 205: Receiver_Ratio_bkt
+	for _, ar := range receiverRatio {
+		arr = append(arr, propBkt(ar[0], ar[1], receiver.Ratio))
+	}
+	// 206 - 215: distance_bkt
+	var distance = calculateDistance(user.Location.Lon, user.Location.Lat, receiver.Location.Lon, receiver.Location.Lat) / 1000
+	for _, ar := range distanceBkt {
+		arr = append(arr, propFloatBkt(ar[0], ar[1], distance))
+	}
+	// 216 - 225: User_CreateDays_bkt
+	for _, ar := range userCreateDaysBkt {
+		arr = append(arr, propBkt(ar[0], ar[1], calculateCreateDays(user.CreateTime.Time)))
+	}
+	// 226 - 235: Receiver_CreateDays_bkt
+	for _, ar := range receiverCreateDaysBkt {
+		arr = append(arr, propBkt(ar[0], ar[1], calculateCreateDays(receiver.CreateTime.Time)))
+	}
+	// 236 - 246: User_ImageCount_bkt
+	var user_image_count = user.UserImageCount + user.NewImageCount
+	for _, ar := range userImageCountBkt {
+		arr = append(arr, propBkt(ar[0], ar[1], user_image_count))
+	}
+	// 247 - 253: Receiver_ImageCount_bkt
+	var receiver_image_count = receiver.UserImageCount + receiver.NewImageCount
+	for _, ar := range receiverImageCountBkt {
+		arr = append(arr, propBkt(ar[0], ar[1], receiver_image_count))
+	}
+	// 254 - 255: User_IsVip
+	arr = append(arr, checkVip(user.IsVip, 0))
+	arr = append(arr, checkVip(user.IsVip, 1))
+	// 256 - 263: User_Role
+	for i := 0; i <= 7; i++ {
+		var ap float32 = 0.0
+		if strings.Contains(user.RoleName, utils.GetString(i)) {
+			ap = 1.0
+		}
+		arr = append(arr, ap)
+	}
+	// 264 - 272: User_Affection
+	for i := -1; i <= 7; i++ {
+		var ap float32 = 0.0
+		if user.Affection == i {
+			ap = 1
+		}
+		arr = append(arr, ap)
+	}
+	// 273 - 284: User_Horoscope
+	for i := 0; i <= 11; i++ {
+		var ap float32 = 0.0
+		if user.Horoscope == utils.GetString(i) {
+			ap = 1
+		}
+		arr = append(arr, ap)
+	}
+	// 285 - 286: Receiver_IsVip
+	arr = append(arr, checkVip(receiver.IsVip, 0))
+	arr = append(arr, checkVip(receiver.IsVip, 1))
+	// 287 - 294: Receiver_Role
+	for i := 0; i <= 7; i++ {
+		var ap float32 = 0.0
+		if strings.Contains(receiver.RoleName, utils.GetString(i)) {
+			ap = 1
+		}
+		arr = append(arr, ap)
+	}
+	// 295 - 303: Receiver_Affection
+	for i := -1; i <= 7; i++ {
+		var ap float32 = 0.0
+		if receiver.Affection == i {
+			ap = 1
+		}
+		arr = append(arr, ap)
+	}
+	// 304 - 315: Receiver_Horoscope
+	for i := 0; i <= 11; i++ {
+		var ap float32 = 0.0
+		if receiver.Horoscope == utils.GetString(i) {
+			ap = 1
+		}
+		arr = append(arr, ap)
+	}
+
+	var t = time.Unix(receiver.LastUpdateTime, 0)
+	// 316 - 321: activeScore
+	for _, e := range activeScores {
+		arr = append(arr, propEqualFloat(activeScore(t), e))
+	}
+	// 322 - 328: createWeek
+	var now = time.Now()
+	for i := 1; i <= 7; i++ {
+		arr = append(arr, propEqual(createWeek(now), i))
+	}
+	// 329 - 352: createHour
+	for i := 1; i <= 23; i++ {
+		arr = append(arr, propEqual(createHour(now), i))
+	}
+	// 90天单身偏好 353-360
+	for i := -1; i <= 7; i++ {
+		istr := utils.GetString(i)
+		if i != receiver.Affection || user.JsonAffeLike == nil { 
+			arr = append(arr, 0.0)
+		} else {
+			arr = append(arr, user.JsonAffeLike[istr])
+		}
+	}
+	// 90天性别偏好 361-370
+	for i := -1; i <= 8; i++ {
+		istr := utils.GetString(i)
+		if istr != receiver.RoleName || user.JsonRoleLike == nil {
+			arr = append(arr, 0.0)
+		} else {
+			arr = append(arr, user.JsonRoleLike[istr])
+		}
+	}
+
+	return arr
 }
