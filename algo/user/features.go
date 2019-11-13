@@ -6,6 +6,6 @@ import (
 )
 
 func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *utils.Features {
-	
-	return nil
+	fs := &utils.Features{}
+	return fs
 }
