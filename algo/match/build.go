@@ -18,7 +18,7 @@ func DoBuildData(ctx algo.IContext) error {
 	
 	// 确定候选用户
 	dataIds := params.DataIds
-	if (dataIds != nil || len(dataIds) == 0) {
+	if (dataIds == nil || len(dataIds) == 0) {
 		log.Warnf("user list is nil or empty!")
 	}
 
