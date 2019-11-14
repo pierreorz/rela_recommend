@@ -42,12 +42,13 @@ type WhiteName struct {
 
 
 type AbTest struct {
-	App string									`json:"app"`
-	DataId int64								`json:"data_id"`
-	CurrentTime time.Time						`json:"create_time"`
-	FactorMap map[string]string					`json:"factor_map"`
-	HitTestingMap map[string]TestingVersion		`json:"hit_testing_map"`
-	HitWriteMap map[string]WhiteName			`json:"hit_write_list"`
+	App string									`json:"app"`			// 服务名称
+	DataId int64								`json:"data_id"`		// userid
+	RankId string 								`json:"rank_id"`		// 唯一请求id
+	CurrentTime time.Time						`json:"create_time"`	// abtest时间
+	FactorMap map[string]string					`json:"factor_map"`		// 返回的配置对
+	HitTestingMap map[string]TestingVersion		`json:"hit_testing_map"`// 命中的test
+	HitWriteMap map[string]WhiteName			`json:"hit_write_list"`	// 命中的白名单
 }
 
 // 生成用户AB码
@@ -98,6 +99,7 @@ func (self *AbTest) updateWhite(white WhiteName) {
 func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[string][]Testing, 
 						 whiteListMap map[string][]WhiteName, settingMap map[string]string) {
 	self.CurrentTime = time.Now()
+	self.RankId = utils.UniqueId()
 	self.FactorMap = map[string]string{}
 	self.HitTestingMap = map[string]TestingVersion{}
 	self.HitWriteMap = map[string]WhiteName{}
@@ -124,6 +126,11 @@ func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[str
 	// 配置设置值
 	if settingMap != nil && len(settingMap) > 0 {
 		self.update(settingMap)
+	}
+
+	// 记录abtest日志
+	if logJson, logErr := json.Marshal(self); logErr == nil {
+		log.Infof("abtest %s", logJson)
 	}
 }
 

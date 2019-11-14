@@ -47,6 +47,10 @@ type DecisionTreeRegressor struct {
 	DecisionTreeBase
 }
 
+func (self *DecisionTreeRegressor) Init(path string)  {
+	LoadModel(path, self)
+}
+
 func (tree *DecisionTreeRegressor) PredictSingle(features *Features) float32 {
 	node_id := tree.PredictSingleLeaf(features)
 	return tree.Value[node_id][0]
@@ -56,6 +60,10 @@ func (tree *DecisionTreeRegressor) PredictSingle(features *Features) float32 {
 // ********************************************** DecisionTreeClassifier
 type DecisionTreeClassifier struct {
 	DecisionTreeBase
+}
+
+func (self *DecisionTreeClassifier) Init(path string)  {
+	LoadModel(path, self)
 }
 
 func (tree *DecisionTreeClassifier) PredictSingle(features *Features) float32 {

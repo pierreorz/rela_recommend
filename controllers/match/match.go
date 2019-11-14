@@ -4,6 +4,7 @@ import (
 	"math"
 	"time"
 	"rela_recommend/algo"
+	"rela_recommend/algo/base"
 	"rela_recommend/algo/quick_match"
 	"rela_recommend/factory"
 	"rela_recommend/log"
@@ -56,13 +57,38 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	for _, uid := range userIdsStrs {
 		userIds = append(userIds, utils.GetInt64(uid))
 	}
-	res := DoRecommend(&params, userIds)
-	c.JSON(response.FormatResponse(res, service.WarpError(nil, "", "")))
+	matchAb := abtest.GetAbTest("match", params.UserId)
+
+	old := matchAb.GetBool("use_old_algo", true)
+	if old {
+		res := DoRecommend(&params, userIds)
+		c.JSON(response.FormatResponse(res, service.WarpError(nil, "", "")))
+	} else {
+		var params2 = &algo.RecommendRequest{
+			Limit: params.Limit,
+			Offset: params.Offset,
+			Ua: params.Ua,
+			Lat: 0.0,
+			Lng: 0.0,
+			UserId: params.UserId,
+			DataIds: userIds,
+		}
+		ctx := &base.ContextBase{}
+		err := ctx.Do(algo.GetAppInfo("match"), params2)
+		res2 := ctx.GetResponse()
+		res := MatchRecommendResponse{
+			Status: res2.Status,
+			RankId: res2.RankId,
+			UserIds: res2.DataIds,
+		}
+		c.JSON(response.FormatResponse(res, service.WarpError(err, "", "")))
+	}
 }
 
 func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommendResponse {
 	var startTime = time.Now()
-	rank_id := utils.UniqueId()
+	matchAb := abtest.GetAbTest("match", params.UserId)
+	rank_id := matchAb.RankId
 	// 加载用户缓存
 	var startCacheTime = time.Now()
 	aulm := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
@@ -81,7 +107,7 @@ func DoRecommend(params *MatchRecommendReqParams, userIds []int64) MatchRecommen
 	}
 	ctx := quick_match.QuickMatchContext{
 		RankId: rank_id, Ua: params.Ua,
-		AbTest: abtest.GetAbTest("match", params.UserId),
+		AbTest: matchAb,
 		User: userInfo, UserList: usersInfo}
 	dataLen := len(ctx.UserList)
 	// 算法预测打分
