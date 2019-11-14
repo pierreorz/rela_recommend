@@ -13,7 +13,7 @@ func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 	dataLocation := dataInfo.UserCache.Location
 
 	distance := rutils.EarthDistance(float64(request.Lng), float64(request.Lat), dataLocation.Lon, dataLocation.Lat)
-	if abtest.GetBool("sort_with_distance", true) {  // 是否按照距离排序
+	if abtest.GetString("custom_sort_type", "distance") == "distance" {  // 是否按照距离排序
 		rankInfo.Score = -float32(distance)
 	} else {	// 安装距离分段排序
 		if distance < 1000 {
