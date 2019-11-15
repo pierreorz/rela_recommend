@@ -11,7 +11,7 @@ type MatchProfile struct {
 	LikeTypeMap   map[string]float32 `json:"like_type"`
 	AffectionMap  map[string]float32 `json:"affection"`
 	MobileSysMap  map[string]float32 `json:"mobile_sys"`
-	TotalCountMap map[string]float32 `json:"total_count"`
+	TotalCountMap int64              `json:"total_count"`
 	FreqWeekMap   map[string]float32 `json:"freq_week"`
 	FreqTimeMap   map[string]float32 `json:"freq_time"`
 	ContinuesUse  int64              `json:"continues_use"`

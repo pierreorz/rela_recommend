@@ -115,8 +115,8 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 			fs.Add(2064, matp.MobileSysMap["mobile_sys_ios"])
 			fs.Add(2065, matp.MobileSysMap["mobile_sys_android"])
 		}
-		if matp.TotalCountMap != nil {
-			fs.Add(2066, matp.TotalCountMap["total_count"])
+		if matp.TotalCountMap >= 0 {
+			fs.Add(2066, float32(matp.TotalCountMap))
 		}
 		if matp.FreqWeekMap != nil {
 			fs.Add(2067, matp.FreqWeekMap["monday"])
@@ -254,8 +254,8 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 				fs.Add(5064, currMatch.MobileSysMap["mobile_sys_ios"])
 				fs.Add(5065, currMatch.MobileSysMap["mobile_sys_android"])
 			}
-			if currMatch.TotalCountMap != nil {
-				fs.Add(5066, currMatch.TotalCountMap["total_count"])
+			if currMatch.TotalCountMap >= 0 {
+				fs.Add(5066, float32(currMatch.TotalCountMap))
 			}
 			if currMatch.FreqWeekMap != nil {
 				fs.Add(5067, currMatch.FreqWeekMap["monday"])
