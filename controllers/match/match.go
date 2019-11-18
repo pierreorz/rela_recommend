@@ -73,6 +73,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 			Lng: 0.0,
 			UserId: params.UserId,
 			DataIds: userIds,
+			AbMap: params.AbMap,
 		}
 		ctx := &base.ContextBase{}
 		err := ctx.Do(algo.GetAppInfo("match"), params2)
