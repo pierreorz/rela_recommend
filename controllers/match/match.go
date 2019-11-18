@@ -25,6 +25,7 @@ type MatchRecommendReqParams struct {
 	Ua      string `json:"ua" form:"ua"`
 	UserId  int64  `json:"userId" form:"userId"`
 	UserIds string `json:"userIds" form:"userIds"`
+	AbMap	map[string]string	`json:"abMap" form:"abMap"`
 }
 
 type MatchRecommendResponse struct {
@@ -57,7 +58,7 @@ func MatchRecommendListHTTP(c *routers.Context) {
 	for _, uid := range userIdsStrs {
 		userIds = append(userIds, utils.GetInt64(uid))
 	}
-	matchAb := abtest.GetAbTest("match", params.UserId)
+	matchAb := abtest.GetAbTestWithSetting("match", params.UserId, params.AbMap)
 
 	old := matchAb.GetBool("use_old_algo", true)
 	if old {
