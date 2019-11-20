@@ -3,6 +3,7 @@ package match
 import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
+	"rela_recommend/models/redis"
 	"rela_recommend/service"
 	rutils "rela_recommend/utils"
 )
@@ -17,10 +18,11 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 
 	// 用户
 	var role, wantRoles = 0, make([]int, 0)
+	var memu *redis.UserProfile
 	if ctx.GetUserInfo() != nil {
 		user := ctx.GetUserInfo().(*UserInfo)
 		if user.UserCache != nil {
-			memu := user.UserCache
+			memu = user.UserCache
 			fs.Add(1, float32(memu.Age))
 			fs.Add(2, float32(memu.Height))
 			fs.Add(3, float32(memu.Weight))
@@ -162,6 +164,9 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 		fs.Add(4001, float32(curr.Height))
 		fs.Add(4002, float32(curr.Weight))
 		fs.Add(4003, float32(currTime-curr.LastUpdateTime))
+		if memu != nil {
+			fs.Add(4004, float32(rutils.EarthDistance(memu.Location.Lon, memu.Location.Lat, curr.Location.Lon, curr.Location.Lat)/1000.0))
+		}
 		fs.AddCategory(4010, 13, -1, rutils.GetInt(curr.Horoscope), -1)
 		fs.AddCategory(4030, 10, -1, curr.Affection, -1)
 		uRole, uWantRoles := rutils.GetInt(curr.RoleName), rutils.GetInts(curr.WantRole)
