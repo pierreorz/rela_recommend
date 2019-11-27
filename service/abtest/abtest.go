@@ -46,6 +46,7 @@ type AbTest struct {
 	DataId int64								`json:"data_id"`		// userid
 	RankId string 								`json:"rank_id"`		// 唯一请求id
 	CurrentTime time.Time						`json:"create_time"`	// abtest时间
+	SettingMap map[string]string				`json:"setting_map"`	// 用户自定义配置
 	FactorMap map[string]string					`json:"factor_map"`		// 返回的配置对
 	HitTestingMap map[string]TestingVersion		`json:"hit_testing_map"`// 命中的test
 	HitWriteMap map[string]WhiteName			`json:"hit_write_list"`	// 命中的白名单
@@ -100,6 +101,7 @@ func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[str
 						 whiteListMap map[string][]WhiteName, settingMap map[string]string) {
 	self.CurrentTime = time.Now()
 	self.RankId = utils.UniqueId()
+	self.SettingMap = settingMap
 	self.FactorMap = map[string]string{}
 	self.HitTestingMap = map[string]TestingVersion{}
 	self.HitWriteMap = map[string]WhiteName{}
