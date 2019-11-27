@@ -37,6 +37,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 				   Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
 	&algo.AlgoBase{AlgoName: "model_v2", FilePath: workDir + "mods_1.2.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
+	&algo.AlgoBase{AlgoName: "model_around", FilePath: workDir + "around_moments.dumps.gz",
+		Model: &utils.GradientBoostingLRClassifier{}, FeaturesFunc: GetMomentFeatures },
 })
 
 

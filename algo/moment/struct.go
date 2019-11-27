@@ -12,6 +12,7 @@ type UserInfo struct {
 	UserId int64
 	UserCache *redis.UserProfile
 	UserConcerns *rutils.SetInt64
+	MatchProfile *redis.MatchProfile
 }
 
 // 主播信息
@@ -23,6 +24,8 @@ type DataInfo struct {
 	MomentProfile		*redis.MomentsProfile
 	RankInfo			*algo.RankInfo
 	Features 			*utils.Features
+	MatchProfile *redis.MatchProfile
+
 }
 
 func (self *DataInfo) GetDataId() int64 {

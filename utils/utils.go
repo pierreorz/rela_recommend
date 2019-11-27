@@ -149,9 +149,9 @@ func Md5Sum(data []byte) string {
 
 func Bytes2Int32(data []byte) int32 {
 	var x int32
-	b_buf := bytes.NewBuffer(data)  // 取最后4字节
-	err := binary.Read(b_buf, binary.BigEndian, &x) 
-	if err != nil{
+	b_buf := bytes.NewBuffer(data) // 取最后4字节
+	err := binary.Read(b_buf, binary.BigEndian, &x)
+	if err != nil {
 		fmt.Printf("err %s\n", err)
 	}
 	return x
@@ -173,7 +173,6 @@ func byte16ToBytes(in [16]byte) []byte {
 	}
 	return tmp[16:]
 }
-
 
 func UniqueId() string {
 	b := make([]byte, 48)
@@ -339,20 +338,20 @@ type SetInt64 struct {
 	intMap map[int64]int
 }
 
-func(self *SetInt64) checkMap(setEmpty bool) {
+func (self *SetInt64) checkMap(setEmpty bool) {
 	if self.intMap == nil || setEmpty {
 		self.intMap = make(map[int64]int, 0)
 	}
 }
 
-func(self *SetInt64) FromArray(vals []int64) {
+func (self *SetInt64) FromArray(vals []int64) {
 	self.checkMap(true)
 	for _, val := range vals {
 		self.intMap[val] = 1
 	}
 }
 
-func(self *SetInt64) AppendArray(vals []int64) *SetInt64 {
+func (self *SetInt64) AppendArray(vals []int64) *SetInt64 {
 	self.checkMap(false)
 	for _, val := range vals {
 		self.intMap[val] = 1
@@ -360,13 +359,12 @@ func(self *SetInt64) AppendArray(vals []int64) *SetInt64 {
 	return self
 }
 
-
-func(self *SetInt64) Contains(val int64) bool {
+func (self *SetInt64) Contains(val int64) bool {
 	_, ok := self.intMap[val]
 	return ok
 }
 
-func(self *SetInt64) ToList() []int64 {
+func (self *SetInt64) ToList() []int64 {
 	res := make([]int64, 0)
 	for k, _ := range self.intMap {
 		res = append(res, k)
@@ -405,28 +403,29 @@ func IsInInts(v int, vs []int) bool {
 // 分隔数组
 func SplitList(list []interface{}, partLen int) [][]interface{} {
 	arrs := make([][]interface{}, partLen)
-	dataLen, endLen := len(list) / partLen, len(list) % partLen
+	dataLen, endLen := len(list)/partLen, len(list)%partLen
 	for i := 0; i < partLen; i++ {
-		startIndex, endIndex := i * dataLen, (i+1)*dataLen
-		if i == partLen - 1 {
+		startIndex, endIndex := i*dataLen, (i+1)*dataLen
+		if i == partLen-1 {
 			endIndex += endLen
 		}
-		arrs = append(arrs, list[startIndex: endIndex])
+		arrs = append(arrs, list[startIndex:endIndex])
 	}
 	return arrs
 }
 
 type partIndex struct {
-	Start	int
-	End 	int
+	Start int
+	End   int
 }
+
 // 分隔数组
 func SplitPartIndex(dataLen, partLen int) []partIndex {
 	indexs := make([]partIndex, partLen)
-	dataLen, endLen := dataLen / partLen, dataLen % partLen
+	dataLen, endLen := dataLen/partLen, dataLen%partLen
 	for i := 0; i < partLen; i++ {
-		startIndex, endIndex := i * dataLen, (i+1)*dataLen
-		if i == partLen - 1 {
+		startIndex, endIndex := i*dataLen, (i+1)*dataLen
+		if i == partLen-1 {
 			endIndex += endLen
 		}
 		indexs[i] = partIndex{Start: startIndex, End: endIndex}
