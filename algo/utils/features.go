@@ -81,6 +81,7 @@ func (self *Features) AddCategory(start, length, minVal, val, def int) bool {
 	}
 }
 
+
 // 增加多选类别的特征
 func (self *Features) AddCategories(start, length, minVal int, vals []int, def int) bool {
 	for _, val := range vals {

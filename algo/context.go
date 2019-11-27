@@ -23,7 +23,6 @@ type IContext interface {
 	GetAppInfo() *AppInfo
 	GetRequest() *RecommendRequest
 	GetAbTest() *abtest.AbTest
-
 	GetUserInfo() IUserInfo
 	SetUserInfo(IUserInfo)
 	GetDataIds() []int64
