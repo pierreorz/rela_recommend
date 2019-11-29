@@ -7,7 +7,7 @@ import (
 )
 
 var appName = "user"
-var workDir = algo.GetWorkDir("/algo_files/match/")
+var workDir = algo.GetWorkDir("/algo_files/user/")
 
 var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildData}}
 var strategyMap = map[string]algo.IStrategy{}
@@ -26,8 +26,8 @@ var richStrategyMap = map[string]algo.IRichStrategy {
 	}
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
-	&algo.AlgoBase{AlgoName: "base", FilePath: workDir + "mods_1.4.model.gz",
-		Model: &utils.DecisionTreeClassifier{}, FeaturesFunc: GetFeaturesV0 },
+	&algo.AlgoBase{AlgoName: "base", FilePath: workDir + "nearby/mods_1.0.model.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
 
 })
 
