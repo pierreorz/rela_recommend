@@ -9,15 +9,17 @@ import(
 
 // 用户信息
 type UserInfo struct {
-	UserId int64
-	UserCache *redis.UserProfile
+	UserId 			int64
+	UserCache 		*redis.UserProfile
+	UserProfile 	*redis.NearbyProfile
 }
 
 // 被推荐用户信息
 type DataInfo struct {
-	DataId 		int64
-	UserCache 			*redis.UserProfile
-	RankInfo			*algo.RankInfo
+	DataId 			int64
+	UserCache 		*redis.UserProfile
+	UserProfile 	*redis.NearbyProfile
+	RankInfo		*algo.RankInfo
 }
 
 func (self *DataInfo) GetDataId() int64 {
