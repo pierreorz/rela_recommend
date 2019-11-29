@@ -321,8 +321,8 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 	}
 
 	// 交叉
-	fs.AddCategory(10000, 2, 0, rutils.GetInt(rutils.IsInInts(role, cWantRoles)), 0)
-	fs.AddCategory(10002, 2, 0, rutils.GetInt(rutils.IsInInts(cRole, wantRoles)), 0)
+	fs.AddCategory(10000, 2, 0, rutils.GetInt(role > 0 && rutils.IsInInts(role, cWantRoles)), 0)
+	fs.AddCategory(10002, 2, 0, rutils.GetInt(cRole > 0 &&rutils.IsInInts(cRole, wantRoles)), 0)
 	if req := ctx.GetRequest(); req != nil {
 		lng, lat := float64(req.Lng), float64(req.Lat)
 		if req.Lng == 0 || req.Lat == 0 {
