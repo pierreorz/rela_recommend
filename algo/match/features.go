@@ -6,7 +6,6 @@ import (
 	"rela_recommend/models/redis"
 	"rela_recommend/service"
 	rutils "rela_recommend/utils"
-	"rela_recommend/log"
 )
 
 // func GetMatchFeatures(userInfo *redis.UserProfile, userInfo2 *redis.UserProfile, dataMatch *redis.MatchProfile, dataMatch2 *redis.MatchProfile) *utils.Features {
