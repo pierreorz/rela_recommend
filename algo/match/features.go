@@ -6,6 +6,7 @@ import (
 	"rela_recommend/models/redis"
 	"rela_recommend/service"
 	rutils "rela_recommend/utils"
+	"rela_recommend/log"
 )
 
 // func GetMatchFeatures(userInfo *redis.UserProfile, userInfo2 *redis.UserProfile, dataMatch *redis.MatchProfile, dataMatch2 *redis.MatchProfile) *utils.Features {
@@ -33,7 +34,7 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 			fs.AddCategory(50, 10, -1, role, -1)
 			fs.AddCategories(70, 10, -1, wantRoles, -1)
 		}
-
+		log.Warnf("user match profile ,err ,%s\n",user.MatchProfile)
 		// 用户画像
 		if user.MatchProfile != nil {
 			matp := user.MatchProfile

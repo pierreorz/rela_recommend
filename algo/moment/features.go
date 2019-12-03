@@ -28,14 +28,15 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 	fs.AddCategory(44, 2, 0, rutils.GetInt(wordsCount > 0), 0)
 	fs.AddCategory(46, 2, 0, rutils.GetInt(len(mem.ImageUrl) > 0), 0)
 	fs.AddCategory(48, 2, 0, rutils.GetInt(len(mem.VoiceUrl) > 0), 0)
-
+	if(len(mem.VoiceUrl) > 0){
+		fs.Add(54,float32(len(strings.Split(mem.ImageUrl,","))))
+	}
 	if memprofile != nil {
 		fs.Add(50, float32(memprofile.TextCnt))
 		fs.Add(51, float32(memprofile.LikeCnt))
 	}
 	fs.Add(52, float32(len(mem.MomentsText)))
 	fs.Add(53, float32(ctx.GetCreateTime().Sub(mem.InsertTime).Minutes()))
-	fs.Add(54,float32(len(strings.Split(mem.ImageUrl,","))))
 	fs.Add(55,float32(time.Now().Hour()))
 
 	// 发布者
