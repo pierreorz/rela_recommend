@@ -77,6 +77,7 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 			fs.AddCategory(6002, 2, 0, rutils.GetInt(rutils.IsInInts(uRole, wantRoles)), 0)
 		}
 		log.Warnf("user match profile ,err ,%s\n",user.MatchProfile)
+		log.Warnf("user match user_id ,err ,%s\n",user.UserId)
 		if user.MatchProfile!=nil{
 			matp:=user.MatchProfile
 			if matp.AgeMap != nil {
