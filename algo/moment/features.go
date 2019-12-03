@@ -7,6 +7,7 @@ import (
 	rutils "rela_recommend/utils"
 	"time"
 	"strings"
+	"rela_recommend/log"
 )
 
 
@@ -75,6 +76,7 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 			fs.AddCategory(6000, 2, 0, rutils.GetInt(rutils.IsInInts(role, uWantRoles)), 0)
 			fs.AddCategory(6002, 2, 0, rutils.GetInt(rutils.IsInInts(uRole, wantRoles)), 0)
 		}
+		log.Warnf("user match profile ,err ,%s\n",user.MatchProfile)
 		if user.MatchProfile!=nil{
 			matp:=user.MatchProfile
 			if matp.AgeMap != nil {
