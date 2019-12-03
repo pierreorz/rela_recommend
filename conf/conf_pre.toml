@@ -16,20 +16,20 @@ memory_cache_size =  157810688
 #rds
 [rds]
 redis_addr = "172.16.13.229:6379,172.16.13.230:6379,172.16.13.231:6379"
+# redis_live_addr = "r-8vb6b3c35b002464.redis.zhangbei.rds.aliyuncs.com:6379"
 redis_live_addr = "r-8vbe0r7y7ns5newg40.redis.zhangbei.rds.aliyuncs.com:6379"
 redis_cluster_addr = "r-8vb5c335ea2d2c04.redis.zhangbei.rds.aliyuncs.com:6379"
-pika_addr = "172.16.13.198:9221"   # 172.16.13.198:9221,172.16.13.199:9221,172.16.13.200:9221,172.16.13.201:9221
+pika_addr = "172.16.13.198:9221"
 behavior_addr = "r-8vbswhyzljf7ddhi6i.redis.zhangbei.rds.aliyuncs.com:6379"
 
 #mysql
 [rdb]
 #address = "root:devchj@theL0805@tcp(localhost:3306)/stay?charset=utf8-mb4&loc=Asia/Shanghai"
-# master_address = "relaadmindatadb2:a72db4e137e4b399c2ff64cb8f39ceed@tcp(datadb-nx.cnllz645pqtu.rds.cn-northwest-1.amazonaws.com.cn:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
+master_address = "relaadmindatadb2:a72db4e137e4b399c2ff64cb8f39ceed@tcp(datadb-nx.cnllz645pqtu.rds.cn-northwest-1.amazonaws.com.cn:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
 
 [cassandra]
-# addresses="172.31.42.3,172.31.40.149,172.31.38.171"
+addresses="172.31.42.3,172.31.40.149,172.31.38.171"
 
 [rpc]
 search_rpc_addr = "http://172.16.13.247/v2"
-api_rpc_addr = "http://172.16.13.247/v2"
-
+api_rpc_addr = "http://matchinterface:3100"
