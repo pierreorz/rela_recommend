@@ -174,8 +174,8 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 		fs.AddCategories(4070, 10, -1, uWantRoles, -1)
 
 		// 交叉
-		fs.AddCategory(6000, 2, 0, rutils.GetInt(rutils.IsInInts(role, uWantRoles)), 0)
-		fs.AddCategory(6002, 2, 0, rutils.GetInt(rutils.IsInInts(uRole, wantRoles)), 0)
+		fs.AddCategory(6000, 2, 0, rutils.GetInt(role > 0 && rutils.IsInInts(role, uWantRoles)), 0)
+		fs.AddCategory(6002, 2, 0, rutils.GetInt(uRole > 0 && rutils.IsInInts(uRole, wantRoles)), 0)
 	}
 	// if dataMatch2 != nil {
 	if currMatch != nil {
