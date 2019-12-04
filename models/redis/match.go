@@ -1,5 +1,7 @@
 package redis
 
+import "rela_recommend/log"
+
 type MatchProfile struct {
 	UserID       int64              `json:"user_id"`
 	AgeMap       map[string]float32 `json:"age"`
@@ -31,6 +33,7 @@ func (self *UserCacheModule) QueryMatchProfileByIds(ids []int64) ([]MatchProfile
 func (this *UserCacheModule) QueryMatchProfileByUserAndUsersMap(userId int64, userIds []int64) (*MatchProfile, map[int64]*MatchProfile, error) {
 	allIds := append(userIds, userId)
 	users, err := this.QueryMatchProfileByIds(allIds)
+	log.Warnf("alluser id,%s",allIds)
 	var resUser *MatchProfile
 	var resUsersMap = make(map[int64]*MatchProfile, 0)
 	if err == nil {
