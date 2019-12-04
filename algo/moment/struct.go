@@ -12,7 +12,7 @@ type UserInfo struct {
 	UserId int64
 	UserCache *redis.UserProfile
 	UserConcerns *rutils.SetInt64
-	MatchProfile *redis.MatchProfile
+	MomentProfile *redis.MatchProfile
 }
 
 // 主播信息
