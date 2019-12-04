@@ -1,7 +1,5 @@
 package redis
 
-import "rela_recommend/log"
-
 type MatchProfile struct {
 	UserID       int64              `json:"user_id"`
 	AgeMap       map[string]float32 `json:"age"`
@@ -26,7 +24,6 @@ func (self *UserCacheModule) QueryMatchProfileByIds(ids []int64) ([]MatchProfile
 	keyFormatter := "match_user_profile:%d"
 	ress, err := self.MGetStructs(MatchProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
 	objs := ress.Interface().([]MatchProfile)
-	log.Warnf("match redis err,%s,%s",ress,err)
 	return objs, err
 }
 
