@@ -34,11 +34,11 @@ func (this *UserCacheModule) QueryMatchProfileByUserAndUsersMap(userId int64, us
 	var resUser *MatchProfile
 	var resUsersMap = make(map[int64]*MatchProfile, 0)
 	if err == nil {
-		for _, user := range users {
+		for i, user := range users {
 			if user.UserID == userId {
-				resUser = &user
+				resUser = &users[i]
 			} else {
-				resUsersMap[user.UserID] = &user
+				resUsersMap[user.UserID] = &users[i]
 			}
 		}
 	}
