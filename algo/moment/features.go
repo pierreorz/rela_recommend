@@ -75,8 +75,8 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 			fs.AddCategory(6000, 2, 0, rutils.GetInt(rutils.IsInInts(role, uWantRoles)), 0)
 			fs.AddCategory(6002, 2, 0, rutils.GetInt(rutils.IsInInts(uRole, wantRoles)), 0)
 		}
-		if user.MatchProfile!=nil{
-			matp:=user.MatchProfile
+		if user.MomentProfile!=nil{
+			matp:=user.MomentProfile
 			if matp.AgeMap != nil {
 				fs.Add(5000, matp.AgeMap["age_18_20"])
 				fs.Add(5001, matp.AgeMap["age_21_22"])
