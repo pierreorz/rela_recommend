@@ -24,8 +24,6 @@ type DataInfo struct {
 	MomentProfile		*redis.MomentsProfile
 	RankInfo			*algo.RankInfo
 	Features 			*utils.Features
-	MatchProfile *redis.MatchProfile
-
 }
 
 func (self *DataInfo) GetDataId() int64 {
