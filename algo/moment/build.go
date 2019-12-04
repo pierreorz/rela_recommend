@@ -84,6 +84,7 @@ func DoBuildData(ctx algo.IContext) error {
 	// 获取画像信息
 	var startProfileTime = time.Now()
 	matchUser, matchUserMap, matchCacheErr := userCache.QueryMatchProfileByUserAndUsersMap(params.UserId, dataIds)
+	log.Warnf("match user,%s,%s",matchUser,params.UserId)
 	if matchCacheErr != nil {
 		log.Warnf("match profile cache list is err, %s\n", matchCacheErr)
 	}
