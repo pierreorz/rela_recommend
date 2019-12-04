@@ -83,8 +83,8 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	// 获取画像信息
 	var startProfileTime = time.Now()
-	matchUser, matchUserMap, matchCacheErr := userCache.QueryMatchProfileByUserAndUsersMap(params.UserId, dataIds)
-	log.Warnf("match user,%s,%s",matchUser,params.UserId)
+	_, matchUserMap, matchCacheErr := userCache.QueryMatchProfileByUserAndUsersMap(params.UserId, dataIds)
+	log.Warnf("match user,%s,%s",matchUserMap[params.UserId],params.UserId)
 	if matchCacheErr != nil {
 		log.Warnf("match profile cache list is err, %s\n", matchCacheErr)
 	}
@@ -93,7 +93,7 @@ func DoBuildData(ctx algo.IContext) error {
 	userInfo := &UserInfo{
 		UserId: params.UserId,
 		UserCache: user,
-		MatchProfile: matchUser,}
+		MatchProfile: matchUserMap[params.UserId],}
 
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 	dataList := make([]algo.IDataInfo, 0)
