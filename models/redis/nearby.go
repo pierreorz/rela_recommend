@@ -35,11 +35,11 @@ func (this *UserCacheModule) QueryNearbyProfileByUserAndUsersMap(userId int64, u
 	var resUser *NearbyProfile
 	var resUsersMap = make(map[int64]*NearbyProfile, 0)
 	if err == nil {
-		for _, user := range users {
+		for i, user := range users {
 			if user.UserID == userId {
-				resUser = &user
+				resUser = &users[i]
 			} else {
-				resUsersMap[user.UserID] = &user
+				resUsersMap[user.UserID] = &users[i]
 			}
 		}
 	}
