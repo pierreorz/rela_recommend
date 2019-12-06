@@ -33,7 +33,6 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 			fs.AddCategory(50, 10, -1, role, -1)
 			fs.AddCategories(70, 10, -1, wantRoles, -1)
 		}
-
 		// 用户画像
 		if user.MatchProfile != nil {
 			matp := user.MatchProfile
