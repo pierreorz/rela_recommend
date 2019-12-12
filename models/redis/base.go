@@ -118,10 +118,10 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 			setLen, setNilLen = len(setKeyVals), len(setNilVals)
 			startStoreSetTime = time.Now()
 			if cacheTime > 0 && setLen > 0 {  // 设置缓存
-				self.cache.MsetEx(setKeyVals, cacheTime)
+				go self.cache.MsetEx(setKeyVals, cacheTime)
 			}
 			if cacheNilTime > 0 && setNilLen > 0 {  // 设置找不到的缓存
-				self.cache.MsetEx(setNilVals, cacheNilTime)
+				go self.cache.MsetEx(setNilVals, cacheNilTime)
 			}
 		} else {
 			err = err2
