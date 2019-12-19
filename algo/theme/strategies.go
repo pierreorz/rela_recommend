@@ -11,16 +11,26 @@ import(
 
 func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itembehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
-	var avgExpCount float64 = 20000
-	var avgInfCount float64 = 500
+	var upperRate float32
+	var abTest = ctx.GetAbTest()
 
-	listCountScore, listRateScore, listTimeScore := strategy.BehaviorCountRateTimeScore(
-		itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), avgExpCount, 0, 0, 0)
-	infoCountScore, infoRateScore, infoTimeScore := strategy.BehaviorCountRateTimeScore(
-		itembehavior.GetThemeDetailExposure(), itembehavior.GetThemeDetailInteract(), avgInfCount, 0, 0, 0)
-
-	upperRate := float32(0.4 * listCountScore * listRateScore * listTimeScore + 
-						 0.6 * infoCountScore * infoRateScore * infoTimeScore)
+	if abTest.GetBool("rich_strategy:behavior:item_new", false) {
+		// 使用威尔逊算法估算内容情况：分值大概在0-0.2之间
+		listRate := strategy.WilsonScore(itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), 5)
+		infoRate := strategy.WilsonScore(itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), 10)
+		upperRate = float32(listRate * 0.6 + infoRate * 0.4)
+	} else {
+		var avgExpCount float64 = 20000
+		var avgInfCount float64 = 500
+	
+		listCountScore, listRateScore, listTimeScore := strategy.BehaviorCountRateTimeScore(
+			itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), avgExpCount, 0, 0, 0)
+		infoCountScore, infoRateScore, infoTimeScore := strategy.BehaviorCountRateTimeScore(
+			itembehavior.GetThemeDetailExposure(), itembehavior.GetThemeDetailInteract(), avgInfCount, 0, 0, 0)
+	
+		upperRate = float32(0.4 * listCountScore * listRateScore * listTimeScore + 
+							 0.6 * infoCountScore * infoRateScore * infoTimeScore)
+	}
 
 	if upperRate != 0.0 {
 		rankInfo.AddRecommend("ItemBehavior", 1.0 + upperRate)
@@ -36,18 +46,28 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 
 	if userbehavior != nil {
 		var upperRate float32
-		var avgExpCount float64 = 2
-		var avgInfCount float64 = 1
-	
-		listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
-			userbehavior.GetThemeListExposure(), userbehavior.GetThemeListInteract(), 
-			avgExpCount, currTime, 18000, 18000)
-		infoCountScore, _, infoTimeScore := strategy.BehaviorCountRateTimeScore(
-			userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract(), 
-			avgInfCount, currTime, 36000, 18000)
-	
-		// upperRate = - float32(0.4 * listCountScore * listTimeScore + 0.6 * infoCountScore * infoTimeScore)
-		upperRate = - float32(math.Max(listCountScore * listTimeScore, infoCountScore * infoTimeScore))
+
+		if abTest.GetBool("rich_strategy:behavior:user_new", false) {
+			// 浏览过的内容使用浏览次数反序排列，3:未浏览过，2：浏览一次，1：浏览2次，0：浏览3次以上
+			allBehavior := behavior.MergeBehaviors(userbehavior.GetThemeListExposure(), userbehavior.GetThemeListInteract(), 
+												   userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract())
+			if allBehavior != nil { 
+				rankInfo.Level = int(3 - math.Min(allBehavior.Count, 3))
+			}
+		} else {
+			var avgExpCount float64 = 2
+			var avgInfCount float64 = 1
+		
+			listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
+				userbehavior.GetThemeListExposure(), userbehavior.GetThemeListInteract(), 
+				avgExpCount, currTime, 18000, 18000)
+			infoCountScore, _, infoTimeScore := strategy.BehaviorCountRateTimeScore(
+				userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract(), 
+				avgInfCount, currTime, 36000, 18000)
+		
+			// upperRate = - float32(0.4 * listCountScore * listTimeScore + 0.6 * infoCountScore * infoTimeScore)
+			upperRate = - float32(math.Max(listCountScore * listTimeScore, infoCountScore * infoTimeScore))
+		}
 		if upperRate != 0.0 {
 			rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
 		}
