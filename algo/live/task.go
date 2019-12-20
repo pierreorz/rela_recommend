@@ -17,8 +17,9 @@ func GetCachedLiveList() []pika.LiveCache {
 // 获取缓存的直播用户id为key 的 map
 func GetCachedLiveMap() map[int64]*pika.LiveCache {
 	liveMap := map[int64]*pika.LiveCache{}
-	for i, _ := range cachedLiveList {
-		liveMap[cachedLiveList[i].Live.UserId] = &cachedLiveList[i]
+	liveList := GetCachedLiveList()  // 调用方法获取对象copy，避免引发bug
+	for i, _ := range liveList {
+		liveMap[liveList[i].Live.UserId] = &liveList[i]
 	}
 	return liveMap
 }
