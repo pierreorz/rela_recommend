@@ -183,6 +183,7 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 		cRole, cWantRoles = rutils.GetInt(curr.RoleName), rutils.GetInts(curr.WantRole)
 		fs.AddCategory(5050, 15, -1, cRole, -1) // 自我认同
 		fs.AddCategories(5070, 15, -1, cWantRoles, -1)
+		fs.AddCategory(5100, 2, 0, rutils.GetInt(data.LiveInfo != nil), 0)	// 是否正在直播
 	}
 	
 	if currProfile != nil {

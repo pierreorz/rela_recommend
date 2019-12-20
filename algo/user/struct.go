@@ -4,6 +4,7 @@ import(
 	"rela_recommend/algo"
 	// rutils "rela_recommend/utils"
 	"rela_recommend/models/redis"
+	"rela_recommend/models/pika"
 	// "rela_recommend/algo/utils"
 )
 
@@ -19,6 +20,7 @@ type DataInfo struct {
 	DataId 			int64
 	UserCache 		*redis.UserProfile
 	UserProfile 	*redis.NearbyProfile
+	LiveInfo		*pika.LiveCache
 	RankInfo		*algo.RankInfo
 }
 

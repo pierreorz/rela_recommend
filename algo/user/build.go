@@ -3,6 +3,7 @@ package user
 import (
 	"time"
 	"rela_recommend/algo"
+	"rela_recommend/algo/live"
 	"rela_recommend/log"
 	"rela_recommend/factory"
 	// "rela_recommend/algo/utils"
@@ -16,7 +17,8 @@ func DoBuildData(ctx algo.IContext) error {
 	pf := ctx.GetPerforms()
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	
+	liveMap := live.GetCachedLiveMap()	// 当前的直播列表
+
 	// 确定候选用户
 	dataIds := params.DataIds
 	if (dataIds != nil || len(dataIds) == 0) {
@@ -55,6 +57,7 @@ func DoBuildData(ctx algo.IContext) error {
 			DataId: dataId,
 			UserCache: data,
 			UserProfile: userProfileMap[dataId],
+			LiveInfo: liveMap[dataId],
 			RankInfo: &algo.RankInfo{},
 		}
 		dataList = append(dataList, info)

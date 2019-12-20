@@ -14,6 +14,15 @@ func GetCachedLiveList() []pika.LiveCache {
 	return cachedLiveList
 }
 
+// 获取缓存的直播用户id为key 的 map
+func GetCachedLiveMap() map[int64]*pika.LiveCache {
+	liveMap := map[int64]*pika.LiveCache{}
+	for i, _ := range cachedLiveList {
+		liveMap[cachedLiveList[i].Live.UserId] = &cachedLiveList[i]
+	}
+	return liveMap
+}
+
 func refreshLiveList(duration time.Duration) {
 	// time.Sleep(10 * time.Second)
 	log.Infof("refreshLiveList task start: %s\n", duration)
