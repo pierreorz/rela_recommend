@@ -22,7 +22,7 @@ func wilsonScoreForBernoulli(pos, total, z float64) float64 {
 func WilsonScore(expBe *behavior.Behavior, actBe *behavior.Behavior, scale float64) float64 {
 	if expBe != nil && expBe.Count > 0 && actBe != nil {
 		s := wilsonScoreForBernoulli(actBe.Count, expBe.Count, 2.0)
-		return math.Max(s * scale, 1.0)
+		return math.Min(s * scale, 1.0)
 	}
 	return 0.0
 }
