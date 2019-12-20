@@ -19,6 +19,10 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 		listRate := strategy.WilsonScore(itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), 5)
 		infoRate := strategy.WilsonScore(itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), 10)
 		upperRate = float32(listRate * 0.6 + infoRate * 0.4)
+
+		if upperRate != 0.0 {
+			rankInfo.AddRecommend("ItemBehaviorV1", 1.0 + upperRate)
+		}
 	} else {
 		var avgExpCount float64 = 20000
 		var avgInfCount float64 = 500
@@ -30,11 +34,12 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 	
 		upperRate = float32(0.4 * listCountScore * listRateScore * listTimeScore + 
 							 0.6 * infoCountScore * infoRateScore * infoTimeScore)
+		
+		if upperRate != 0.0 {
+			rankInfo.AddRecommend("ItemBehavior", 1.0 + upperRate)
+		}
 	}
 
-	if upperRate != 0.0 {
-		rankInfo.AddRecommend("ItemBehavior", 1.0 + upperRate)
-	}
 	return err
 }
 
@@ -45,8 +50,6 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	var currTime = float64(ctx.GetCreateTime().Unix())
 
 	if userbehavior != nil {
-		var upperRate float32
-
 		if abTest.GetBool("rich_strategy:behavior:user_new", false) {
 			// 浏览过的内容使用浏览次数反序排列，3:未浏览过，2：浏览一次，1：浏览2次，0：浏览3次以上
 			allBehavior := behavior.MergeBehaviors(userbehavior.GetThemeListExposure(), userbehavior.GetThemeListInteract(), 
@@ -55,6 +58,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 				rankInfo.Level = int(3 - math.Min(allBehavior.Count, 3))
 			}
 		} else {
+			var upperRate float32
 			var avgExpCount float64 = 2
 			var avgInfCount float64 = 1
 		
@@ -67,9 +71,10 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 		
 			// upperRate = - float32(0.4 * listCountScore * listTimeScore + 0.6 * infoCountScore * infoTimeScore)
 			upperRate = - float32(math.Max(listCountScore * listTimeScore, infoCountScore * infoTimeScore))
-		}
-		if upperRate != 0.0 {
-			rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
+
+			if upperRate != 0.0 {
+				rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
+			}
 		}
 	}
 	
