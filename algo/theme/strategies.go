@@ -16,8 +16,8 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 
 	if abTest.GetBool("rich_strategy:behavior:item_new", false) {
 		// 使用威尔逊算法估算内容情况：分值大概在0-0.2之间
-		listRate := strategy.WilsonScore(itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), 1)
-		infoRate := strategy.WilsonScore(itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), 1)
+		listRate := strategy.WilsonScore(itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), 5)
+		infoRate := strategy.WilsonScore(itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), 10)
 		upperRate = float32(listRate * 0.6 + infoRate * 0.4)
 
 		if upperRate != 0.0 {
