@@ -147,8 +147,14 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 				fs.Add(2084, matp.FreqTimeMap["time_20_22"])
 				fs.Add(2085, matp.FreqTimeMap["time_22_24"])
 			}
+
 			if matp.ContinuesUse >= 0 {
 				fs.Add(2086, float32(matp.ContinuesUse))
+			}
+
+			if matp.ImageMap != nil {
+				fs.Add(2087, matp.ImageMap["cover_has_face"])
+				fs.Add(2088, matp.ImageMap["head_has_face"])
 			}
 
 		}
@@ -292,6 +298,11 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 		}
 		if currMatch.ContinuesUse >= 0 {
 			fs.Add(5086, float32(currMatch.ContinuesUse))
+		}
+
+		if currMatch.ImageMap != nil {
+			fs.Add(5087, currMatch.ImageMap["cover_has_face"])
+			fs.Add(5088, currMatch.ImageMap["head_has_face"])
 		}
 
 	}
