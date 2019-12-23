@@ -90,17 +90,19 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		fs.Add(8,float32(0.0))
 	}
 
+	//ALS用户向量
 	userAls_line :=UserAls.UserEmbedding
 	if len(userAls_line)>0{
 		for i :=0;i<100;i++ {
 			value:=userAls_line[i]
-			fs.Add(i+400, float32(value))
+			fs.Add(i+200, float32(value))
 		}
 	}else{
 		for i :=0;i<100;i++{
 			fs.Add(i+200,0.0)
 		}
 	}
+	//ALS话题向量
 	themeAls_line := ThemeAls.ThemeEmbedding
 	if len(themeAls_line)>0{
 		for i :=0;i<100;i++{
