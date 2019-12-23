@@ -30,7 +30,8 @@ var richStrategyMap = map[string]algo.IRichStrategy {
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "mods_1.0.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeatures },
-
+	&algo.AlgoBase{AlgoName: "model_theme_v2.0", FilePath: workDir + "mods_2.0.dumps.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeaturesv0 },
 })
 
 // 话题推荐列表
