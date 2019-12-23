@@ -35,6 +35,15 @@ type ThemeUserBehavior struct {
 	DetailFollowReplyer		*Behavior	`json:"theme.detail:follow_replyer"`			// 关注评论者
 	DetailUnFollowReplyer	*Behavior	`json:"theme.detail:unfollow_replyer"`			// 取消关注评论者
 }
+type AlsUserProfile struct {
+	UserID 	int64
+	UserEmbedding []float32 `json UserEmbedding`
+
+}
+type AlsThemeProfile struct {
+	ThemeID int64
+	ThemeEmbedding []float32 `json ThemeEmbedding`
+}
 
 // 获取总列表曝光
 func (self *ThemeUserBehavior) GetTotalListExposure() *Behavior {
@@ -79,3 +88,20 @@ func (self *ThemeBehaviorCacheModule) QueryBehaviorMap(ids []int64) (map[int64]*
 	objs := ress.Interface().(map[int64]*ThemeUserBehavior)
 	return objs, err
 }
+
+// 读取用户als特征
+func (self *UserCacheModule) QueryUserProfileMap(ids []int64) ([]AlsUserProfile, error) {
+	keyFormatter := "user_als_profile:%d"
+	ress, err := self.MGetStructs(AlsUserProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
+	objs := ress.Interface().([]AlsUserProfile)
+	return objs, err
+}
+func (self *MomentCacheModule) QueryThemeProfileMap(ids []int64) ([]AlsThemeProfile, error) {
+	keyFormatter := "theme_als_profile:%d"
+	ress, err := self.MGetStructs(AlsThemeProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
+	objs := ress.Interface().([]AlsThemeProfile)
+	return objs, err
+}
+
+
+
