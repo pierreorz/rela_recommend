@@ -36,12 +36,12 @@ type ThemeUserBehavior struct {
 	DetailUnFollowReplyer	*Behavior	`json:"theme.detail:unfollow_replyer"`			// 取消关注评论者
 }
 type AlsUserProfile struct {
-	UserID 	int64
+	UserID 	int64	`json user_id`
 	UserEmbedding []float32 `json UserEmbedding`
 
 }
 type AlsThemeProfile struct {
-	ThemeID int64
+	ThemeID int64	`json theme_id`
 	ThemeEmbedding []float32 `json ThemeEmbedding`
 }
 
