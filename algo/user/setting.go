@@ -28,7 +28,8 @@ var richStrategyMap = map[string]algo.IRichStrategy {
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	&algo.AlgoBase{AlgoName: "base", FilePath: workDir + "nearby/mods_1.0.model.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
-
+	&algo.AlgoBase{AlgoName: "v1.1", FilePath: workDir + "nearby/mods_1.1.model.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
 })
 
 // 附近的人
