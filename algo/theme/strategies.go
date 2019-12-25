@@ -49,8 +49,8 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	var abTest = ctx.GetAbTest()
 	var currTime = float64(ctx.GetCreateTime().Unix())
 
-	if userbehavior != nil {
-		if abTest.GetBool("rich_strategy:behavior:user_new", false) {
+	if abTest.GetBool("rich_strategy:behavior:user_new", false) {
+		if userbehavior != nil {
 			// 浏览过的内容使用浏览次数反序排列，3:未浏览过，2：浏览一次，1：浏览2次，0：浏览3次以上
 			allBehavior := behavior.MergeBehaviors(userbehavior.GetThemeListExposure(), userbehavior.GetThemeListInteract(), 
 												   userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract())
@@ -58,6 +58,10 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 				rankInfo.Level = int(3 - math.Min(allBehavior.Count, 3))
 			}
 		} else {
+			rankInfo.Level = 3
+		}
+	} else {
+		if userbehavior != nil {
 			var upperRate float32
 			var avgExpCount float64 = 2
 			var avgInfCount float64 = 1
@@ -71,7 +75,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 		
 			// upperRate = - float32(0.4 * listCountScore * listTimeScore + 0.6 * infoCountScore * infoTimeScore)
 			upperRate = - float32(math.Max(listCountScore * listTimeScore, infoCountScore * infoTimeScore))
-
+	
 			if upperRate != 0.0 {
 				rankInfo.AddRecommend("UserBehavior", 1.0 + upperRate)
 			}
