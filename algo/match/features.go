@@ -307,10 +307,10 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 		if currMatch.ImageMap != nil {
 			fs.Add(5087, currMatch.ImageMap["cover_has_face"])
 			fs.Add(5088, currMatch.ImageMap["cover_no_face"])
-			fs.Add(2089, currMatch.ImageMap["head_has_face"])
-			fs.Add(2090, currMatch.ImageMap["head_no_face"])
-			fs.Add(2091, currMatch.ImageMap["imagewall_has_face"])
-			fs.Add(2092, currMatch.ImageMap["imagewall_no_face"])
+			fs.Add(5089, currMatch.ImageMap["head_has_face"])
+			fs.Add(5090, currMatch.ImageMap["head_no_face"])
+			fs.Add(5091, currMatch.ImageMap["imagewall_has_face"])
+			fs.Add(5092, currMatch.ImageMap["imagewall_no_face"])
 		}
 
 	}
