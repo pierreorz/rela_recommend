@@ -154,7 +154,11 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 
 			if matp.ImageMap != nil {
 				fs.Add(2087, matp.ImageMap["cover_has_face"])
-				fs.Add(2088, matp.ImageMap["head_has_face"])
+				fs.Add(2088, matp.ImageMap["cover_no_face"])
+				fs.Add(2089, matp.ImageMap["head_has_face"])
+				fs.Add(2090, matp.ImageMap["head_no_face"])
+				fs.Add(2091, matp.ImageMap["imagewall_has_face"])
+				fs.Add(2092, matp.ImageMap["imagewall_no_face"])
 			}
 
 		}
@@ -302,7 +306,11 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 
 		if currMatch.ImageMap != nil {
 			fs.Add(5087, currMatch.ImageMap["cover_has_face"])
-			fs.Add(5088, currMatch.ImageMap["head_has_face"])
+			fs.Add(5088, currMatch.ImageMap["cover_no_face"])
+			fs.Add(2089, currMatch.ImageMap["head_has_face"])
+			fs.Add(2090, currMatch.ImageMap["head_no_face"])
+			fs.Add(2091, currMatch.ImageMap["imagewall_has_face"])
+			fs.Add(2092, currMatch.ImageMap["imagewall_no_face"])
 		}
 
 	}
