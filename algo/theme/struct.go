@@ -13,8 +13,7 @@ type UserInfo struct {
 	UserId int64
 	UserCache *redis.UserProfile
 	UserConcerns *rutils.SetInt64
-	AlsThemeCache *redis.AlsThemeProfile
-	AlsUserCache *redis.AlsUserProfile
+	ThemeUserCache *redis.ThemeUserProfile
 }
 // 话题信息
 type DataInfo struct {
@@ -25,8 +24,9 @@ type DataInfo struct {
 	MomentProfile		*redis.MomentsProfile
 	RankInfo			*algo.RankInfo
 	Features 			*utils.Features
-	AlsThemeCache 		*redis.AlsThemeProfile
-	AlsUserCache 		*redis.AlsUserProfile
+	ThemeProfileCache 	*redis.ThemeProfile
+	ThemeUserCache 		*redis.ThemeUserProfile
+
 }
 
 func (self *DataInfo) GetDataId() int64 {
