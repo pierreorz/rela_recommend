@@ -64,8 +64,8 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	data := idata.(*DataInfo)
 	mem := data.MomentCache
 	wordVec := model.GetWords()
-	ThemeAls := data.AlsThemeCache
-	UserAls := data.AlsUserCache
+	ThemeAls := data.ThemeProfileCache
+	UserAls := data.ThemeUserCache
 	memu := data.UserCache
 	memex :=data.MomentExtendCache
 	if (memu!=nil){
@@ -97,10 +97,6 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			value:=userAls_line[i]
 			fs.Add(i+200, float32(value))
 		}
-	}else{
-		for i :=0;i<100;i++{
-			fs.Add(i+200,0.0)
-		}
 	}
 	//ALS话题向量
 	themeAls_line := ThemeAls.ThemeEmbedding
@@ -108,10 +104,6 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		for i :=0;i<100;i++{
 			value:=themeAls_line[i]
 			fs.Add(i+400, float32(value))
-		}
-	}else{
-		for i :=0;i<100;i++{
-			fs.Add(i+400,0.0)
 		}
 	}
 	//话题为段文本，第一版过于稀疏

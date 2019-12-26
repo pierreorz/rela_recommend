@@ -35,14 +35,14 @@ type ThemeUserBehavior struct {
 	DetailFollowReplyer		*Behavior	`json:"theme.detail:follow_replyer"`			// 关注评论者
 	DetailUnFollowReplyer	*Behavior	`json:"theme.detail:unfollow_replyer"`			// 取消关注评论者
 }
-type AlsUserProfile struct {
-	UserID 	int64	`json user_id`
-	UserEmbedding []float32 `json UserEmbedding`
+type ThemeUserProfile struct {
+	UserID 	int64	`json "user_id"`
+	UserEmbedding []float32 `json "user_embedding"`
 
 }
-type AlsThemeProfile struct {
-	ThemeID int64	`json theme_id`
-	ThemeEmbedding []float32 `json ThemeEmbedding`
+type ThemeProfile struct {
+	ThemeID int64	`json "theme_id"`
+	ThemeEmbedding []float32 `json "theme_embedding""`
 }
 
 // 获取总列表曝光
@@ -73,6 +73,9 @@ func NewThemeBehaviorCacheModule(ctx algo.IContext, cache *cache.Cache) *ThemeBe
 	return &ThemeBehaviorCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
 }
 
+
+
+
 // 读取话题相关用户行为
 func (self *ThemeBehaviorCacheModule) QueryUserBehaviorMap(userId int64, ids []int64) (map[int64]*ThemeUserBehavior, error) {
 	keyFormatter := fmt.Sprintf("behavior:theme:%d:%%d", userId)
@@ -90,16 +93,19 @@ func (self *ThemeBehaviorCacheModule) QueryBehaviorMap(ids []int64) (map[int64]*
 }
 
 // 读取用户als特征
-func (self *UserCacheModule) QueryUserProfileMap(ids []int64) ([]AlsUserProfile, error) {
-	keyFormatter := "user_als_profile:%d"
-	ress, err := self.MGetStructs(AlsUserProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
-	objs := ress.Interface().([]AlsUserProfile)
+func (self *UserCacheModule) QueryThemeUserProfileMap(ids []int64) (map[int64]*ThemeUserProfile, error) {
+	keyFormatter := "theme_user_profile:%d"
+	ress, err := self.MGetStructsMap(ThemeUserProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
+	objs := ress.Interface().(map[int64]*ThemeUserProfile)
 	return objs, err
 }
-func (self *MomentCacheModule) QueryThemeProfileMap(ids []int64) ([]AlsThemeProfile, error) {
-	keyFormatter := "theme_als_profile:%d"
-	ress, err := self.MGetStructs(AlsThemeProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
-	objs := ress.Interface().([]AlsThemeProfile)
+
+
+
+func (self *MomentCacheModule) QueryThemeProfileMap(ids []int64) (map[int64]*ThemeProfile, error) {
+	keyFormatter := "theme_profile:%d"
+	ress, err := self.MGetStructsMap(ThemeProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
+	objs := ress.Interface().(map[int64]*ThemeProfile)
 	return objs, err
 }
 
