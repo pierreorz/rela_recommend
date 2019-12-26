@@ -73,9 +73,20 @@ func NewThemeBehaviorCacheModule(ctx algo.IContext, cache *cache.Cache) *ThemeBe
 	return &ThemeBehaviorCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
 }
 
+type ThemeUserProfileModule struct {
+	CachePikaModule
+}
 
+func NewThemeUserProfileModule(ctx algo.IContext, cache *cache.Cache) *ThemeUserProfileModule{
+	return &ThemeUserProfileModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
+}
 
-
+type ThemeProfileModule struct {
+	CachePikaModule
+}
+func NewThemeProfileModule(ctx algo.IContext, cache *cache.Cache) *ThemeProfileModule{
+	return &ThemeProfileModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
+}
 // 读取话题相关用户行为
 func (self *ThemeBehaviorCacheModule) QueryUserBehaviorMap(userId int64, ids []int64) (map[int64]*ThemeUserBehavior, error) {
 	keyFormatter := fmt.Sprintf("behavior:theme:%d:%%d", userId)
@@ -93,13 +104,13 @@ func (self *ThemeBehaviorCacheModule) QueryBehaviorMap(ids []int64) (map[int64]*
 }
 
 // 读取用户als特征
-func (self *UserCacheModule) QueryThemeUserProfileMap(ids []int64) (map[int64]*ThemeUserProfile, error) {
+func (self *ThemeUserProfileModule) QueryThemeUserProfileMap(ids []int64) (map[int64]*ThemeUserProfile, error) {
 	keyFormatter := "theme_user_profile:%d"
 	ress, err := self.MGetStructsMap(ThemeUserProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
 	objs := ress.Interface().(map[int64]*ThemeUserProfile)
 	return objs, err
 }
-func (self *MomentCacheModule) QueryThemeProfileMap(ids []int64) (map[int64]*ThemeProfile, error) {
+func (self *ThemeProfileModule) QueryThemeProfileMap(ids []int64) (map[int64]*ThemeProfile, error) {
 	keyFormatter := "theme_profile:%d"
 	ress, err := self.MGetStructsMap(ThemeProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
 	objs := ress.Interface().(map[int64]*ThemeProfile)
