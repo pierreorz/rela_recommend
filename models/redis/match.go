@@ -15,14 +15,14 @@ type MatchProfile struct {
 	FreqWeekMap  map[string]float32 `json:"freq_week"`
 	FreqTimeMap  map[string]float32 `json:"freq_time"`
 	ContinuesUse int64              `json:"continues_use"`
-	ImageMap     map[string]float32 `json:"image"`
 	// TimestampMap  map[string]float32 `json:"timestamp"`
 }
+
 
 // 读取速配画像信息
 func (self *UserCacheModule) QueryMatchProfileByIds(ids []int64) ([]MatchProfile, error) {
 	keyFormatter := "match_user_profile:%d"
-	ress, err := self.MGetStructs(MatchProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	ress, err := self.MGetStructs(MatchProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
 	objs := ress.Interface().([]MatchProfile)
 	return objs, err
 }
