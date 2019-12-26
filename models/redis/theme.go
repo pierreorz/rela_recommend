@@ -77,14 +77,14 @@ type ThemeUserProfileModule struct {
 	CachePikaModule
 }
 
-func NewThemeUserProfileModule(ctx algo.IContext, cache *cache.Cache) *ThemeUserProfileModule{
+func NewThemeUserProfileModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *ThemeUserProfileModule{
 	return &ThemeUserProfileModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
 }
 
 type ThemeProfileModule struct {
 	CachePikaModule
 }
-func NewThemeProfileModule(ctx algo.IContext, cache *cache.Cache) *ThemeProfileModule{
+func NewThemeProfileModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *ThemeProfileModule{
 	return &ThemeProfileModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
 }
 // 读取话题相关用户行为

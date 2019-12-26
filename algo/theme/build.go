@@ -21,8 +21,8 @@ func DoBuildData(ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
-	themeUserCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	themeCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	themeUserCache := redis.NewThemeUserProfileModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	themeCache := redis.NewThemeProfileModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	// search list
 	var startSearchTime = time.Now()
 	dataIdList := params.DataIds
