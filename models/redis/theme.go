@@ -42,7 +42,7 @@ type ThemeUserProfile struct {
 }
 type ThemeProfile struct {
 	ThemeID int64	`json "theme_id"`
-	ThemeEmbedding []float32 `json "theme_embedding""`
+	ThemeEmbedding []float32 `json "theme_embedding"`
 }
 
 // 获取总列表曝光
@@ -99,9 +99,6 @@ func (self *UserCacheModule) QueryThemeUserProfileMap(ids []int64) (map[int64]*T
 	objs := ress.Interface().(map[int64]*ThemeUserProfile)
 	return objs, err
 }
-
-
-
 func (self *MomentCacheModule) QueryThemeProfileMap(ids []int64) (map[int64]*ThemeProfile, error) {
 	keyFormatter := "theme_profile:%d"
 	ress, err := self.MGetStructsMap(ThemeProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
