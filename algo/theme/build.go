@@ -86,9 +86,9 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	var startBuildTime = time.Now()
 
-	userInfo := &UserInfo{
-		UserId: params.UserId,
-		UserCache: user}
+	//userInfo := &UserInfo{
+	//	UserId: params.UserId,
+	//	UserCache: user}
 
 	// 增加新特征
 
@@ -99,7 +99,10 @@ func DoBuildData(ctx algo.IContext) error {
 	if themeUserCacheErr != nil {
 		log.Warnf("themeUserProfile cache list is err, %s\n", themeUserCacheErr)
 	}
-
+	userInfo := &UserInfo{
+		UserId: params.UserId,
+		UserCache: user,
+		ThemeUserCache:userScore[params.UserId]}
 	themeScore,themeCacheErr :=themeCache.QueryThemeProfileMap(dataIds)
 	if themeCacheErr != nil {
 		log.Warnf("themeProfile cache list is err, %s\n", themeCacheErr)
@@ -135,7 +138,7 @@ func DoBuildData(ctx algo.IContext) error {
 				MomentExtendCache: mom.MomentsExtend,
 				MomentProfile: mom.MomentsProfile,
 				ThemeProfileCache:themeScore[mom.MomentsExtend.UserId],
-				ThemeUserCache:userScore[momUser.UserId],
+				//ThemeUserCache:userScore[momUser.UserId],
 				RankInfo: &algo.RankInfo{IsTop: isTop, Recommends: recommends},
 			}
 			dataList = append(dataList, info)

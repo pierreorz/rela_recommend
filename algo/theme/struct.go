@@ -25,7 +25,7 @@ type DataInfo struct {
 	RankInfo			*algo.RankInfo
 	Features 			*utils.Features
 	ThemeProfileCache 	*redis.ThemeProfile
-	ThemeUserCache 		*redis.ThemeUserProfile
+
 
 }
 

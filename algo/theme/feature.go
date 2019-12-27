@@ -62,10 +62,11 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	fs := &utils.Features{}
 
 	data := idata.(*DataInfo)
+	userData := ctx.GetUserInfo().(*UserInfo)
 	mem := data.MomentCache
 	wordVec := model.GetWords()
 	ThemeAls := data.ThemeProfileCache
-	UserAls := data.ThemeUserCache
+	UserAls := userData.ThemeUserCache
 	memu := data.UserCache
 	memex :=data.MomentExtendCache
 	if (memu!=nil){
