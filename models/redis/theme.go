@@ -106,13 +106,13 @@ func (self *ThemeBehaviorCacheModule) QueryBehaviorMap(ids []int64) (map[int64]*
 // 读取用户als特征
 func (self *ThemeUserProfileModule) QueryThemeUserProfileMap(ids []int64) (map[int64]*ThemeUserProfile, error) {
 	keyFormatter := "theme_user_profile:%d"
-	ress, err := self.MGetStructsMap(ThemeUserProfile{}, ids, keyFormatter, 0, 0)
+	ress, err := self.MGetStructsMap(&ThemeUserProfile{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*ThemeUserProfile)
 	return objs, err
 }
 func (self *ThemeProfileModule) QueryThemeProfileMap(ids []int64) (map[int64]*ThemeProfile, error) {
 	keyFormatter := "theme_profile:%d"
-	ress, err := self.MGetStructsMap(ThemeProfile{}, ids, keyFormatter, 0, 0)
+	ress, err := self.MGetStructsMap(&ThemeProfile{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*ThemeProfile)
 	return objs, err
 }
