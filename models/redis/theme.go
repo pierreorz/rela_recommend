@@ -36,13 +36,13 @@ type ThemeUserBehavior struct {
 	DetailUnFollowReplyer	*Behavior	`json:"theme.detail:unfollow_replyer"`			// 取消关注评论者
 }
 type ThemeUserProfile struct {
-	UserID 	int64	`json "user_id"`
-	UserEmbedding []float32 `json "user_embedding"`
+	UserID 	int64	`json:"user_id"`
+	UserEmbedding []float32 `json:"user_embedding"`
 
 }
 type ThemeProfile struct {
-	ThemeID int64	`json "theme_id"`
-	ThemeEmbedding []float32 `json "theme_embedding"`
+	ThemeID int64	`json:"theme_id"`
+	ThemeEmbedding []float32 `json:"theme_embedding"`
 }
 
 // 获取总列表曝光
