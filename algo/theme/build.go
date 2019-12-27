@@ -22,7 +22,7 @@ func DoBuildData(ctx algo.IContext) error {
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
 	themeUserCache := redis.NewThemeUserProfileModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	themeCache := redis.NewThemeProfileModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	themeCache := redis.NewThemeUserProfileModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	// search list
 	var startSearchTime = time.Now()
 	dataIdList := params.DataIds
@@ -95,15 +95,15 @@ func DoBuildData(ctx algo.IContext) error {
 
 	userid :=make([]int64,0)
 	userList :=append(userid, params.UserId)
-	userScore,themeUserCacheErr := themeUserCache.QueryThemeUserProfileMap(userList)
+	userMap,themeUserCacheErr := themeUserCache.QueryThemeUserProfileMap(userList)
 	if themeUserCacheErr != nil {
 		log.Warnf("themeUserProfile cache list is err, %s\n", themeUserCacheErr)
 	}
 	userInfo := &UserInfo{
 		UserId: params.UserId,
 		UserCache: user,
-		ThemeUserCache:userScore[params.UserId]}
-	themeScore,themeCacheErr :=themeCache.QueryThemeProfileMap(dataIds)
+		ThemeUser:userMap[params.UserId]}
+	themeMap,themeCacheErr :=themeCache.QueryThemeProfileMap(dataIds)
 	if themeCacheErr != nil {
 		log.Warnf("themeProfile cache list is err, %s\n", themeCacheErr)
 	}
@@ -137,7 +137,7 @@ func DoBuildData(ctx algo.IContext) error {
 				MomentCache: mom.Moments,
 				MomentExtendCache: mom.MomentsExtend,
 				MomentProfile: mom.MomentsProfile,
-				ThemeProfileCache:themeScore[mom.MomentsExtend.UserId],
+				ThemeProfile:themeMap[mom.Moments.Id],
 				//ThemeUserCache:userScore[momUser.UserId],
 				RankInfo: &algo.RankInfo{IsTop: isTop, Recommends: recommends},
 			}

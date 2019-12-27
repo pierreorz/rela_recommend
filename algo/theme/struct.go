@@ -13,7 +13,7 @@ type UserInfo struct {
 	UserId int64
 	UserCache *redis.UserProfile
 	UserConcerns *rutils.SetInt64
-	ThemeUserCache *redis.ThemeUserProfile
+	ThemeUser *redis.ThemeUserProfile
 }
 // 话题信息
 type DataInfo struct {
@@ -24,7 +24,7 @@ type DataInfo struct {
 	MomentProfile		*redis.MomentsProfile
 	RankInfo			*algo.RankInfo
 	Features 			*utils.Features
-	ThemeProfileCache 	*redis.ThemeProfile
+	ThemeProfile 		*redis.ThemeProfile
 
 
 }

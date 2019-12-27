@@ -4,7 +4,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
 	"rela_recommend/factory"
-	"rela_recommend/models/redis"
 	rutils "rela_recommend/utils"
 )
 
@@ -65,8 +64,8 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	userData := ctx.GetUserInfo().(*UserInfo)
 	mem := data.MomentCache
 	wordVec := model.GetWords()
-	ThemeAls := data.ThemeProfileCache
-	UserAls := userData.ThemeUserCache
+	ThemeAls := data.ThemeProfile
+	UserAls := userData.ThemeUser
 	memu := data.UserCache
 	memex :=data.MomentExtendCache
 	if (memu!=nil){
@@ -75,15 +74,14 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		fs.Add(3, float32(memu.Weight))
 		fs.Add(5,float32(memex.AndroidFlag))
 	}
-	var themeUser *redis.UserProfile
-
-	user := ctx.GetUserInfo().(*UserInfo)
-	if user.UserCache != nil {
-		fs.Add(10,float32(themeUser.Age))
-		fs.Add(11,float32(themeUser.Height))
-		fs.Add(12,float32(themeUser.Weight))
+	reqUser:=userData.UserCache
+	if (reqUser!=nil){
+		fs.Add(10,float32(reqUser.Age))
+		fs.Add(11,float32(reqUser.Height))
+		fs.Add(12,float32(reqUser.Weight))
 
 	}
+
 	imageUrl := mem.ImageUrl
 	if len(imageUrl)>0 {
 		fs.Add(8,float32(1.0))
@@ -94,18 +92,13 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	//ALS用户向量
 	userAls_line :=UserAls.UserEmbedding
 	if len(userAls_line)>0{
-		for i :=0;i<100;i++ {
-			value:=userAls_line[i]
-			fs.Add(i+200, float32(value))
-		}
+		fs.AddArray(200,100,userAls_line)
+
 	}
 	//ALS话题向量
 	themeAls_line := ThemeAls.ThemeEmbedding
 	if len(themeAls_line)>0{
-		for i :=0;i<100;i++{
-			value:=themeAls_line[i]
-			fs.Add(i+400, float32(value))
-		}
+		fs.AddArray(400,100,themeAls_line)
 	}
 	//话题为段文本，第一版过于稀疏
 	wordsCount := len(mem.MomentsText)
