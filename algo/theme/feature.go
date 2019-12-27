@@ -61,11 +61,9 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	fs := &utils.Features{}
 
 	data := idata.(*DataInfo)
-	userData := ctx.GetUserInfo().(*UserInfo)
 	mem := data.MomentCache
 	wordVec := model.GetWords()
 	ThemeAls := data.ThemeProfile
-	UserAls := userData.ThemeUser
 	memu := data.UserCache
 	memex :=data.MomentExtendCache
 	if (memu!=nil){
@@ -74,14 +72,21 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		fs.Add(3, float32(memu.Weight))
 		fs.Add(5,float32(memex.AndroidFlag))
 	}
-	reqUser:=userData.UserCache
-	if (reqUser!=nil){
-		fs.Add(10,float32(reqUser.Age))
-		fs.Add(11,float32(reqUser.Height))
-		fs.Add(12,float32(reqUser.Weight))
+	if ctx.GetUserInfo()!=nil{
+		userData := ctx.GetUserInfo().(*UserInfo)
+		UserAls := userData.ThemeUser
+		reqUser:=userData.UserCache
+		if (reqUser!=nil){
+			fs.Add(10, float32(reqUser.Age))
+			fs.Add(11, float32(reqUser.Height))
+			fs.Add(12, float32(reqUser.Weight))
+			}
+		userAls_line :=UserAls.UserEmbedding
+		if len(userAls_line)>0{
+			fs.AddArray(200,100,userAls_line)
+			}
 
 	}
-
 	imageUrl := mem.ImageUrl
 	if len(imageUrl)>0 {
 		fs.Add(8,float32(1.0))
@@ -89,12 +94,6 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		fs.Add(8,float32(0.0))
 	}
 
-	//ALS用户向量
-	userAls_line :=UserAls.UserEmbedding
-	if len(userAls_line)>0{
-		fs.AddArray(200,100,userAls_line)
-
-	}
 	//ALS话题向量
 	themeAls_line := ThemeAls.ThemeEmbedding
 	if len(themeAls_line)>0{
