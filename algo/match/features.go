@@ -149,6 +149,11 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 			if matp.ContinuesUse >= 0 {
 				fs.Add(2086, float32(matp.ContinuesUse))
 			}
+			if matp.ImageMap != nil {
+				fs.AddCategory(2087, 2, 0, rutils.GetInt(matp.ImageMap["cover_has_face"]), 0)
+				fs.AddCategory(2088, 2, 0, rutils.GetInt(matp.ImageMap["head_has_face"]), 0)
+				fs.AddCategory(2089, 2, 0, rutils.GetInt(matp.ImageMap["imagewall_has_face"]), 0)
+			}
 
 		}
 	}
@@ -291,6 +296,11 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 		}
 		if currMatch.ContinuesUse >= 0 {
 			fs.Add(5086, float32(currMatch.ContinuesUse))
+		}
+		if currMatch.ImageMap != nil {
+			fs.AddCategory(5087, 2, 0, rutils.GetInt(currMatch.ImageMap["cover_has_face"]), 0)
+			fs.AddCategory(5088, 2, 0, rutils.GetInt(currMatch.ImageMap["head_has_face"]), 0)
+			fs.AddCategory(5089, 2, 0, rutils.GetInt(currMatch.ImageMap["imagewall_has_face"]), 0)
 		}
 
 	}
