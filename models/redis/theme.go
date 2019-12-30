@@ -77,7 +77,7 @@ type ThemeUserProfileModule struct {
 	CachePikaModule
 }
 
-func NewThemeUserProfileModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *ThemeUserProfileModule{
+func NewThemeCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *ThemeUserProfileModule{
 	return &ThemeUserProfileModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
 }
 
