@@ -21,8 +21,8 @@ func DoBuildData(ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
-	themeUserCache := redis.NewThemeUserProfileModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	themeCache := redis.NewThemeUserProfileModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+
 	// search list
 	var startSearchTime = time.Now()
 	dataIdList := params.DataIds
@@ -103,7 +103,7 @@ func DoBuildData(ctx algo.IContext) error {
 		UserId: params.UserId,
 		UserCache: user,
 		ThemeUser:userMap[params.UserId]}
-	themeMap,themeCacheErr :=themeCache.QueryThemeProfileMap(dataIds)
+	themeMap,themeCacheErr :=themeUserCache.QueryThemeProfileMap(dataIds)
 	if themeCacheErr != nil {
 		log.Warnf("themeProfile cache list is err, %s\n", themeCacheErr)
 	}
