@@ -63,7 +63,6 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	data := idata.(*DataInfo)
 	mem := data.MomentCache
 	wordVec := model.GetWords()
-	ThemeAls := data.ThemeProfile
 	memu := data.UserCache
 	memex :=data.MomentExtendCache
 	if (memu!=nil){
@@ -74,18 +73,27 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	}
 	if ctx.GetUserInfo()!=nil{
 		userData := ctx.GetUserInfo().(*UserInfo)
-		UserAls := userData.ThemeUser
 		reqUser:=userData.UserCache
 		if (reqUser!=nil){
 			fs.Add(10, float32(reqUser.Age))
 			fs.Add(11, float32(reqUser.Height))
 			fs.Add(12, float32(reqUser.Weight))
 			}
-		userAls_line :=UserAls.UserEmbedding
-		if len(userAls_line)>0{
-			fs.AddArray(200,100,userAls_line)
+		if (userData.ThemeUser!=nil) {
+			UserAls := userData.ThemeUser
+			userAls_line := UserAls.UserEmbedding
+			if len(userAls_line) > 0 {
+				fs.AddArray(200, 100, userAls_line)
 			}
-
+		}
+		//ALS话题向量
+		if (data.ThemeProfile!=nil) {
+			ThemeAls := data.ThemeProfile
+			themeAls_line := ThemeAls.ThemeEmbedding
+			if len(themeAls_line) > 0 {
+				fs.AddArray(400, 100, themeAls_line)
+			}
+		}
 	}
 	imageUrl := mem.ImageUrl
 	if len(imageUrl)>0 {
@@ -94,11 +102,7 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		fs.Add(8,float32(0.0))
 	}
 
-	//ALS话题向量
-	themeAls_line := ThemeAls.ThemeEmbedding
-	if len(themeAls_line)>0{
-		fs.AddArray(400,100,themeAls_line)
-	}
+
 	//话题为段文本，第一版过于稀疏
 	wordsCount := len(mem.MomentsText)
 	if wordsCount > 0 {
