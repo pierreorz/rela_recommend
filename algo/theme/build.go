@@ -107,7 +107,7 @@ func DoBuildData(ctx algo.IContext) error {
 		ThemeUser:userMap[params.UserId]}
 	log.Info("user_line_cache:",userInfo)
 	themeMap,themeCacheErr :=themeUserCache.QueryThemeProfileMap(dataIdList)
-	log.Info("dataIds:",dataIds)
+	log.Info("dataIds:",dataIdList)
 	log.Info("themeMap:",themeMap)
 	if themeCacheErr != nil {
 		log.Warnf("themeProfile cache list is err, %s\n", themeCacheErr)
