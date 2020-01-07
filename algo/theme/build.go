@@ -95,9 +95,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	userid :=make([]int64,0)
 	userList :=append(userid, params.UserId)
-	log.Info("userid:",userList)
 	userMap,themeUserCacheErr := themeUserCache.QueryThemeUserProfileMap(userList)
-	log.Info("userMap:",userMap)
 	if themeUserCacheErr != nil {
 		log.Warnf("themeUserProfile cache list is err, %s\n", themeUserCacheErr)
 	}
@@ -105,10 +103,7 @@ func DoBuildData(ctx algo.IContext) error {
 		UserId: params.UserId,
 		UserCache: user,
 		ThemeUser:userMap[params.UserId]}
-	log.Info("user_line_cache:",userInfo)
 	themeMap,themeCacheErr :=themeUserCache.QueryThemeProfileMap(dataIdList)
-	log.Info("dataIds:",dataIdList)
-	log.Info("themeMap:",themeMap)
 	if themeCacheErr != nil {
 		log.Warnf("themeProfile cache list is err, %s\n", themeCacheErr)
 	}
