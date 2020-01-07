@@ -9,7 +9,7 @@ import(
 // 按照6小时优先策略
 func DoTimeLevel(ctx algo.IContext, index int) error {
 	abtest := ctx.GetAbTest()
-	hourStrategy:=abtest.GetInt("time_interval",3)
+	hourStrategy:=abtest.GetInt("DoTimeLevel:time_interval",3)
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	hours := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / hourStrategy
