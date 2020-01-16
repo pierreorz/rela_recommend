@@ -55,10 +55,8 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 			allBehavior := behavior.MergeBehaviors(userbehavior.GetThemeListExposure(), userbehavior.GetThemeListInteract(), 
 												   userbehavior.GetThemeDetailExposure(), userbehavior.GetThemeDetailInteract())
 			if allBehavior != nil { 
-				rankInfo.Level = int(3 - math.Min(allBehavior.Count, 3))
+				rankInfo.Level = int(-math.Min(allBehavior.Count, 5))
 			}
-		} else {
-			rankInfo.Level = 3
 		}
 	} else {
 		if userbehavior != nil {
