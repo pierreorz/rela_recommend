@@ -4,6 +4,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/models/behavior"
 	"rela_recommend/algo/base/strategy"
+	"math"
 )
 
 // 按照6小时优先策略
@@ -55,19 +56,32 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 // 按用户访问行为进行策略提降权
 func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
-	var currTime = float64(ctx.GetCreateTime().Unix())
+	var abtest=ctx.GetAbTest()
+	if abtest.GetBool("rich_strategy:moment_behavior:moment_item_new", false){
+		if userbehavior != nil {
+			// 浏览过的内容使用浏览次数反序排列，3:未浏览过，2：浏览一次，1：浏览2次，0：浏览3次以上
+			allBehavior := behavior.MergeBehaviors(userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract())
+			if allBehavior != nil {
+				rankInfo.Level = int(3 - math.Min(allBehavior.Count, 3))
+			}
+		} else {
+			rankInfo.Level = 3
+			}
+	}else{
+		var currTime = float64(ctx.GetCreateTime().Unix())
 
-	if userbehavior != nil {
-		var avgExpCount float64 = 2
+		if userbehavior != nil {
+			var avgExpCount float64 = 2
 
-		listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
-			userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract(),
-			avgExpCount, currTime, 36000, 18000)
+			listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
+				userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract(),
+				avgExpCount, currTime, 36000, 18000)
 
-		upperRate := -float32(listCountScore * listTimeScore)
+			upperRate := -float32(listCountScore * listTimeScore)
 
-		if upperRate != 0.0 {
-			rankInfo.AddRecommend("UserBehavior", 1.0+upperRate)
+			if upperRate != 0.0 {
+				rankInfo.AddRecommend("UserBehavior", 1.0+upperRate)
+			}
 		}
 	}
 	return err
