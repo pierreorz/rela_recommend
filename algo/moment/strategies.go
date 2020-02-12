@@ -33,9 +33,7 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 
 	if abTest.GetBool("rich_strategy:moment_behavior:moment_item_new", false) {
 		listRate := strategy.WilsonScore(itembehavior.GetMomentListExposure(), itembehavior.GetMomentListInteract(), 5)
-		infoRate := strategy.WilsonScore(itembehavior.GetMomentListExposure(), itembehavior.GetMomentListInteract(), 10)
-		upperRate := float32(listRate * 0.6 + infoRate * 0.4)
-
+		upperRate := float32(listRate)
 		if upperRate != 0.0 {
 			rankInfo.AddRecommend("ItemBehaviorV1", 1.0 + upperRate)
 		}
