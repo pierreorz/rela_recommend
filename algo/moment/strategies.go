@@ -31,7 +31,7 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 	var err error
 	var abTest = ctx.GetAbTest()
 
-	if abTest.GetBool("rich_strategy:moment_behavior:item_new", false) {
+	if abTest.GetBool("rich_strategy:moment_behavior:moment_item_new", false) {
 		listRate := strategy.WilsonScore(itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), 5)
 		infoRate := strategy.WilsonScore(itembehavior.GetThemeListExposure(), itembehavior.GetThemeListInteract(), 10)
 		upperRate := float32(listRate * 0.6 + infoRate * 0.4)
