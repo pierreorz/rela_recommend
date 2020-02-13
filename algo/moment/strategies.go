@@ -36,7 +36,7 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 		listRate := strategy.WilsonScore(itembehavior.GetMomentListExposure(), itembehavior.GetMomentListInteract(), 5)
 		upperRate := float32(listRate)
 		if upperRate != 0.0 {
-			rankInfo.AddRecommend("ItemBehaviorV1", 1.0 + upperRate)
+			rankInfo.AddRecommend("ItemBehaviorV2", 1.0 + upperRate)
 		}
 	} else{
 	var avgExpCount float64 = 50
@@ -47,7 +47,7 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 	upperRate := float32(listCountScore * listRateScore * listTimeScore)
 
 	if upperRate != 0.0 {
-	rankInfo.AddRecommend("ItemBehavior", 1.0 + upperRate)
+	rankInfo.AddRecommend("ItemBehaviorV1", 1.0 + upperRate)
 		}
 	}
 	return err
@@ -64,9 +64,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 			if allBehavior != nil {
 				rankInfo.Level = int(-math.Min(allBehavior.Count, 5))
 				}
-		} else {
-			rankInfo.Level = 3
-			}
+		}
 	}else{
 		var currTime = float64(ctx.GetCreateTime().Unix())
 
