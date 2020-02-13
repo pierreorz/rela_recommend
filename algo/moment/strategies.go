@@ -32,7 +32,7 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 	var err error
 	var abTest = ctx.GetAbTest()
 
-	if abTest.GetBool("rich_strategy:moment_behavior:moment_item_new", false) {
+	if abTest.GetBool("rich_strategy:behavior:moment_item_new", false) {
 		listRate := strategy.WilsonScore(itembehavior.GetMomentListExposure(), itembehavior.GetMomentListInteract(), 5)
 		upperRate := float32(listRate)
 		if upperRate != 0.0 {
@@ -57,7 +57,7 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
 	var abtest=ctx.GetAbTest()
-	if abtest.GetBool("rich_strategy:moment_behavior:moment_item_new", false){
+	if abtest.GetBool("rich_strategy:behavior:moment_item_new", false){
 		if userbehavior != nil {
 			// 浏览过的内容使用浏览次数反序排列，3:未浏览过，2：浏览一次，1：浏览2次，0：浏览3次以上
 			allBehavior := behavior.MergeBehaviors(userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract())
