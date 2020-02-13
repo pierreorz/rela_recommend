@@ -62,8 +62,8 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 			// 浏览过的内容使用浏览次数反序排列，3:未浏览过，2：浏览一次，1：浏览2次，0：浏览3次以上
 			allBehavior := behavior.MergeBehaviors(userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract())
 			if allBehavior != nil {
-				rankInfo.Level = int(3 - math.Min(allBehavior.Count, 3))
-			}
+				rankInfo.Level = int(-math.Min(allBehavior.Count, 5))
+				}
 		} else {
 			rankInfo.Level = 3
 			}
