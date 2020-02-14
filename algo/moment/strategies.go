@@ -36,7 +36,7 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 		listRate := strategy.WilsonScore(itembehavior.GetMomentListExposure(), itembehavior.GetMomentListInteract(), 5)
 		upperRate := float32(listRate)
 		if upperRate != 0.0 {
-			rankInfo.AddRecommend("ItemBehavior", 1.0 + upperRate)
+			rankInfo.AddRecommend("ItemBehaviorV1", 1.0 + upperRate)
 		}
 	} else{
 	var avgExpCount float64 = 50
