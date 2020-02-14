@@ -21,6 +21,8 @@ func DoBuildData(ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
+	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+
 	// search list
 	var startSearchTime = time.Now()
 	dataIdList := params.DataIds
@@ -84,10 +86,29 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	var startBuildTime = time.Now()
 
+	//userInfo := &UserInfo{
+	//	UserId: params.UserId,
+	//	UserCache: user}
+
+	// 增加新特征
+
+
+	userid :=make([]int64,0)
+	userList :=append(userid, params.UserId)
+	userMap,themeUserCacheErr := themeUserCache.QueryThemeUserProfileMap(userList)
+	if themeUserCacheErr != nil {
+		log.Warnf("themeUserProfile cache list is err, %s\n", themeUserCacheErr)
+	}
 	userInfo := &UserInfo{
 		UserId: params.UserId,
-		UserCache: user}
-		
+		UserCache: user,
+		ThemeUser:userMap[params.UserId]}
+	themeMap,themeCacheErr :=themeUserCache.QueryThemeProfileMap(dataIdList)
+	if themeCacheErr != nil {
+		log.Warnf("themeProfile cache list is err, %s\n", themeCacheErr)
+	}
+
+
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
@@ -116,6 +137,8 @@ func DoBuildData(ctx algo.IContext) error {
 				MomentCache: mom.Moments,
 				MomentExtendCache: mom.MomentsExtend,
 				MomentProfile: mom.MomentsProfile,
+				ThemeProfile:themeMap[mom.Moments.Id],
+				//ThemeUserCache:userScore[momUser.UserId],
 				RankInfo: &algo.RankInfo{IsTop: isTop, Recommends: recommends},
 			}
 			dataList = append(dataList, info)
