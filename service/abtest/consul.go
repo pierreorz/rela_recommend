@@ -1,7 +1,7 @@
 package abtest
 
 import (
-	"sync"
+	// "sync"
 	"errors"
 	"encoding/json"
 	"rela_recommend/log"
@@ -30,12 +30,9 @@ func watch_func(host string, app string, prefix string, handler func(string, str
 	if err != nil {
 		panic(err)
 	}
-	var lockHandler = &sync.RWMutex{}
 	plan.Handler = func(index uint64, result interface{}) {
 		var err error
 		if entries, ok := result.(api.KVPairs); ok {
-			lockHandler.Lock()
-			defer lockHandler.Unlock()
 			err = handler(app, prefix, entries)
 		} else {
 			err = errors.New("type error")
@@ -60,8 +57,9 @@ func updateConfig(app string, prefix string, kvs api.KVPairs) error{
 		configKey := kv.Key[keyPrefixLen: ]
 		configMap[configKey] = string(kv.Value)
 	}
-	defaultFactorMap[app] = configMap
-	log.Infof("%s changed: %+v\n", prefix, configMap)
+	// defaultFactorMap[app] = configMap
+	setDefaultFactorMap(app, configMap)
+	log.Infof("%s changed: %+v\n", prefix, defaultFactorMap[app])
 	return nil
 }
 
@@ -75,8 +73,9 @@ func updateTest(app string, prefix string, kvs api.KVPairs) error{
 			testList = append(testList, test)
 		}
 	}
-	testingMap[app] = testList
-	log.Infof("%s changed: %+v\n", prefix, testList)
+	// testingMap[app] = testList
+	setTestingMap(app, testList)
+	log.Infof("%s changed: %+v\n", prefix, testingMap[app])
 	return nil
 }
 
@@ -90,8 +89,9 @@ func updateWhite(app string, prefix string, kvs api.KVPairs) error{
 			whiteList = append(whiteList, white)
 		}
 	}
-	whiteListMap[app] = whiteList
-	log.Infof("%s changed: %+v\n", prefix, whiteList)
+	// whiteListMap[app] = whiteList
+	setWhiteListMap(app, whiteList)
+	log.Infof("%s changed: %+v\n", prefix, whiteListMap[app])
 	return nil
 }
 
