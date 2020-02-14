@@ -59,7 +59,7 @@ func updateConfig(app string, prefix string, kvs api.KVPairs) error{
 	}
 	// defaultFactorMap[app] = configMap
 	setDefaultFactorMap(app, configMap)
-	log.Infof("%s changed: %+v\n", prefix, configMap)
+	log.Infof("%s changed: %+v\n", prefix, defaultFactorMap[app])
 	return nil
 }
 
@@ -75,7 +75,7 @@ func updateTest(app string, prefix string, kvs api.KVPairs) error{
 	}
 	// testingMap[app] = testList
 	setTestingMap(app, testList)
-	log.Infof("%s changed: %+v\n", prefix, testList)
+	log.Infof("%s changed: %+v\n", prefix, testingMap[app])
 	return nil
 }
 
@@ -91,7 +91,7 @@ func updateWhite(app string, prefix string, kvs api.KVPairs) error{
 	}
 	// whiteListMap[app] = whiteList
 	setWhiteListMap(app, whiteList)
-	log.Infof("%s changed: %+v\n", prefix, whiteList)
+	log.Infof("%s changed: %+v\n", prefix, whiteListMap[app])
 	return nil
 }
 
