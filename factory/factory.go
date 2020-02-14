@@ -3,7 +3,7 @@ package factory
 import (
 	"gopkg.in/mgo.v2"
 	"rela_recommend/cache"
-	"rela_recommend/cache/redis"
+	cacheUtils "rela_recommend/cache/utils"
 	"rela_recommend/rpc"
 	"rela_recommend/conf"
 	"rela_recommend/log"
@@ -14,7 +14,6 @@ import (
 	"github.com/gocql/gocql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"rela_recommend/cache/redisCluster"
 	"rela_recommend/service/segment"
 	"rela_recommend/service/abtest"
 )
@@ -123,30 +122,30 @@ func initCassandraSession(cfg *conf.Config) {
 
 func initCache(cfg *conf.Config) {
 	var err error
-	CacheRds, err = redisCluster.NewRedisCache(cfg.Rds.RedisAddr, "", 0)
+	CacheRds, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.RedisAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
 
-	CacheLiveRds, err = redis.NewRedisCache(cfg.Rds.RedisLiveAddr, "", 0)
+	CacheLiveRds, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.RedisLiveAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
 
 	log.Infof("INIT ClusterAddr: %s ....", cfg.Rds.ClusterAddr)
-	CacheCluster, err = redis.NewRedisCache(cfg.Rds.ClusterAddr, "", 0)
+	CacheCluster, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.ClusterAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
 
 	log.Infof("INIT PikaAddr: %s ....", cfg.Rds.PikaAddr)
-	PikaCluster, err = redis.NewRedisCache(cfg.Rds.PikaAddr, "", 0)
+	PikaCluster, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.PikaAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
 
 	log.Infof("INIT ClusterAddr: %s ....", cfg.Rds.ClusterAddr)
-	CacheBehaviorRds, err = redis.NewRedisCache(cfg.Rds.BehaviorAddr, "", 0)
+	CacheBehaviorRds, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.BehaviorAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
