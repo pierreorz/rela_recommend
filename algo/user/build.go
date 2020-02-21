@@ -15,6 +15,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var err error
 	var startTime = time.Now()
 	abtest := ctx.GetAbTest()
+	app := ctx.GetAppInfo()
 	pf := ctx.GetPerforms()
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
@@ -48,7 +49,7 @@ func DoBuildData(ctx algo.IContext) error {
 	// 获取实时信息
 	var startRealTime = time.Now()
 	pf.Begin("realtime")
-	behaviorModuleName := abtest.GetString("behavior_module_name", "around")
+	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module)  // 特征对应的module名称
 	userBehaviorMap, userBehaviorErr := behaviorCache.QueryUserBehaviorMap(behaviorModuleName, params.UserId, dataIds)
 	itemBehaviorMap, itemBehaviorErr := behaviorCache.QueryItemBehaviorMap(behaviorModuleName, dataIds)
 	if userBehaviorErr != nil {
@@ -59,6 +60,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	pf.End("realtime")
 
+	// 组装用户信息
 	var startBuildTime = time.Now()
 	pf.Begin("build")
 	userInfo := &UserInfo{
@@ -66,6 +68,7 @@ func DoBuildData(ctx algo.IContext) error {
 		UserCache: user,
 		UserProfile: userProfile}
 
+	// 组装被曝光者信息
 	dataList := make([]algo.IDataInfo, 0)
 	for dataId, data := range usersMap {
 		info := &DataInfo{
