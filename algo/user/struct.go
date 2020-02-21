@@ -5,6 +5,7 @@ import(
 	// rutils "rela_recommend/utils"
 	"rela_recommend/models/redis"
 	"rela_recommend/models/pika"
+	"rela_recommend/models/behavior"
 	// "rela_recommend/algo/utils"
 )
 
@@ -22,6 +23,9 @@ type DataInfo struct {
 	UserProfile 	*redis.NearbyProfile
 	LiveInfo		*pika.LiveCache
 	RankInfo		*algo.RankInfo
+
+	UserBehavior	*behavior.UserBehavior
+	ItemBehavior	*behavior.UserBehavior
 }
 
 func (self *DataInfo) GetDataId() int64 {

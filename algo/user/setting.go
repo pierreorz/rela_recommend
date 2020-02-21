@@ -23,6 +23,7 @@ var richStrategyMap = map[string]algo.IRichStrategy {
 		"paged": &strategy.PagedRichStrategy{},
 		// 根据距离排序
 		"distance_sort": &strategy.BaseRichStrategy{ StrategyItemFunc: SortWithDistanceItem },
+		"wilson_behavior": &strategy.BaseRichStrategy{ StrategyItemFunc: ItemBehaviorWilsonItemFunc },
 	}
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{

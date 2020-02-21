@@ -320,8 +320,42 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 			fs.Add(7167, currProfile.ActiveTimeMap["active_time_above_7d"])
 		}
 	}
+	// 该内容实时行为特征
+	if data.ItemBehavior != nil {
+		// 曝光
+		listExposure := data.ItemBehavior.GetNearbyListExposure()
+		fs.Add(9000, float32(listExposure.Count))
+		if listExposure.LastTime > 0 {
+			fs.Add(9001, float32(float64(currTime) - listExposure.LastTime))
+		}
+		// 点击互动
+		listInteract := data.ItemBehavior.GetNearbyListInteract()
+		fs.Add(9002, float32(listInteract.Count))
+		if listInteract.LastTime > 0 {
+			fs.Add(9003, float32(float64(currTime) - listInteract.LastTime))
+		}
+		// 互动率
+		fs.Add(9004, float32(data.ItemBehavior.GetNearbyListRate()))
+	}
+	// 该用户对内容实时行为特征
+	if data.UserBehavior != nil {
+		// 曝光
+		listExposure := data.UserBehavior.GetNearbyListExposure()
+		fs.Add(9010, float32(listExposure.Count))
+		if listExposure.LastTime > 0 {
+			fs.Add(9011, float32(float64(currTime) - listExposure.LastTime))
+		}
+		// 点击互动
+		listInteract := data.UserBehavior.GetNearbyListInteract()
+		fs.Add(9012, float32(listInteract.Count))
+		if listInteract.LastTime > 0 {
+			fs.Add(9013, float32(float64(currTime) - listInteract.LastTime))
+		}
+		// 互动率
+		fs.Add(9014, float32(data.UserBehavior.GetNearbyListRate()))
+	}
 
-	// 交叉
+	// 交叉特征
 	fs.AddCategory(10000, 2, 0, rutils.GetInt(role > 0 && rutils.IsInInts(role, cWantRoles)), 0)
 	fs.AddCategory(10002, 2, 0, rutils.GetInt(cRole > 0 &&rutils.IsInInts(cRole, wantRoles)), 0)
 	if req := ctx.GetRequest(); req != nil {
