@@ -1,6 +1,7 @@
 package user
 
 import (
+	"math"
 	rutils "rela_recommend/utils"
 	"rela_recommend/algo"
 )
@@ -16,23 +17,30 @@ func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 	if abtest.GetString("custom_sort_type", "distance") == "distance" {  // 是否按照距离排序
 		rankInfo.Score = -float32(distance)
 	} else {	// 安装距离分段排序
-		if distance < 1000 {
-			rankInfo.Level = 7
-		} else if distance < 3000 {
-			rankInfo.Level = 6
-		} else if distance < 5000 {
-			rankInfo.Level = 5
-		} else if distance < 10000 {
-			rankInfo.Level = 4
-		} else if distance < 30000 {
-			rankInfo.Level = 3
-		} else if distance < 50000 {
-			rankInfo.Level = 2
-		} else if distance < 100000 {
-			rankInfo.Level = 1
-		} else {
-			rankInfo.Level = 0
+		sortWeightType := abtest.GetString("distance_sort_weight_type", "level") 
+		if sortWeightType == "weight" {  // weight:按照权重，10公里为基准
+			weight := float32(0.5 * math.Exp(- distance / 10000.0))
+			rankInfo.AddRecommend("DistanceWeight", 1.0 + weight)
+		} else {  // 按照阶段
+			if distance < 1000 {
+				rankInfo.Level = 7
+			} else if distance < 3000 {
+				rankInfo.Level = 6
+			} else if distance < 5000 {
+				rankInfo.Level = 5
+			} else if distance < 10000 {
+				rankInfo.Level = 4
+			} else if distance < 30000 {
+				rankInfo.Level = 3
+			} else if distance < 50000 {
+				rankInfo.Level = 2
+			} else if distance < 100000 {
+				rankInfo.Level = 1
+			} else {
+				rankInfo.Level = 0
+			}
 		}
+
 	}
 	return nil
 }

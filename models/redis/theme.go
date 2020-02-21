@@ -35,6 +35,15 @@ type ThemeUserBehavior struct {
 	DetailFollowReplyer		*Behavior	`json:"theme.detail:follow_replyer"`			// 关注评论者
 	DetailUnFollowReplyer	*Behavior	`json:"theme.detail:unfollow_replyer"`			// 取消关注评论者
 }
+type ThemeUserProfile struct {
+	UserID 	int64	`json:"user_id"`
+	UserEmbedding []float32 `json:"user_embedding"`
+
+}
+type ThemeProfile struct {
+	ThemeID int64	`json:"theme_id"`
+	ThemeEmbedding []float32 `json:"theme_embedding"`
+}
 
 // 获取总列表曝光
 func (self *ThemeUserBehavior) GetTotalListExposure() *Behavior {
@@ -64,6 +73,15 @@ func NewThemeBehaviorCacheModule(ctx algo.IContext, cache *cache.Cache) *ThemeBe
 	return &ThemeBehaviorCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
 }
 
+type ThemeUserProfileModule struct {
+	CachePikaModule
+}
+
+func NewThemeCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *ThemeUserProfileModule{
+	return &ThemeUserProfileModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
+}
+
+
 // 读取话题相关用户行为
 func (self *ThemeBehaviorCacheModule) QueryUserBehaviorMap(userId int64, ids []int64) (map[int64]*ThemeUserBehavior, error) {
 	keyFormatter := fmt.Sprintf("behavior:theme:%d:%%d", userId)
@@ -79,3 +97,20 @@ func (self *ThemeBehaviorCacheModule) QueryBehaviorMap(ids []int64) (map[int64]*
 	objs := ress.Interface().(map[int64]*ThemeUserBehavior)
 	return objs, err
 }
+
+// 读取用户als特征
+func (self *ThemeUserProfileModule) QueryThemeUserProfileMap(ids []int64) (map[int64]*ThemeUserProfile, error) {
+	keyFormatter := "theme_user_profile:%d"
+	ress, err := self.MGetStructsMap(&ThemeUserProfile{}, ids, keyFormatter, 24 * 60 * 60, 1 * 60 * 60)
+	objs := ress.Interface().(map[int64]*ThemeUserProfile)
+	return objs, err
+}
+func (self *ThemeUserProfileModule) QueryThemeProfileMap(ids []int64) (map[int64]*ThemeProfile, error) {
+	keyFormatter := "theme_profile:%d"
+	ress, err := self.MGetStructsMap(&ThemeProfile{}, ids, keyFormatter, 24 * 60 * 60, 1 * 60 * 60)
+	objs := ress.Interface().(map[int64]*ThemeProfile)
+	return objs, err
+}
+
+
+
