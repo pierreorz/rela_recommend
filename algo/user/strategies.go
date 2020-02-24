@@ -4,8 +4,20 @@ import (
 	"math"
 	rutils "rela_recommend/utils"
 	"rela_recommend/algo"
+	"rela_recommend/algo/base/strategy"
 )
 
+// 使用威尔逊算法估算内容情况：分值大概在0-0.2之间
+func ItemBehaviorWilsonItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+
+	itemBehavior := dataInfo.ItemBehavior
+	if itemBehavior != nil {
+		upperRate := strategy.WilsonScore(itemBehavior.GetNearbyListExposure(), itemBehavior.GetNearbyListInteract(), 2)
+		rankInfo.AddRecommend("WilsonBehavior", 1.0 + float32(upperRate))
+	}
+	return nil
+}
 
 func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	request := ctx.GetRequest()
