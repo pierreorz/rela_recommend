@@ -32,6 +32,7 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 			role, wantRoles = rutils.GetInt(memu.RoleName), rutils.GetInts(memu.WantRole)
 			fs.AddCategory(50, 10, -1, role, -1)
 			fs.AddCategories(70, 10, -1, wantRoles, -1)
+			fs.AddCategory(2115, 2, 0, rutils.GetInt(memu.IsVip), 0)
 		}
 		// 用户画像
 		if user.MatchProfile != nil {
@@ -151,8 +152,16 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 			}
 			if matp.ImageMap != nil {
 				fs.AddCategory(2087, 2, 0, rutils.GetInt(matp.ImageMap["cover_has_face"]), 0)
-				fs.AddCategory(2088, 2, 0, rutils.GetInt(matp.ImageMap["head_has_face"]), 0)
-				fs.AddCategory(2089, 2, 0, rutils.GetInt(matp.ImageMap["imagewall_has_face"]), 0)
+				fs.AddCategory(2090, 2, 0, rutils.GetInt(matp.ImageMap["head_has_face"]), 0)
+				fs.AddCategory(2095, 2, 0, rutils.GetInt(matp.ImageMap["imagewall_has_face"]), 0)
+				fs.AddCategory(2100, 2, 0, rutils.GetInt(matp.ImageMap["has_cover"]), 0)
+				fs.Add(2110, matp.ImageMap["imagewall_count"])
+			}
+			if matp.MomentMap != nil {
+				fs.Add(2111, matp.MomentMap["moments_count"])
+			}
+			if matp.UserInfoMap != nil {
+				fs.AddCategory(40, 10, -1, rutils.GetInt(matp.UserInfoMap["want_affection"]), -1)
 			}
 
 		}
@@ -176,6 +185,7 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 		uRole, uWantRoles := rutils.GetInt(curr.RoleName), rutils.GetInts(curr.WantRole)
 		fs.AddCategory(4050, 10, -1, uRole, -1) // 自我认同
 		fs.AddCategories(4070, 10, -1, uWantRoles, -1)
+		fs.AddCategory(5115, 2, 0, rutils.GetInt(curr.IsVip), 0)
 
 		// 交叉
 		fs.AddCategory(6000, 2, 0, rutils.GetInt(role > 0 && rutils.IsInInts(role, uWantRoles)), 0)
@@ -299,8 +309,16 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 		}
 		if currMatch.ImageMap != nil {
 			fs.AddCategory(5087, 2, 0, rutils.GetInt(currMatch.ImageMap["cover_has_face"]), 0)
-			fs.AddCategory(5088, 2, 0, rutils.GetInt(currMatch.ImageMap["head_has_face"]), 0)
-			fs.AddCategory(5089, 2, 0, rutils.GetInt(currMatch.ImageMap["imagewall_has_face"]), 0)
+			fs.AddCategory(5090, 2, 0, rutils.GetInt(currMatch.ImageMap["head_has_face"]), 0)
+			fs.AddCategory(5095, 2, 0, rutils.GetInt(currMatch.ImageMap["imagewall_has_face"]), 0)
+			fs.AddCategory(5100, 2, 0, rutils.GetInt(currMatch.ImageMap["has_cover"]), 0)
+			fs.Add(5110, currMatch.ImageMap["imagewall_count"])
+		}
+		if currMatch.MomentMap != nil {
+			fs.Add(5111, currMatch.MomentMap["moments_count"])
+		}
+		if currMatch.UserInfoMap != nil {
+			fs.AddCategory(4040, 10, -1, rutils.GetInt(currMatch.UserInfoMap["want_affection"]), -1)
 		}
 
 	}

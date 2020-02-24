@@ -31,6 +31,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMatchFeatures},
 	&algo.AlgoBase{AlgoName: "v1.6", FilePath: workDir + "mods_1.6.model.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMatchFeatures},
+	&algo.AlgoBase{AlgoName: "v1.6.2", FilePath: workDir + "mods_1.6.2.model.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMatchFeatures},
 })
 
 // 话题推荐列表

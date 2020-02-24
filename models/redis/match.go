@@ -16,6 +16,8 @@ type MatchProfile struct {
 	FreqTimeMap  map[string]float32 `json:"freq_time"`
 	ContinuesUse int64              `json:"continues_use"`
 	ImageMap     map[string]float32 `json:"image"`
+	MomentMap    map[string]float32 `json:"moments"`
+	UserInfoMap  map[string]float32 `json:"user_info"`
 	// TimestampMap  map[string]float32 `json:"timestamp"`
 }
 
