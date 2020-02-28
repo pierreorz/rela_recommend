@@ -7,6 +7,7 @@ import (
 	rutils "rela_recommend/utils"
 	"time"
 	"strings"
+	"strconv"
 )
 
 
@@ -54,6 +55,16 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 		fs.AddCategory(2040, 10, -1, role, -1)				// 自我认同
 		fs.AddCategories(2050, 10, -1, wantRoles, -1)	// 想要寻找
 	}
+	memuEmbedding:=data.UserEmbedding
+	if(memuEmbedding!=nil){
+		Embedding:=strings.Split(memuEmbedding.Embedding,",")
+		for i:=0;i<128;i++{
+			v,err:=strconv.ParseFloat(Embedding[i], 32)
+			if err==nil{
+				fs.Add(3000+i,float32(v))
+			}
+		}
+	}
 
 	// 观看者
 	if ctx.GetUserInfo() != nil {
@@ -74,6 +85,16 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 			// 交叉
 			fs.AddCategory(6000, 2, 0, rutils.GetInt(rutils.IsInInts(role, uWantRoles)), 0)
 			fs.AddCategory(6002, 2, 0, rutils.GetInt(rutils.IsInInts(uRole, wantRoles)), 0)
+		}
+		if user.UserEmbedding!=nil{
+			wmem:=user.UserEmbedding
+			Embedding:=strings.Split(wmem.Embedding,",")
+			for i:=0;i<128;i++{
+				v,err:=strconv.ParseFloat(Embedding[i], 32)
+				if err==nil{
+					fs.Add(5100+i,float32(v))
+				}
+			}
 		}
 		if user.MomentProfile!=nil{
 			matp:=user.MomentProfile
