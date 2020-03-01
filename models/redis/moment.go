@@ -118,7 +118,9 @@ func (self *UserCacheModule) QueryMomentUserEmbeddingByIds(ids []int64) ([]Momen
 	keyFormatter := "moment_user_embedding:%d"
 	ress, err := self.MGetStructs(MomentUserEmbedding{}, ids, keyFormatter, 24*60*60, 60*60*1)
 	objs := ress.Interface().([]MomentUserEmbedding)
-	log.Info("resutl embedding, %s\n",objs)
+	log.Info("resutl embedding, %s\n",ress)
+	log.Info("resutl embedding, %s\n",err)
+	log.Info("resutl embedding, %s\n",ids)
 	return objs, err
 }
 
