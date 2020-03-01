@@ -95,7 +95,7 @@ func DoBuildData(ctx algo.IContext) error {
 	momentUserEmbedding, _, embeddingCacheErr := userCache.QueryMomentUserembeddingByUserAndUsersMap(params.UserId,userIds)
 	log.Info("user embedding id,%s\n",string(params.UserId))
 	log.Info("user embedding ids,%v\n",userIds)
-	log.Info("user embedding ids length,%s\n", len(userIds))
+	log.Info("user embedding ids length,%d\n", len(userIds))
 
 	if embeddingCacheErr != nil {
 		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
