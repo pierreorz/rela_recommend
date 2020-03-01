@@ -4,10 +4,10 @@ import(
 	"time"
 	"fmt"
 	"rela_recommend/utils"
-	// "encoding/json"
-	// "rela_recommend/log"
+
 	"rela_recommend/cache"
 	"rela_recommend/algo"
+	"rela_recommend/log"
 )
 
 type Moments struct {
@@ -118,6 +118,7 @@ func (self *UserCacheModule) QueryMomentUserEmbeddingByIds(ids []int64) ([]Momen
 	keyFormatter := "moment_user_embedding:%d"
 	ress, err := self.MGetStructs(MomentUserEmbedding{}, ids, keyFormatter, 24*60*60, 60*60*1)
 	objs := ress.Interface().([]MomentUserEmbedding)
+	log.Info("resutl embedding, %s\n",objs)
 	return objs, err
 }
 
