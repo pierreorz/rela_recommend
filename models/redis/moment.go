@@ -7,7 +7,6 @@ import(
 
 	"rela_recommend/cache"
 	"rela_recommend/algo"
-	"rela_recommend/log"
 )
 
 type Moments struct {
@@ -118,14 +117,11 @@ func (self *UserCacheModule) QueryMomentUserEmbeddingByIds(ids []int64) ([]Momen
 	keyFormatter := "moment_user_embedding:%d"
 	ress, err := self.MGetStructs(MomentUserEmbedding{}, ids, keyFormatter, 24*60*60, 60*60*1)
 	objs := ress.Interface().([]MomentUserEmbedding)
-	log.Infof("resutl embedding, %s\n",ress)
-	log.Infof("resutl embedding, %s\n",err)
-	log.Infof("resutl embedding, %s\n",ids)
 	return objs, err
 }
 
 // 获取当前用户和用户列表Map
-func (this *UserCacheModule) QueryMomentUserembeddingByUserAndUsersMap(userId int64, userIds []int64) (*MomentUserEmbedding, map[int64]*MomentUserEmbedding, error) {
+func (this *UserCacheModule) QueryMomentUserEmbeddingByUserAndUsersMap(userId int64, userIds []int64) (*MomentUserEmbedding, map[int64]*MomentUserEmbedding, error) {
 	allIds := append(userIds, userId)
 	users, err := this.QueryMomentUserEmbeddingByIds(allIds)
 	var resUser *MomentUserEmbedding

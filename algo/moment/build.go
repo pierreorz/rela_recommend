@@ -92,11 +92,7 @@ func DoBuildData(ctx algo.IContext) error {
 	//获取user embedding
 
 	var startEmbeddingTime = time.Now()
-	momentUserEmbedding, _, embeddingCacheErr := userCache.QueryMomentUserembeddingByUserAndUsersMap(params.UserId,userIds)
-	log.Infof("user embedding id,%s\n",string(params.UserId))
-	log.Infof("user embedding ids,%v\n",userIds)
-	log.Infof("user embedding ids length,%d",len(userIds))
-
+	momentUserEmbedding, _, embeddingCacheErr := userCache.QueryMomentUserEmbeddingByUserAndUsersMap(params.UserId,userIds)
 	if embeddingCacheErr != nil {
 		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
 	}
