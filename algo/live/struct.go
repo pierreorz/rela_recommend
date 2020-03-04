@@ -30,6 +30,10 @@ func (self *LiveInfo) GetDataId() int64 {
 	return self.UserId
 }
 
+func (self *LiveInfo) GetData() interface{} {
+	return nil
+}
+
 func(self *LiveInfo) SetRankInfo(rankInfo *algo.RankInfo) {
 	self.RankInfo = rankInfo
 }

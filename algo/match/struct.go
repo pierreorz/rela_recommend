@@ -22,6 +22,10 @@ func (self *DataInfo) GetDataId() int64 {
 	return self.DataId
 }
 
+func (self *DataInfo) GetData() interface{} {
+	return nil
+}
+
 func (self *DataInfo) GetRankInfo() *algo.RankInfo {
 	return self.RankInfo
 }

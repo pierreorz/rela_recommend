@@ -73,10 +73,11 @@ type RecommendRequest struct {
 }
 
 type RecommendResponseItem struct {
-	DataId int64	`json:"dataId" form:"dataId"`
-	Index 	int		`json:"index" form:"index"`
-	Reason string	`json:"reason" form:"reason"`
-	Score float32	`json:"score" form:"score"`
+	DataId 		int64		`json:"dataId" form:"dataId"`
+	Data		interface{}	`json:"data" form:"data"`
+	Index 		int			`json:"index" form:"index"`
+	Reason 		string		`json:"reason" form:"reason"`
+	Score 		float32		`json:"score" form:"score"`
 }
 
 // 返回参数
