@@ -33,6 +33,10 @@ func (self *DataInfo) GetDataId() int64 {
 	return self.DataId
 }
 
+func (self *DataInfo) GetData() interface{} {
+	return nil
+}
+
 func(self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {
 	self.RankInfo = rankInfo
 }
