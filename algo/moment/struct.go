@@ -13,14 +13,14 @@ type UserInfo struct {
 	UserCache *redis.UserProfile
 	UserConcerns *rutils.SetInt64
 	MomentProfile *redis.MatchProfile
-	UserEmbedding *redis.MomentUserEmbedding
+	MomentUserProfile *redis.MomentUserProfile
 }
 
 // 主播信息
 type DataInfo struct {
 	DataId 				int64
 	UserCache 			*redis.UserProfile
-	UserEmbedding       *redis.MomentUserEmbedding
+	MomentUserProfile       *redis.MomentUserProfile
 	MomentCache 		*redis.Moments
 	MomentExtendCache 	*redis.MomentsExtend
 	MomentProfile		*redis.MomentsProfile

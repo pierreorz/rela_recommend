@@ -98,9 +98,9 @@ type MomentsAndExtend struct {
 	MomentsProfile	*MomentsProfile	`gorm:"column:moments_profile" json:"momentsProfile,omitempty"` 
 }
 
-type MomentUserEmbedding struct {
+type MomentUserProfile struct {
 	UserID       int64              `json:"user_id"`
-	Embedding       string  `json:"user_embedding"`
+	UserEmbedding       []float32  `json:"user_embedding"`
 }
 
 type MomentCacheModule struct {
@@ -113,19 +113,19 @@ func NewMomentCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Ca
 }
 
 // 读取用户embedding特征
-func (self *UserCacheModule) QueryMomentUserEmbeddingByIds(ids []int64) ([]MomentUserEmbedding, error) {
+func (self *UserCacheModule) QueryMomentUserEmbeddingByIds(ids []int64) ([]MomentUserProfile, error) {
 	keyFormatter := "moment_user_embedding:%d"
-	ress, err := self.MGetStructs(MomentUserEmbedding{}, ids, keyFormatter, 24*60*60, 60*60*1)
-	objs := ress.Interface().([]MomentUserEmbedding)
+	ress, err := self.MGetStructs(MomentUserProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs := ress.Interface().([]MomentUserProfile)
 	return objs, err
 }
 
 // 获取当前用户和用户列表Map
-func (this *UserCacheModule) QueryMomentUserEmbeddingByUserAndUsersMap(userId int64, userIds []int64) (*MomentUserEmbedding, map[int64]*MomentUserEmbedding, error) {
+func (this *UserCacheModule) QueryMomentUserEmbeddingByUserAndUsersMap(userId int64, userIds []int64) (*MomentUserProfile, map[int64]*MomentUserProfile, error) {
 	allIds := append(userIds, userId)
 	users, err := this.QueryMomentUserEmbeddingByIds(allIds)
-	var resUser *MomentUserEmbedding
-	var resUsersMap = make(map[int64]*MomentUserEmbedding, 0)
+	var resUser *MomentUserProfile
+	var resUsersMap = make(map[int64]*MomentUserProfile, 0)
 	if err == nil {
 		for i, user := range users {
 			if user.UserID == userId {
