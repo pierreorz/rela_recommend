@@ -17,18 +17,24 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 
 	userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
-	liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
-
 	rdsPikaCache := redis.NewLiveCacheModule(nil, &factory.CacheCluster, &factory.PikaCluster)
 
+	var lives []pika.LiveCache
 	// 获取主播列表
-	allLives := GetCachedLiveList()
-	if allLives == nil || len(allLives) == 0 {
-		var err error
-		allLives, err = liveCache.QueryLiveList()
-		log.Warnf("cached live list is nil, %s\n", err)
+	if len(params.Type) > 0 { // 如果有type参数，使用新的api获取缓存计算
+		liveType := utils.GetInt(params.Type)
+		lives = GetCachedLiveMapList(liveType)
+	} else {
+		liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
+		allLives := GetCachedLiveList()
+		if allLives == nil || len(allLives) == 0 {
+			var err error
+			allLives, err = liveCache.QueryLiveList()
+			log.Warnf("cached live list is nil, %s\n", err)
+		}
+		lives = liveCache.MgetByLiveIds(allLives, params.DataIds)
 	}
-	lives := liveCache.MgetByLiveIds(allLives, params.DataIds)
+
 	liveIds := make([]int64, len(lives))
 	for i, _ := range lives {
 		liveIds[i] = lives[i].Live.UserId
@@ -89,8 +95,8 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataList(livesInfo)
 
 	var endTime = time.Now()
-	log.Infof("rankid %s,totallen:%d,searchlen:%d;backendlen:%d;total:%.3f,live:%.3f,user:%.3f,profile:%.3f,concerns:%.3f,build:%.3f\n",
-			  ctx.GetRankId(), len(allLives), len(lives), len(users),
+	log.Infof("rankid %s,type:%s,totallen:%d,backendlen:%d;total:%.3f,live:%.3f,user:%.3f,profile:%.3f,concerns:%.3f,build:%.3f\n",
+			  ctx.GetRankId(), params.Type, len(lives), len(users),
 			  endTime.Sub(startTime).Seconds(), startUserTime.Sub(startTime).Seconds(), 
 			  startLiveProfileTime.Sub(startUserTime).Seconds(),
 			  startConcernsTime.Sub(startLiveProfileTime).Seconds(),
