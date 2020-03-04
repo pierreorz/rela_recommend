@@ -103,7 +103,7 @@ func DoBuildData(ctx algo.IContext) error {
 		UserId: params.UserId,
 		UserCache: user,
 		MomentProfile: momentUser,
-		UserEmbedding:momentUserEmbedding,
+		MomentUserProfile:momentUserEmbedding,
 	}
 
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
@@ -135,7 +135,7 @@ func DoBuildData(ctx algo.IContext) error {
 				MomentExtendCache: mom.MomentsExtend,
 				MomentProfile: mom.MomentsProfile,
 				RankInfo: &algo.RankInfo{IsTop: isTop, Recommends: recommends},
-				UserEmbedding:momentUserEmbedding,
+				MomentUserProfile:momentUserEmbedding,
 			}
 			dataList = append(dataList, info)
 		}
