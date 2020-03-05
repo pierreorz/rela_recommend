@@ -34,10 +34,10 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 	for i, live := range lives {
 		liveCache := &liveCacheList[i]
 
-		liveCache.Live.LiveId         		= live.UID
+		liveCache.Live.LiveId         		= live.UserID
 		liveCache.Live.LiveTypeId     		= live.LiveType
 		// liveCache.Live.UserIdStr			= live.UserId
-		liveCache.Live.UserId				= live.UID
+		liveCache.Live.UserId				= live.UserID
 		// liveCache.Live.Text					= live.
 		liveCache.Live.CreateTime			= pika.JsonTime{ Time: live.CreateTime }
 		// liveCache.Live.UpdateTime			= live.
@@ -57,16 +57,17 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 		liveCache.Live.IsMulti				= live.IsMulti
 
 		// liveCache.ScoreStr			= live.Score
-		liveCache.Score				= float32(live.Score)
+		liveCache.Score				= live.Score
 		liveCache.FansCount			= live.FansCount
-		liveCache.Priority			= float32(live.Priority)
+		liveCache.Priority			= live.Priority
 		liveCache.Recommand			= live.Recommend
 		liveCache.RecommandLevel	= live.RecommendLevel
 		liveCache.StarsCount		= live.StarsCount
 		liveCache.TopCount			= live.TopCount
 		liveCache.BottomScore		= live.BottomScore
-		liveCache.DayIncoming		= float32(live.DayIncoming)
-		liveCache.MonthIncoming		= float32(live.MonthIncoming)
+		liveCache.DayIncoming		= live.DayIncoming
+		liveCache.MonthIncoming		= live.MonthIncoming
+		liveCache.Data4Api			= live.Data
 	}
 	return liveCacheList
 }

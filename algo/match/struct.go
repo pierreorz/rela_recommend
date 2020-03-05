@@ -22,7 +22,7 @@ func (self *DataInfo) GetDataId() int64 {
 	return self.DataId
 }
 
-func (self *DataInfo) GetData() interface{} {
+func (self *DataInfo) GetResponseData() interface{} {
 	return nil
 }
 
