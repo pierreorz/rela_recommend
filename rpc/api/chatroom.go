@@ -49,7 +49,7 @@ type ChatRoomRes struct {
 func CallChatRoomList(liveType int) ([]SimpleChatroom, error) {
 	params := fmt.Sprintf("type=%d", liveType)
 	res := &ChatRoomRes{}
-	err := factory.ApiRpcClient.SendGETForm(internalSearchChatRoomListUrl, params, res)
+	err := factory.ChatRoomRpcClient.SendGETForm(internalSearchChatRoomListUrl, params, res)
 	if err == nil {
 		if res != nil && res.Code == 0 && res.Data != nil {
 			return res.Data, nil
