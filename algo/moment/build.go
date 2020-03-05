@@ -92,7 +92,7 @@ func DoBuildData(ctx algo.IContext) error {
 	//获取user embedding
 
 	var startEmbeddingTime = time.Now()
-	_, momentUserEmbeddingMap, embeddingCacheErr := userCache.QueryMomentUserEmbeddingByUserAndUsersMap(params.UserId,userIds)
+	momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr := userCache.QueryMomentUserEmbeddingByUserAndUsersMap(params.UserId,userIds)
 	if embeddingCacheErr != nil {
 		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
 	}
@@ -103,9 +103,8 @@ func DoBuildData(ctx algo.IContext) error {
 		UserId: params.UserId,
 		UserCache: user,
 		MomentProfile: momentUser,
-		MomentUserProfile:momentUserEmbeddingMap[params.UserId],
+		MomentUserProfile:momentUserEmbedding,
 	}
-	log.Infof("user embedding data,%s\n",userInfo)
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
