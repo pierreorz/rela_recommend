@@ -113,7 +113,7 @@ func NewMomentCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Ca
 }
 
 // 读取用户embedding特征
-func (self *UserCacheModule) QueryMomentUserEmbeddingByIds(ids []int64) ([]MomentUserProfile, error) {
+func (self *UserCacheModule) QueryMomentUserProfileByIds(ids []int64) ([]MomentUserProfile, error) {
 	keyFormatter := "moment_user_embedding:%d"
 	ress, err := self.MGetStructs(MomentUserProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
 	objs := ress.Interface().([]MomentUserProfile)
@@ -121,9 +121,9 @@ func (self *UserCacheModule) QueryMomentUserEmbeddingByIds(ids []int64) ([]Momen
 }
 
 // 获取当前用户和用户列表Map
-func (this *UserCacheModule) QueryMomentUserEmbeddingByUserAndUsersMap(userId int64, userIds []int64) (*MomentUserProfile, map[int64]*MomentUserProfile, error) {
+func (this *UserCacheModule) QueryMomentUserProfileByUserAndUsersMap(userId int64, userIds []int64) (*MomentUserProfile, map[int64]*MomentUserProfile, error) {
 	allIds := append(userIds, userId)
-	users, err := this.QueryMomentUserEmbeddingByIds(allIds)
+	users, err := this.QueryMomentUserProfileByIds(allIds)
 	var resUser *MomentUserProfile
 	var resUsersMap = make(map[int64]*MomentUserProfile, 0)
 	if err == nil {
