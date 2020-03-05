@@ -105,7 +105,7 @@ func DoBuildData(ctx algo.IContext) error {
 		MomentProfile: momentUser,
 		MomentUserProfile:momentUserEmbeddingMap[params.UserId],
 	}
-
+	log.Infof("user embedding data,%s\n",userInfo)
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
