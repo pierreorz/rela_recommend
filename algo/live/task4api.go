@@ -102,7 +102,7 @@ func refreshLiveMapList(duration time.Duration) {
 	for {
 		select {
 		case <- tick.C:
-			if factory.ApiRpcClient != nil {
+			if factory.ChatRoomRpcClient != nil {
 				var startTime = time.Now()
 				var updateLog []string = []string{}
 				for _, liveType := range api.ChatRoomLiveTypes {
