@@ -114,7 +114,7 @@ func NewMomentCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Ca
 
 // 读取用户embedding特征
 func (self *UserCacheModule) QueryMomentUserProfileByIds(ids []int64) ([]MomentUserProfile, error) {
-	keyFormatter := "moment_user_embedding:%d"
+	keyFormatter := "moment_user_profile:%d"
 	ress, err := self.MGetStructs(MomentUserProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
 	objs := ress.Interface().([]MomentUserProfile)
 	return objs, err
