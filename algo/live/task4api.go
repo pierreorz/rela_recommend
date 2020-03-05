@@ -5,6 +5,7 @@ import (
 	"time"
 	"sync"
 	"errors"
+	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/rpc/api"
 	"rela_recommend/models/pika"
@@ -101,22 +102,26 @@ func refreshLiveMapList(duration time.Duration) {
 	for {
 		select {
 		case <- tick.C:
-			var startTime = time.Now()
-			var updateLog []string = []string{}
-			for _, liveType := range api.ChatRoomLiveTypes {
-				var typeTimeStart = time.Now()
-				lives, err := api.CallChatRoomList(liveType)
-				var typeTimeTotal = time.Now().Sub(typeTimeStart).Seconds()
-				if err == nil {
-					oldLen, newLen, err2 := updateCachedLiveMap(liveType, lives)
+			if factory.ApiRpcClient != nil {
+				var startTime = time.Now()
+				var updateLog []string = []string{}
+				for _, liveType := range api.ChatRoomLiveTypes {
+					var typeTimeStart = time.Now()
+					lives, err := api.CallChatRoomList(liveType)
+					var typeTimeTotal = time.Now().Sub(typeTimeStart).Seconds()
+					if err == nil {
+						oldLen, newLen, err2 := updateCachedLiveMap(liveType, lives)
 
-					updateLog = append(updateLog, fmt.Sprintf("type %d time %.3f old %d new %d err %s", liveType, typeTimeTotal, oldLen, newLen, err2))
-				} else {
-					updateLog = append(updateLog, fmt.Sprintf("type %d time %.3f err %s", liveType, typeTimeTotal, err))
+						updateLog = append(updateLog, fmt.Sprintf("type %d time %.3f old %d new %d err %s", liveType, typeTimeTotal, oldLen, newLen, err2))
+					} else {
+						updateLog = append(updateLog, fmt.Sprintf("type %d time %.3f err %s", liveType, typeTimeTotal, err))
+					}
 				}
+				var endTime = time.Now()
+				log.Infof("refreshLiveList api over %.3f: %+v\n", endTime.Sub(startTime).Seconds(), updateLog)
+			} else {
+				log.Warnf("refreshLiveList err:api is not ready\n")
 			}
-			var endTime = time.Now()
-			log.Infof("refreshLiveList api over %.3f: %+v\n", endTime.Sub(startTime).Seconds(), updateLog)
 		}
 	}
 }
