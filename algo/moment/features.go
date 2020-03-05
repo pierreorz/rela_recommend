@@ -56,9 +56,7 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 	}
 	memuEmbedding:=data.MomentUserProfile
 	if(memuEmbedding!=nil){
-		for i:=0;i<128;i++{
-			fs.Add(3000+i,float32(memuEmbedding.UserEmbedding[i]))
-		}
+		fs.AddArray(3000, 128, memuEmbedding.UserEmbedding)
 	}
 
 	// 观看者
@@ -82,10 +80,7 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 			fs.AddCategory(6002, 2, 0, rutils.GetInt(rutils.IsInInts(uRole, wantRoles)), 0)
 		}
 		if user.MomentUserProfile!=nil{
-			wmem:=user.MomentUserProfile
-			for i:=0;i<128;i++{
-				fs.Add(5100+i,wmem.UserEmbedding[i])
-			}
+			fs.AddArray(5100,128,user.MomentUserProfile.UserEmbedding)
 		}
 		if user.MomentProfile!=nil{
 			matp:=user.MomentProfile

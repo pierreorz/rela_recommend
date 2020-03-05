@@ -134,7 +134,7 @@ func DoBuildData(ctx algo.IContext) error {
 				MomentExtendCache: mom.MomentsExtend,
 				MomentProfile: mom.MomentsProfile,
 				RankInfo: &algo.RankInfo{IsTop: isTop, Recommends: recommends},
-				MomentUserProfile:momentUserEmbeddingMap[mom.Moments.Id],
+				MomentUserProfile:momentUserEmbeddingMap[mom.Moments.UserId],
 			}
 			dataList = append(dataList, info)
 		}
