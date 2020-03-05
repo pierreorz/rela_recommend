@@ -10,11 +10,11 @@ import (
 
 const internalSearchChatRoomListUrl = "/internal/chatrooms"
 
-// 接口调用参数 0.all; 1. video; 2. audio; 3. multi_audio(radio)
-var ChatRoomLiveTypes []int = []int{1, 2, 3, 4}
+// 接口调用参数 -1.all; 1. video; 2. audio; 3. multi_audio(radio)
+var ChatRoomLiveTypes []int = []int{-1, 1, 2, 3}
 
 type SimpleChatroom struct {
-	UID              int64 			`json:"uid"`
+	UserID           int64 			`json:"uid"`
 	Lat              float32 		`json:"lat"`
 	Lng              float32 		`json:"lng"`
 	GemProfit        float32 		`json:"gemProfit"`
@@ -22,19 +22,20 @@ type SimpleChatroom struct {
 	SendMsgCount     int 			`json:"sendMsgCount"`
 	ReceivedMsgCount int 			`json:"receivedMsgCount"`
 	ShareCount       int 			`json:"shareCount"`
-	Score            int 			`json:"score"`
+	Score            float32		`json:"score"`
 	BottomScore      int 			`json:"bottomScore"`
 	FansCount        int 			`json:"fansCount"`
-	Priority         int 			`json:"priority"`
+	Priority         float32		`json:"priority"`
 	Recommend        int 			`json:"recommend"`
 	RecommendLevel   int 			`json:"recommendLevel"`
 	StarsCount       int 			`json:"starsCount"`
 	TopCount         int 			`json:"topCount"`
 	TopView          int 			`json:"topView"`
-	DayIncoming      int 			`json:"dayIncoming"`
-	MonthIncoming    int 			`json:"monthIncoming"`
+	DayIncoming      float32		`json:"dayIncoming"`
+	MonthIncoming    float32		`json:"monthIncoming"`
 	IsMulti          int 			`json:"isMulti"`
 	CreateTime       time.Time 		`json:"createTime"`
+	Data			 string			`json:"data"`
 }
 
 type ChatRoomRes struct {
