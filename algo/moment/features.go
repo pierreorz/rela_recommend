@@ -54,6 +54,10 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 		fs.AddCategory(2040, 10, -1, role, -1)				// 自我认同
 		fs.AddCategories(2050, 10, -1, wantRoles, -1)	// 想要寻找
 	}
+	memuEmbedding:=data.MomentUserProfile
+	if(memuEmbedding!=nil){
+		fs.AddArray(3000, 128, memuEmbedding.UserEmbedding)
+	}
 
 	// 观看者
 	if ctx.GetUserInfo() != nil {
@@ -74,6 +78,9 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 			// 交叉
 			fs.AddCategory(6000, 2, 0, rutils.GetInt(rutils.IsInInts(role, uWantRoles)), 0)
 			fs.AddCategory(6002, 2, 0, rutils.GetInt(rutils.IsInInts(uRole, wantRoles)), 0)
+		}
+		if user.MomentUserProfile!=nil{
+			fs.AddArray(5100,128,user.MomentUserProfile.UserEmbedding)
 		}
 		if user.MomentProfile!=nil{
 			matp:=user.MomentProfile
