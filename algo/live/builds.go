@@ -21,8 +21,8 @@ func DoBuildData(ctx algo.IContext) error {
 
 	var lives []pika.LiveCache
 	// 获取主播列表
-	if len(params.Type) > 0 { // 如果有type参数，使用新的api获取缓存计算
-		liveType := utils.GetInt(params.Type)
+	if len(params.Params["type"]) > 0 { // 如果有type参数，使用新的api获取缓存计算
+		liveType := utils.GetInt(params.Params["type"])
 		lives = GetCachedLiveMapList(liveType)
 	} else {
 		liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
