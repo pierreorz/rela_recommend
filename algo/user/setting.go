@@ -31,6 +31,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
 	&algo.AlgoBase{AlgoName: "v1.1", FilePath: workDir + "nearby/mods_1.1.model.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
+	&algo.AlgoBase{AlgoName: "v1.2", FilePath: workDir + "nearby/mods_1.2_2.model.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
 })
 
 // 附近的人
