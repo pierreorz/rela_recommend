@@ -24,6 +24,7 @@ var richStrategyMap = map[string]algo.IRichStrategy {
 		// 根据距离排序
 		"distance_sort": &strategy.BaseRichStrategy{ StrategyItemFunc: SortWithDistanceItem },
 		"wilson_behavior": &strategy.BaseRichStrategy{ StrategyItemFunc: ItemBehaviorWilsonItemFunc },
+		"clicked_down": &strategy.BaseRichStrategy{ StrategyItemFunc: UserBehaviorClickedDownItemFunc },
 	}
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
