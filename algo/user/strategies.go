@@ -21,6 +21,22 @@ func ItemBehaviorWilsonItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, ran
 	return nil
 }
 
+// 点击过的内容降权。一小时降50%， 4小时降20%， 12小时降低7%，24小时降低4%
+func UserBehaviorClickedDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+
+	if userBehavior := dataInfo.UserBehavior; userBehavior != nil {
+		interactItem := userBehavior.GetNearbyListInteract()
+		if interactItem.Count > 0 {
+			timeSec := (float64(ctx.GetCreateTime().Unix()) - interactItem.LastTime) / 60.0 / 60.0  // 离最后操作了多少小时
+			if timeSec > 0 {
+				rankInfo.AddRecommend("ClickedDown", 1.0 - float32(1.0 / (1.0 + timeSec)))
+			}
+		}
+	}
+	return nil
+}
+
 func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	request := ctx.GetRequest()
 	abtest := ctx.GetAbTest()
