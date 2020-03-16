@@ -85,6 +85,41 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			if len(userAls_line) > 0 {
 				fs.AddArray(200, 100, userAls_line)
 			}
+			//增加词特征
+			userWordMap:=UserAls.UserWordProfile
+			wordsCount := len(mem.MomentsText)
+			if wordsCount > 0 {
+				words := factory.Segmenter.Cut(mem.MomentsText)
+				if len(words)==0{
+					for i:=0;i<10;i++{
+						fs.Add(i,0.0)
+					}
+				}else if len(words) < 10 {
+					for i:=0;i<len(words);i++{
+						for k,v := range userWordMap{
+							if words[i]==k{
+								fs.Add(i+50,v)
+							}else{
+								fs.Add(i+50,0)
+							}
+						}
+					}
+					for p:=1;p<10-len(words);p++{
+						fs.Add(p+50+len(words),0)
+					}
+				}else {
+					for q:=0;q<10;q++{
+						for k,v := range userWordMap{
+							if words[q]==k{
+								fs.Add(q+50,v)
+							}else{
+								fs.Add(q+50,0)
+							}
+						}
+					}
+
+				}
+			}
 		}
 		//ALS话题向量
 		if (data.ThemeProfile!=nil) {
