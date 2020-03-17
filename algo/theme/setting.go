@@ -9,7 +9,9 @@ import (
 var appName = "theme"
 var workDir = algo.GetWorkDir("/algo_files/theme/")
 
-var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildData}}
+var builderMap = map[string]algo.IBuilder{
+	"base": &algo.BuilderBase{DoBuild: DoBuildData},
+	"maybelike": &algo.BuilderBase{DoBuild: DoBuildMayBeLikeData}}
 var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{}}
@@ -61,6 +63,17 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "theme.hotweek", Module: "theme", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+// 相关话题
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "theme.maybelike", Module: "theme", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: nil,
+	BuilderKey: "build", BuilderDefault: "maybelike", BuilderMap: builderMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
