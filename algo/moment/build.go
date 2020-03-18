@@ -109,7 +109,7 @@ func DoBuildData(ctx algo.IContext) error {
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
 		//后期搜索完善此条件去除
-		if mom.Moments.ShareTo=="all"{
+		if mom.Moments.ShareTo!="all"{
 			continue
 		}
 		if mom.Moments != nil && mom.Moments.Id > 0 {
