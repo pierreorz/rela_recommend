@@ -108,8 +108,11 @@ func DoBuildData(ctx algo.IContext) error {
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
-
-		if mom.Moments != nil && mom.Moments.Id > 0&&mom.Moments.ShareTo=="all" {
+		//后期搜索完善此条件去除
+		if mom.Moments.ShareTo=="all"{
+			continue
+		}
+		if mom.Moments != nil && mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
 
 			// 处理置顶
