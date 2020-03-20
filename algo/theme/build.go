@@ -171,7 +171,7 @@ func DoBuildMayBeLikeData(ctx algo.IContext) error {
 	} 
 
 	pf.Begin("cache")
-	recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_recommend_maybelike_list:%d")
+	recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_sim_list:%d")
 	dataIdList, _ := rdsPikaCache.GetInt64List(params.DataIds[0], recListKeyFormatter)
 	pf.End("cache")
 
@@ -188,7 +188,7 @@ func DoBuildMayBeLikeData(ctx algo.IContext) error {
 			MomentExtendCache: nil,
 			MomentProfile: nil,
 			ThemeProfile: nil,
-			RankInfo: &algo.RankInfo{Score: float32(-i)},
+			RankInfo: &algo.RankInfo{Level: -i},
 		}
 		dataList = append(dataList, info)
 	}
