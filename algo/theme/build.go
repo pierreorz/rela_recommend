@@ -2,6 +2,7 @@ package theme
 
 import (
 	"time"
+	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/log"
 	"rela_recommend/factory"
@@ -155,4 +156,46 @@ func DoBuildData(ctx algo.IContext) error {
 			  startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(),
 			  endTime.Sub(startBuildTime).Seconds() )
 	return nil
+}
+
+
+// 话题详情页的猜你喜欢
+func DoBuildMayBeLikeData(ctx algo.IContext) error {
+	var err error
+	abtest := ctx.GetAbTest()
+	params := ctx.GetRequest()
+	pf := ctx.GetPerforms()
+	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	if len(params.DataIds) == 0 {
+		return errors.New("dataIds length must 1")
+	} 
+
+	pf.Begin("cache")
+	recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_sim_list:%d")
+	dataIdList, _ := rdsPikaCache.GetInt64List(params.DataIds[0], recListKeyFormatter)
+	pf.End("cache")
+
+
+	pf.Begin("build")
+	userInfo := &UserInfo{UserId: params.UserId}
+
+	dataList := make([]algo.IDataInfo, 0)
+	for i, dataId := range dataIdList {
+		info := &DataInfo{
+			DataId: dataId,
+			UserCache: nil,
+			MomentCache: nil,
+			MomentExtendCache: nil,
+			MomentProfile: nil,
+			ThemeProfile: nil,
+			RankInfo: &algo.RankInfo{Level: -i},
+		}
+		dataList = append(dataList, info)
+	}
+	ctx.SetUserInfo(userInfo)
+	ctx.SetDataIds(dataIdList)
+	ctx.SetDataList(dataList)
+
+	pf.End("build")
+	return err
 }
