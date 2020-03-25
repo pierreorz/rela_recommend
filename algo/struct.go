@@ -61,22 +61,24 @@ type RecommendLog struct {
 // 请求参数
 type RecommendRequest struct {
 	App		string 				`json:"app" form:"app"`
+	Type	string				`json:"type" form:"type"`	// 是推荐/热门/
 	Limit   int64  				`json:"limit" form:"limit"`
 	Offset  int64  				`json:"offset" form:"offset"`
 	Ua      string 				`json:"ua" form:"ua"`
 	Lat		float32 			`json:"lat" form:"lat"`
 	Lng		float32 			`json:"lng" form:"lng"`
 	UserId  int64  				`json:"userId" form:"userId"`
-	Type	string				`json:"type" form:"type"`	// 是推荐/热门/
 	DataIds []int64				`json:"dataIds" form:"dataIds"`
 	AbMap	map[string]string	`json:"abMap" form:"abMap"`
+	Params	map[string]string	`json:"params" form:"params"`
 }
 
 type RecommendResponseItem struct {
-	DataId int64	`json:"dataId" form:"dataId"`
-	Index 	int		`json:"index" form:"index"`
-	Reason string	`json:"reason" form:"reason"`
-	Score float32	`json:"score" form:"score"`
+	DataId 		int64		`json:"dataId" form:"dataId"`
+	Data		interface{}	`json:"data" form:"data"`
+	Index 		int			`json:"index" form:"index"`
+	Reason 		string		`json:"reason" form:"reason"`
+	Score 		float32		`json:"score" form:"score"`
 }
 
 // 返回参数

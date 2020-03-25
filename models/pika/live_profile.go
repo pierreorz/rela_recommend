@@ -41,10 +41,11 @@ type LiveCache struct {
 	Recommand			int			`json:"recommand"`
 	RecommandLevel		int			`json:"recommandLevel"`
 	StarsCount			int			`json:"starsCount"`
-	TopCount			int			`json:"topCount"`		// 是否置顶
+	TopCount			int			`json:"topCount"`		
 	BottomScore			int			`json:"bottomScore"`
 	DayIncoming			float32		`json:"dayIncoming"`
 	MonthIncoming		float32		`json:"monthIncoming"`
+	Data4Api			interface{}	`json:"data"`			// 20200305专门为api接口新增的透传参数
 }
 
 func (self *LiveCache) CheckDataType() {
