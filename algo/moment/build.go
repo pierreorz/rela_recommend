@@ -40,11 +40,16 @@ func DoBuildData(ctx algo.IContext) error {
 			momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 			radiusRange := abtest.GetString("radius_range", "50km")
 			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
-
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
-			newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
-				momentTypes, newMomentStartTime, radiusRange)
-
+			//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
+			radiusArray := []string{radiusRange, "200km", "2000km", "20000km"}
+			for _, radius := range radiusArray {
+				newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
+					momentTypes, newMomentStartTime, radius)
+				if len(newIdList)!=0{
+					break
+				}
+			}
 
 			if err != nil {
 				return err
@@ -81,8 +86,8 @@ func DoBuildData(ctx algo.IContext) error {
 	var startMomentOfflineProfileTime = time.Now()
 	var recDataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, recIds).ToList()
 	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(recDataIds)
-	if momOfflineProfileErr!=nil{
-		log.Warnf("moment embedding is err,%s\n",momOfflineProfileErr)
+	if momOfflineProfileErr != nil {
+		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
 	}
 	// 获取用户信息
 	var startUserTime = time.Now()
@@ -161,7 +166,7 @@ func DoBuildData(ctx algo.IContext) error {
 		ctx.GetRankId(), len(dataIds), len(dataIdList), len(recIdList), len(newIdList), len(recIds),
 		endTime.Sub(startTime).Seconds(), startBackEndTime.Sub(startTime).Seconds(),
 		startMomentTime.Sub(startBackEndTime).Seconds(),
-		startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(),startBuildTime.Sub(startMomentOfflineProfileTime).Seconds(), startBuildTime.Sub(startEmbeddingTime).Seconds(),
+		startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(), startBuildTime.Sub(startMomentOfflineProfileTime).Seconds(), startBuildTime.Sub(startEmbeddingTime).Seconds(),
 		endTime.Sub(startBuildTime).Seconds())
 	return nil
 }
