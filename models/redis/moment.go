@@ -92,6 +92,10 @@ type MomentsProfile struct {
 	MomentsTextWords 	[]string	`json:"momentsTextWords,omitempty"` 
 }
 
+type MomentOfflineProfile struct {
+	Id int64 `json:"moment_id"`
+	MomentEmbedding []float32  `json:"moment_embedding"`
+}
 type MomentsAndExtend struct {
 	Moments 		*Moments		`gorm:"column:moments" json:"moments,omitempty"`        
 	MomentsExtend	*MomentsExtend	`gorm:"column:moments_extend" json:"momentsExtend,omitempty"`        
@@ -119,7 +123,6 @@ func (self *UserCacheModule) QueryMomentUserProfileByIds(ids []int64) ([]MomentU
 	objs := ress.Interface().([]MomentUserProfile)
 	return objs, err
 }
-
 // 获取当前用户和用户列表Map
 func (this *UserCacheModule) QueryMomentUserProfileByUserAndUsersMap(userId int64, userIds []int64) (*MomentUserProfile, map[int64]*MomentUserProfile, error) {
 	allIds := append(userIds, userId)
@@ -136,6 +139,27 @@ func (this *UserCacheModule) QueryMomentUserProfileByUserAndUsersMap(userId int6
 		}
 	}
 	return resUser, resUsersMap, err
+}
+
+
+//读取日志画像特征
+func (self *MomentCacheModule) QueryMomentOfflineProfileByIds(ids []int64) ([]MomentOfflineProfile, error) {
+	keyFormatter := "moment_offline_profile:%d"
+	ress, err := self.MGetStructs(MomentOfflineProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs := ress.Interface().([]MomentOfflineProfile)
+	return objs, err
+}
+
+// 获取当前用户和用户列表Map
+func (this *MomentCacheModule) QueryMomentOfflineProfileByIdsMap(momentIds []int64) (map[int64]*MomentOfflineProfile, error) {
+	moments, err := this.QueryMomentOfflineProfileByIds(momentIds)
+	var resMomentsMap = make(map[int64]*MomentOfflineProfile, 0)
+	if err == nil {
+		for i, moment := range moments {
+				resMomentsMap[moment.Id] = &moments[i]
+		}
+	}
+	return  resMomentsMap, err
 }
 
 // 读取直播相关用户画像

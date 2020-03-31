@@ -7,20 +7,21 @@ import(
 	"rela_recommend/algo/utils"
 )
 
-// 用户信息
+// 日志使用者
 type UserInfo struct {
 	UserId int64
 	UserCache *redis.UserProfile
 	UserConcerns *rutils.SetInt64
-	MomentProfile *redis.MatchProfile
+	MomentOfflineProfile *redis.MomentOfflineProfile
 	MomentUserProfile *redis.MomentUserProfile
 }
 
-// 主播信息
+// 日志发布者
 type DataInfo struct {
 	DataId 				int64
 	UserCache 			*redis.UserProfile
 	MomentUserProfile       *redis.MomentUserProfile
+	MomentOfflineProfile *redis.MomentOfflineProfile
 	MomentCache 		*redis.Moments
 	MomentExtendCache 	*redis.MomentsExtend
 	MomentProfile		*redis.MomentsProfile
