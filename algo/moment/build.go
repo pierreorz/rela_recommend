@@ -46,7 +46,8 @@ func DoBuildData(ctx algo.IContext) error {
 			for _, radius := range radiusArray {
 				newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
 					momentTypes, newMomentStartTime, radius)
-				if len(newIdList)!=0{
+				//附近日志数量大于10即停止寻找
+				if len(newIdList)>10{
 					break
 				}
 			}
