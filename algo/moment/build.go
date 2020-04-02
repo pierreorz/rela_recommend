@@ -38,11 +38,10 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		if newMomentLen > 0 {
 			momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
-			radiusRange := abtest.GetString("radius_range", "50km")
+			radiusArray := abtest.GetStrings("radius_range", "50km")
 			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
 			//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
-			radiusArray := []string{radiusRange, "200km", "2000km", "20000km"}
 			for _, radius := range radiusArray {
 				newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
 					momentTypes, newMomentStartTime, radius)

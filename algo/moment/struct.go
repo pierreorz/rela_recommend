@@ -12,7 +12,7 @@ type UserInfo struct {
 	UserId int64
 	UserCache *redis.UserProfile
 	UserConcerns *rutils.SetInt64
-	MomentOfflineProfile *redis.MomentOfflineProfile
+	//MomentOfflineProfile *redis.MomentOfflineProfile
 	MomentUserProfile *redis.MomentUserProfile
 }
 
