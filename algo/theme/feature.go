@@ -91,7 +91,6 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			wordsCount := len(mem.MomentsText)
 			if wordsCount > 0 {
 				words := factory.Segmenter.Cut(mem.MomentsText)
-				print(words)
 				min_num := math.Min(float64(len(words)), 10.0)
 				for i := 0; i < int(min_num); i++ {
 					for k, v := range userWordMap {
