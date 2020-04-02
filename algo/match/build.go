@@ -21,14 +21,15 @@ func DoBuildData(ctx algo.IContext) error {
 	// 确定候选用户
 	dataIds := params.DataIds
 	if dataIds == nil || len(dataIds) == 0 {
-		recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
-		if len(recListKeyFormatter) > 5 {
-			recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
-			if errRedis == nil {
-				dataIds = utils.NewSetInt64FromArrays(dataIds, recIdlist).ToList()
-			} else {
-				log.Warnf("user recommend list is nil or empty!")
-			}
+		log.Warnf("user list is nil or empty!")
+	}
+	recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
+	if len(recListKeyFormatter) > 5 {
+		recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
+		if errRedis == nil {
+			dataIds = utils.NewSetInt64FromArrays(dataIds, recIdlist).ToList()
+		} else {
+			log.Warnf("user recommend list is nil or empty!")
 		}
 	}
 
