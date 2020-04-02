@@ -24,12 +24,15 @@ var richStrategyMap = map[string]algo.IRichStrategy {
 		// 根据距离排序
 		"distance_sort": &strategy.BaseRichStrategy{ StrategyItemFunc: SortWithDistanceItem },
 		"wilson_behavior": &strategy.BaseRichStrategy{ StrategyItemFunc: ItemBehaviorWilsonItemFunc },
+		"clicked_down": &strategy.BaseRichStrategy{ StrategyItemFunc: UserBehaviorClickedDownItemFunc },
 	}
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	&algo.AlgoBase{AlgoName: "base", FilePath: workDir + "nearby/mods_1.0.model.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
 	&algo.AlgoBase{AlgoName: "v1.1", FilePath: workDir + "nearby/mods_1.1.model.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
+	&algo.AlgoBase{AlgoName: "v1.2", FilePath: workDir + "nearby/mods_1.2_2.model.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
 })
 

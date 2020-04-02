@@ -30,6 +30,14 @@ func (self *LiveInfo) GetDataId() int64 {
 	return self.UserId
 }
 
+func (self *LiveInfo) GetResponseData() interface{} {
+	if self.LiveCache != nil {
+		return self.LiveCache.Data4Api
+	} else {
+		return nil
+	}
+}
+
 func(self *LiveInfo) SetRankInfo(rankInfo *algo.RankInfo) {
 	self.RankInfo = rankInfo
 }

@@ -4,8 +4,7 @@ import(
 	"time"
 	"fmt"
 	"rela_recommend/utils"
-	// "encoding/json"
-	// "rela_recommend/log"
+
 	"rela_recommend/cache"
 	"rela_recommend/algo"
 )
@@ -99,12 +98,44 @@ type MomentsAndExtend struct {
 	MomentsProfile	*MomentsProfile	`gorm:"column:moments_profile" json:"momentsProfile,omitempty"` 
 }
 
+type MomentUserProfile struct {
+	UserID       int64              `json:"user_id"`
+	UserEmbedding       []float32  `json:"user_embedding"`
+}
+
 type MomentCacheModule struct {
 	CachePikaModule
 }
 
+
 func NewMomentCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *MomentCacheModule {
 	return &MomentCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
+}
+
+// 读取用户embedding特征
+func (self *UserCacheModule) QueryMomentUserProfileByIds(ids []int64) ([]MomentUserProfile, error) {
+	keyFormatter := "moment_user_profile:%d"
+	ress, err := self.MGetStructs(MomentUserProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs := ress.Interface().([]MomentUserProfile)
+	return objs, err
+}
+
+// 获取当前用户和用户列表Map
+func (this *UserCacheModule) QueryMomentUserProfileByUserAndUsersMap(userId int64, userIds []int64) (*MomentUserProfile, map[int64]*MomentUserProfile, error) {
+	allIds := append(userIds, userId)
+	users, err := this.QueryMomentUserProfileByIds(allIds)
+	var resUser *MomentUserProfile
+	var resUsersMap = make(map[int64]*MomentUserProfile, 0)
+	if err == nil {
+		for i, user := range users {
+			if user.UserID == userId {
+				resUser = &users[i]
+			} else {
+				resUsersMap[user.UserID] = &users[i]
+			}
+		}
+	}
+	return resUser, resUsersMap, err
 }
 
 // 读取直播相关用户画像

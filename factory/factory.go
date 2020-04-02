@@ -45,6 +45,7 @@ var MatchClusterMon *mgo.Session
 
 var SearchRpcClient *rpc.HttpClient
 var ApiRpcClient *rpc.HttpClient
+var ChatRoomRpcClient *rpc.HttpClient
 
 // 分词
 var Segmenter segment.ISegmenter
@@ -163,6 +164,7 @@ func initMongo(cfg *conf.Config) {
 func initRpc(cfg *conf.Config){
 	SearchRpcClient = rpc.NewHttpClient(cfg.Rpc.SearchRpcAddr, time.Millisecond * 500)
 	ApiRpcClient = rpc.NewHttpClient(cfg.Rpc.ApiRpcAddr, time.Millisecond * 100)
+	ChatRoomRpcClient = rpc.NewHttpClient(cfg.Rpc.ChatRoomRpcAddr, time.Millisecond * 200)
 }
 
 func initSegmenter(cfg *conf.Config) {

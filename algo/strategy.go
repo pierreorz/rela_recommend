@@ -114,6 +114,7 @@ func (self *PagerBase) Do(ctx IContext) error {
 		rankInfo.Index = i
 		returnObjs = append(returnObjs, RecommendResponseItem{
 			DataId: currData.GetDataId(), 
+			Data: currData.GetResponseData(),
 			Index: rankInfo.Index,
 			Score: rankInfo.Score,
 			Reason: rankInfo.ReasonString() })

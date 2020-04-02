@@ -81,6 +81,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if err != nil {
 		log.Warnf("users list is err, %s\n", err)
 	}
+
 	// 获取画像信息
 	var startProfileTime = time.Now()
 	emptyIds := make([]int64, 0)
@@ -88,13 +89,22 @@ func DoBuildData(ctx algo.IContext) error {
 	if matchCacheErr != nil {
 		log.Warnf("match profile cache list is err, %s\n", matchCacheErr)
 	}
+	//获取user embedding
+
+	var startEmbeddingTime = time.Now()
+	momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr := userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId,userIds)
+	if embeddingCacheErr != nil {
+		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
+	}
+
 
 	var startBuildTime = time.Now()
 	userInfo := &UserInfo{
 		UserId: params.UserId,
 		UserCache: user,
-		MomentProfile: momentUser,}
-
+		MomentProfile: momentUser,
+		MomentUserProfile:momentUserEmbedding,
+	}
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
@@ -124,6 +134,7 @@ func DoBuildData(ctx algo.IContext) error {
 				MomentExtendCache: mom.MomentsExtend,
 				MomentProfile: mom.MomentsProfile,
 				RankInfo: &algo.RankInfo{IsTop: isTop, Recommends: recommends},
+				MomentUserProfile:momentUserEmbeddingMap[mom.Moments.UserId],
 			}
 			dataList = append(dataList, info)
 		}
@@ -132,11 +143,11 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataIds(dataIds)
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
-	log.Infof("rankid %s,totallen:%d,paramlen:%d,reclen:%d,searchlen:%d;backendlen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,profile_cache:%.3f,build:%.3f\n",
+	log.Infof("rankid %s,totallen:%d,paramlen:%d,reclen:%d,searchlen:%d;backendlen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,profile_cache:%.3f,embedding_cache:%.3f,build:%.3f\n",
 			  ctx.GetRankId(), len(dataIds), len(dataIdList), len(recIdList), len(newIdList), len(recIds),
 			  endTime.Sub(startTime).Seconds(), startBackEndTime.Sub(startTime).Seconds(), 
 			  startMomentTime.Sub(startBackEndTime).Seconds(),
-			  startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(), startBuildTime.Sub(startProfileTime).Seconds(),
+			  startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(), startBuildTime.Sub(startProfileTime).Seconds(),startBuildTime.Sub(startEmbeddingTime).Seconds(),
 			  endTime.Sub(startBuildTime).Seconds() )
 	return nil
 }

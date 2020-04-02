@@ -15,12 +15,12 @@ memory_cache_size =  157810688
 
 #rds
 [rds]
-redis_addr = "172.16.13.229:6379,172.16.13.230:6379,172.16.13.231:6379"
+redis_addr = "192.168.31.168:6379,192.168.31.169:6379,192.168.31.170:6379"
 # redis_live_addr = "r-8vb6b3c35b002464.redis.zhangbei.rds.aliyuncs.com:6379"
-redis_live_addr = "r-8vbe0r7y7ns5newg40.redis.zhangbei.rds.aliyuncs.com:6379"
-redis_cluster_addr = "r-8vb5c335ea2d2c04.redis.zhangbei.rds.aliyuncs.com:6379"
-pika_addr = "172.16.13.198:9221"
-behavior_addr = "r-8vbswhyzljf7ddhi6i.redis.zhangbei.rds.aliyuncs.com:6379"
+redis_live_addr = "192.168.31.164:6379"
+redis_cluster_addr = "192.168.31.164:6379"
+pika_addr = "192.168.31.164:9221"
+behavior_addr = "192.168.31.164:6379"
 
 #mysql
 [rdb]
@@ -32,4 +32,5 @@ addresses="172.31.42.3,172.31.40.149,172.31.38.171"
 
 [rpc]
 search_rpc_addr = "http://172.16.13.247/v2"
+chatroom_rpc_addr = "http://chatroom:7420"
 api_rpc_addr = "http://matchinterface:3100"

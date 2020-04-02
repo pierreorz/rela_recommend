@@ -12,6 +12,7 @@ type IUserInfo interface {
 
 type IDataInfo interface {
 	GetDataId() int64
+	GetResponseData() interface{}
 	GetRankInfo() *RankInfo
 	SetRankInfo(*RankInfo)
 }
