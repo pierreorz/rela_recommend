@@ -93,9 +93,8 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 				words := factory.Segmenter.Cut(mem.MomentsText)
 				min_num := math.Min(float64(len(words)), 10.0)
 				for i := 0; i < int(min_num); i++ {
-					for k, v := range userWordMap {
-						if words[i] == k {
-							fs.Add(i+50, v)
+					if _, ok := userWordMap[words[i]]; ok {
+						fs.Add(i+50,userWordMap[words[i]])
 						}
 					}
 				}
@@ -118,7 +117,7 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			//	}
 			//
 			//}
-		}
+
 
 		//ALS话题向量
 		if (data.ThemeProfile != nil) {
