@@ -1,7 +1,6 @@
 package theme
 
 import (
-	"fmt"
 	"math"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
@@ -89,7 +88,6 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			}
 			//增加词特征
 			userWordMap := UserAls.UserWordProfile
-			fmt.Print(userWordMap)
 			wordsCount := len(mem.MomentsText)
 			if wordsCount > 0 {
 				words := factory.Segmenter.Cut(mem.MomentsText)
