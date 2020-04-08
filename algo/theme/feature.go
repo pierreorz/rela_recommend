@@ -1,6 +1,7 @@
 package theme
 
 import (
+	"math"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
 	"rela_recommend/factory"
@@ -71,23 +72,55 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		fs.Add(3, float32(memu.Weight))
 		fs.Add(5,float32(memex.AndroidFlag))
 	}
-	if ctx.GetUserInfo()!=nil{
+	if ctx.GetUserInfo()!=nil {
 		userData := ctx.GetUserInfo().(*UserInfo)
-		reqUser:=userData.UserCache
-		if (reqUser!=nil){
+		reqUser := userData.UserCache
+		if (reqUser != nil) {
 			fs.Add(10, float32(reqUser.Age))
 			fs.Add(11, float32(reqUser.Height))
 			fs.Add(12, float32(reqUser.Weight))
-			}
-		if (userData.ThemeUser!=nil) {
+		}
+		if (userData.ThemeUser != nil) {
 			UserAls := userData.ThemeUser
 			userAls_line := UserAls.UserEmbedding
 			if len(userAls_line) > 0 {
 				fs.AddArray(200, 100, userAls_line)
 			}
-		}
+			//增加词特征
+			userWordMap := UserAls.UserWordProfile
+			wordsCount := len(mem.MomentsText)
+			if wordsCount > 0 {
+				words := factory.Segmenter.Cut(mem.MomentsText)
+				min_num := math.Min(float64(len(words)), 10.0)
+				for i := 0; i < int(min_num); i++ {
+					if _, ok := userWordMap[words[i]]; ok {
+						fs.Add(i+50,userWordMap[words[i]])
+						}
+					}
+				}
+			}
+			//if len(words) < 10 {
+			//	for i:=0;i<len(words);i++ {
+			//		for k, v := range userWordMap {
+			//			if words[i] == k {
+			//				fs.Add(i+50, v)
+			//			}
+			//		}
+			//	}
+			//}else {
+			//	for q:=0;q<10;q++{
+			//		for k,v := range userWordMap{
+			//			if words[q]==k{
+			//				fs.Add(q+50,v)
+			//			}
+			//		}
+			//	}
+			//
+			//}
+
+
 		//ALS话题向量
-		if (data.ThemeProfile!=nil) {
+		if (data.ThemeProfile != nil) {
 			ThemeAls := data.ThemeProfile
 			themeAls_line := ThemeAls.ThemeEmbedding
 			if len(themeAls_line) > 0 {
