@@ -15,7 +15,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"rela_recommend/service/segment"
-	"rela_recommend/service/abtest"
+	// "rela_recommend/service/abtest"
 )
 
 // mysql slave
@@ -73,7 +73,7 @@ func Init(cfg *conf.Config) {
 }
 
 func initConsul(cfg *conf.Config) {
-	abtest.BeginWatching("127.0.0.1:8500")
+	// abtest.BeginWatching("127.0.0.1:8500")
 }
 
 func initDB(cfg *conf.Config) {

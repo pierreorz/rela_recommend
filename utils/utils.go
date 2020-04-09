@@ -390,6 +390,42 @@ func NewSetInt64FromArrays(vals ...[]int64) *SetInt64 {
 	return &set
 }
 
+
+// Set 结构
+type SetString struct {
+	intMap map[string]int
+}
+
+func (self *SetString) checkMap() {
+	if self.intMap == nil {
+		self.intMap = make(map[string]int, 0)
+	}
+}
+
+func (self *SetString) Append(val string)*SetString {
+	self.checkMap()
+	self.intMap[val] = 1
+	return self
+}
+
+func (self *SetString) AppendArray(vals []string)*SetString {
+	self.checkMap()
+	for _, val := range vals {
+		self.intMap[val] = 1
+	}
+	return self
+}
+
+func (self *SetString) ToList() []string {
+	res := make([]string, 0)
+	for k, _ := range self.intMap {
+		res = append(res, k)
+	}
+	return res
+}
+
+
+
 // int是否在int数组内
 func IsInInts(v int, vs []int) bool {
 	for _, vv := range vs {

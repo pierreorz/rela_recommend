@@ -40,6 +40,12 @@ func watch_func(host string, app string, prefix string, handler func(string, str
 		if err != nil {
 			log.Errorf("%s error: %s, %+v\n", prefix, err, result)
 		}
+		// 更新涉及的key
+		if len(app) > 0 {
+			formulaKeys := GetFormulaKeys(defaultFactorMap[app], testingMap[app], whiteListMap[app])
+			log.Infof("%s app:%s keys:%+v\n", prefix, app, formulaKeys)
+			setFormulaListMap(app, formulaKeys)
+		}
 		// log.Infof("%s changed: %+v\n", prefix, result)
 	}
 	go func(){
@@ -51,11 +57,11 @@ func watch_func(host string, app string, prefix string, handler func(string, str
 }
 
 func updateConfig(app string, prefix string, kvs api.KVPairs) error{
-	var configMap = map[string]string{}
+	var configMap = map[string]Factor{}
 	var keyPrefixLen = len(prefix)
 	for _, kv := range kvs {
 		configKey := kv.Key[keyPrefixLen: ]
-		configMap[configKey] = string(kv.Value)
+		configMap[configKey] = NewFactor(kv.Value)
 	}
 	// defaultFactorMap[app] = configMap
 	setDefaultFactorMap(app, configMap)
