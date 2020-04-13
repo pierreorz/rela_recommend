@@ -198,7 +198,15 @@ func (self *Factor) GetFormulaKeys() []string {
 
 func (self *Factor) UnmarshalJSON(data []byte) error {
 	newBs := bytes.Trim(data, " \n\r\t\v\f")
-	if bytes.HasPrefix(newBs, []byte("{")) {
+	// 如果是json字符串;则去除一层字符串
+	if bytes.HasPrefix(newBs, []byte("\"")) && bytes.HasSuffix(newBs, []byte("\"")) {
+		newStr := ""
+		if err := json.Unmarshal(newBs, &newStr); err == nil {
+			newBs = []byte(newStr)
+		}
+	}
+	// 解析json
+	if bytes.HasPrefix(newBs, []byte("{")) && bytes.HasSuffix(newBs, []byte("}")) {
 		fact := &factor{}
 		if err := json.Unmarshal(newBs, fact); err == nil {
 			if fact.Value != "" || len(fact.Conditions) > 0 {
@@ -206,11 +214,9 @@ func (self *Factor) UnmarshalJSON(data []byte) error {
 				self.Conditions = fact.Conditions
 				return nil
 			}
-		} 
+		}
 	}
-	if err := json.Unmarshal(newBs, &self.Value); err != nil {
-		self.Value = string(data)
-	}
+	self.Value = string(newBs)
 	return nil
 }
 
