@@ -199,18 +199,18 @@ func (self *Factor) GetFormulaKeys() []string {
 func (self *Factor) UnmarshalJSON(data []byte) error {
 	newBs := bytes.Trim(data, " \n\r\t\v\f")
 	if bytes.HasPrefix(newBs, []byte("{")) {
-		if bytes.Contains(newBs, []byte("\"conditions\"")) {
-			fact := &factor{}
-			if err := json.Unmarshal(newBs, fact); err == nil {
-				if fact.Value != "" || len(fact.Conditions) > 0 {
-					self.Value = fact.Value
-					self.Conditions = fact.Conditions
-					return nil
-				}
+		fact := &factor{}
+		if err := json.Unmarshal(newBs, fact); err == nil {
+			if fact.Value != "" || len(fact.Conditions) > 0 {
+				self.Value = fact.Value
+				self.Conditions = fact.Conditions
+				return nil
 			}
-		}
+		} 
 	}
-	self.Value = string(data)
+	if err := json.Unmarshal(newBs, &self.Value); err != nil {
+		self.Value = string(data)
+	}
 	return nil
 }
 
