@@ -24,9 +24,10 @@ func (self *Formula) Calculate(vals map[string]interface{}) bool {
 	return false
 }
 
+// 计算表达式是否满足条件
 func (self *Formula) Calculate4Value(mVal interface{}) bool {
 	result := false
-	if self.Formula == "in" {
+	if self.Formula == "in" {	// 处理in条件
 		if strings.HasPrefix(self.Value, "(") && strings.HasSuffix(self.Value, ")") {
 			inFormula := &Formula{Key: self.Key, Formula: "=", Value: ""}
 			for _, inVal := range strings.Split(self.Value[1: len(self.Value)-1], ",") {
@@ -108,6 +109,7 @@ func (self *Condition) GetFormulas() [][]Formula {
 	return self.formulas
 }
 
+// 解析公式，不区分大小写，以小写为主
 func (self *Condition) parseFormula() [][]Formula {
 	f1 := strings.ToLower(self.Formula)					// 转换为小写
 	ors_ands := [][]Formula{}
@@ -138,12 +140,13 @@ func (self *Condition) parseFormula() [][]Formula {
 	return self.formulas
 }
 
+// 计算是否满足条件，formulas数组内or关系，formulas[i]数组内为and关系
 func (self *Condition) Calculate(vals map[string]interface{}) bool {
 	if self.formulas == nil {
 		self.parseFormula()
 	}
 
-	result := false
+	result := true
 	for _, ands := range self.formulas {
 		andsRes := true
 		for _, and := range ands {
@@ -151,8 +154,7 @@ func (self *Condition) Calculate(vals map[string]interface{}) bool {
 				break
 			}
 		}
-		if andsRes {
-			result = true
+		if result = andsRes; result {
 			break
 		}
 	}
@@ -196,6 +198,7 @@ func (self *Factor) GetFormulaKeys() []string {
 	return keys
 }
 
+// 解析值表达式，兼容 普通字符串 / 数字 / json字符串 / json
 func (self *Factor) UnmarshalJSON(data []byte) error {
 	newBs := bytes.Trim(data, " \n\r\t\v\f")
 	// 如果是json字符串;则去除一层字符串
