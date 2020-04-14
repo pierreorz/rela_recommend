@@ -28,6 +28,8 @@ func DoTimeFirstLevel(ctx algo.IContext, index int) error {
 	return nil
 }
 
+
+
 // 按数据被访问行为进行策略提降权
 func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itembehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
@@ -58,6 +60,14 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
 	var abtest=ctx.GetAbTest()
+	if abtest.GetBool("sort_with_time",false){
+		ExpoCount:=int(behavior.MergeBehaviors(userbehavior.GetMomentListExposure()).Count)
+		//每看两次进行沉底至24h之后
+		if ExpoCount%2==0{
+			rankInfo.Level-=4
+		}
+
+	}
 	if abtest.GetBool("rich_strategy:behavior:moment_item_new", false){
 		if userbehavior != nil {
 			// 浏览过的内容使用浏览次数反序排列，3:未浏览过，2：浏览一次，1：浏览2次，0：浏览3次以上
