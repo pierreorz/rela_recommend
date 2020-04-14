@@ -157,6 +157,23 @@ func Bytes2Int32(data []byte) int32 {
 	return x
 }
 
+func Md5Bytes(data []byte) []byte {
+	hash := md5.New()
+	hash.Write(data)
+	resByte := hash.Sum(nil)
+	return resByte
+}
+
+func Md5Uint32(data []byte) uint32 {
+	bys := Md5Bytes(data)
+	return binary.BigEndian.Uint32(bys)
+}
+
+func Md5Uint64(data []byte) uint64 {
+	bys := Md5Bytes(data)
+	return binary.BigEndian.Uint64(bys)
+}
+
 func Md5Sum32(data []byte) int32 {
 	hash := md5.New()
 	hash.Write(data)

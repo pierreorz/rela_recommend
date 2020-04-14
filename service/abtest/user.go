@@ -10,7 +10,7 @@ func GetUserAttr(userId int64, keys []string) map[string]interface{} {
 		for _, key := range keys {
 			switch key {
 				case "vip_level": {	// 会员等级
-					vipRes, _ := api.CallUserVipStatus(userId)
+					vipRes, _ := api.CallUserVipStatusWithCache(userId, 1 * 60 * 60)
 					res[key] = vipRes.Level
 				}
 			}
