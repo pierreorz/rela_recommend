@@ -1,24 +1,23 @@
 package redis
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"reflect"
+	"rela_recommend/algo"
+	"rela_recommend/cache"
+	"rela_recommend/log"
+	"rela_recommend/service/abtest"
+	"rela_recommend/utils"
 	"sync"
 	"time"
-	"errors"
-	"reflect"
-	"encoding/json"
-	"rela_recommend/log"
-	"rela_recommend/cache"
-	"rela_recommend/utils"
-	"rela_recommend/algo"
-	"rela_recommend/service/abtest"
 )
-
 
 type CachePikaModule struct {
 	cache cache.Cache
 	store cache.Cache
-	ctx algo.IContext
+	ctx   algo.IContext
 }
 
 func NewCachePikaModule(ctx algo.IContext, cache cache.Cache) *CachePikaModule {
@@ -38,7 +37,7 @@ func (self *CachePikaModule) GetSet(key string, cacheTime int, cacheNilTime int)
 	}
 	var startStoreTime = time.Now()
 	var startStoreSetTime = time.Now()
-	if res == nil && self.store != nil && (cacheTime > 0 || cacheNilTime > 0)  {  // 缓存没有获取到
+	if res == nil && self.store != nil && (cacheTime > 0 || cacheNilTime > 0) { // 缓存没有获取到
 		res, err = self.store.Get(key)
 		startStoreSetTime = time.Now()
 		if err == nil {
@@ -58,7 +57,7 @@ func (self *CachePikaModule) GetSet(key string, cacheTime int, cacheNilTime int)
 	var endTime = time.Now()
 	log.Infof("GetSet rankId:%s,Key:%s,from:%s,total:%.3f,cache:%.3f,store:%.3f,2cache:%.3f,msg:%s\n",
 		"", key, dataFrom,
-		endTime.Sub(startTime).Seconds(), endCacheTime.Sub(startTime).Seconds(), 
+		endTime.Sub(startTime).Seconds(), endCacheTime.Sub(startTime).Seconds(),
 		startStoreSetTime.Sub(startStoreTime).Seconds(), endTime.Sub(startStoreSetTime).Seconds(),
 		message)
 	return res, err
@@ -70,7 +69,7 @@ func (self *CachePikaModule) Get(key string) (interface{}, error) {
 
 // 读取缓存。cacheTime：redis的缓存时间，如果<=0则不缓存；cacheNilTime: pika也不存在的key写入redis的缓存时间，如果<=0则不缓存；
 // 当 cacheTime 和 cacheNilTime 都小雨等于0 则不请求 store
-func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime int64, cacheNilTime int64)([]interface{}, error) {
+func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime int64, cacheNilTime int64) ([]interface{}, error) {
 	var startTime = time.Now()
 	dataLen := len(ids)
 	// 构造keys
@@ -117,10 +116,10 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 			}
 			setLen, setNilLen = len(setKeyVals), len(setNilVals)
 			startStoreSetTime = time.Now()
-			if cacheTime > 0 && setLen > 0 {  // 设置缓存
+			if cacheTime > 0 && setLen > 0 { // 设置缓存
 				go self.cache.MsetEx(setKeyVals, cacheTime)
 			}
-			if cacheNilTime > 0 && setNilLen > 0 {  // 设置找不到的缓存
+			if cacheNilTime > 0 && setNilLen > 0 { // 设置找不到的缓存
 				go self.cache.MsetEx(setNilVals, cacheNilTime)
 			}
 		} else {
@@ -129,7 +128,7 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 	}
 	var endTime = time.Now()
 	log.Infof("ReadKey:%s,rankId:%s,all:%d,cache:%d,store:%d,final:%d,set:%d,setnil:%d;total:%.3f,keys:%.3f,cache:%.3f,notfound:%.3f,store:%.3f,2cache:%.3f\n",
-		keyFormater, "", dataLen, dataLen-len(notFoundIndexs), len(notFoundIndexs),len(ress), setLen, setNilLen,
+		keyFormater, "", dataLen, dataLen-len(notFoundIndexs), len(notFoundIndexs), len(ress), setLen, setNilLen,
 		endTime.Sub(startTime).Seconds(),
 		startCacheTime.Sub(startTime).Seconds(), endCacheTime.Sub(startCacheTime).Seconds(),
 		startStoreTime.Sub(endCacheTime).Seconds(), startStoreSetTime.Sub(startStoreTime).Seconds(),
@@ -137,7 +136,7 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 	return ress, err
 }
 
-func (self *CachePikaModule) MGet(ids []int64, keyFormater string)([]interface{}, error) {
+func (self *CachePikaModule) MGet(ids []int64, keyFormater string) ([]interface{}, error) {
 	return self.MGetSet(ids, keyFormater, 0, 0)
 }
 
@@ -153,7 +152,7 @@ func (self *CachePikaModule) jsonsToValues(jsons []interface{}, objType reflect.
 					newValue := reflect.Indirect(newObj)
 					objs[i] = &newValue
 				} else {
-					log.Warn("json err:", res , err.Error())
+					log.Warn("json err:", res, err.Error())
 				}
 			} else {
 				log.Warn("must []byte:", res)
@@ -177,7 +176,7 @@ func (self *CachePikaModule) Jsons2StructsBySingle(jsons []interface{}, obj inte
 	}
 	endTime := time.Now()
 	log.Infof("Jsons2StructsBySingle rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
-		"", len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(), 
+		"", len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(),
 		endTime.Sub(startTime).Seconds())
 	return &objSlc, err
 }
@@ -214,7 +213,7 @@ func (self *CachePikaModule) Jsons2StructsByRoutine(jsons []interface{}, obj int
 
 	endTime := time.Now()
 	log.Infof("Jsons2StructsByRoutine rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
-		"", len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(), 
+		"", len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(),
 		endTime.Sub(startTime).Seconds())
 	return &objSlc, err
 }
@@ -240,12 +239,11 @@ func (self *CachePikaModule) MGetStructs(obj interface{}, ids []int64, keyFormat
 	objs, err := self.Jsons2Structs(ress, obj)
 	endTime := time.Now()
 	log.Infof("UnmarshalKey:%s,rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f,read:%.4f,json:%.4f\n",
-		keyFormater, "", len(ids), len(ids)-objs.Len(), objs.Len(), 
+		keyFormater, "", len(ids), len(ids)-objs.Len(), objs.Len(),
 		endTime.Sub(startTime).Seconds(),
 		startJsonTime.Sub(startTime).Seconds(), endTime.Sub(startJsonTime).Seconds())
 	return objs, err
 }
-
 
 // 单线程转化json为struct Map.去除空值，不保证顺序
 func (self *CachePikaModule) Jsons2StructsMapBySingle(ids []int64, jsons []interface{}, obj interface{}) (*reflect.Value, error) {
@@ -268,7 +266,6 @@ func (self *CachePikaModule) Jsons2StructsMapBySingle(ids []int64, jsons []inter
 		"", len(jsons), len(jsons)-finalLen, finalLen, endTime.Sub(startTime).Seconds())
 	return &objMap, err
 }
-
 
 // 多线程转化json为struct.去除空值，不保证顺序
 func (self *CachePikaModule) Jsons2StructsMapByRoutine(ids []int64, jsons []interface{}, obj interface{}, partLen int) (*reflect.Value, error) {
@@ -299,13 +296,13 @@ func (self *CachePikaModule) Jsons2StructsMapByRoutine(ids []int64, jsons []inte
 					objMap.SetMapIndex(reflect.ValueOf(ids[j]), *res)
 				}
 			}
-		}(ids[part.Start: part.End], jsons[part.Start: part.End])
+		}(ids[part.Start:part.End], jsons[part.Start:part.End])
 	}
 	wg.Wait()
 	finalLen := objMap.Len()
 	endTime := time.Now()
 	log.Infof("Jsons2StructsMapByRoutine rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
-		"", len(jsons), len(jsons)-finalLen, finalLen, 
+		"", len(jsons), len(jsons)-finalLen, finalLen,
 		endTime.Sub(startTime).Seconds())
 	return &objMap, err
 }
@@ -332,7 +329,7 @@ func (self *CachePikaModule) MGetStructsMap(obj interface{}, ids []int64, keyFor
 	objs.MapKeys()
 	endTime := time.Now()
 	log.Infof("MGetStructsMap:%s,rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f,read:%.4f,json:%.4f\n",
-		keyFormater, "", len(ids), len(ids)-objs.Len(), objs.Len(), 
+		keyFormater, "", len(ids), len(ids)-objs.Len(), objs.Len(),
 		endTime.Sub(startTime).Seconds(),
 		startJsonTime.Sub(startTime).Seconds(), endTime.Sub(startJsonTime).Seconds())
 	return objs, err
@@ -377,4 +374,14 @@ func (self *CachePikaModule) SetStruct(key string, obj interface{}, cacheTime in
 	log.Infof("SetStruct rankId:%s,Key:%s,total:%.3f,msg:%s\n",
 		"", key, endTime.Sub(startTime).Seconds(), err)
 	return err
+}
+
+// 从redis中获取用户id
+func (self *CachePikaModule) GetInt64List(id int64, keyFormater string) ([]int64, error) {
+	var resInt64s = make([]int64, 0)
+	res, err := self.GetSet(fmt.Sprint(keyFormater, id), 6*60*60, 1*60*60)
+	if err == nil {
+		resInt64s = utils.GetInt64s(utils.GetString(res))
+	}
+	return resInt64s, err
 }
