@@ -61,7 +61,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	var err error
 	var abtest=ctx.GetAbTest()
 	if abtest.GetBool("sort_with_time",false){
-		ExpoCount:=int(behavior.MergeBehaviors(userbehavior.GetMomentListExposure()).Count)
+		ExpoCount:=int(behavior.MergeBehaviors(userbehavior.GetMomentListExposure(),userbehavior.GetMomentListInteract()).Count)
 		//每看两次进行沉底至24h之后
 		if ExpoCount%2==0{
 			rankInfo.Level-=4
