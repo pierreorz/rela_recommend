@@ -6,15 +6,17 @@ import (
 	"encoding/json"
 )
 
-var defaultFactorMap map[string]map[string]string = map[string]map[string]string{}
+var defaultFactorMap map[string]map[string]Factor = map[string]map[string]Factor{}
 var testingMap map[string][]Testing = make(map[string][]Testing, 0)
 var whiteListMap map[string][]WhiteName = make(map[string][]WhiteName, 0)
+var formulaListMap map[string][]string = make(map[string][]string, 0)
 
 var configLocker = &sync.RWMutex{}
 var testLocker = &sync.RWMutex{}
 var whiteLocker = &sync.RWMutex{}
+var formulaLocker = &sync.RWMutex{}
 
-func setDefaultFactorMap(key string, val map[string]string) {
+func setDefaultFactorMap(key string, val map[string]Factor) {
 	configLocker.Lock()
 	defer configLocker.Unlock()
 	defaultFactorMap[key] = val
@@ -31,6 +33,13 @@ func setWhiteListMap(key string, val []WhiteName) {
 	defer whiteLocker.Unlock()
 	whiteListMap[key] = val
 }
+
+func setFormulaListMap(key string, val []string) {
+	formulaLocker.Lock()
+	defer formulaLocker.Unlock()
+	formulaListMap[key] = val
+}
+
 
 func init() {
 	// 因子默认值
