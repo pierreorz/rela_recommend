@@ -3,6 +3,7 @@ package factory
 import (
 	"gopkg.in/mgo.v2"
 	"rela_recommend/cache"
+	"rela_recommend/cache/memory"
 	cacheUtils "rela_recommend/cache/utils"
 	"rela_recommend/rpc"
 	"rela_recommend/conf"
@@ -15,7 +16,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"rela_recommend/service/segment"
-	"rela_recommend/service/abtest"
+	// "rela_recommend/service/abtest"
 )
 
 // mysql slave
@@ -33,6 +34,9 @@ var CacheLiveRds cache.Cache
 var CacheCluster cache.Cache
 // Behavior cache
 var CacheBehaviorRds cache.Cache
+
+//本地cache
+var CacheLoc cache.Cache
 
 // pika
 var PikaCluster cache.Cache
@@ -73,7 +77,7 @@ func Init(cfg *conf.Config) {
 }
 
 func initConsul(cfg *conf.Config) {
-	abtest.BeginWatching("127.0.0.1:8500")
+	// abtest.BeginWatching("127.0.0.1:8500")
 }
 
 func initDB(cfg *conf.Config) {
@@ -147,6 +151,13 @@ func initCache(cfg *conf.Config) {
 
 	log.Infof("INIT ClusterAddr: %s ....", cfg.Rds.ClusterAddr)
 	CacheBehaviorRds, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.BehaviorAddr, "", 0)
+	if err != nil {
+		log.Error(err.Error())
+	}
+
+	memoryCacheSize := 1024 * 1024 * 1024	// 1GB
+	log.Infof("INIT CacheLocal: %d ....", memoryCacheSize)
+	CacheLoc, err = memory.NewMemoryCache(memoryCacheSize)
 	if err != nil {
 		log.Error(err.Error())
 	}
