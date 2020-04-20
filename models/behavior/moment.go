@@ -41,6 +41,14 @@ func (self *UserBehavior) GetMomentListExposure() *Behavior {
 	return self.Gets("moment.friend:exposure", "moment.around:exposure", "moment.recommend:exposure")
 }
 
+//获取附近日志曝光
+func (self *UserBehavior) GetMomentNearListExposure() *Behavior {
+	return self.Gets("moment.around:exposure")
+}
+//获取附近日志互动行为
+func (self *UserBehavior) GetMomentNearListInteract() *Behavior {
+	return self.Gets("moment.around:like", "moment.around:comment", "moment.around:share", "moment.around:follow",)
+}
 // 获取总互动行为
 func (self *UserBehavior) GetMomentListInteract() *Behavior {
 	return self.Gets(
