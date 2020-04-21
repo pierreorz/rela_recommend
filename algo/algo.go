@@ -24,7 +24,7 @@ type AlgoBase struct {
 	AlgoName string
 	Model utils.IModelAlgo			`json:"model"`
 	Words map[string][]float32		`json:"words"`
-	TopWord []string	`json:topWords`
+	TopWord []string				`json:"topWords"`
 	FeaturesFunc func(IContext, IAlgo, IDataInfo) *utils.Features
 }
 
