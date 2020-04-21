@@ -103,16 +103,16 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			wordTop_list := model.GetTopWords()["wordbow"]
 			for i := 0 ; i< len(words);i++{
 					for j:=0;j< len(wordTop_list);j++{
-						if words[i]==wordTop_list[j]{
+						if words[i]==wordTop_list[j] {
 							if _, ok := userWordMap[words[i]]; ok {
-									fs.Add(j+800,userWordMap[words[i]])
+								fs.Add(j+800, userWordMap[words[i]])
+									}else {
+										fs.Add(j+800, 1.0)
 								}
-							}else{
-								fs.Add(j+800,1.0)
 							}
 						}
 					}
-				}
+			}
 
 			//if len(words) < 10 {
 			//	for i:=0;i<len(words);i++ {
