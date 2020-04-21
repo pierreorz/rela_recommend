@@ -1,7 +1,6 @@
 package theme
 
 import (
-	"fmt"
 	"math"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
@@ -102,7 +101,6 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			//增加topword词偏好 800-1100
 			words := factory.Segmenter.Cut(mem.MomentsText)
 			wordTop_list := model.GetTopWords()["wordbow"]
-			fmt.Print(wordTop_list)
 			for i := 0 ; i< len(words);i++{
 					for j:=0;j< len(wordTop_list);j++{
 						if words[i]==wordTop_list[j]{
