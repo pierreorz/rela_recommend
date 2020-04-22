@@ -5,17 +5,27 @@ import (
 	"rela_recommend/models/behavior"
 	"rela_recommend/algo/base/strategy"
 	"math"
-	"rela_recommend/log"
 )
 
 // 按照6小时优先策略
-func DoTimeLevel(ctx algo.IContext, index int) error {
+func DoTimeLevel(ctx algo.IContext, index int,userbehavior *behavior.UserBehavior) error {
 	abtest := ctx.GetAbTest()
-	if hourStrategy := abtest.GetInt("DoTimeLevel:time_interval", 3); hourStrategy > 0 {
-		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo := dataInfo.GetRankInfo()
-		hours := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / hourStrategy
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	if abtest.GetBool("sort_with_time",false){
+		hours := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 6
 		rankInfo.Level = -hours
+		ExpoCount:=behavior.MergeBehaviors(userbehavior.GetMomentNearListExposure(),userbehavior.GetMomentNearListInteract())
+		if ExpoCount!=nil{
+			if behaviorNum:=int(math.Min(ExpoCount.Count,1));behaviorNum%2==0{
+				rankInfo.Level-=3
+			}
+		}
+	}else {
+		if hourStrategy := abtest.GetInt("DoTimeLevel:time_interval", 3); hourStrategy > 0 {
+			hours := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / hourStrategy
+			rankInfo.Level = -hours
+		}
 	}
 	return nil
 }
@@ -61,15 +71,6 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
 	var abtest=ctx.GetAbTest()
-	if abtest.GetBool("sort_with_time",false){
-		log.Infof("userbehavior  data :%s\n",userbehavior)
-		ExpoCount:=behavior.MergeBehaviors(userbehavior.GetMomentNearListExposure(),userbehavior.GetMomentNearListInteract())
-		//每看两次进行沉底至24h之后
-		if ExpoCount!=nil{
-			rankInfo.Level = int(-math.Min(ExpoCount.Count, 5))
-		}
-
-	}
 	if abtest.GetBool("rich_strategy:behavior:moment_item_new", false){
 		if userbehavior != nil {
 			// 浏览过的内容使用浏览次数反序排列，3:未浏览过，2：浏览一次，1：浏览2次，0：浏览3次以上
