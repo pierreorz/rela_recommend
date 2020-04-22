@@ -5,6 +5,7 @@ import (
 	"rela_recommend/models/behavior"
 	"rela_recommend/algo/base/strategy"
 	"math"
+	"rela_recommend/log"
 )
 
 // 按照6小时优先策略
@@ -61,10 +62,11 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	var err error
 	var abtest=ctx.GetAbTest()
 	if abtest.GetBool("sort_with_time",false){
-		ExpoCount:=int(behavior.MergeBehaviors(userbehavior.GetMomentNearListExposure(),userbehavior.GetMomentNearListInteract()).Count)
+		log.Infof("userbehavior  data :%s\n",userbehavior)
+		ExpoCount:=behavior.MergeBehaviors(userbehavior.GetMomentNearListExposure(),userbehavior.GetMomentNearListInteract())
 		//每看两次进行沉底至24h之后
-		if ExpoCount==2{
-			rankInfo.Level=-4
+		if ExpoCount!=nil{
+			rankInfo.Level = int(-math.Min(ExpoCount.Count, 5))
 		}
 
 	}
