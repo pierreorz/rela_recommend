@@ -1,10 +1,9 @@
 package match
 
 import (
-	"time"
 	"rela_recommend/algo"
+	"time"
 )
-
 
 // 对24小时内活跃用户进行提权
 func ActiveUserUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
@@ -22,4 +21,29 @@ func ActiveUserUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *
 		rankInfo.AddRecommend("ActiveUserUpper", addRate)
 	}
 	return nil
+}
+
+// 对有头像的用户进行提权
+func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+	currMatch := dataInfo.MatchProfile
+
+	hasCover := currMatch.ImageMap["has_cover"]
+	coverHasFace := currMatch.ImageMap["cover_has_face"]
+	countImageWall := currMatch.ImageMap["imagewall_count"]
+	wallHasFace := currMatch.ImageMap["imagewall_has_face"]
+	headHasFace := currMatch.ImageMap["head_has_face"]
+
+	if coverHasFace == 1 && hasCover == 1 {
+		upperRate := ctx.GetAbTest().GetFloat("match_image_face_upper", 0.1)
+		rankInfo.AddRecommend("ImageFaceUpper", upperRate)
+	} else if wallHasFace == 1 && countImageWall > 0 {
+		upperRate := ctx.GetAbTest().GetFloat("match_image_face_upper", 0.1)
+		rankInfo.AddRecommend("ImageFaceUpper", upperRate)
+	} else if headHasFace == 1 {
+		upperRate := ctx.GetAbTest().GetFloat("match_image_face_upper", 0.1)
+		rankInfo.AddRecommend("ImageFaceUpper", upperRate)
+	}
+	return nil
+
 }
