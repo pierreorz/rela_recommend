@@ -5,6 +5,7 @@ import (
 	"rela_recommend/models/behavior"
 	"rela_recommend/algo/base/strategy"
 	"math"
+	"rela_recommend/log"
 )
 
 // 按照6小时优先策略
@@ -74,6 +75,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 			dataInfo := iDataInfo.(*DataInfo)
 			rankInfo.Level=-int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours())/6
 			nearBehavior:=behavior.MergeBehaviors(userbehavior.GetMomentNearListExposure(),userbehavior.GetMomentNearListInteract())
+			log.Infof("nearBehavior :%s\n",nearBehavior)
 			if nearBehavior!=nil{
 				if nearBehaviorNum:=int(math.Max(nearBehavior.Count, 1));nearBehaviorNum%2==0{
 					rankInfo.Level-=4
