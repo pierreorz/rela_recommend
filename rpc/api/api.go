@@ -43,3 +43,26 @@ func CallBackendRecommendMomentList(category int) ([]int64, map[int64]int, map[i
 	}
 	return ids, topMap, recMap, err
 }
+
+
+//********************************************************************************* 获取用户会员状态：level, error
+
+const internalUserVipUrl = "/internal/users/vipSet/detail"
+
+type userVipStatusDataRes struct {
+	Level       int						`json:"level"`
+	VipIcon		int8					`json:"vipIcon"`
+}
+
+type userVipStatusRes struct {
+	Data        userVipStatusDataRes		`json:"data"`
+}
+func CallUserVipStatus(userId int64) (userVipStatusDataRes, error) {
+	params := fmt.Sprintf("id=%d", userId)
+	res := &userVipStatusRes{}
+	var err = factory.ApiRpcClient.SendGETForm(internalUserVipUrl, params, res)
+	if err == nil {
+		return res.Data, nil
+	}
+	return res.Data, err
+}

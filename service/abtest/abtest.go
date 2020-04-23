@@ -15,7 +15,15 @@ type TestingVersion struct {
 	Name string                 `json:"name"` 
 	Desc string					`json:"desc"`
 	Percentage int          	`json:"percentage"`  // 概率 0-100
-	FactorMap map[string]string `json:"factor_map"`
+	FactorMap map[string]Factor `json:"factor_map"`
+}
+
+func (self *TestingVersion) GetFormulaKeys() []string {
+	keys := []string{}
+	for _, factor := range self.FactorMap {
+		keys = append(keys, factor.GetFormulaKeys()...)
+	}
+	return keys
 }
 
 // 测试，每个测试可以包含多个测试版本，每次只会命中其中一个
@@ -31,19 +39,38 @@ type Testing struct {
 	Versions []TestingVersion   `json:"versions"` 
 }
 
+func (self *Testing) GetFormulaKeys() []string {
+	keys := []string{}
+	for _, version := range self.Versions {
+		keys = append(keys, version.GetFormulaKeys()...)
+	}
+	return keys
+}
+
 // 白名单，可以设置某些人的某些因子为特定值
 type WhiteName struct {
 	Name string					`json:"name"`
 	Desc string					`json:"desc"`
 	App string					`json:"app"`
 	Ids []int64					`json:"ids"`
-	FactorMap map[string]string `json:"factor_map"`
+	FactorMap map[string]Factor `json:"factor_map"`
 }
 
+func (self *WhiteName) GetFormulaKeys() []string {
+	keys := []string{}
+	for _, factor := range self.FactorMap {
+		keys = append(keys, factor.GetFormulaKeys()...)
+	}
+	return keys
+}
 
 type AbTest struct {
 	App string									`json:"app"`			// 服务名称
 	DataId int64								`json:"data_id"`		// userid
+	Ua string									`json:"ua"`
+	Lat			float32 						`json:"lat"`
+	Lng			float32 						`json:"lng"`
+	DataAttr map[string]interface{}				`json:"data_attr"`		// user 属性
 	RankId string 								`json:"rank_id"`		// 唯一请求id
 	CurrentTime time.Time						`json:"create_time"`	// abtest时间
 	SettingMap map[string]string				`json:"setting_map"`	// 用户自定义配置
@@ -65,6 +92,11 @@ func (self *AbTest) generateInt(preString string, dailyChange int) int {
 	return int(res % 100)
 }
 // 更新因子
+func (self *AbTest) updateFactor(newMap map[string]Factor) {
+	for key, val := range newMap {
+		self.FactorMap[key] = val.GetValue(self.DataAttr)
+	}
+}
 func (self *AbTest) update(newMap map[string]string) {
 	for key, val := range newMap {
 		self.FactorMap[key] = val
@@ -76,7 +108,7 @@ func (self *AbTest) updateTesting(test Testing) {
 	var perSum int = 0
 	for _, version := range test.Versions {
 		if perSum <= perVal && perVal < perSum + version.Percentage {
-			self.update(version.FactorMap)
+			self.updateFactor(version.FactorMap)
 			self.HitTestingMap[test.Name] = version
 			break
 		}
@@ -90,14 +122,32 @@ func (self *AbTest) updateTesting(test Testing) {
 func (self *AbTest) updateWhite(white WhiteName) {
 	for _, id := range white.Ids {
 		if id == self.DataId {
-			self.update(white.FactorMap)
+			self.updateFactor(white.FactorMap)
 			self.HitWriteMap[white.Name] = white
 			break
 		}
 	}
 }
+
+func GetFormulaKeys(defMap map[string]Factor, testings []Testing, whiteLists []WhiteName) []string {
+	keys := &utils.SetString{}
+	for _, factor := range defMap {
+		keys.AppendArray(factor.GetFormulaKeys())
+	}
+
+	for _, test := range testings {
+		keys.AppendArray(test.GetFormulaKeys())
+	}
+
+	for _, white := range whiteLists {
+		keys.AppendArray(white.GetFormulaKeys())
+	}
+
+	return keys.ToList()
+}
+
 // 初始化内容
-func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[string][]Testing, 
+func (self *AbTest) Init(defMap map[string]map[string]Factor, testingMap map[string][]Testing, 
 						 whiteListMap map[string][]WhiteName, settingMap map[string]string) {
 	self.CurrentTime = time.Now()
 	self.RankId = utils.UniqueId()
@@ -105,12 +155,23 @@ func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[str
 	self.FactorMap = map[string]string{}
 	self.HitTestingMap = map[string]TestingVersion{}
 	self.HitWriteMap = map[string]WhiteName{}
+	self.DataAttr = map[string]interface{}{}
+	// 获取APP配置
+	defVal, defOk := defMap[self.App]
+	testList, testOk := testingMap[self.App]
+	whiteList, whiteOk := whiteListMap[self.App]
+	keyList, keyOk := formulaListMap[self.App]
+	// 初始化用户信息
+	if keyOk && len(keyList) > 0 {
+		self.DataAttr = GetUserAttr(self.DataId, self.Ua, self.Lat, self.Lng, keyList)
+	}
+
 	// 初始化因子
-	if defVal, ok := defMap[self.App]; ok {
-		self.update(defVal)
+	if defOk {
+		self.updateFactor(defVal)
 	}
 	// 选择测试组, status状态： （-1: 已取消 0: 已删除 1: 待执行 2：运行中 3：已结束 ）
-	if testList, ok := testingMap[self.App]; ok {
+	if testOk {
 		for _, test := range testList {
 			if test.App == self.App && test.Status == 2 && test.BeginTime.Before(self.CurrentTime) && test.EndTime.After(self.CurrentTime) {
 				self.updateTesting(test)
@@ -118,7 +179,7 @@ func (self *AbTest) Init(defMap map[string]map[string]string, testingMap map[str
 		}
 	}
 	// 增加白名单
-	if whiteList, ok := whiteListMap[self.App]; ok {
+	if whiteOk {
 		for _, white := range whiteList {
 			if white.App == self.App {
 				self.updateWhite(white)
@@ -219,6 +280,12 @@ func GetAbTest(app string, dataId int64) *AbTest {
 
 func GetAbTestWithSetting(app string, dataId int64, settingMap map[string]string) *AbTest {
 	abtest := AbTest{App: app, DataId: dataId}
+	abtest.Init(defaultFactorMap, testingMap, whiteListMap, settingMap)
+	return &abtest
+}
+
+func GetAbTestWithUaLocSetting(app string, dataId int64, ua string, lat float32, lng float32, settingMap map[string]string) *AbTest {
+	abtest := AbTest{App: app, DataId: dataId, Ua: ua, Lat: lat, Lng: lng}
 	abtest.Init(defaultFactorMap, testingMap, whiteListMap, settingMap)
 	return &abtest
 }

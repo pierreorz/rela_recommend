@@ -39,6 +39,11 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 	fs.Add(53, float32(ctx.GetCreateTime().Sub(mem.InsertTime).Minutes()))
 	fs.Add(55,float32(time.Now().Hour()))
 
+	//日志离线画像
+	momOfflineProfile:=data.MomentOfflineProfile
+	if(momOfflineProfile!=nil){
+		fs.AddArray(100,128,momOfflineProfile.MomentEmbedding)
+	}
 	// 发布者
 	memu := data.UserCache
 	var role, wantRoles = 0, make([]int, 0)
@@ -81,62 +86,6 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 		}
 		if user.MomentUserProfile!=nil{
 			fs.AddArray(5100,128,user.MomentUserProfile.UserEmbedding)
-		}
-		if user.MomentProfile!=nil{
-			matp:=user.MomentProfile
-			if matp.AgeMap != nil {
-				fs.Add(5000, matp.AgeMap["age_18_20"])
-				fs.Add(5001, matp.AgeMap["age_21_22"])
-				fs.Add(5002, matp.AgeMap["age_23_24"])
-				fs.Add(5003, matp.AgeMap["age_25_26"])
-				fs.Add(5004, matp.AgeMap["age_27_29"])
-				fs.Add(5005, matp.AgeMap["age_above_30"])
-				fs.Add(5006, matp.AgeMap["age_unknown"])
-			}
-			if matp.RoleNameMap != nil {
-				fs.Add(5007, matp.RoleNameMap["role_name_t"])
-				fs.Add(5008, matp.RoleNameMap["role_name_p"])
-				fs.Add(5009, matp.RoleNameMap["role_name_h"])
-				fs.Add(5010, matp.RoleNameMap["role_name_bi"])
-				fs.Add(5011, matp.RoleNameMap["role_name_other"])
-				fs.Add(5012, matp.RoleNameMap["role_name_str"])
-				fs.Add(5013, matp.RoleNameMap["role_name_fu"])
-				fs.Add(5014, matp.RoleNameMap["role_name_unknown"])
-			}
-			if matp.HoroscopeMap != nil {
-				fs.Add(5015, matp.HoroscopeMap["horoscope_cap"])
-				fs.Add(5016, matp.HoroscopeMap["horoscope_aqua"])
-				fs.Add(5017, matp.HoroscopeMap["horoscope_pis"])
-				fs.Add(5018, matp.HoroscopeMap["horoscope_ar"])
-				fs.Add(5019, matp.HoroscopeMap["horoscope_tau"])
-				fs.Add(5020, matp.HoroscopeMap["horoscope_gemini"])
-				fs.Add(5021, matp.HoroscopeMap["horoscope_cancer"])
-				fs.Add(5022, matp.HoroscopeMap["horoscope_leo"])
-				fs.Add(5023, matp.HoroscopeMap["horoscope_virgo"])
-				fs.Add(5024, matp.HoroscopeMap["horoscope_libra"])
-				fs.Add(5025, matp.HoroscopeMap["horoscope_scor"])
-				fs.Add(5026, matp.HoroscopeMap["horoscope_sagi"])
-				fs.Add(5027, matp.HoroscopeMap["horoscope_unknown"])
-			}
-			if matp.HeightMap != nil {
-				fs.Add(5028, matp.HeightMap["height_under_155"])
-				fs.Add(5029, matp.HeightMap["height_156_160"])
-				fs.Add(5030, matp.HeightMap["height_161_163"])
-				fs.Add(5031, matp.HeightMap["height_164_166"])
-				fs.Add(5032, matp.HeightMap["height_167_170"])
-				fs.Add(5033, matp.HeightMap["height_171_180"])
-				fs.Add(5034, matp.HeightMap["height_above_180"])
-				fs.Add(5035, matp.HeightMap["height_unknown"])
-			}
-			if matp.WeightMap != nil {
-				fs.Add(5036, matp.WeightMap["weight_under_41"])
-				fs.Add(5037, matp.WeightMap["weight_42_45"])
-				fs.Add(5038, matp.WeightMap["weight_46_49"])
-				fs.Add(5039, matp.WeightMap["weight_50_52"])
-				fs.Add(5040, matp.WeightMap["weight_53_57"])
-				fs.Add(5041, matp.WeightMap["weight_above_58"])
-				fs.Add(5042, matp.WeightMap["weight_unknown"])
-			}
 		}
 
 	}
