@@ -100,39 +100,15 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 				}
 			//增加topword词偏好 800-1100
 			words := factory.Segmenter.Cut(mem.MomentsText)
-			wordTop_list := model.GetTopWords()["wordbow"]
-			for i := 0 ; i< len(words);i++{
-					for j:=0;j< len(wordTop_list);j++{
-						if words[i]==wordTop_list[j] {
-							if _, ok := userWordMap[words[i]]; ok {
-								fs.Add(j+800, userWordMap[words[i]])
-									}else {
-										fs.Add(j+800, 1.0)
-								}
-							}
+			for i := 0 ; i< len(words);i++ {
+				if _, ok := wordVec[words[i]];ok{
+					if values,ok := userWordMap[words[i]]; ok {
+							fs.Add(i+800, values)
 						}
 					}
+
+				}
 			}
-
-			//if len(words) < 10 {
-			//	for i:=0;i<len(words);i++ {
-			//		for k, v := range userWordMap {
-			//			if words[i] == k {
-			//				fs.Add(i+50, v)
-			//			}
-			//		}
-			//	}
-			//}else {
-			//	for q:=0;q<10;q++{
-			//		for k,v := range userWordMap{
-			//			if words[q]==k{
-			//				fs.Add(q+50,v)
-			//			}
-			//		}
-			//	}
-			//
-			//}
-
 
 		//ALS话题向量
 		if (data.ThemeProfile != nil) {

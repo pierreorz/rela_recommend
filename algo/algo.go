@@ -15,7 +15,6 @@ type IAlgo interface {
 	PredictSingle(*utils.Features) float32
 	Predict(IContext) error
 	GetWords() map[string][]float32
-	GetTopWords() map[string][]string
 	CheckWords([]string) []string
 }
 
@@ -24,7 +23,6 @@ type AlgoBase struct {
 	AlgoName string
 	Model utils.IModelAlgo			`json:"model"`
 	Words map[string][]float32		`json:"words"`
-	TopWord map[string][]string		`json:"topword"`
 	FeaturesFunc func(IContext, IAlgo, IDataInfo) *utils.Features
 }
 
@@ -39,9 +37,6 @@ func (self *AlgoBase) Init() {
 
 func (self *AlgoBase) GetWords() map[string][]float32 {
 	return self.Words
-}
-func (self *AlgoBase) GetTopWords() map[string][]string{
-	return self.TopWord
 }
 
 func (self *AlgoBase) PredictSingle(features *utils.Features) float32 {
