@@ -122,12 +122,13 @@ func DoBuildData(ctx algo.IContext) error {
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
-		// 后期搜索完善此条件去除
-		//share to ,status=0 禁用用户，status=5 注销用户
-		if mom.Moments.ShareTo != "all"|| usersMap[mom.Moments.UserId].Status==0||usersMap[mom.Moments.UserId].Status==5{
-			continue
-		}
-		if mom.Moments != nil && mom.Moments.Id > 0 {
+
+		if mom.Moments != nil && mom.Moments.Id > 0 &&mom.Moments.UserId>0{
+			// 后期搜索完善此条件去除
+			//share to ,status=0 禁用用户，status=5 注销用户
+			if mom.Moments.ShareTo != "all"|| usersMap[mom.Moments.UserId].Status==0||usersMap[mom.Moments.UserId].Status==5{
+				continue
+			}
 			momUser, _ := usersMap[mom.Moments.UserId]
 
 			// 处理置顶
