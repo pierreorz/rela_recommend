@@ -72,23 +72,10 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 		var currTime = float64(ctx.GetCreateTime().Unix())
 		if userbehavior != nil {
 			if abtest.GetBool("sort_with_time",false){
-				dataInfo := iDataInfo.(*DataInfo)
-				hourInterval:=int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours())
-				if hourInterval<=6{
-					rankInfo.Level=4
-				}else if hourInterval<=12{
-					rankInfo.Level=3
-				}else if hourInterval<=18{
-					rankInfo.Level=2
-				}else if hourInterval<=24{
-					rankInfo.Level=1
-				}else if hourInterval>24{
-					rankInfo.Level=0
-				}
 				nearBehavior:=behavior.MergeBehaviors(userbehavior.GetMomentNearListInteract(),userbehavior.GetMomentNearListExposure())
 				if nearBehavior!=nil{
-					if nearBehaviorNum:=int(nearBehavior.Count);nearBehaviorNum==2{
-						rankInfo.Level=0
+					if nearBehaviorNum:=int(math.Max(nearBehavior.Count,1));nearBehaviorNum%2==0{
+						rankInfo.Level-=4
 					}
 				}
 			}
