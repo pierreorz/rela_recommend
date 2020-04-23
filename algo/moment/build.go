@@ -126,7 +126,6 @@ func DoBuildData(ctx algo.IContext) error {
 		//share to ,status=0 禁用用户，status=5 注销用户
 		if mom.Moments.ShareTo != "all"|| usersMap[mom.Moments.UserId].Status==0||usersMap[mom.Moments.UserId].Status==5{
 			continue
-			log.Warnf("mom is err ,%s\n",mom.Moments.UserId)
 		}
 		if mom.Moments != nil && mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
