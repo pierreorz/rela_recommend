@@ -5,13 +5,41 @@ import (
 	"math"
 	"rela_recommend/cache"
 	"rela_recommend/algo"
+	"rela_recommend/utils"
 	"rela_recommend/models/redis"
 )
 
-type Behavior struct {
-	Count			float64		`json:"count"`
-	LastTime		float64		`json:"last_time"`
+type BehaviorItemLog struct {
+	DataId			int64			`json:"data_id"`
+	UserId			int64			`json:"user_id"`
+	LastTime		float64			`json:"last_time"`
 }
+
+type Behavior struct {
+	Count			float64				`json:"count"`
+	LastTime		float64				`json:"last_time"`
+	LastList		[]BehaviorItemLog	`json:"last_list"`		// 最后操作列表
+}
+
+// 获取最后操作dataids列表
+func(self *Behavior) GetLastDataIds() []int64 {
+	ids := utils.SetInt64{}
+	for _, log := range self.LastList {
+		ids.Append(log.DataId)
+	}
+	return ids.ToList()
+}
+
+// 获取最后操作userids列表
+func(self *Behavior) GetLastUserIds() []int64 {
+	ids := utils.SetInt64{}
+	for _, log := range self.LastList {
+		ids.Append(log.UserId)
+	}
+	return ids.ToList()
+}
+
+
 
 // 合并行为
 func MergeBehaviors(behaviors ...*Behavior) *Behavior {
@@ -20,6 +48,7 @@ func MergeBehaviors(behaviors ...*Behavior) *Behavior {
 		if behavior != nil {
 			res.Count += behavior.Count
 			res.LastTime = math.Max(res.LastTime, behavior.LastTime)
+			res.LastList = append(res.LastList, behavior.LastList...)
 		}
 	}
 	return res
