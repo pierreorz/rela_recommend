@@ -67,6 +67,9 @@ func (self *WhiteName) GetFormulaKeys() []string {
 type AbTest struct {
 	App string									`json:"app"`			// 服务名称
 	DataId int64								`json:"data_id"`		// userid
+	Ua string									`json:"ua"`
+	Lat			float32 						`json:"lat"`
+	Lng			float32 						`json:"lng"`
 	DataAttr map[string]interface{}				`json:"data_attr"`		// user 属性
 	RankId string 								`json:"rank_id"`		// 唯一请求id
 	CurrentTime time.Time						`json:"create_time"`	// abtest时间
@@ -160,7 +163,7 @@ func (self *AbTest) Init(defMap map[string]map[string]Factor, testingMap map[str
 	keyList, keyOk := formulaListMap[self.App]
 	// 初始化用户信息
 	if keyOk && len(keyList) > 0 {
-		self.DataAttr = GetUserAttr(self.DataId, keyList)
+		self.DataAttr = GetUserAttr(self.DataId, self.Ua, self.Lat, self.Lng, keyList)
 	}
 
 	// 初始化因子
@@ -277,6 +280,12 @@ func GetAbTest(app string, dataId int64) *AbTest {
 
 func GetAbTestWithSetting(app string, dataId int64, settingMap map[string]string) *AbTest {
 	abtest := AbTest{App: app, DataId: dataId}
+	abtest.Init(defaultFactorMap, testingMap, whiteListMap, settingMap)
+	return &abtest
+}
+
+func GetAbTestWithUaLocSetting(app string, dataId int64, ua string, lat float32, lng float32, settingMap map[string]string) *AbTest {
+	abtest := AbTest{App: app, DataId: dataId, Ua: ua, Lat: lat, Lng: lng}
 	abtest.Init(defaultFactorMap, testingMap, whiteListMap, settingMap)
 	return &abtest
 }
