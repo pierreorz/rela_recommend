@@ -34,16 +34,10 @@ func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *a
 	wallHasFace := currMatch.ImageMap["imagewall_has_face"]
 	headHasFace := currMatch.ImageMap["head_has_face"]
 
-	if coverHasFace == 1 && hasCover == 1 {
-		upperRate := ctx.GetAbTest().GetFloat("match_image_face_upper", 0.1)
-		rankInfo.AddRecommend("ImageFaceUpper", upperRate)
-	} else if wallHasFace == 1 && countImageWall > 0 {
-		upperRate := ctx.GetAbTest().GetFloat("match_image_face_upper", 0.1)
-		rankInfo.AddRecommend("ImageFaceUpper", upperRate)
-	} else if headHasFace == 1 {
-		upperRate := ctx.GetAbTest().GetFloat("match_image_face_upper", 0.1)
-		rankInfo.AddRecommend("ImageFaceUpper", upperRate)
+	upperRate := ctx.GetAbTest().GetFloat("match_face_upper", 0)
+
+	if (coverHasFace == 1 && hasCover == 1) || (wallHasFace == 1 && countImageWall > 0) || headHasFace == 1 {
+		rankInfo.AddRecommend("ImageFaceUpper", 1.0+upperRate)
 	}
 	return nil
-
 }
