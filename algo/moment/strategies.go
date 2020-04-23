@@ -8,25 +8,14 @@ import (
 )
 
 // 按照6小时优先策略
-func DoTimeLevel(ctx algo.IContext, index int,userbehavior *behavior.UserBehavior) error {
+func DoTimeLevel(ctx algo.IContext, index int) error {
 	abtest := ctx.GetAbTest()
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	if abtest.GetBool("sort_with_time",false){
-		hours := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 6
+	if hourStrategy := abtest.GetInt("DoTimeLevel:time_interval", 3); hourStrategy > 0 {
+		hours := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / hourStrategy
 		rankInfo.Level = -hours
-		ExpoCount:=behavior.MergeBehaviors(userbehavior.GetMomentNearListExposure(),userbehavior.GetMomentNearListInteract())
-		if ExpoCount!=nil{
-			if behaviorNum:=int(math.Min(ExpoCount.Count,1));behaviorNum%2==0{
-				rankInfo.Level-=3
-			}
 		}
-	}else {
-		if hourStrategy := abtest.GetInt("DoTimeLevel:time_interval", 3); hourStrategy > 0 {
-			hours := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / hourStrategy
-			rankInfo.Level = -hours
-		}
-	}
 	return nil
 }
 
@@ -81,7 +70,16 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 		}
 	}else{
 		var currTime = float64(ctx.GetCreateTime().Unix())
-
+		if abtest.GetBool("sort_with_time",false){
+			dataInfo := iDataInfo.(*DataInfo)
+			rankInfo.Level=-int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours())/6
+			nearBehavior:=behavior.MergeBehaviors(userbehavior.GetMomentNearListExposure(),userbehavior.GetMomentNearListInteract())
+			if nearBehavior!=nil{
+				if nearBehaviorNum:=int(math.Max(nearBehavior.Count, 1));nearBehaviorNum%2==0{
+					rankInfo.Level-=4
+				}
+			}
+		}
 		if userbehavior != nil {
 			var avgExpCount float64 = 2
 

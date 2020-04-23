@@ -26,10 +26,12 @@ type IStrategy interface {
 type StrategyBase struct { 
 	DoSingle 	func(IContext, int) error
 }
+
+
 func (self *StrategyBase) Do(ctx IContext) error {
 	var err error
 	for i := 0; i < ctx.GetDataLength(); i++ {
-		err = self.DoSingle(ctx, i)
+		err = self.DoSingle(ctx, i,)
 		if err != nil { break }
 	}
 	return err
