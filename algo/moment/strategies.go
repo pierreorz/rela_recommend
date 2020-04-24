@@ -74,7 +74,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 		//若按时间策略，会将日志分级别展示，0-6 6-12 12-18 18-24 每6h一级别
 		if ifSort{
 			dataInfo := iDataInfo.(*DataInfo)
-			rankInfo.Level=int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 6
+			rankInfo.Level=int(-ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 6
 		}
 		if userbehavior != nil {
 			if ifSort {
