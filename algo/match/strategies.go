@@ -43,7 +43,7 @@ func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *a
 		wallFace := wallHasFace == 1 && countImageWall > 0
 		headFace := headHasFace == 1
 
-		log.Infof("Get face boolean: %s, %s, %s", coverFace, wallFace, headFace)
+		log.Infof("Get face boolean %d: %s, %s, %s", currMatch.UserID, coverFace, wallFace, headFace)
 
 		if coverFace || wallFace || headFace {
 			rankInfo.AddRecommend("ImageFaceUpper", 1.0+upperRate)
