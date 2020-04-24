@@ -70,12 +70,18 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 		}
 	}else{
 		var currTime = float64(ctx.GetCreateTime().Unix())
+		ifSort:=abtest.GetBool("sort_with_time",false)
+		//若按时间策略，会将日志分级别展示，0-6 6-12 12-18 18-24 每6h一级别
+		if ifSort{
+			dataInfo := iDataInfo.(*DataInfo)
+			rankInfo.Level=int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 6
+		}
 		if userbehavior != nil {
-			if abtest.GetBool("sort_with_time",false){
-				nearBehavior:=behavior.MergeBehaviors(userbehavior.GetMomentNearListInteract(),userbehavior.GetMomentNearListExposure())
-				if nearBehavior!=nil{
-					if nearBehaviorNum:=int(math.Max(nearBehavior.Count,1));nearBehaviorNum%2==0{
-						rankInfo.Level-=4
+			if ifSort {
+				nearBehavior := behavior.MergeBehaviors(userbehavior.GetMomentNearListInteract(), userbehavior.GetMomentNearListExposure())
+				if nearBehavior != nil {
+					if nearBehaviorNum := int(math.Max(nearBehavior.Count, 1)); nearBehaviorNum%2 == 0 {
+						rankInfo.Level -= 4
 					}
 				}
 			}
@@ -87,8 +93,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 
 			upperRate := -float32(listCountScore * listTimeScore)
 
-			if upperRate != 0.0 {
-				rankInfo.AddRecommend("UserBehavior", 1.0+upperRate)
+			if upperRate != 0.0 {rankInfo.AddRecommend("UserBehavior", 1.0+upperRate)
 			}
 		}
 	}
