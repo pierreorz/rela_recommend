@@ -2,6 +2,7 @@ package match
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 	"time"
 )
@@ -41,6 +42,8 @@ func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *a
 		coverFace := coverHasFace == 1 && hasCover == 1
 		wallFace := wallHasFace == 1 && countImageWall > 0
 		headFace := headHasFace == 1
+
+		log.Infof("Get face boolean: %s, %s, %s", coverFace, wallFace, headFace)
 
 		if coverFace || wallFace || headFace {
 			rankInfo.AddRecommend("ImageFaceUpper", 1.0+upperRate)
