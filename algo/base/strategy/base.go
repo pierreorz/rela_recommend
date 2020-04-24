@@ -13,23 +13,18 @@ type BaseRichStrategy struct {
 	StrategyFunc     func(algo.IContext) error
 	StrategyItemFunc func(algo.IContext, algo.IDataInfo, *algo.RankInfo) error
 
-	ImageStrategyFunc     func(algo.IContext) error
-	ImageStrategyItemFunc func(algo.IContext, algo.IDataInfo, *algo.RankInfo) error
-
 	LoggerFunc     func(algo.IContext) error
 	LoggerItemFunc func(algo.IContext, algo.IDataInfo, *algo.RankInfo) error
 }
 
 func (self *BaseRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {
 	return &BaseRichStrategy{
-		ctx:                   ctx,
-		BuildDataFunc:         self.BuildDataFunc,
-		StrategyFunc:          self.StrategyFunc,
-		StrategyItemFunc:      self.StrategyItemFunc,
-		ImageStrategyFunc:     self.ImageStrategyFunc,
-		ImageStrategyItemFunc: self.ImageStrategyItemFunc,
-		LoggerFunc:            self.LoggerFunc,
-		LoggerItemFunc:        self.LoggerItemFunc,
+		ctx:              ctx,
+		BuildDataFunc:    self.BuildDataFunc,
+		StrategyFunc:     self.StrategyFunc,
+		StrategyItemFunc: self.StrategyItemFunc,
+		LoggerFunc:       self.LoggerFunc,
+		LoggerItemFunc:   self.LoggerItemFunc,
 	}
 }
 func (self *BaseRichStrategy) BuildData() error {
@@ -44,21 +39,11 @@ func (self *BaseRichStrategy) Strategy() error {
 	if self.StrategyFunc != nil {
 		err = self.StrategyFunc(self.ctx)
 	}
-	if self.ImageStrategyFunc != nil {
-		err = self.ImageStrategyFunc(self.ctx)
-	}
 	if self.StrategyItemFunc != nil {
 		for index := 0; index < self.ctx.GetDataLength(); index++ {
 			dataInfo := self.ctx.GetDataByIndex(index)
 			rankInfo := dataInfo.GetRankInfo()
 			self.StrategyItemFunc(self.ctx, dataInfo, rankInfo)
-		}
-	}
-	if self.ImageStrategyItemFunc != nil {
-		for index := 0; index < self.ctx.GetDataLength(); index++ {
-			dataInfo := self.ctx.GetDataByIndex(index)
-			rankInfo := dataInfo.GetRankInfo()
-			self.ImageStrategyItemFunc(self.ctx, dataInfo, rankInfo)
 		}
 	}
 	return err

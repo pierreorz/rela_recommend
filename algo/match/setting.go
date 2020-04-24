@@ -22,8 +22,9 @@ var loggerMap = map[string]algo.ILogger{
 var richStrategyMap = map[string]algo.IRichStrategy{
 	"paged": &strategy.PagedRichStrategy{},
 	"active_upper": &strategy.BaseRichStrategy{
-		StrategyItemFunc:      ActiveUserUpperItem,
-		ImageStrategyItemFunc: ImageFaceUpperItem},
+		StrategyItemFunc: ActiveUserUpperItem},
+	"image_upper": &strategy.BaseRichStrategy{
+		StrategyItemFunc: ImageFaceUpperItem},
 }
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{

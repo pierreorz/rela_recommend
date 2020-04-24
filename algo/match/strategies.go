@@ -35,8 +35,11 @@ func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *a
 	headHasFace := currMatch.ImageMap["head_has_face"]
 
 	upperRate := ctx.GetAbTest().GetFloat("match_face_upper", 0)
+	coverFace := coverHasFace == 1 && hasCover == 1
+	wallFace := wallHasFace == 1 && countImageWall > 0
+	headFace := headHasFace == 1
 
-	if (coverHasFace == 1 && hasCover == 1) || (wallHasFace == 1 && countImageWall > 0) || headHasFace == 1 {
+	if coverFace || wallFace || headFace {
 		rankInfo.AddRecommend("ImageFaceUpper", 1.0+upperRate)
 	}
 	return nil
