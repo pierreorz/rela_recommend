@@ -2,7 +2,6 @@ package match
 
 import (
 	"rela_recommend/algo"
-	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 	"time"
 )
@@ -43,9 +42,23 @@ func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *a
 		wallFace := wallHasFace == 1 && countImageWall > 0
 		headFace := headHasFace == 1
 
-		log.Infof("Get face boolean %d: %s, %s, %s", currMatch.UserID, coverFace, wallFace, headFace)
-
-		if coverFace || wallFace || headFace {
+		//是否有脸
+		hasFace := false
+		//封面是否有脸
+		if coverFace {
+			hasFace = true
+		} else {
+			//无封面照片，照片墙是否有脸
+			if wallFace {
+				hasFace = true
+			} else {
+				//无照片墙照片，头像是否有脸
+				if headFace {
+					hasFace = true
+				}
+			}
+		}
+		if hasFace {
 			rankInfo.AddRecommend("ImageFaceUpper", 1.0+upperRate)
 		}
 	}
