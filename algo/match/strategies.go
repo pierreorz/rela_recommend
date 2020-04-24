@@ -2,6 +2,7 @@ package match
 
 import (
 	"rela_recommend/algo"
+	rutils "rela_recommend/utils"
 	"time"
 )
 
@@ -28,19 +29,22 @@ func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *a
 	dataInfo := iDataInfo.(*DataInfo)
 	currMatch := dataInfo.MatchProfile
 
-	hasCover := currMatch.ImageMap["has_cover"]
-	coverHasFace := currMatch.ImageMap["cover_has_face"]
-	countImageWall := currMatch.ImageMap["imagewall_count"]
-	wallHasFace := currMatch.ImageMap["imagewall_has_face"]
-	headHasFace := currMatch.ImageMap["head_has_face"]
+	if currMatch != nil {
+		hasCover := rutils.GetInt(currMatch.ImageMap["has_cover"])
+		coverHasFace := rutils.GetInt(currMatch.ImageMap["cover_has_face"])
+		countImageWall := rutils.GetInt(currMatch.ImageMap["imagewall_count"])
+		wallHasFace := rutils.GetInt(currMatch.ImageMap["imagewall_has_face"])
+		headHasFace := rutils.GetInt(currMatch.ImageMap["head_has_face"])
 
-	upperRate := ctx.GetAbTest().GetFloat("match_face_upper", 0)
-	coverFace := coverHasFace == 1 && hasCover == 1
-	wallFace := wallHasFace == 1 && countImageWall > 0
-	headFace := headHasFace == 1
+		upperRate := ctx.GetAbTest().GetFloat("match_face_upper", 0)
 
-	if coverFace || wallFace || headFace {
-		rankInfo.AddRecommend("ImageFaceUpper", 1.0+upperRate)
+		coverFace := coverHasFace == 1 && hasCover == 1
+		wallFace := wallHasFace == 1 && countImageWall > 0
+		headFace := headHasFace == 1
+
+		if coverFace || wallFace || headFace {
+			rankInfo.AddRecommend("ImageFaceUpper", 1.0+upperRate)
+		}
 	}
 	return nil
 }
