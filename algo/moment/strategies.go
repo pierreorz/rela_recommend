@@ -66,7 +66,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 			allBehavior := behavior.MergeBehaviors(userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract())
 			if allBehavior != nil {
 				rankInfo.Level = int(-math.Min(allBehavior.Count, 5))
-				}
+			}
 		}
 	}else{
 		var currTime = float64(ctx.GetCreateTime().Unix())
@@ -81,7 +81,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 				nearBehavior := behavior.MergeBehaviors(userbehavior.GetMomentNearListInteract(), userbehavior.GetMomentNearListExposure())
 				if nearBehavior != nil {
 					if nearBehaviorNum := int(math.Max(nearBehavior.Count, 1)); nearBehaviorNum%2 == 0 {
-						rankInfo.Level -= 4
+						rankInfo.Level =- 4
 					}
 				}
 			}
