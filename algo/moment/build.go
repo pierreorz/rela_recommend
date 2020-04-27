@@ -128,6 +128,12 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		if mom.Moments != nil && mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
+			//status=0 禁用用户，status=5 注销用户
+			if momUser!=nil{
+				if momUser.Status==0||momUser.Status==5{
+					continue
+				}
+			}
 
 			// 处理置顶
 			var isTop = 0

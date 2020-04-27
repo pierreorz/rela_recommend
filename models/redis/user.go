@@ -25,7 +25,7 @@ type UserProfile struct {
 	RoleName       string   `json:"roleName"`
 	UserImageCount int      `json:"userImageCount"`
 	WantRole       string   `json:"wantRole"`
-
+	Status     int       `json:"status"`
 	Affection  int       `json:"affection"`
 	Age        int       `json:"age"`
 	Height     int       `json:"height"`
