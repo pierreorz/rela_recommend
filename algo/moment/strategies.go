@@ -68,9 +68,9 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	if sortWithTime {
 		timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
 		if timeLevel <= 3 {
-			rankInfo.AddRecommend("momentNearTimeWeight", 1.0+float32(1.0/(2+timeLevel)))
+			rankInfo.AddRecommend("momentNearTimeWeight", 1.0+float32(1.0/(2.0+timeLevel*1.0)))
 		} else {
-			rankInfo.AddRecommend("momentNearTimeWeight", float32(1.0/(timeLevel-3)))
+			rankInfo.AddRecommend("momentNearTimeWeight", float32(1.0/(timeLevel*1.0-3.0)))
 		}
 	}
 	if abtest.GetBool("rich_strategy:behavior:moment_item_new", false) {
