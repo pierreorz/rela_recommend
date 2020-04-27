@@ -6,25 +6,25 @@ import (
 
 // 数据行为处理策略
 type BaseRichStrategy struct {
-	ctx					algo.IContext
+	ctx algo.IContext
 
-	BuildDataFunc		func(algo.IContext) error
+	BuildDataFunc func(algo.IContext) error
 
-	StrategyFunc		func(algo.IContext) error
-	StrategyItemFunc	func(algo.IContext, algo.IDataInfo, *algo.RankInfo) error
+	StrategyFunc     func(algo.IContext) error
+	StrategyItemFunc func(algo.IContext, algo.IDataInfo, *algo.RankInfo) error
 
-	LoggerFunc			func(algo.IContext) error
-	LoggerItemFunc		func(algo.IContext, algo.IDataInfo, *algo.RankInfo) error
+	LoggerFunc     func(algo.IContext) error
+	LoggerItemFunc func(algo.IContext, algo.IDataInfo, *algo.RankInfo) error
 }
 
 func (self *BaseRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {
 	return &BaseRichStrategy{
-		ctx: ctx,
-		BuildDataFunc: self.BuildDataFunc,
-		StrategyFunc: self.StrategyFunc,
+		ctx:              ctx,
+		BuildDataFunc:    self.BuildDataFunc,
+		StrategyFunc:     self.StrategyFunc,
 		StrategyItemFunc: self.StrategyItemFunc,
-		LoggerFunc: self.LoggerFunc,
-		LoggerItemFunc: self.LoggerItemFunc,
+		LoggerFunc:       self.LoggerFunc,
+		LoggerItemFunc:   self.LoggerItemFunc,
 	}
 }
 func (self *BaseRichStrategy) BuildData() error {
