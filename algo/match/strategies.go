@@ -2,7 +2,6 @@ package match
 
 import (
 	"rela_recommend/algo"
-	rutils "rela_recommend/utils"
 	"time"
 )
 
@@ -30,11 +29,11 @@ func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *a
 	currMatch := dataInfo.MatchProfile
 
 	if currMatch != nil {
-		hasCover := rutils.GetInt(currMatch.ImageMap["has_cover"])
-		coverHasFace := rutils.GetInt(currMatch.ImageMap["cover_has_face"])
-		countImageWall := rutils.GetInt(currMatch.ImageMap["imagewall_count"])
-		wallHasFace := rutils.GetInt(currMatch.ImageMap["imagewall_has_face"])
-		headHasFace := rutils.GetInt(currMatch.ImageMap["head_has_face"])
+		hasCover := currMatch.ImageMap["has_cover"]
+		coverHasFace := currMatch.ImageMap["cover_has_face"]
+		countImageWall := currMatch.ImageMap["imagewall_count"]
+		wallHasFace := currMatch.ImageMap["imagewall_has_face"]
+		headHasFace := currMatch.ImageMap["head_has_face"]
 
 		upperRate := ctx.GetAbTest().GetFloat("match_face_upper", 0)
 
