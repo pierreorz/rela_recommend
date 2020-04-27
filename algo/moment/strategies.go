@@ -5,7 +5,6 @@ import (
 	"rela_recommend/models/behavior"
 	"rela_recommend/algo/base/strategy"
 	"math"
-	"rela_recommend/log"
 )
 
 // 按照6小时优先策略
@@ -68,11 +67,10 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	sortWithTime := abtest.GetBool("sort_with_time", false)
 	if sortWithTime {
 		timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
-		log.Infof("timelevel%s\n,inserttime%s\n",timeLevel,dataInfo.MomentCache.InsertTime)
 		if timeLevel <= 3 {
-			rankInfo.AddRecommend("momentNearTimeWeight", 1+float32(1/(2+timeLevel)))
+			rankInfo.AddRecommend("momentNearTimeWeight", 1.0+float32(1.0/(2+timeLevel)))
 		} else {
-			rankInfo.AddRecommend("momentNearTimeWeight", float32(1/(timeLevel-3)))
+			rankInfo.AddRecommend("momentNearTimeWeight", float32(1.0/(timeLevel-3)))
 		}
 	}
 	if abtest.GetBool("rich_strategy:behavior:moment_item_new", false) {
