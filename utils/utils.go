@@ -368,6 +368,11 @@ func (self *SetInt64) FromArray(vals []int64) {
 	}
 }
 
+func (self *SetInt64) Append(val int64) *SetInt64 {
+	self.intMap[val] = 1
+	return self
+}
+
 func (self *SetInt64) AppendArray(vals []int64) *SetInt64 {
 	self.checkMap(false)
 	for _, val := range vals {
