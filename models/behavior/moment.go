@@ -41,6 +41,7 @@ func (self *UserBehavior) GetMomentListExposure() *Behavior {
 	return self.Gets("moment.friend:exposure", "moment.around:exposure", "moment.recommend:exposure")
 }
 
+
 // 获取总互动行为
 func (self *UserBehavior) GetMomentListInteract() *Behavior {
 	return self.Gets(
