@@ -63,7 +63,7 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 
 	data := idata.(*DataInfo)
 	mem := data.MomentCache
-	//wordVec := model.GetWords()
+	wordVec := model.GetWords()
 	memu := data.UserCache
 	memex := data.MomentExtendCache
 	if (memu != nil) {
@@ -99,19 +99,17 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 				}
 			}
 			//增加topword词偏好 800-1100
-			topWords := model.GetTopWords()
 			for i := 0; i < len(words); i++ {
-				for k, v := range topWords {
-					if words[i] == v {
-						if values, ok := userWordMap[words[i]]; ok {
-							fs.Add(k+800, values)
+				if index_num, ok := wordVec[words[i]]; ok {
+						if value,ok :=userWordMap[words[i]]; ok {
+							fs.Add(int(index_num[0])+800,value)
 						}
 					}
 				}
 			}
 
 		}
-	}
+
 
 	//ALS话题向量
 	if (data.ThemeProfile != nil) {
