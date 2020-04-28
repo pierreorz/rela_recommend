@@ -163,7 +163,7 @@ func (self *AbTest) Init(defMap map[string]map[string]Factor, testingMap map[str
 	keyList, keyOk := formulaListMap[self.App]
 	// 初始化用户信息
 	if keyOk && len(keyList) > 0 {
-		self.DataAttr = GetUserAttr(self.DataId, self.Ua, self.Lat, self.Lng, keyList)
+		self.DataAttr = self.GetUserAttr(keyList)
 	}
 
 	// 初始化因子
