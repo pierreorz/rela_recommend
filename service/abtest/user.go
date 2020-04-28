@@ -8,22 +8,21 @@ import (
 )
 
 func (self *AbTest)GetUserAttr(keys []string) map[string]interface{} {
-	res := map[string]interface{}{
-		"vip_level": 0, 							// 会员等级
-		"os": "other", 								// 操作系统：ios,android,other
-		"registe_time": 60 * 60 * 24 * 365 * 100,	// 注册时间距离目前多少秒，默认10年前
-		"active_time": 60 * 60 * 24 * 365 * 100,	// 最后活跃时间距离目前多少秒，默认10年前
-		"age": 0,									// 年龄
-		// "version": "",								// 当前版本
-	}
+	res := map[string]interface{}{}
+	// "vip_level": 0, 							// 会员等级
+	// "os": "other", 								// 操作系统：ios,android,other
+	// "registe_time": 60 * 60 * 24 * 365 * 100,	// 注册时间距离目前多少秒，默认100年前
+	// "active_time": 60 * 60 * 24 * 365 * 100,	// 最后活跃时间距离目前多少秒，默认100年前
+	// "age": 0,									// 年龄
+	
 	if self.DataId > 0 {
-		lowerUa := strings.ToLower(self.Ua)
 		for _, key := range keys {
 			switch key {
 				case "vip_level": {	// 会员等级
 					if vipRes, err := api.CallUserVipStatusWithCache(self.DataId, 1 * 60 * 60); err == nil {
 						res[key] = vipRes.Level
 					} else {
+						res[key] = 0		// 默认0
 						log.Warnf("abtest call user vip err %s", err)
 					}
 				}
@@ -33,16 +32,20 @@ func (self *AbTest)GetUserAttr(keys []string) map[string]interface{} {
 						res["registe_time"] = self.CurrentTime.Unix() - userRes.CreateTime
 						res["age"] = userRes.Age
 					} else {
+						res["active_time"] = 60 * 60 * 24 * 365 * 100	// 默认100年前
+						res["registe_time"] = 60 * 60 * 24 * 365 * 100	// 默认100年前
+						res["age"] = 0		// 默认0
 						log.Warnf("abtest call user info err %s", err)
 					}
 				}
 				case "os": {
-					if len(self.Ua) > 0 {
-						if strings.Contains(self.Ua, "iOS") {
-							res[key] = "ios"
-						} else if strings.Contains(lowerUa, "android") {
-							res[key] = "android"
-						}
+					lowerUa := strings.ToLower(self.Ua)
+					if strings.Contains(self.Ua, "iOS") {
+						res[key] = "ios"
+					} else if strings.Contains(lowerUa, "android") {
+						res[key] = "android"
+					} else {
+						res[key] = "other"
 					}
 				}
 			}

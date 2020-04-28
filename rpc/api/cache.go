@@ -53,16 +53,18 @@ func CallUserInfoWithCache(userId int64, cacheTime int) (userInfo, error) {
 	val, err := factory.CacheLoc.Get(key)
 	if err != nil || val == nil {
 		userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
-		if user, _, err := userCache.QueryByUserAndUsers(userId, []int64{}); err == nil {
+		if user, _, errCache := userCache.QueryByUserAndUsers(userId, []int64{}); errCache == nil {
 			res.UserId = user.UserId
 			res.IsVip = user.IsVip
 			res.LastUpdateTime = user.LastUpdateTime
 			res.Age = user.Age
 			res.CreateTime = user.CreateTime.Time.Unix()
 
-			if js, err := json.Marshal(res); err == nil {
+			if js, errJson := json.Marshal(res); errJson == nil {
 				factory.CacheLoc.SetEx(key, js, cacheTime)	// 写入本地缓存
 			}
+		} else {
+			err = errCache
 		}
 	} else {
 		err = json.Unmarshal(val.([]byte), &res)
