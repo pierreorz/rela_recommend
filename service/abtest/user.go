@@ -3,6 +3,7 @@ package abtest
 import (
 	"strings"
 	"rela_recommend/rpc/api"
+	"rela_recommend/log"
 	// "rela_recommend/models/redis"
 )
 
@@ -22,6 +23,8 @@ func (self *AbTest)GetUserAttr(keys []string) map[string]interface{} {
 				case "vip_level": {	// 会员等级
 					if vipRes, err := api.CallUserVipStatusWithCache(self.DataId, 1 * 60 * 60); err == nil {
 						res[key] = vipRes.Level
+					} else {
+						log.Warnf("abtest call user vip err %s", err)
 					}
 				}
 				case "registe_time", "active_time", "age": {
@@ -29,6 +32,8 @@ func (self *AbTest)GetUserAttr(keys []string) map[string]interface{} {
 						res["active_time"] = self.CurrentTime.Unix() - userRes.LastUpdateTime
 						res["registe_time"] = self.CurrentTime.Unix() - userRes.CreateTime
 						res["age"] = userRes.Age
+					} else {
+						log.Warnf("abtest call user info err %s", err)
 					}
 				}
 				case "os": {
