@@ -28,7 +28,7 @@ var richStrategyMap = map[string]algo.IRichStrategy {
 	"behavior": &strategy.BaseBehaviorRichStrategy{
 		UserStrategyItemFunc: UserBehaviorStrategyFunc,
 		ItemStrategyItemFunc: ItemBehaviorStrategyFunc},
-	"time_weight":&strategy.BaseBehaviorRichStrategy{UserStrategyItemFunc:MomentNearTimeStrategyFunc},
+	"time_weight":&strategy.BaseBehaviorRichStrategy{UserStrategyItemFunc:NearTimeStrategyFunc},
 }
 
 

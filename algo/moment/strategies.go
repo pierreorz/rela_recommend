@@ -5,6 +5,7 @@ import (
 	"rela_recommend/models/behavior"
 	"rela_recommend/algo/base/strategy"
 	"math"
+	"rela_recommend/log"
 )
 
 // 按照6小时优先策略
@@ -57,10 +58,11 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 }
 
 //附近日志时间策略 前12h提权，后12h降权
-func MomentNearTimeStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
+func NearTimeStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
 	dataInfo := iDataInfo.(*DataInfo)
 	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
+	log.Infof("timeLevel:%s\n",timeLevel)
 	if timeLevel <= 3 {
 		rankInfo.AddRecommend("momentNearTimeWeight", 1.0+float32(1.0/(2.0+float32(timeLevel))))
 	} else {
@@ -75,6 +77,7 @@ func MomentNearTimeStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, use
 	}
 	return err
 }
+
 // 按用户访问行为进行策略提降权
 func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
