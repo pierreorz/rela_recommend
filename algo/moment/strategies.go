@@ -5,7 +5,6 @@ import (
 	"rela_recommend/models/behavior"
 	"rela_recommend/algo/base/strategy"
 	"math"
-	"rela_recommend/log"
 )
 
 // 按照6小时优先策略
@@ -62,7 +61,6 @@ func NearTimeStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehav
 	var err error
 	dataInfo := iDataInfo.(*DataInfo)
 	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
-	log.Infof("timeLevel:%s\n",timeLevel)
 	if timeLevel <= 3 {
 		rankInfo.AddRecommend("momentNearTimeWeight", 1.0+float32(1.0/(2.0+float32(timeLevel))))
 	} else {
@@ -75,6 +73,11 @@ func NearTimeStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehav
 			rankInfo.Level = int(-math.Min(NearBehavior.Count, 3))
 		}
 	}
+	return err
+}
+
+func NearTimeItemStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itembehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
+	var err error
 	return err
 }
 
