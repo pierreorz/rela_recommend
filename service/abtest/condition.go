@@ -9,7 +9,7 @@ import (
 )
 
 const VALUE_TRIM = " '\""
-const KEY_REGEX = "(?:^|\\s*(and|or))\\s*(\\w+)(\\s*[=<>≤≥≠]|!=|\\s+(?:in|not|is))"
+const KEY_REGEX = "(?:^|\\s*(and|or))\\s*(\\w+)(\\s*(?:!=|>=|<=|<>|[=><≥≤≠])|\\s+(?:in|not|is))"
 
 type Formula struct {
 	Key				string 		`json:"key"`
@@ -54,7 +54,7 @@ func (self *Formula) Calculate4Value(mVal interface{}) bool {
 						case "<": result = mValInt < fValue
 						case "≥", ">=": result = mValInt >= fValue
 						case "≤", "<=": result = mValInt <= fValue
-						case "≠", "!=", "not": result = mValInt != fValue
+						case "≠", "!=", "<>","not": result = mValInt != fValue
 					}
 				}
 			case float64, float32:
@@ -70,14 +70,14 @@ func (self *Formula) Calculate4Value(mVal interface{}) bool {
 						case "<": result = mValFloat < fValue
 						case "≥", ">=": result = mValFloat >= fValue
 						case "≤", "<=": result = mValFloat <= fValue
-						case "≠", "!=", "not": result = mValFloat != fValue
+						case "≠", "!=", "<>", "not": result = mValFloat != fValue
 					}
 				}
 			case bool:
 				if fValue, fErr := strconv.ParseBool(self.Value); fErr == nil {
 					switch self.Formula {
 						case "=", "is": result = mValTypeValue == fValue
-						case "≠", "!=", "not": result = mValTypeValue != fValue
+						case "≠", "!=", "<>", "not": result = mValTypeValue != fValue
 					}
 				}
 			case string:
@@ -88,7 +88,7 @@ func (self *Formula) Calculate4Value(mVal interface{}) bool {
 					case "<": result = mValTypeValue < fValue
 					case "≥", ">=": result = mValTypeValue >= fValue
 					case "≤", "<=": result = mValTypeValue <= fValue
-					case "≠", "!=", "not": result = mValTypeValue != fValue
+					case "≠", "!=", "<>", "not": result = mValTypeValue != fValue
 				}
 		}
 	}
