@@ -21,16 +21,13 @@ func DoTimeLevel(ctx algo.IContext, index int) error {
 
 //日志提权策略
 func DoTimeWeightLevel(ctx algo.IContext, index int) error{
-	abtest := ctx.GetAbTest()
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	if abtest.GetBool("DoTimeWeightLevel:time_weight",false) {
-		timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
-		if timeLevel <= 3 {
-			rankInfo.AddRecommend("momentNearTimeWeight", 1.0+float32(1.0/(2.0+float32(timeLevel))))
-		} else {
-			rankInfo.AddRecommend("momentNearTimeWeight", float32(1.0/(float32(timeLevel)-3.0)))
-		}
+	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
+	if timeLevel <= 3 {
+		rankInfo.AddRecommend("momentNearTimeWeight", 1.0+float32(1.0/(2.0+float32(timeLevel))))
+	} else {
+		rankInfo.AddRecommend("momentNearTimeWeight", float32(1.0/(float32(timeLevel)-3.0)))
 	}
 	return nil
 }
