@@ -12,11 +12,9 @@ func DoTimeLevel(ctx algo.IContext, index int) error {
 	abtest := ctx.GetAbTest()
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	if abtest.GetBool("sort_with_time", false) == false {
-		if hourStrategy := abtest.GetInt("DoTimeLevel:time_interval", 3); hourStrategy > 0 {
-			hours := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / hourStrategy
-			rankInfo.Level = -hours
-		}
+	if hourStrategy := abtest.GetInt("DoTimeLevel:time_interval", 3); hourStrategy > 0 {
+		hours := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / hourStrategy
+		rankInfo.Level = -hours
 	}
 	return nil
 }
@@ -58,21 +56,29 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 	return err
 }
 
+//附近日志时间策略 前12h提权，后12h降权
+func MomentNearTimeStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
+	var err error
+	dataInfo := iDataInfo.(*DataInfo)
+	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
+	if timeLevel <= 3 {
+		rankInfo.AddRecommend("momentNearTimeWeight", 1.0+float32(1.0/(2.0+float32(timeLevel))))
+	} else {
+		rankInfo.AddRecommend("momentNearTimeWeight", float32(1.0/(float32(timeLevel)-3.0)))
+	}
+	if userbehavior != nil {
+		// 浏览过的内容使用浏览次数反序排列，3:未浏览过，2：浏览一次，1：浏览2次，0：浏览3次以上
+		NearBehavior := behavior.MergeBehaviors(userbehavior.GetMomentNearListExposure(), userbehavior.GetMomentNearListInteract())
+		if NearBehavior != nil {
+			rankInfo.Level = int(-math.Min(NearBehavior.Count, 3))
+		}
+	}
+	return err
+}
 // 按用户访问行为进行策略提降权
 func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
 	var abtest = ctx.GetAbTest()
-	dataInfo := iDataInfo.(*DataInfo)
-	//非按时间序列排序，但是会对时间近的进行提权，前12h提权，后12h降权
-	sortWithTime := abtest.GetBool("sort_with_time", false)
-	if sortWithTime {
-		timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
-		if timeLevel <= 3 {
-			rankInfo.AddRecommend("momentNearTimeWeight", 1.0+float32(1.0/(2.0+float32(timeLevel))))
-		} else {
-			rankInfo.AddRecommend("momentNearTimeWeight", float32(1.0/(float32(timeLevel)-3.0)))
-		}
-	}
 	if abtest.GetBool("rich_strategy:behavior:moment_item_new", false) {
 		if userbehavior != nil {
 			// 浏览过的内容使用浏览次数反序排列，3:未浏览过，2：浏览一次，1：浏览2次，0：浏览3次以上
@@ -84,23 +90,15 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	} else {
 		var currTime = float64(ctx.GetCreateTime().Unix())
 		if userbehavior != nil {
-			if sortWithTime {
-				// 浏览过的内容使用浏览次数反序排列，3:未浏览过，2：浏览一次，1：浏览2次，0：浏览3次以上
-				NearBehavior := behavior.MergeBehaviors(userbehavior.GetMomentNearListExposure(), userbehavior.GetMomentNearListInteract())
-				if NearBehavior != nil {
-					rankInfo.Level = int(-math.Min(NearBehavior.Count, 3))
-				}
-			} else {
-				var avgExpCount float64 = 2
-				listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
-					userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract(),
-					avgExpCount, currTime, 36000, 18000)
+			var avgExpCount float64 = 2
+			listCountScore, _, listTimeScore := strategy.BehaviorCountRateTimeScore(
+				userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract(),
+				avgExpCount, currTime, 36000, 18000)
 
-				upperRate := -float32(listCountScore * listTimeScore)
+			upperRate := -float32(listCountScore * listTimeScore)
 
-				if upperRate != 0.0 {
-					rankInfo.AddRecommend("UserBehavior", 1.0+upperRate)
-				}
+			if upperRate != 0.0 {
+				rankInfo.AddRecommend("UserBehavior", 1.0+upperRate)
 			}
 		}
 	}
