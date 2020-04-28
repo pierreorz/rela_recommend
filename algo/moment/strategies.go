@@ -76,10 +76,7 @@ func NearTimeStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehav
 	return err
 }
 
-func NearTimeItemStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itembehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
-	var err error
-	return err
-}
+
 
 // 按用户访问行为进行策略提降权
 func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
