@@ -9,7 +9,7 @@ import (
 )
 
 const VALUE_TRIM = " '\""
-const KEY_REGEX = "(?:^|\\s*(and|or))\\s*(\\w+)(\\s*[=<>≤≥≠]|!=|\\s+(?:in|not|is))"
+const KEY_REGEX = "(?:^|\\s*(and|or))\\s*(\\w+)(\\s*(?:!=|>=|<=|<>|[=><≥≤≠])|\\s+(?:in|not\\s+in|is|not))"
 
 type Formula struct {
 	Key				string 		`json:"key"`
@@ -38,6 +38,9 @@ func (self *Formula) Calculate4Value(mVal interface{}) bool {
 				}
 			}
 		}
+	} else if self.Formula == "notin"{
+		inFormula := &Formula{Key: self.Key, Formula: "in", Value: self.Value}
+		result = !inFormula.Calculate4Value(mVal)
 	} else {
 		switch mValTypeValue := mVal.(type) {
 			case int64, int32, int:
@@ -54,7 +57,7 @@ func (self *Formula) Calculate4Value(mVal interface{}) bool {
 						case "<": result = mValInt < fValue
 						case "≥", ">=": result = mValInt >= fValue
 						case "≤", "<=": result = mValInt <= fValue
-						case "≠", "!=", "not": result = mValInt != fValue
+						case "≠", "!=", "<>","not": result = mValInt != fValue
 					}
 				}
 			case float64, float32:
@@ -70,14 +73,14 @@ func (self *Formula) Calculate4Value(mVal interface{}) bool {
 						case "<": result = mValFloat < fValue
 						case "≥", ">=": result = mValFloat >= fValue
 						case "≤", "<=": result = mValFloat <= fValue
-						case "≠", "!=", "not": result = mValFloat != fValue
+						case "≠", "!=", "<>", "not": result = mValFloat != fValue
 					}
 				}
 			case bool:
 				if fValue, fErr := strconv.ParseBool(self.Value); fErr == nil {
 					switch self.Formula {
 						case "=", "is": result = mValTypeValue == fValue
-						case "≠", "!=", "not": result = mValTypeValue != fValue
+						case "≠", "!=", "<>", "not": result = mValTypeValue != fValue
 					}
 				}
 			case string:
@@ -88,7 +91,7 @@ func (self *Formula) Calculate4Value(mVal interface{}) bool {
 					case "<": result = mValTypeValue < fValue
 					case "≥", ">=": result = mValTypeValue >= fValue
 					case "≤", "<=": result = mValTypeValue <= fValue
-					case "≠", "!=", "not": result = mValTypeValue != fValue
+					case "≠", "!=", "<>", "not": result = mValTypeValue != fValue
 				}
 		}
 	}
@@ -126,7 +129,7 @@ func (self *Condition) parseFormula() [][]Formula {
 		}
 
 		fKey := f1[reIndexs[4]:reIndexs[5]]
-		fFor := strings.Trim(f1[reIndexs[6]:reIndexs[7]], VALUE_TRIM)
+		fFor := strings.Replace(f1[reIndexs[6]:reIndexs[7]], " ", "", -1)
 		fVal := strings.Trim(f1[reIndexs[1]:afterBegin], VALUE_TRIM)
 		formula := Formula{Key: fKey, Formula: fFor, Value: fVal}
 		formulas = append(formulas, formula)
