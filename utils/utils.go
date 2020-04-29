@@ -350,6 +350,16 @@ func GetPlatform(ua string) int {
 	return 0
 }
 
+func GetPlatformName(ua string) string {
+	ua = strings.ToLower(ua)
+	if strings.Contains(ua, "ios") {
+		return "ios"
+	} else if strings.Contains(ua, "android") {
+		return "android"
+	}
+	return "other"
+}
+
 // Set 结构
 type SetInt64 struct {
 	intMap map[int64]int
