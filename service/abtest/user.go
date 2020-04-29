@@ -1,9 +1,9 @@
 package abtest
 
 import (
-	"strings"
 	"rela_recommend/rpc/api"
 	"rela_recommend/log"
+	"rela_recommend/utils"
 	// "rela_recommend/models/redis"
 )
 
@@ -39,14 +39,7 @@ func (self *AbTest)GetUserAttr(keys []string) map[string]interface{} {
 					}
 				}
 				case "os": {
-					lowerUa := strings.ToLower(self.Ua)
-					if strings.Contains(self.Ua, "iOS") {
-						res[key] = "ios"
-					} else if strings.Contains(lowerUa, "android") {
-						res[key] = "android"
-					} else {
-						res[key] = "other"
-					}
+					res[key] = utils.GetPlatformName(self.Ua)
 				}
 			}
 		}
