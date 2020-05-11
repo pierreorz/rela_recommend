@@ -99,10 +99,12 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 				}
 			}
 			//增加topword词偏好 800-1100
-			for i := 0; i < len(words); i++ {
-				if index_num, ok := wordVec[words[i]]; ok {
-						if value,ok :=userWordMap[words[i]]; ok {
-							fs.Add(int(index_num[0])+800,value)
+			for _ ,word:= range words{
+				if index_num, ok := wordVec[word]; ok {
+					if len(index_num) == 1 {
+						if value, ok := userWordMap[word]; ok {
+							fs.Add(int(index_num[0])+800, value)
+							}
 						}
 					}
 				}
