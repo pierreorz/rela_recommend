@@ -39,6 +39,7 @@ func (self *AlgoBase) GetWords() map[string][]float32 {
 	return self.Words
 }
 
+
 func (self *AlgoBase) PredictSingle(features *utils.Features) float32 {
 	new_features := self.Model.TransformSingle(features)
 	return self.Model.PredictSingle(new_features)
