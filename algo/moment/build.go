@@ -200,7 +200,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	userIds = utils.NewSetInt64FromArray(userIds).ToList()
 	usersMap, err := userCache.QueryUsersMap(userIds)
 	dataList := make([]algo.IDataInfo, 0)
-	for i, mom := range moms {
+	for _, mom := range moms {
 		if mom.Moments.ShareTo != "all" {
 			continue
 		}
