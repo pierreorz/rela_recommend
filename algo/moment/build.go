@@ -188,9 +188,8 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
-	momGeohash,_:=geohash.Encode(float64(params.Lat),float64(params.Lat),4)
+	momGeohash,_:=geohash.Encode(float64(params.Lat),float64(params.Lng),4)
 	dataIdList, _ := momentCache.GetInt64ListFromGeo(momGeohash, recListKeyFormatter)
-	log.Errorf("附近日志详情页字符串%s\n,geohash%s\n,dataidList$s\n",recListKeyFormatter,momGeohash,dataIdList)
 	moms, err := momentCache.QueryMomentsByIds(dataIdList)
 	userIds := make([]int64, 0)
 	for _,mom :=range moms{
