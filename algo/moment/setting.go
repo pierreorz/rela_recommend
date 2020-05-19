@@ -8,7 +8,11 @@ import(
 
 var workDir = algo.GetWorkDir("/algo_files/moment/")
 
-var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildData}}
+var builderMap = map[string]algo.IBuilder{
+	"base": &algo.BuilderBase{DoBuild: DoBuildData},
+	"arounddetail":&algo.BuilderBase{DoBuild:DoBuildMomentAroundDetailSimData},
+	"followdetail":&algo.BuilderBase{DoBuild:DoBuildMomentFriendDetailSimData},
+	"recdetail":&algo.BuilderBase{DoBuild:DoBuildMomentRecommendDetailSimData}}
 var strategyMap = map[string]algo.IStrategy{
 	"time_level": &algo.StrategyBase{ DoSingle: DoTimeLevel },
 	"time_weight": &algo.StrategyBase{ DoSingle: DoTimeWeightLevel },
@@ -27,6 +31,9 @@ var richStrategyMap = map[string]algo.IRichStrategy {
 	"paged": &strategy.PagedRichStrategy{},
 	"behavior": &strategy.BaseBehaviorRichStrategy{
 		UserStrategyItemFunc: UserBehaviorStrategyFunc,
+		ItemStrategyItemFunc: ItemBehaviorStrategyFunc},
+	"detail_rec":&strategy.BaseBehaviorRichStrategy{
+		UserStrategyItemFunc: DetailRecommendStrategyFunc,
 		ItemStrategyItemFunc: ItemBehaviorStrategyFunc},
 }
 
@@ -66,4 +73,37 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
 	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+//推荐日志详情页
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "moment.recdetail", Module: "moment", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: nil,
+	BuilderKey: "build", BuilderDefault: "recdetail", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+//附近日志详情页
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "moment.arounddetail", Module: "moment", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
+	BuilderKey: "build", BuilderDefault: "arounddetail", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+//关注日志详情页
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "moment.followdetail", Module: "moment", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_embedding", AlgoMap: nil,
+	BuilderKey: "build", BuilderDefault: "followdetail", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})

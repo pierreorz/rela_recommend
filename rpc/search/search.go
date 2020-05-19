@@ -19,7 +19,7 @@ func CallNearMomentList(userId int64, lat, lng float32, offset, limit int, momen
 	params := fmt.Sprintf("from=%d&limit=%d&lat=%f&lng=%f&user_id=%d&momentsType=%s&insertTimestamp=%f&distance=%s", 
 						  offset, limit, lat, lng, userId, momentTypes, insertTimestamp, distance)
 	res := &momentListRes{}
-	err := factory.SearchRpcClient.SendGETForm(internalSearchNearMomentListUrl, params, res)
+err := factory.SearchRpcClient.SendGETForm(internalSearchNearMomentListUrl, params, res)
 	if err != nil {
 		return nil, err
 	}

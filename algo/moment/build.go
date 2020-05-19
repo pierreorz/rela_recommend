@@ -9,6 +9,8 @@ import (
 	"rela_recommend/rpc/api"
 	"rela_recommend/models/redis"
 	"rela_recommend/utils"
+	"errors"
+	"github.com/gansidui/geohash"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -175,4 +177,141 @@ func DoBuildData(ctx algo.IContext) error {
 		startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(), startBuildTime.Sub(startMomentOfflineProfileTime).Seconds(), startBuildTime.Sub(startEmbeddingTime).Seconds(),
 		endTime.Sub(startBuildTime).Seconds())
 	return nil
+}
+
+// 附近日志详情页推荐
+func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
+	var err error
+	abtest := ctx.GetAbTest()
+	params := ctx.GetRequest()
+	userInfo := &UserInfo{UserId: params.UserId}
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
+	momGeohash,_:=geohash.Encode(float64(params.Lat),float64(params.Lat),4)
+	dataIdList, _ := momentCache.GetInt64ListFromGeo(momGeohash, recListKeyFormatter)
+	moms, err := momentCache.QueryMomentsByIds(dataIdList)
+	userIds := make([]int64, 0)
+	for _,mom :=range moms{
+		if mom.Moments != nil {
+			userIds = append(userIds, mom.Moments.UserId)
+		}
+	}
+	userIds = utils.NewSetInt64FromArray(userIds).ToList()
+	usersMap, err := userCache.QueryUsersMap(userIds)
+	dataList := make([]algo.IDataInfo, 0)
+	for i, mom := range moms {
+		if mom.Moments.ShareTo != "all" {
+			continue
+		}
+		if mom.Moments != nil && mom.Moments.Id > 0 {
+			momUser, _ := usersMap[mom.Moments.UserId]
+			//status=0 禁用用户，status=5 注销用户
+			if momUser != nil {
+				if momUser.Status == 0 || momUser.Status == 5 {
+					continue
+				}
+			}
+
+			info := &DataInfo{
+				DataId:               mom.Moments.Id,
+				UserCache:            nil,
+				MomentCache:          nil,
+				MomentExtendCache:    nil,
+				MomentProfile:        nil,
+				MomentOfflineProfile: nil,
+				RankInfo:             &algo.RankInfo{},
+				MomentUserProfile:    nil,
+			}
+			dataList = append(dataList, info)
+		}
+		ctx.SetUserInfo(userInfo)
+		ctx.SetDataIds(dataIdList)
+		ctx.SetDataList(dataList)
+	}
+	return err
+}
+
+
+
+// 关注页日志详情页推荐
+func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
+	var err error
+	abtest := ctx.GetAbTest()
+	params := ctx.GetRequest()
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	if len(params.DataIds) == 0 {
+		return errors.New("dataIds length must 1")
+	}
+
+	recListKeyFormatter := abtest.GetString("friend_detail_before_list_key", "moment.friend_before_moment:%d")
+	momIds,err:=momentCache.QueryMomentsByIds(params.DataIds)
+	dataIdList,_ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
+	SetData(dataIdList,ctx)
+	return err
+}
+
+
+// 推荐页日志详情页推荐
+func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
+	var err error
+	abtest := ctx.GetAbTest()
+	params := ctx.GetRequest()
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	if len(params.DataIds) == 0 {
+		return errors.New("dataIds length must 1")
+	}
+
+	recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
+	dataIdList, _ := momentCache.GetInt64List(params.DataIds[0], recListKeyFormatter)
+	SetData(dataIdList,ctx)
+	return err
+}
+
+func SetData(dataIdList []int64, ctx algo.IContext) error {
+	var err error
+	params := ctx.GetRequest()
+	userInfo := &UserInfo{UserId: params.UserId}
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	moms, err := momentCache.QueryMomentsByIds(dataIdList)
+	userIds := make([]int64, 0)
+	for _,mom :=range moms{
+		if mom.Moments != nil {
+			userIds = append(userIds, mom.Moments.UserId)
+		}
+	}
+	userIds = utils.NewSetInt64FromArray(userIds).ToList()
+	usersMap, err := userCache.QueryUsersMap(userIds)
+	dataList := make([]algo.IDataInfo, 0)
+	for i, mom := range moms {
+		if mom.Moments.ShareTo != "all" {
+			continue
+		}
+		if mom.Moments != nil && mom.Moments.Id > 0 {
+			momUser, _ := usersMap[mom.Moments.UserId]
+			//status=0 禁用用户，status=5 注销用户
+			if momUser != nil {
+				if momUser.Status == 0 || momUser.Status == 5 {
+					continue
+				}
+			}
+
+			info := &DataInfo{
+				DataId:               mom.Moments.Id,
+				UserCache:            nil,
+				MomentCache:          nil,
+				MomentExtendCache:    nil,
+				MomentProfile:        nil,
+				MomentOfflineProfile: nil,
+				RankInfo:             &algo.RankInfo{Level: i},
+				MomentUserProfile:    nil,
+			}
+			dataList = append(dataList, info)
+		}
+		ctx.SetUserInfo(userInfo)
+		ctx.SetDataIds(dataIdList)
+		ctx.SetDataList(dataList)
+	}
+	return err
 }

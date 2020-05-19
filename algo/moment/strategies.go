@@ -68,7 +68,19 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 	return err
 }
 
-
+//日志详情页看过沉底策略
+func DetailRecommendStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error{
+	var err error
+	if userbehavior!=nil{
+		behaviorCount:=behavior.MergeBehaviors(userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract())
+		if behaviorCount!=nil{
+			if behaviorCount.Count>0{
+				rankInfo.Level=int(-math.Min(behaviorCount.Count, 3))
+			}
+		}
+	}
+	return  err
+}
 
 
 // 按用户访问行为进行策略提降权

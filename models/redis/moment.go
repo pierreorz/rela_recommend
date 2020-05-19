@@ -116,6 +116,24 @@ func NewMomentCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Ca
 	return &MomentCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
 
+// 从缓存中获取以逗号分割的字符串，并转化成int64. 如 keys11  1,2,3,4,5
+func (self *MomentCacheModule) GetInt64List(id int64, keyFormatter string) ([]int64, error) {
+	res, err := self.GetSet(fmt.Sprintf(keyFormatter, id), 24 * 60 * 60, 1 * 60 * 60)
+	if err == nil {
+		return utils.GetInt64s(utils.GetString(res)), nil
+	}
+	return nil, err
+}
+
+// 从缓存中获取以逗号分割的字符串，并转化成int64. 如 keys11  1,2,3,4,5
+func (self *MomentCacheModule) GetInt64ListFromGeo(geohash string, keyFormatter string) ([]int64, error) {
+	res, err := self.GetSet(fmt.Sprintf(keyFormatter, geohash), 24 * 60 * 60, 1 * 60 * 60)
+	if err == nil {
+		return utils.GetInt64s(utils.GetString(res)), nil
+	}
+	return nil, err
+}
+
 // 读取用户embedding特征
 func (self *UserCacheModule) QueryMomentUserProfileByIds(ids []int64) ([]MomentUserProfile, error) {
 	keyFormatter := "moment_user_profile:%d"
