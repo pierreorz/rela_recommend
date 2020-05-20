@@ -184,12 +184,15 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	var err error
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
-	userInfo := &UserInfo{UserId: params.UserId}
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
 	momGeohash,_:=geohash.Encode(float64(params.Lat),float64(params.Lng),4)
 	dataIdList, _ := momentCache.GetInt64ListFromGeo(momGeohash, recListKeyFormatter)
+	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIdList)
+	if momOfflineProfileErr != nil {
+		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
+	}
 	moms, err := momentCache.QueryMomentsByIds(dataIdList)
 	userIds := make([]int64, 0)
 	for _,mom :=range moms{
@@ -198,7 +201,18 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 		}
 	}
 	userIds = utils.NewSetInt64FromArray(userIds).ToList()
-	usersMap, err := userCache.QueryUsersMap(userIds)
+	user, usersMap, err := userCache.QueryByUserAndUsersMap(params.UserId, userIds)
+	if err != nil {
+		log.Warnf("users list is err, %s\n", err)
+	}
+	momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr := userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId, userIds)
+	if embeddingCacheErr != nil {
+		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
+	}
+	userInfo := &UserInfo{UserId:    params.UserId,
+		UserCache: user,
+		//MomentProfile: momentUser,
+		MomentUserProfile: momentUserEmbedding,}
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
 		if mom.Moments.ShareTo != "all" {
@@ -215,13 +229,13 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 
 			info := &DataInfo{
 				DataId:               mom.Moments.Id,
-				UserCache:            nil,
-				MomentCache:          nil,
-				MomentExtendCache:    nil,
-				MomentProfile:        nil,
-				MomentOfflineProfile: nil,
+				UserCache:            momUser,
+				MomentCache:          mom.Moments,
+				MomentExtendCache:    mom.MomentsExtend,
+				MomentProfile:        mom.MomentsProfile,
+				MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 				RankInfo:             &algo.RankInfo{},
-				MomentUserProfile:    nil,
+				MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 			}
 			dataList = append(dataList, info)
 		}

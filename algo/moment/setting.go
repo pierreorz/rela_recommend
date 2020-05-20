@@ -89,7 +89,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 //附近日志详情页
 var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "moment.arounddetail", Module: "moment", Path: workDir,
-	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
+	AlgoKey: "model", AlgoDefault: "model_embedding", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "arounddetail", BuilderMap: builderMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
@@ -100,7 +100,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 //关注日志详情页
 var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "moment.followdetail", Module: "moment", Path: workDir,
-	AlgoKey: "model", AlgoDefault: "model_embedding", AlgoMap: nil,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: nil,
 	BuilderKey: "build", BuilderDefault: "followdetail", BuilderMap: builderMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
