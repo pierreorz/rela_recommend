@@ -186,7 +186,10 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
-	dataIdList, _ := momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
+	dataIdList, err := momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
+	if err!=nil{
+		return errors.New("around detail dataidlist length must larger than 0")
+	}
 	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIdList)
 	if momOfflineProfileErr != nil {
 		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
@@ -259,6 +262,8 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 	dataIdList, _ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
 	if len(dataIdList) > 0 {
 		SetData(dataIdList, ctx)
+	}else{
+		return errors.New("follow detail dataidlist length must larger than 0")
 	}
 	return err
 }
@@ -275,7 +280,11 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 
 	recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
 	dataIdList, _ := momentCache.GetInt64List(params.DataIds[0], recListKeyFormatter)
+	if len(dataIdList)>0{
 	SetData(dataIdList, ctx)
+	}else{
+		return errors.New("rec detail dataidlist length must larger than 0")
+	}
 	return err
 }
 
@@ -286,6 +295,9 @@ func SetData(dataIdList []int64, ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	moms, err := momentCache.QueryMomentsByIds(dataIdList)
+	if err!=nil{
+		return errors.New("follow detail query dataIdlist length must larger than 0")
+	}
 	userIds := make([]int64, 0)
 	for _, mom := range moms {
 		if mom.Moments != nil {
