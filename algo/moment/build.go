@@ -47,7 +47,7 @@ func DoBuildData(ctx algo.IContext) error {
 				newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
 					momentTypes, newMomentStartTime, radius)
 				//附近日志数量大于10即停止寻找
-				if len(newIdList)>10{
+				if len(newIdList) > 10 {
 					break
 				}
 			}
@@ -130,8 +130,8 @@ func DoBuildData(ctx algo.IContext) error {
 		if mom.Moments != nil && mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
 			//status=0 禁用用户，status=5 注销用户
-			if momUser!=nil{
-				if momUser.Status==0||momUser.Status==5{
+			if momUser != nil {
+				if momUser.Status == 0 || momUser.Status == 5 {
 					continue
 				}
 			}
@@ -186,14 +186,14 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
-	dataIdList, _ := momentCache.GetInt64ListFromGeohash(params.Lat,params.Lng,4, recListKeyFormatter)
+	dataIdList, _ := momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
 	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIdList)
 	if momOfflineProfileErr != nil {
 		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
 	}
 	moms, err := momentCache.QueryMomentsByIds(dataIdList)
 	userIds := make([]int64, 0)
-	for _,mom :=range moms{
+	for _, mom := range moms {
 		if mom.Moments != nil {
 			userIds = append(userIds, mom.Moments.UserId)
 		}
@@ -207,7 +207,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	if embeddingCacheErr != nil {
 		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
 	}
-	userInfo := &UserInfo{UserId:    params.UserId,
+	userInfo := &UserInfo{UserId: params.UserId,
 		UserCache: user,
 		//MomentProfile: momentUser,
 		MomentUserProfile: momentUserEmbedding,}
@@ -244,8 +244,6 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	return err
 }
 
-
-
 // 关注页日志详情页推荐
 func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 	var err error
@@ -257,15 +255,13 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 	}
 
 	recListKeyFormatter := abtest.GetString("friend_detail_before_list_key", "moment.friend_before_moment:%d")
-	momIds,_:=momentCache.QueryMomentsByIds(params.DataIds)
-	dataIdList,_ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
-	if dataIdList==nil{
-		return err
+	momIds, err := momentCache.QueryMomentsByIds(params.DataIds)
+	dataIdList, _ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
+	if len(dataIdList) > 0 {
+		SetData(dataIdList, ctx)
 	}
-	SetData(dataIdList,ctx)
 	return err
 }
-
 
 // 推荐页日志详情页推荐
 func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
@@ -279,7 +275,7 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 
 	recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
 	dataIdList, _ := momentCache.GetInt64List(params.DataIds[0], recListKeyFormatter)
-	SetData(dataIdList,ctx)
+	SetData(dataIdList, ctx)
 	return err
 }
 
@@ -291,7 +287,7 @@ func SetData(dataIdList []int64, ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	moms, err := momentCache.QueryMomentsByIds(dataIdList)
 	userIds := make([]int64, 0)
-	for _,mom :=range moms{
+	for _, mom := range moms {
 		if mom.Moments != nil {
 			userIds = append(userIds, mom.Moments.UserId)
 		}
