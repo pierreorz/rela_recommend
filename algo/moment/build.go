@@ -10,7 +10,6 @@ import (
 	"rela_recommend/models/redis"
 	"rela_recommend/utils"
 	"errors"
-	"github.com/gansidui/geohash"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -187,8 +186,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
-	momGeohash,_:=geohash.Encode(float64(params.Lat),float64(params.Lng),4)
-	dataIdList, _ := momentCache.GetInt64ListFromGeo(momGeohash, recListKeyFormatter)
+	dataIdList, _ := momentCache.GetInt64ListFromGeohash(params.Lat,params.Lng,4, recListKeyFormatter)
 	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIdList)
 	if momOfflineProfileErr != nil {
 		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
@@ -259,8 +257,11 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 	}
 
 	recListKeyFormatter := abtest.GetString("friend_detail_before_list_key", "moment.friend_before_moment:%d")
-	momIds,err:=momentCache.QueryMomentsByIds(params.DataIds)
+	momIds,_:=momentCache.QueryMomentsByIds(params.DataIds)
 	dataIdList,_ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
+	if dataIdList==nil{
+		return err
+	}
 	SetData(dataIdList,ctx)
 	return err
 }
