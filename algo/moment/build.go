@@ -259,6 +259,9 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 
 	recListKeyFormatter := abtest.GetString("friend_detail_before_list_key", "moment.friend_before_moment:%d")
 	momIds, err := momentCache.QueryMomentsByIds(params.DataIds)
+	if len(momIds)<=0||momIds==nil{
+		return errors.New("follow detail moms data not exists")
+	}
 	dataIdList, _ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
 	if len(dataIdList) > 0 {
 		SetData(dataIdList, ctx)
