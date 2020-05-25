@@ -24,6 +24,7 @@ func DoBuildData(ctx algo.IContext) error {
 		log.Warnf("user list is nil or empty!")
 	}
 	recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
+	var recMap = map[int64]int{}
 	if len(recListKeyFormatter) > 5 {
 		recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
 		if errRedis == nil {
@@ -55,13 +56,21 @@ func DoBuildData(ctx algo.IContext) error {
 		UserCache:    user,
 		MatchProfile: matchUser}
 
+	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 	dataList := make([]algo.IDataInfo, 0)
+
 	for dataId, data := range usersMap {
+		var recommends = []algo.RecommendItem{}
+		if recMap != nil {
+			if _, isRecommend := recMap[data.UserId]; isRecommend {
+				recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+			}
+		}
 		info := &DataInfo{
 			DataId:       dataId,
 			UserCache:    data,
 			MatchProfile: matchUserMap[dataId],
-			RankInfo:     &algo.RankInfo{},
+			RankInfo:     &algo.RankInfo{Recommends: recommends},
 		}
 		dataList = append(dataList, info)
 	}
