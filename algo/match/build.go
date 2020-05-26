@@ -57,7 +57,7 @@ func DoBuildData(ctx algo.IContext) error {
 		UserCache:    user,
 		MatchProfile: matchUser}
 
-	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
+	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 2.0)
 	dataList := make([]algo.IDataInfo, 0)
 
 	for dataId, data := range usersMap {
