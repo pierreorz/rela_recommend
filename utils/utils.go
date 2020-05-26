@@ -1,25 +1,26 @@
 package utils
 
 import (
+	"bytes"
 	"crypto/md5"
 	crand "crypto/rand"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"math/rand"
 	"net"
+	"net/url"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"io"
-	"encoding/binary"
-	"bytes"
+
 	"github.com/gansidui/geohash"
-	"net/url"
 )
 
 const MAX_INT64 = 9223372036854775807
@@ -404,6 +405,10 @@ func (self *SetInt64) ToList() []int64 {
 	return res
 }
 
+func (self *SetInt64) Len() int {
+	return len(self.intMap)
+}
+
 func NewSetInt64FromArray(vals []int64) *SetInt64 {
 	set := SetInt64{}
 	set.FromArray(vals)
@@ -422,7 +427,6 @@ func NewSetInt64FromArrays(vals ...[]int64) *SetInt64 {
 	return &set
 }
 
-
 // Set 结构
 type SetString struct {
 	intMap map[string]int
@@ -434,13 +438,13 @@ func (self *SetString) checkMap() {
 	}
 }
 
-func (self *SetString) Append(val string)*SetString {
+func (self *SetString) Append(val string) *SetString {
 	self.checkMap()
 	self.intMap[val] = 1
 	return self
 }
 
-func (self *SetString) AppendArray(vals []string)*SetString {
+func (self *SetString) AppendArray(vals []string) *SetString {
 	self.checkMap()
 	for _, val := range vals {
 		self.intMap[val] = 1
@@ -455,8 +459,6 @@ func (self *SetString) ToList() []string {
 	}
 	return res
 }
-
-
 
 // int是否在int数组内
 func IsInInts(v int, vs []int) bool {

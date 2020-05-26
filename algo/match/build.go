@@ -79,8 +79,8 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
 
-	log.Infof("rankid:%s,totallen:%d,cache:%d;total:%.3f,dataids:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
-		ctx.GetRankId(), len(dataIds), len(dataList),
+	log.Infof("rankid:%s,totallen:%d,cache:%d;recommend:%d,total:%.3f,dataids:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
+		ctx.GetRankId(), len(dataIds), len(dataList), recMap.Len(),
 		endTime.Sub(startTime).Seconds(), startUserTime.Sub(startTime).Seconds(),
 		startProfileTime.Sub(startUserTime).Seconds(),
 		startBuildTime.Sub(startProfileTime).Seconds(), endTime.Sub(startBuildTime).Seconds())
