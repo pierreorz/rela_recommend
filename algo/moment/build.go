@@ -261,9 +261,10 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 	if err!=nil{
 		return errors.New("follow detail moms data not exists")
 	}
-	dataIdList, err := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
-	if err!=nil {
-		return errors.New("follow detail dataidlist length must larger than 0")
+	dataIdList:=make([]int64, 0)
+	if len(momIds)>0{
+		dataIdList, _ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
+		SetData(dataIdList, ctx)
 	}else{
 		SetData(dataIdList, ctx)
 	}
