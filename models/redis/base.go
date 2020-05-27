@@ -379,7 +379,7 @@ func (self *CachePikaModule) SetStruct(key string, obj interface{}, cacheTime in
 // 从redis中获取用户id
 func (self *CachePikaModule) GetInt64List(id int64, keyFormater string) ([]int64, error) {
 	var resInt64s = make([]int64, 0)
-	res, err := self.GetSet(fmt.Sprint(keyFormater, id), 6*60*60, 1*60*60)
+	res, err := self.GetSet(fmt.Sprintf(keyFormater, id), 6*60*60, 1*60*60)
 	if err == nil {
 		resInt64s = utils.GetInt64s(utils.GetString(res))
 	}
