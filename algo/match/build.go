@@ -24,9 +24,11 @@ func DoBuildData(ctx algo.IContext) error {
 		log.Warnf("user list is nil or empty!")
 	}
 	recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
+	var recMap = utils.SetInt64{}
 	if len(recListKeyFormatter) > 5 {
 		recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
 		if errRedis == nil {
+			recMap.AppendArray(recIdlist)
 			dataIds = utils.NewSetInt64FromArrays(dataIds, recIdlist).ToList()
 		} else {
 			log.Warnf("user recommend list is nil or empty!")
@@ -55,13 +57,20 @@ func DoBuildData(ctx algo.IContext) error {
 		UserCache:    user,
 		MatchProfile: matchUser}
 
+	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.5)
 	dataList := make([]algo.IDataInfo, 0)
+
 	for dataId, data := range usersMap {
+		var recommends = []algo.RecommendItem{}
+		if recMap.Contains(data.UserId) {
+			recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+		}
+
 		info := &DataInfo{
 			DataId:       dataId,
 			UserCache:    data,
 			MatchProfile: matchUserMap[dataId],
-			RankInfo:     &algo.RankInfo{},
+			RankInfo:     &algo.RankInfo{Recommends: recommends},
 		}
 		dataList = append(dataList, info)
 	}
@@ -70,8 +79,8 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
 
-	log.Infof("rankid:%s,totallen:%d,cache:%d;total:%.3f,dataids:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
-		ctx.GetRankId(), len(dataIds), len(dataList),
+	log.Infof("rankid:%s,totallen:%d,cache:%d;recommend:%d,total:%.3f,dataids:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
+		ctx.GetRankId(), len(dataIds), len(dataList), recMap.Len(),
 		endTime.Sub(startTime).Seconds(), startUserTime.Sub(startTime).Seconds(),
 		startProfileTime.Sub(startUserTime).Seconds(),
 		startBuildTime.Sub(startProfileTime).Seconds(), endTime.Sub(startBuildTime).Seconds())
