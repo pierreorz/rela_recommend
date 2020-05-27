@@ -151,7 +151,6 @@ func DoBuildData(ctx algo.IContext) error {
 					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 				}
 			}
-
 			info := &DataInfo{
 				DataId:               mom.Moments.Id,
 				UserCache:            momUser,
@@ -187,7 +186,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
 	dataIdList, err := momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
-	if err!=nil{
+	if dataIdList==nil||err!=nil{
 		return errors.New("around detail dataidlist length must larger than 0")
 	}
 	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIdList)
@@ -259,14 +258,14 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 
 	recListKeyFormatter := abtest.GetString("friend_detail_before_list_key", "moment.friend_before_moment:%d")
 	momIds, err := momentCache.QueryMomentsByIds(params.DataIds)
-	if len(momIds)<=0||momIds==nil{
+	if len(momIds)<=0||momIds==nil||err!=nil{
 		return errors.New("follow detail moms data not exists")
 	}
 	dataIdList, _ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
-	if len(dataIdList) > 0 {
-		SetData(dataIdList, ctx)
-	}else{
+	if len(dataIdList) <= 0||dataIdList==nil {
 		return errors.New("follow detail dataidlist length must larger than 0")
+	}else{
+		SetData(dataIdList, ctx)
 	}
 	return err
 }
@@ -283,10 +282,10 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 
 	recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
 	dataIdList, _ := momentCache.GetInt64List(params.DataIds[0], recListKeyFormatter)
-	if len(dataIdList)>0{
-	SetData(dataIdList, ctx)
-	}else{
+	if len(dataIdList)<=0||dataIdList==nil{
 		return errors.New("rec detail dataidlist length must larger than 0")
+	}else{
+		SetData(dataIdList, ctx)
 	}
 	return err
 }
