@@ -117,8 +117,12 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	if (data.ThemeProfile != nil) {
 		ThemeAls := data.ThemeProfile
 		themeAls_line := ThemeAls.ThemeEmbedding
+		themecateg_line := ThemeAls.ThemeCateg
 		if len(themeAls_line) > 0 {
 			fs.AddArray(400, 100, themeAls_line)
+		}
+		if len(themecateg_line)>0{
+			fs.AddArray(70,14,themecateg_line)
 		}
 	}
 
