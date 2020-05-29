@@ -187,7 +187,10 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
 	dataIdList, err := momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
 	if dataIdList==nil||err!=nil{
-		return errors.New("around detail dataidlist length must larger than 0")
+		ctx.SetUserInfo(nil)
+		ctx.SetDataIds(dataIdList)
+		ctx.SetDataList(make([]algo.IDataInfo, 0))
+		return nil
 	}
 	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIdList)
 	if momOfflineProfileErr != nil {
