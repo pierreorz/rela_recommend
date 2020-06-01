@@ -9,6 +9,7 @@ import (
 	"rela_recommend/rpc/api"
 	"rela_recommend/models/redis"
 	"rela_recommend/utils"
+	"errors"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -46,7 +47,7 @@ func DoBuildData(ctx algo.IContext) error {
 				newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
 					momentTypes, newMomentStartTime, radius)
 				//附近日志数量大于10即停止寻找
-				if len(newIdList)>10{
+				if len(newIdList) > 10 {
 					break
 				}
 			}
@@ -129,8 +130,8 @@ func DoBuildData(ctx algo.IContext) error {
 		if mom.Moments != nil && mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
 			//status=0 禁用用户，status=5 注销用户
-			if momUser!=nil{
-				if momUser.Status==0||momUser.Status==5{
+			if momUser != nil {
+				if momUser.Status == 0 || momUser.Status == 5 {
 					continue
 				}
 			}
@@ -150,7 +151,6 @@ func DoBuildData(ctx algo.IContext) error {
 					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 				}
 			}
-
 			info := &DataInfo{
 				DataId:               mom.Moments.Id,
 				UserCache:            momUser,
@@ -175,4 +175,172 @@ func DoBuildData(ctx algo.IContext) error {
 		startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(), startBuildTime.Sub(startMomentOfflineProfileTime).Seconds(), startBuildTime.Sub(startEmbeddingTime).Seconds(),
 		endTime.Sub(startBuildTime).Seconds())
 	return nil
+}
+
+// 附近日志详情页推荐
+func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
+	var err error
+	abtest := ctx.GetAbTest()
+	params := ctx.GetRequest()
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
+	dataIdList, err := momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
+	if dataIdList==nil||err!=nil{
+		ctx.SetUserInfo(nil)
+		ctx.SetDataIds(dataIdList)
+		ctx.SetDataList(make([]algo.IDataInfo, 0))
+		return nil
+	}
+	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIdList)
+	if momOfflineProfileErr != nil {
+		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
+	}
+	moms, err := momentCache.QueryMomentsByIds(dataIdList)
+	userIds := make([]int64, 0)
+	for _, mom := range moms {
+		if mom.Moments != nil {
+			userIds = append(userIds, mom.Moments.UserId)
+		}
+	}
+	userIds = utils.NewSetInt64FromArray(userIds).ToList()
+	user, usersMap, err := userCache.QueryByUserAndUsersMap(params.UserId, userIds)
+	if err != nil {
+		log.Warnf("users list is err, %s\n", err)
+	}
+	momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr := userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId, userIds)
+	if embeddingCacheErr != nil {
+		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
+	}
+	userInfo := &UserInfo{UserId: params.UserId,
+		UserCache: user,
+		//MomentProfile: momentUser,
+		MomentUserProfile: momentUserEmbedding,}
+	dataList := make([]algo.IDataInfo, 0)
+	for _, mom := range moms {
+		if mom.Moments.ShareTo != "all" {
+			continue
+		}
+		if mom.Moments != nil && mom.Moments.Id > 0 {
+			momUser, _ := usersMap[mom.Moments.UserId]
+			//status=0 禁用用户，status=5 注销用户
+			if momUser != nil {
+				if momUser.Status == 0 || momUser.Status == 5 {
+					continue
+				}
+			}
+
+			info := &DataInfo{
+				DataId:               mom.Moments.Id,
+				UserCache:            momUser,
+				MomentCache:          mom.Moments,
+				MomentExtendCache:    mom.MomentsExtend,
+				MomentProfile:        mom.MomentsProfile,
+				MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
+				RankInfo:             &algo.RankInfo{},
+				MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
+			}
+			dataList = append(dataList, info)
+		}
+		ctx.SetUserInfo(userInfo)
+		ctx.SetDataIds(dataIdList)
+		ctx.SetDataList(dataList)
+	}
+	return err
+}
+
+// 关注页日志详情页推荐
+func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
+	var err error
+	abtest := ctx.GetAbTest()
+	params := ctx.GetRequest()
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	if len(params.DataIds) == 0 {
+		return errors.New("dataIds length must 1")
+	}
+
+	recListKeyFormatter := abtest.GetString("friend_detail_before_list_key", "moment.friend_before_moment:%d")
+	momIds, err := momentCache.QueryMomentsByIds(params.DataIds)
+	if err!=nil{
+		return errors.New("follow detail moms data not exists")
+	}
+	dataIdList:=make([]int64, 0)
+	if len(momIds)>0{
+		dataIdList, _ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
+		SetData(dataIdList, ctx)
+	}else{
+		SetData(dataIdList, ctx)
+	}
+	return err
+}
+
+// 推荐页日志详情页推荐
+func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
+	var err error
+	abtest := ctx.GetAbTest()
+	params := ctx.GetRequest()
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	if len(params.DataIds) == 0 {
+		return errors.New("dataIds length must 1")
+	}
+
+	recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
+	dataIdList, err := momentCache.GetInt64List(params.DataIds[0], recListKeyFormatter)
+	if err!=nil{
+		return errors.New("rec detail dataidlist length must larger than 0")
+	}else{
+		SetData(dataIdList, ctx)
+	}
+	return err
+}
+
+func SetData(dataIdList []int64, ctx algo.IContext) error {
+	var err error
+	params := ctx.GetRequest()
+	userInfo := &UserInfo{UserId: params.UserId}
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	moms, err := momentCache.QueryMomentsByIds(dataIdList)
+	if err!=nil{
+		return errors.New("follow detail query dataIdlist length must larger than 0")
+	}
+	userIds := make([]int64, 0)
+	for _, mom := range moms {
+		if mom.Moments != nil {
+			userIds = append(userIds, mom.Moments.UserId)
+		}
+	}
+	userIds = utils.NewSetInt64FromArray(userIds).ToList()
+	usersMap, err := userCache.QueryUsersMap(userIds)
+	dataList := make([]algo.IDataInfo, 0)
+	for i, mom := range moms {
+		if mom.Moments.ShareTo != "all" {
+			continue
+		}
+		if mom.Moments != nil && mom.Moments.Id > 0 {
+			momUser, _ := usersMap[mom.Moments.UserId]
+			//status=0 禁用用户，status=5 注销用户
+			if momUser != nil {
+				if momUser.Status == 0 || momUser.Status == 5 {
+					continue
+				}
+			}
+
+			info := &DataInfo{
+				DataId:               mom.Moments.Id,
+				UserCache:            nil,
+				MomentCache:          nil,
+				MomentExtendCache:    nil,
+				MomentProfile:        nil,
+				MomentOfflineProfile: nil,
+				RankInfo:             &algo.RankInfo{Level: i},
+				MomentUserProfile:    nil,
+			}
+			dataList = append(dataList, info)
+		}
+		ctx.SetUserInfo(userInfo)
+		ctx.SetDataIds(dataIdList)
+		ctx.SetDataList(dataList)
+	}
+	return err
 }

@@ -34,6 +34,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeatures },
 	&algo.AlgoBase{AlgoName: "model_theme_v2.0", FilePath: workDir + "mods_2.0.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeaturesv0 },
+	&algo.AlgoBase{AlgoName: "model_theme_v2.1", FilePath: workDir + "mods_2.1.dumps.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeaturesv0 },
 })
 
 // 话题推荐列表
