@@ -39,6 +39,7 @@ type ThemeUserProfile struct {
 	UserID 	int64	`json:"user_id"`
 	UserEmbedding []float32 `json:"user_embedding"`
 	UserWordProfile map[string]float32 `json:"word_profile"`
+	UserCateg []float32 `json:"user_categ_embedding"`
 }
 type ThemeProfile struct {
 	ThemeID int64	`json:"theme_id"`
