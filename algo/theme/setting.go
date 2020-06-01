@@ -11,7 +11,8 @@ var workDir = algo.GetWorkDir("/algo_files/theme/")
 
 var builderMap = map[string]algo.IBuilder{
 	"base": &algo.BuilderBase{DoBuild: DoBuildData},
-	"maybelike": &algo.BuilderBase{DoBuild: DoBuildMayBeLikeData}}
+	"maybelike": &algo.BuilderBase{DoBuild: DoBuildMayBeLikeData},
+	"quick":&algo.BuilderBase{DoBuild: DoBuildQuickData}}
 var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{}}
@@ -36,6 +37,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeaturesv0 },
 	&algo.AlgoBase{AlgoName: "model_theme_v2.1", FilePath: workDir + "mods_2.1.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeaturesv0 },
+	&algo.AlgoBase{AlgoName: "model_theme_quick", FilePath: workDir + "mods_quick_2.1.dumps.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeQuickFeatures },
 })
 
 // 话题推荐列表
@@ -80,4 +83,15 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
 	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+// 话题快捷列表
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "theme.quick", Module: "theme", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_quick", AlgoMap: nil,
+	BuilderKey: "build", BuilderDefault: "quick", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
