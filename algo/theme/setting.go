@@ -93,7 +93,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 // 话题快捷列表
 var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "theme.quick", Module: "theme", Path: workDir,
-	AlgoKey: "model", AlgoDefault: "model_quick", AlgoMap: algosQuickMap,
+	AlgoKey: "new_model", AlgoDefault: "model_quick", AlgoMap: algosQuickMap,
 	BuilderKey: "build", BuilderDefault: "quick", BuilderMap: builderMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
