@@ -12,9 +12,7 @@ var workDir = algo.GetWorkDir("/algo_files/theme/")
 var builderMap = map[string]algo.IBuilder{
 	"base":      &algo.BuilderBase{DoBuild: DoBuildData},
 	"maybelike": &algo.BuilderBase{DoBuild: DoBuildMayBeLikeData},
-}
-var builderQuickMap = map[string]algo.IBuilder{
-	"quick":&algo.BuilderBase{DoBuild: DoBuildData},
+	"quick":     &algo.BuilderBase{DoBuild: DoBuildData},
 }
 var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
@@ -44,7 +42,7 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 var algosQuickMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "mods_1.0.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeatures },
-	&algo.AlgoBase{AlgoName: "model_theme_quick", FilePath: workDir + "mods_quick_2.1.dumps.gz",
+	&algo.AlgoBase{AlgoName: "model_quick_v1.0", FilePath: workDir + "mods_quick_2.1.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeQuickFeatures },
 })
 
@@ -96,7 +94,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "theme.quick", Module: "theme", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_quick", AlgoMap: algosQuickMap,
-	BuilderKey: "build", BuilderDefault: "quick", BuilderMap: builderQuickMap,
+	BuilderKey: "build", BuilderDefault: "quick", BuilderMap: builderMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
