@@ -40,7 +40,7 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeaturesv0 },
 })
 var algosQuickMap = algo.AlgoListInitToMap([]algo.IAlgo{
-	&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "mods_1.0.dumps.gz",
+	&algo.AlgoBase{AlgoName: "model_quick", FilePath: workDir + "mods_1.0.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeatures },
 	&algo.AlgoBase{AlgoName: "model_quick_v1.0", FilePath: workDir + "mods_quick_2.1.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeQuickFeatures },
