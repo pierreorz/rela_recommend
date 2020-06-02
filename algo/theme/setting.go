@@ -10,9 +10,12 @@ var appName = "theme"
 var workDir = algo.GetWorkDir("/algo_files/theme/")
 
 var builderMap = map[string]algo.IBuilder{
-	"base": &algo.BuilderBase{DoBuild: DoBuildData},
+	"base":      &algo.BuilderBase{DoBuild: DoBuildData},
 	"maybelike": &algo.BuilderBase{DoBuild: DoBuildMayBeLikeData},
-	"quick":&algo.BuilderBase{DoBuild: DoBuildData}}
+}
+var builderQuickMap = map[string]algo.IBuilder{
+	"quick":&algo.BuilderBase{DoBuild: DoBuildData},
+}
 var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{}}
@@ -93,7 +96,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "theme.quick", Module: "theme", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_quick", AlgoMap: algosQuickMap,
-	BuilderKey: "build", BuilderDefault: "quick", BuilderMap: builderMap,
+	BuilderKey: "build", BuilderDefault: "quick", BuilderMap: builderQuickMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
