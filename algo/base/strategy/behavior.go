@@ -12,6 +12,8 @@ import (
 type BaseBehaviorRichStrategy struct {
 	ctx					algo.IContext
 	cacheModule				*behavior.BehaviorCacheModule
+
+	DefaultWeight			int
 	UserBehaviorMap			map[int64]*behavior.UserBehavior
 	ItemBehaviorMap			map[int64]*behavior.UserBehavior
 
@@ -20,6 +22,10 @@ type BaseBehaviorRichStrategy struct {
 
 	ItemStrategyFunc		func(algo.IContext, map[int64]*behavior.UserBehavior) error
 	ItemStrategyItemFunc	func(algo.IContext, algo.IDataInfo, *behavior.UserBehavior, *algo.RankInfo) error
+}
+
+func (self *BaseBehaviorRichStrategy) GetDefaultWeight() int {
+	return self.DefaultWeight
 }
 
 func (self *BaseBehaviorRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {

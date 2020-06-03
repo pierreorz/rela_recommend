@@ -60,17 +60,35 @@ type RecommendLog struct {
 
 // 请求参数
 type RecommendRequest struct {
-	App		string 				`json:"app" form:"app"`
-	Type	string				`json:"type" form:"type"`	// 是推荐/热门/
-	Limit   int64  				`json:"limit" form:"limit"`
-	Offset  int64  				`json:"offset" form:"offset"`
-	Ua      string 				`json:"ua" form:"ua"`
-	Lat		float32 			`json:"lat" form:"lat"`
-	Lng		float32 			`json:"lng" form:"lng"`
-	UserId  int64  				`json:"userId" form:"userId"`
-	DataIds []int64				`json:"dataIds" form:"dataIds"`
-	AbMap	map[string]string	`json:"abMap" form:"abMap"`
-	Params	map[string]string	`json:"params" form:"params"`
+	App				string 				`json:"app" form:"app"`
+	Type			string				`json:"type" form:"type"`	// 是推荐/热门/
+	Limit   		int64  				`json:"limit" form:"limit"`
+	Offset  		int64  				`json:"offset" form:"offset"`
+	Ua      		string 				`json:"ua" form:"ua"`
+	MobileOS      	string  			`json:"mobileOS" form:"mobileOS"`
+	ClientVersion 	int     			`json:"clientVersion" form:"clientVersion"`
+	Lat				float32 			`json:"lat" form:"lat"`
+	Lng				float32 			`json:"lng" form:"lng"`
+	UserId  		int64  				`json:"userId" form:"userId"`
+	DataIds 		[]int64				`json:"dataIds" form:"dataIds"`
+	AbMap			map[string]string	`json:"abMap" form:"abMap"`
+	Params			map[string]string	`json:"params" form:"params"`
+}
+
+func(self *RecommendRequest) GetOS() string {
+	if os := rutils.GetPlatformName(self.MobileOS); os == "other" || os == "" {
+		return rutils.GetPlatformName(self.Ua)
+	} else {
+		return os
+	}
+}
+
+func(self *RecommendRequest) GetVersion() int {
+	if self.ClientVersion > 0 {
+		return self.ClientVersion
+	} else {
+		return 0		// TODO version
+	}
 }
 
 type RecommendResponseItem struct {

@@ -173,6 +173,7 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 
 type IRichStrategy interface {
 	New(ctx IContext) IRichStrategy
+	GetDefaultWeight() int
 	BuildData() error		// 加载数据
 	Strategy() error		// 执行策略
 	Logger() error			// 记录结果

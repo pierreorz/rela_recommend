@@ -8,6 +8,8 @@ import (
 type BaseRichStrategy struct {
 	ctx algo.IContext
 
+	DefaultWeight 	int
+
 	BuildDataFunc func(algo.IContext) error
 
 	StrategyFunc     func(algo.IContext) error
@@ -27,6 +29,11 @@ func (self *BaseRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {
 		LoggerItemFunc:   self.LoggerItemFunc,
 	}
 }
+
+func (self *BaseRichStrategy) GetDefaultWeight() int {
+	return self.DefaultWeight
+}
+
 func (self *BaseRichStrategy) BuildData() error {
 	if self.BuildDataFunc != nil {
 		return self.BuildDataFunc(self.ctx)

@@ -12,8 +12,12 @@ type PagedRichStrategy struct {
 	ctx				algo.IContext
 	pageIdsMap		map[int64]int
 	cacheModule		*redis.CachePikaModule
+	DefaultWeight	int
 }
 
+func (self *PagedRichStrategy) GetDefaultWeight() int {
+	return self.DefaultWeight
+}
 func (self *PagedRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {
 	return &PagedRichStrategy{
 		ctx: ctx, 
