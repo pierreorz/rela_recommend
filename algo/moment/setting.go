@@ -16,6 +16,8 @@ var builderMap = map[string]algo.IBuilder{
 var strategyMap = map[string]algo.IStrategy{
 	"time_level": &algo.StrategyBase{ DoSingle: DoTimeLevel },
 	"time_weight": &algo.StrategyBase{ DoSingle: DoTimeWeightLevel },
+	"new_user": &algo.StrategyBase{ DoSingle: AroundNewUserAddWeightFunc },
+
 }
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{},
@@ -49,6 +51,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	&algo.AlgoBase{AlgoName: "model_embedding", FilePath: workDir + "mods_2.0.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
 	&algo.AlgoBase{AlgoName: "model_momemb", FilePath: workDir + "mods_2.2.dumps.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
+	&algo.AlgoBase{AlgoName: "model_momemb_v1", FilePath: workDir + "mods_xg_3.1.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
 })
 
