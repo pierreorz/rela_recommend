@@ -31,3 +31,4 @@ addresses="127.0.0.1"
 [rpc]
 search_rpc_addr = "http://127.0.0.1"
 api_rpc_addr = "http://127.0.0.1"
+ai_search_rpc_addr = "http://relasearch:3100"

@@ -99,7 +99,7 @@ func CallAdList(app string, request *algo.RecommendRequest, user *redis.UserProf
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchADRes{}
-		if err = factory.SearchRpcClient.SendPOSTJson(internalSearchAdListUrl, paramsData, searchRes); err == nil {
+		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchAdListUrl, paramsData, searchRes); err == nil {
 			return searchRes.Data, err
 		} else {
 			return nil, err
