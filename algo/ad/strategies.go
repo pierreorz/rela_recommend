@@ -3,6 +3,7 @@ package ad
 import (
 	"math"
 	"rela_recommend/algo"
+	rutils "rela_recommend/utils"
 )
 // 内容较短，包含关键词的内容沉底
 func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
@@ -27,5 +28,17 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 	var weightRate float64 = 1.0 + float64(sd.Weight) / 100.0
 
 	rankInfo.Score = float32(priceRate * cntRate * clickRate * weightRate)
+	return nil
+}
+
+
+// 测试用户查看测试内容时置顶
+func TestUserTopStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	request := ctx.GetRequest()
+	dataInfo := iDataInfo.(*DataInfo)
+	sd := dataInfo.SearchData
+	if sd.Status == 1 && rutils.NewSetInt64FromArray(sd.TestUsers).Contains(request.UserId) {
+		rankInfo.IsTop = 1
+	}
 	return nil
 }
