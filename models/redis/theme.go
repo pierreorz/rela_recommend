@@ -43,6 +43,7 @@ type ThemeUserProfile struct {
 type ThemeProfile struct {
 	ThemeID int64	`json:"theme_id"`
 	ThemeEmbedding []float32 `json:"theme_embedding"`
+	ThemeCateg []float32 `json:"theme_categ_embedding"`
 }
 
 // 获取总列表曝光

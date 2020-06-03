@@ -29,32 +29,33 @@ func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *a
 	currMatch := dataInfo.MatchProfile
 
 	if currMatch != nil {
-		hasCover := currMatch.ImageMap["has_cover"]
-		coverHasFace := currMatch.ImageMap["cover_has_face"]
+		hasCover := currMatch.ImageMap["has_cover"] == 1
+		coverHasFace := currMatch.ImageMap["cover_has_face"] == 1
 		countImageWall := currMatch.ImageMap["imagewall_count"]
-		wallHasFace := currMatch.ImageMap["imagewall_has_face"]
-		headHasFace := currMatch.ImageMap["head_has_face"]
+		wallHasFace := currMatch.ImageMap["imagewall_has_face"] == 1
+		headHasFace := currMatch.ImageMap["head_has_face"] == 1
 
 		upperRate := ctx.GetAbTest().GetFloat("match_face_upper", 0)
 
-		coverFace := coverHasFace == 1 && hasCover == 1
-		wallFace := wallHasFace == 1 && countImageWall > 0
-		headFace := headHasFace == 1
-
 		//是否有脸
 		hasFace := false
-		//封面是否有脸
-		if coverFace {
-			hasFace = true
-		} else {
-			//无封面照片，照片墙是否有脸
-			if wallFace {
+
+		// 是否有封面
+		if hasCover {
+			// 封面是否有脸
+			if coverHasFace {
 				hasFace = true
-			} else {
-				//无照片墙照片，头像是否有脸
-				if headFace {
-					hasFace = true
-				}
+			}
+			// 是否有照片墙
+		} else if countImageWall > 0 {
+			// 照片墙是否有脸
+			if wallHasFace {
+				hasFace = true
+			}
+		} else {
+			// 头像是否有脸
+			if headHasFace {
+				hasFace = true
 			}
 		}
 		if hasFace {
