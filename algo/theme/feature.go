@@ -137,3 +137,77 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	return fs
 
 }
+
+func GetThemeQuickFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)*utils.Features {
+	fs := &utils.Features{}
+
+	data := idata.(*DataInfo)
+	mem := data.MomentCache
+	wordVec := model.GetWords()
+	memu := data.UserCache
+	memex := data.MomentExtendCache
+	if (memu != nil) {
+		fs.Add(1, float32(memu.Age))
+		fs.Add(2, float32(memu.Height))
+		fs.Add(3, float32(memu.Weight))
+		fs.Add(5, float32(memex.AndroidFlag))
+	}
+	if ctx.GetUserInfo() != nil {
+		userData := ctx.GetUserInfo().(*UserInfo)
+		reqUser := userData.UserCache
+		if (reqUser != nil) {
+			fs.Add(10, float32(reqUser.Age))
+			fs.Add(11, float32(reqUser.Height))
+			fs.Add(12, float32(reqUser.Weight))
+		}
+		if (userData.ThemeUser != nil) {
+			UserAls := userData.ThemeUser
+			userCateg_line := UserAls.UserCateg
+			if len(userCateg_line) > 0 {
+				fs.AddArray(50, 14, userCateg_line)
+			}
+		}
+	}
+	//词向量 600-699
+	wordsCount := len(mem.MomentsText)
+	if wordsCount > 0 {
+		words := factory.Segmenter.Cut(mem.MomentsText)
+		wordNum := make(map[int]float32)
+		count := 0
+		for i := 0; i < len(words); i++ {
+			if dictValue, ok := wordVec[words[i]]; ok {
+				count += 1
+				for j, num := range dictValue {
+					if _, value := wordNum[j]; value {
+						wordNum[j] += num
+					} else {
+						wordNum[j] = num
+					}
+				}
+			}
+		}
+		if count>0 {
+			for k := 0; k < 100; k++ {
+				fs.Add(k+600, wordNum[k]/float32(count))
+			}
+		}
+	}
+
+
+	//话题标签
+	if (data.ThemeProfile != nil) {
+		ThemeAls := data.ThemeProfile
+		themecateg_line := ThemeAls.ThemeCateg
+		if len(themecateg_line) > 0 {
+			fs.AddArray(70, 14, themecateg_line)
+		}
+	}
+	//图片
+	imageUrl := mem.ImageUrl
+	if len(imageUrl) > 0 {
+		fs.Add(8, float32(1.0))
+	}else {
+		fs.Add(8, float32(0.0))
+	}
+	return fs
+}

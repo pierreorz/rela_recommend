@@ -10,8 +10,10 @@ var appName = "theme"
 var workDir = algo.GetWorkDir("/algo_files/theme/")
 
 var builderMap = map[string]algo.IBuilder{
-	"base": &algo.BuilderBase{DoBuild: DoBuildData},
-	"maybelike": &algo.BuilderBase{DoBuild: DoBuildMayBeLikeData}}
+	"base":      &algo.BuilderBase{DoBuild: DoBuildData},
+	"maybelike": &algo.BuilderBase{DoBuild: DoBuildMayBeLikeData},
+	"quick":     &algo.BuilderBase{DoBuild: DoBuildData},
+}
 var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{}}
@@ -36,6 +38,12 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeaturesv0 },
 	&algo.AlgoBase{AlgoName: "model_theme_v2.1", FilePath: workDir + "mods_2.1.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeaturesv0 },
+})
+var algosQuickMap = algo.AlgoListInitToMap([]algo.IAlgo{
+	&algo.AlgoBase{AlgoName: "model_quick", FilePath: workDir + "mods_1.0.dumps.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeFeatures },
+	&algo.AlgoBase{AlgoName: "model_quick_v1.0", FilePath: workDir + "mods_quick_2.1.dumps.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetThemeQuickFeatures },
 })
 
 // 话题推荐列表
@@ -80,4 +88,15 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
 	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+// 话题快捷列表
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "theme.quick", Module: "theme", Path: workDir,
+	AlgoKey: "new_model", AlgoDefault: "model_quick", AlgoMap: algosQuickMap,
+	BuilderKey: "build", BuilderDefault: "quick", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
