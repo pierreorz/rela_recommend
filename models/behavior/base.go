@@ -113,11 +113,13 @@ type DataBehaviorScore struct {
 	Score  float64 `json:"score"`  // 得分
 }
 
-type DataBehaviorTopList []DataBehaviorScore // 热门列表
+type DataBehaviorTopList struct {
+	Data []DataBehaviorScore `json:"data"` // 热门列表
+}
 
 func (self *DataBehaviorTopList) GetTopIds(n int) []int64 {
 	res := []int64{}
-	for i, topItem := range *self {
+	for i, topItem := range self.Data {
 		if i >= n {
 			break
 		}
@@ -129,7 +131,7 @@ func (self *DataBehaviorTopList) GetTopIds(n int) []int64 {
 func (self *BehaviorCacheModule) QueryDataBehaviorTop() (*DataBehaviorTopList, error) {
 	if self.ctx != nil {
 		app := self.ctx.GetAppInfo()
-		topDataKey := self.ctx.GetAbTest().GetString("behavior_data_top_key", "behavior:item:topids:%s")
+		topDataKey := self.ctx.GetAbTest().GetString("behavior_data_top_key", "behavior:item:%s:top")
 		keyFormatter := fmt.Sprintf(topDataKey, app.Module)
 		topList := &DataBehaviorTopList{}
 		err := self.GetStruct(keyFormatter, topList)
