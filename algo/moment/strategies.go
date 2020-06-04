@@ -40,6 +40,19 @@ func DoTimeFirstLevel(ctx algo.IContext, index int) error {
 	return nil
 }
 
+//附近日志新用户提权策略
+func AroundNewUserAddWeightFunc(ctx algo.IContext, index int) error{
+	abtest := ctx.GetAbTest()
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	if newUserDefine:=abtest.GetInt("new_user_define",0);newUserDefine>0{
+		hourInterval:=int(ctx.GetCreateTime().Sub(dataInfo.UserCache.CreateTime.Time).Hours())/24
+		if hourInterval<newUserDefine{
+			rankInfo.AddRecommend("newUserWeight",1.2)
+		}
+	}
+	return nil
+}
 
 
 // 按数据被访问行为进行策略提降权

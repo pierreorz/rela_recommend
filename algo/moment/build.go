@@ -108,6 +108,7 @@ func DoBuildData(ctx algo.IContext) error {
 	//获取user embedding
 
 	var startEmbeddingTime = time.Now()
+
 	momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr := userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId, userIds)
 	if embeddingCacheErr != nil {
 		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
@@ -143,7 +144,6 @@ func DoBuildData(ctx algo.IContext) error {
 					isTop = 1
 				}
 			}
-
 			// 处理推荐
 			var recommends = []algo.RecommendItem{}
 			if recMap != nil {
@@ -285,10 +285,8 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 	}
 
 	recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
-	dataIdList, err := momentCache.GetInt64List(params.DataIds[0], recListKeyFormatter)
-	if err!=nil{
-		return errors.New("rec detail dataidlist length must larger than 0")
-	}else{
+	dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], -999999999, recListKeyFormatter)
+	if err == nil {
 		SetData(dataIdList, ctx)
 	}
 	return err
@@ -302,7 +300,7 @@ func SetData(dataIdList []int64, ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	moms, err := momentCache.QueryMomentsByIds(dataIdList)
 	if err!=nil{
-		return errors.New("follow detail query dataIdlist length must larger than 0")
+		return errors.New("query mom err")
 	}
 	userIds := make([]int64, 0)
 	for _, mom := range moms {
