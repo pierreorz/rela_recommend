@@ -8,15 +8,15 @@ import (
 
 // 用户信息
 type UserInfo struct {
-	UserId 			int64
-	UserCache 		*redis.UserProfile
+	UserId    int64
+	UserCache *redis.UserProfile
 }
 
 // 被推荐用户信息
 type DataInfo struct {
-	DataId 			int64
-	SearchData 		*search.SearchADResDataItem
-	RankInfo		*algo.RankInfo
+	DataId     int64
+	SearchData *search.SearchADResDataItem
+	RankInfo   *algo.RankInfo
 }
 
 func (self *DataInfo) GetDataId() int64 {
@@ -26,46 +26,46 @@ func (self *DataInfo) GetDataId() int64 {
 func (self *DataInfo) GetResponseData() interface{} {
 	sData := self.SearchData
 	return RecommendResponseADItemData{
-		Id: sData.Id,
-		Title: sData.Title,
-		Source: sData.AdvertSource,
+		Id:        sData.Id,
+		Title:     sData.Title,
+		Source:    sData.AdvertSource,
 		MediaType: sData.MediaType,
-		MediaUrl: sData.MediaUrl,
+		MediaUrl:  sData.MediaUrl,
 		DumpInfo: RecommendResponseADJump{
-			DumpType: sData.DumpType,
-			Path: sData.Path,
+			DumpType:  sData.DumpType,
+			Path:      sData.Path,
 			ParamInfo: sData.ParamInfo,
 		},
-		ShowTag: sData.ShowTag,
-		StartTime: sData.StartTime,
-		EndTime: sData.EndTime,
+		AdwordsInfo: sData.AdwordsInfo,
+		ShowTag:     sData.ShowTag,
+		StartTime:   sData.StartTime,
+		EndTime:     sData.EndTime,
 	}
 }
 
-func(self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {
+func (self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {
 	self.RankInfo = rankInfo
 }
 
-func(self *DataInfo) GetRankInfo() *algo.RankInfo {
+func (self *DataInfo) GetRankInfo() *algo.RankInfo {
 	return self.RankInfo
 }
 
 type RecommendResponseADItemData struct {
-    Id 				int64    `json:"id" form:"id"`
-    Title 			string    `json:"title" form:"title"`
-    Source 			string    `json:"source" form:"source"`      // 广告来源：own/chuanshanjia/qq/houyan/douniu/partner
-    MediaType   	string     `json:"mediaType" form:"mediaType"`    // 媒体类型 : image
-    MediaUrl 		string    `json:"imageUrl" form:"imageUrl"`
-    DumpInfo   RecommendResponseADJump     `json:"dumpInfo" form:"dumpInfo"`
-    ShowTag   		int    `json:"showTag" form:"showTag"`       // 是否展示广告标签 0 不展示，1展示
-    StartTime   	int64    `json:"shartTime" form:"shartTime"`    // 时间戳秒
-    EndTime   		int64    `json:"endTime" form:"endTime"`   // 时间戳秒
+	Id          int64                   `json:"id" form:"id"`
+	Title       string                  `json:"title" form:"title"`
+	Source      string                  `json:"source" form:"source"`       // 广告来源：own/chuanshanjia/qq/houyan/douniu/partner
+	MediaType   string                  `json:"mediaType" form:"mediaType"` // 媒体类型 : image
+	MediaUrl    string                  `json:"imageUrl" form:"imageUrl"`
+	DumpInfo    RecommendResponseADJump `json:"dumpInfo" form:"dumpInfo"`
+	AdwordsInfo string                  `json:"adwordsInfo" form:"adwordsInfo"` //广告商配置
+	ShowTag     int                     `json:"showTag" form:"showTag"`         // 是否展示广告标签 0 不展示，1展示
+	StartTime   int64                   `json:"shartTime" form:"shartTime"`     // 时间戳秒
+	EndTime     int64                   `json:"endTime" form:"endTime"`         // 时间戳秒
 }
-
 
 type RecommendResponseADJump struct {
-    DumpType string    	`json:"dumpType" form:"dumpType"`
-    Path string    		`json:"path" form:"path"`
-    ParamInfo string    `json:"paramInfo" form:"paramInfo"`
+	DumpType  string `json:"dumpType" form:"dumpType"`
+	Path      string `json:"path" form:"path"`
+	ParamInfo string `json:"paramInfo" form:"paramInfo"`
 }
-
