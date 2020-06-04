@@ -285,13 +285,9 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 	}
 
 	recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
-	if len(params.DataIds) > 0 {
-		dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], -999999999, recListKeyFormatter)
-		if err != nil {
-			return errors.New("rec detail dataidlist length must larger than 0")
-		} else {
-			SetData(dataIdList, ctx)
-		}
+	dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], -999999999, recListKeyFormatter)
+	if err == nil {
+		SetData(dataIdList, ctx)
 	}
 	return err
 }
@@ -304,7 +300,7 @@ func SetData(dataIdList []int64, ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	moms, err := momentCache.QueryMomentsByIds(dataIdList)
 	if err!=nil{
-		return errors.New("follow detail query dataIdlist length must larger than 0")
+		return errors.New("query mom err")
 	}
 	userIds := make([]int64, 0)
 	for _, mom := range moms {
