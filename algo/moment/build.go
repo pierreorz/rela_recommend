@@ -285,11 +285,13 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 	}
 
 	recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
-	dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0],  -999999999, recListKeyFormatter)
-	if err!=nil{
-		return errors.New("rec detail dataidlist length must larger than 0")
-	}else{
-		SetData(dataIdList, ctx)
+	if len(params.DataIds) > 0 {
+		dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], -999999999, recListKeyFormatter)
+		if err != nil {
+			return errors.New("rec detail dataidlist length must larger than 0")
+		} else {
+			SetData(dataIdList, ctx)
+		}
 	}
 	return err
 }
