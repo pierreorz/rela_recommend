@@ -218,6 +218,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 		MomentUserProfile: momentUserEmbedding,}
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
+		log.Infof("日志文本数据 ，%s\n",mom.Moments.MomentsText)
 		if mom.Moments.ShareTo != "all" {
 			continue
 		}
