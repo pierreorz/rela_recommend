@@ -23,7 +23,8 @@ func (self *DataInfo) GetDataId() int64 {
 	return self.DataId
 }
 
-func (self *DataInfo) GetResponseData() interface{} {
+func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
+	os := ctx.GetRequest().GetOS()
 	sData := self.SearchData
 	return RecommendResponseADItemData{
 		Id:        sData.Id,
@@ -36,7 +37,7 @@ func (self *DataInfo) GetResponseData() interface{} {
 			Path:      sData.Path,
 			ParamInfo: sData.ParamInfo,
 		},
-		AdwordsInfo: sData.AdwordsInfo,
+		AdwordsInfo: sData.GetPlatformAdwordsInfo(os),
 		ShowTag:     sData.ShowTag,
 		StartTime:   sData.StartTime,
 		EndTime:     sData.EndTime,
