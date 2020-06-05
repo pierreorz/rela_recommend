@@ -1,6 +1,7 @@
 package match
 
 import (
+	"fmt"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/log"
@@ -33,7 +34,9 @@ func DoBuildData(ctx algo.IContext) error {
 			if topMapKeyFormatter != 0 {
 				// 判断推荐集长度
 				if len(recIdlist) > 1 {
+					fmt.Println(recIdlist)
 					topMap.Append(recIdlist[0])
+					fmt.Println(topMap)
 					recMap.AppendArray(recIdlist[1:])
 				} else {
 					topMap.AppendArray(recIdlist)
