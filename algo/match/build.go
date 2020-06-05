@@ -36,10 +36,11 @@ func DoBuildData(ctx algo.IContext) error {
 				if len(recIdlist) > 1 {
 					fmt.Println(recIdlist[0])
 					topMap.Append(recIdlist[0])
-					fmt.Println(topMap)
 					recMap.AppendArray(recIdlist[1:])
+					recIdlist = recIdlist[1:]
 				} else {
 					topMap.AppendArray(recIdlist)
+					recIdlist = recIdlist[1:]
 				}
 			} else {
 				recMap.AppendArray(recIdlist)
