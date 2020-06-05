@@ -24,11 +24,23 @@ func DoBuildData(ctx algo.IContext) error {
 		log.Warnf("user list is nil or empty!")
 	}
 	recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
-	var recMap = utils.SetInt64{}
+	var topMap, recMap = utils.SetInt64{}, utils.SetInt64{}
 	if len(recListKeyFormatter) > 5 {
 		recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
 		if errRedis == nil {
-			recMap.AppendArray(recIdlist)
+			// 推荐集高分用户置顶ab开关
+			topMapKeyFormatter := abtest.GetFloat("match_recommend_top", 0)
+			if topMapKeyFormatter != 0 {
+				// 判断推荐集长度
+				if len(recIdlist) > 1 {
+					topMap.Append(recIdlist[0])
+					recMap.AppendArray(recIdlist[1:])
+				} else {
+					topMap.AppendArray(recIdlist)
+				}
+			} else {
+				recMap.AppendArray(recIdlist)
+			}
 			dataIds = utils.NewSetInt64FromArrays(dataIds, recIdlist).ToList()
 		} else {
 			log.Warnf("user recommend list is nil or empty!")
@@ -61,6 +73,14 @@ func DoBuildData(ctx algo.IContext) error {
 	dataList := make([]algo.IDataInfo, 0)
 
 	for dataId, data := range usersMap {
+
+		// 推荐集最高分数用户置顶
+		var isTop = 0
+		if topMap.Contains(data.UserId) {
+			isTop = 1
+		}
+
+		// 推荐集加权
 		var recommends = []algo.RecommendItem{}
 		if recMap.Contains(data.UserId) {
 			recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
@@ -70,7 +90,7 @@ func DoBuildData(ctx algo.IContext) error {
 			DataId:       dataId,
 			UserCache:    data,
 			MatchProfile: matchUserMap[dataId],
-			RankInfo:     &algo.RankInfo{Recommends: recommends},
+			RankInfo:     &algo.RankInfo{IsTop: isTop, Recommends: recommends},
 		}
 		dataList = append(dataList, info)
 	}
