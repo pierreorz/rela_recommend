@@ -5,6 +5,7 @@ import (
 	"rela_recommend/models/behavior"
 	"rela_recommend/algo/base/strategy"
 	"math"
+	"rela_recommend/utils"
 )
 
 // 按照6小时优先策略
@@ -31,6 +32,18 @@ func DoTimeWeightLevel(ctx algo.IContext, index int) error{
 	}
 	return nil
 }
+
+//标签日志提权
+func MomLabelAddWeight(ctx algo.IContext, index int) error{
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	if utils.IfLabel(dataInfo.MomentCache.MomentsText){
+		rankInfo.AddRecommend("labelMomWeight",1.2)
+	}
+	return nil
+}
+
+
 
 // 按照秒级时间优先策略
 func DoTimeFirstLevel(ctx algo.IContext, index int) error {

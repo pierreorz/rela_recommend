@@ -125,6 +125,9 @@ func DoBuildData(ctx algo.IContext) error {
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
 		// 后期搜索完善此条件去除
+		if utils.IfLabel(mom.Moments.MomentsText){
+			log.Infof("日志文本内容为，%s\n",mom.Moments.MomentsText)
+		}
 		if mom.Moments.ShareTo != "all" {
 			continue
 		}
@@ -218,7 +221,6 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 		MomentUserProfile: momentUserEmbedding,}
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
-		log.Infof("日志文本数据 ，%s\n",mom.Moments.MomentsText)
 		if mom.Moments.ShareTo != "all" {
 			continue
 		}

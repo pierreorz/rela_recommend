@@ -513,6 +513,12 @@ func CoalesceString(strs ...string) string {
 	return ""
 }
 
+//判断文本是否有标签
+func IfLabel(context string) bool{
+	result,_:=regexp.MatchString("#+.*#+",context)
+	return result
+}
+
 func IfElse(b bool, trueValue float64, falseValue float64) float64 {
 	if b {
 		return trueValue
