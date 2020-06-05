@@ -34,7 +34,7 @@ func DoBuildData(ctx algo.IContext) error {
 			if topMapKeyFormatter != 0 {
 				// 判断推荐集长度
 				if len(recIdlist) > 1 {
-					fmt.Println(recIdlist)
+					fmt.Println(recIdlist[0])
 					topMap.Append(recIdlist[0])
 					fmt.Println(topMap)
 					recMap.AppendArray(recIdlist[1:])
