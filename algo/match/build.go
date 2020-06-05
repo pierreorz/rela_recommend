@@ -35,12 +35,11 @@ func DoBuildData(ctx algo.IContext) error {
 				// 判断推荐集长度
 				if len(recIdlist) > 1 {
 					fmt.Println(recIdlist[0])
+					fmt.Println(recIdlist)
 					topMap.Append(recIdlist[0])
 					recMap.AppendArray(recIdlist[1:])
-					recIdlist = recIdlist[1:]
 				} else {
 					topMap.AppendArray(recIdlist)
-					recIdlist = recIdlist[1:]
 				}
 			} else {
 				recMap.AppendArray(recIdlist)
@@ -49,6 +48,7 @@ func DoBuildData(ctx algo.IContext) error {
 		} else {
 			log.Warnf("user recommend list is nil or empty!")
 		}
+		recIdlist = recIdlist[1:]
 	}
 
 	// 获取用户信息
