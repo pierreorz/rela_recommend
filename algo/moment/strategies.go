@@ -32,6 +32,19 @@ func DoTimeWeightLevel(ctx algo.IContext, index int) error{
 	return nil
 }
 
+//标签日志提权
+func MomLabelAddWeight(ctx algo.IContext, index int) error{
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	labelScore := ctx.GetAbTest().GetFloat("label_score", 1.2)
+	if dataInfo.MomentCache.MomentsExt.TagList!=""{
+		rankInfo.AddRecommend("labelMomWeight",labelScore)
+	}
+	return nil
+}
+
+
+
 // 按照秒级时间优先策略
 func DoTimeFirstLevel(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)

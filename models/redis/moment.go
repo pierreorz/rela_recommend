@@ -39,10 +39,11 @@ type Moments struct {
 	/** 版本号 目前没有什么用  **/
 	//Version int `gorm:"column:version" json:"version,omitempty"`
 	/** 额外信息  **/
-	Ext string `gorm:"column:ext" json:"-"`
+	Ext string `gorm:"column:-" json:"-,omitempty"`
 	/** 额外信息  **/
-	MomentsExt MomentsExt `gorm:"column:-" json:"-,omitempty"`
+	MomentsExt MomentsExt `gorm:"column:ext" json:"ext,omitempty"`
 }
+
 
 type MomentsExt struct {
 	ThemeClass      string `json:"themeClass,omitempty"`
@@ -55,6 +56,11 @@ type MomentsExt struct {
 	VideoType       string `json:"videoType,omitempty"`    // 4.7.3视频新增类型 PGC 官方 UGC 个人
 	IsCoverImage    bool   `json:"isCoverImage,omitempty"` // 4.9.1封面图
 	IsLandscape     int    `json:"isLandscape,omitempty"`  // 横屏
+	SyncMainPage    bool   `json:"syncMainPage,omitempty"`  //是否同步到主页
+	AtUserList      string `json:"atUserList,omitempty"`    //提及用户列表
+	TagList         string `json:"tagList,omitempty"`    //标签组
+	IsFive          int    `json:"isFive,omitempty"`     //5.0版本此值为1
+	Reason          string `json:"reason,omitempty"`     //推荐网页的理由
 }
 
 type MomentsExtend struct {
