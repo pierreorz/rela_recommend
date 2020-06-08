@@ -5,8 +5,8 @@ import (
 )
 
 type Behavior struct {
-	Count			float64		`json:"count"`
-	LastTime		float64		`json:"last_time"`
+	Count    float64 `json:"count"`
+	LastTime float64 `json:"last_time"`
 }
 
 // 合并行为
