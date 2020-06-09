@@ -1,14 +1,14 @@
 package base
 
 import (
-	"fmt"
 	"errors"
-	"strings"
-	"rela_recommend/log"
+	"fmt"
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"rela_recommend/utils"
 	"rela_recommend/utils/request"
 	"rela_recommend/utils/routers"
+	"strings"
 )
 
 // 通过处理请求参数灵活处理所有算法
