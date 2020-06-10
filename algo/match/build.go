@@ -61,6 +61,8 @@ func DoBuildData(ctx algo.IContext) error {
 	dataList := make([]algo.IDataInfo, 0)
 
 	for dataId, data := range usersMap {
+
+		// 推荐集加权
 		var recommends = []algo.RecommendItem{}
 		if recMap.Contains(data.UserId) {
 			recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
