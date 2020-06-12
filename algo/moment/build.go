@@ -1,15 +1,15 @@
 package moment
 
 import (
-	"time"
-	"rela_recommend/algo"
-	"rela_recommend/log"
-	"rela_recommend/factory"
-	"rela_recommend/rpc/search"
-	"rela_recommend/rpc/api"
-	"rela_recommend/models/redis"
-	"rela_recommend/utils"
 	"errors"
+	"rela_recommend/algo"
+	"rela_recommend/factory"
+	"rela_recommend/log"
+	"rela_recommend/models/redis"
+	"rela_recommend/rpc/api"
+	"rela_recommend/rpc/search"
+	"rela_recommend/utils"
+	"time"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -33,10 +33,10 @@ func DoBuildData(ctx algo.IContext) error {
 
 		// 获取最新日志
 		newMomentLen := abtest.GetInt("new_moment_len", 1000)
-		if len(recIdList) == 0 {
-			newMomentLen = 1000
-			log.Warnf("recommend list is none, using new, pls check!\n")
-		}
+		// if len(recIdList) == 0 {
+		// 	newMomentLen = 1000
+		// 	log.Warnf("recommend list is none, using new, pls check!\n")
+		// }
 		if newMomentLen > 0 {
 			momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 			radiusArray := abtest.GetStrings("radius_range", "50km")
@@ -186,7 +186,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
 	dataIdList, err := momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
-	if dataIdList==nil||err!=nil{
+	if dataIdList == nil || err != nil {
 		ctx.SetUserInfo(nil)
 		ctx.SetDataIds(dataIdList)
 		ctx.SetDataList(make([]algo.IDataInfo, 0))
@@ -215,7 +215,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	userInfo := &UserInfo{UserId: params.UserId,
 		UserCache: user,
 		//MomentProfile: momentUser,
-		MomentUserProfile: momentUserEmbedding,}
+		MomentUserProfile: momentUserEmbedding}
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
 		if mom.Moments.ShareTo != "all" {
@@ -261,14 +261,14 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 
 	recListKeyFormatter := abtest.GetString("friend_detail_before_list_key", "moment.friend_before_moment:%d")
 	momIds, err := momentCache.QueryMomentsByIds(params.DataIds)
-	if err!=nil{
+	if err != nil {
 		return errors.New("follow detail moms data not exists")
 	}
-	dataIdList:=make([]int64, 0)
-	if len(momIds)>0{
+	dataIdList := make([]int64, 0)
+	if len(momIds) > 0 {
 		dataIdList, _ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
 		SetData(dataIdList, ctx)
-	}else{
+	} else {
 		SetData(dataIdList, ctx)
 	}
 	return err
@@ -299,7 +299,7 @@ func SetData(dataIdList []int64, ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	moms, err := momentCache.QueryMomentsByIds(dataIdList)
-	if err!=nil{
+	if err != nil {
 		return errors.New("query mom err")
 	}
 	userIds := make([]int64, 0)
