@@ -13,47 +13,45 @@ import (
 const internalSearchAdListUrl = "/search/ads"
 
 type SearchADResDataItem struct {
-	Id               int64                  `json:"id"`
-	Title            string                 `json:"title"`
-	Location         string                 `json:"location"`
-	Version          string                 `json:"version"`
-	DisplayType      string                 `json:"display_type"`
-	TestUsers        []int64                `json:"test_users"`
-	AppSource        string                 `json:"app_source"`
-	AdvertSource     string                 `json:"advert_source"`
-	Weight           int                    `json:"weight"`
-	Exposure         int                    `json:"exposure"`
-	Cpm              int                    `json:"cpm"`
-	ShowTag          int                    `json:"show_tag"`
-	MediaType        string                 `json:"media_type"`
-	MediaUrl         string                 `json:"media_url"`
-	DumpType         string                 `json:"dump_type"`
-	Path             string                 `json:"path"`
-	ParamInfo        string                 `json:"param_info"`
-	AdwordsInfo      map[string]interface{} `json:"adwords_info" form:"adwords_info"`
-	Status           int                    `json:"status"`
-	StartTime        int64                  `json:"start_time"`
-	EndTime          int64                  `json:"end_time"`
-	CreateTime       int64                  `json:"create_time"`
-	UpdateTime       int64                  `json:"update_time"`
-	HistoryExposures int                    `json:"history_exposures"`
-	HistoryClicks    int                    `json:"history_clicks"`
-	HistoryFails     int                    `json:"history_fails"`
+	Id               int64   `json:"id"`
+	Title            string  `json:"title"`
+	Location         string  `json:"location"`
+	Version          string  `json:"version"`
+	DisplayType      string  `json:"display_type"`
+	TestUsers        []int64 `json:"test_users"`
+	AppSource        string  `json:"app_source"`
+	AdvertSource     string  `json:"advert_source"`
+	Weight           int     `json:"weight"`
+	Exposure         int     `json:"exposure"`
+	Cpm              int     `json:"cpm"`
+	ShowTag          int     `json:"show_tag"`
+	MediaType        string  `json:"media_type"`
+	MediaUrl         string  `json:"media_url"`
+	DumpType         string  `json:"dump_type"`
+	Path             string  `json:"path"`
+	ParamInfo        string  `json:"param_info"`
+	AdwordsInfo      string  `json:"adwords_info" form:"adwords_info"`
+	Status           int     `json:"status"`
+	StartTime        int64   `json:"start_time"`
+	EndTime          int64   `json:"end_time"`
+	CreateTime       int64   `json:"create_time"`
+	UpdateTime       int64   `json:"update_time"`
+	HistoryExposures int     `json:"history_exposures"`
+	HistoryClicks    int     `json:"history_clicks"`
+	HistoryFails     int     `json:"history_fails"`
 }
 
+// 获取分平台的配置
 func (self *SearchADResDataItem) GetPlatformAdwordsInfo(os string) string {
-	var res = self.AdwordsInfo
-	if val, ok := self.AdwordsInfo[os]; ok {
-		switch result := val.(type) {
-		case map[string]interface{}:
-			res = result
+	var adwordsInfo = map[string]interface{}{}
+	if json.Unmarshal([]byte(self.AdwordsInfo), &adwordsInfo) == nil {
+		if val, ok := adwordsInfo[os]; ok {
+			if str, err := json.Marshal(val); err == nil {
+				return string(str)
+			}
 		}
 	}
-	if str, err := json.Marshal(res); err == nil {
-		return string(str)
-	} else {
-		return ""
-	}
+	return self.AdwordsInfo
 }
 
 type searchADRes struct {
