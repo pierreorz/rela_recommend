@@ -16,7 +16,7 @@ type SearchADResDataItem struct {
 	Id               int64   `json:"id"`
 	Title            string  `json:"title"`
 	Location         string  `json:"location"`
-	Version          string  `json:"version"`
+	Version          int     `json:"version"`
 	DisplayType      string  `json:"display_type"`
 	TestUsers        []int64 `json:"test_users"`
 	AppSource        string  `json:"app_source"`
