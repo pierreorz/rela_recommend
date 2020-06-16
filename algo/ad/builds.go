@@ -2,9 +2,9 @@ package ad
 
 import (
 	"rela_recommend/algo"
-	"rela_recommend/rpc/search"
 	"rela_recommend/factory"
 	"rela_recommend/models/redis"
+	"rela_recommend/rpc/search"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -14,7 +14,7 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	// behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
-	
+
 	// 获取用户信息
 	pf.Begin("user")
 	user, _, userCacheErr := userCache.QueryByUserAndUsersMap(params.UserId, []int64{})
@@ -25,7 +25,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	// 获取search的广告列表
 	pf.Begin("search")
-	clientName := abtest.GetString("app_name", "rela")
+	clientName := abtest.GetString("backend_app_name", "1") // 1: rela 2: 饭角
 	searchResList, errSearch := search.CallAdList(clientName, params, user)
 	if errSearch != nil {
 
@@ -34,7 +34,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	pf.Begin("build")
 	userInfo := &UserInfo{
-		UserId: params.UserId,
+		UserId:    params.UserId,
 		UserCache: user,
 	}
 
@@ -43,9 +43,9 @@ func DoBuildData(ctx algo.IContext) error {
 	dataList := make([]algo.IDataInfo, 0)
 	for i, searchRes := range searchResList {
 		info := &DataInfo{
-			DataId: searchRes.Id,
+			DataId:     searchRes.Id,
 			SearchData: &searchResList[i],
-			RankInfo: &algo.RankInfo{},
+			RankInfo:   &algo.RankInfo{},
 		}
 		dataIds = append(dataIds, searchRes.Id)
 		dataList = append(dataList, info)
