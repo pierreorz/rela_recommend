@@ -93,13 +93,13 @@ func CallAdList(app string, request *algo.RecommendRequest, user *redis.UserProf
 		displayTypes = "1,3" // 不限制，会员不可见
 	}
 	filters := []string{
-		fmt.Sprintf("app_source:%s*location:%s", app, request.Type),       // base
-		fmt.Sprintf("{status:2|{status:1*TestUsers:%d}}", request.UserId), // user
-		fmt.Sprintf("start_time:[,%d]*end_time:[%d,]", now, now),          // time
-		fmt.Sprintf("{version:0|{version:[%d,]}}", request.ClientVersion), // version
-		fmt.Sprintf("{display_type:%s}", displayTypes),                    // display vip
-		fmt.Sprintf("can_exposure:true"),                                  // exposure cnt: search 端处理
-		fmt.Sprintf("{client_os:|client_os:%s}", request.GetOS()),         // exposure cnt
+		fmt.Sprintf("app_source:%s*location:%s", app, request.Type),        // base
+		fmt.Sprintf("{status:2|{status:1*test_users:%d}}", request.UserId), // user
+		fmt.Sprintf("start_time:[,%d]*end_time:[%d,]", now, now),           // time
+		fmt.Sprintf("{version:0|{version:[%d,]}}", request.ClientVersion),  // version
+		fmt.Sprintf("{display_type:%s}", displayTypes),                     // display vip
+		fmt.Sprintf("can_exposure:true"),                                   // exposure cnt: search 端处理
+		fmt.Sprintf("{client_os:|client_os:%s}", request.GetOS()),          // exposure cnt
 	}
 
 	params := searchRequest{
