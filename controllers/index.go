@@ -11,6 +11,7 @@ import (
 	_ "rela_recommend/algo/live"
 	_ "rela_recommend/algo/match"
 	_ "rela_recommend/algo/user"
+	_ "rela_recommend/algo/ad"
 )
 
 // curl 127.0.0.1:3200/rank/ -H "Content-Type: application/json" -d "{\"limit\":10,\"offset\":0,\"lat\":31.245714,\"lng\":121.486158,\"userId\":104708381,\"abMap\":{\"redis.json.thread.threshold\":\"100\"}}"

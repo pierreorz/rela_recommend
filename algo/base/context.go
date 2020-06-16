@@ -134,7 +134,7 @@ func (self *ContextBase) DoInit() error {
 	if self.App.RichStrategyMap != nil {
 		keyFormatter := uutils.CoalesceString(self.App.RichStrategyKeyFormatter, "rich_strategy:%s:weight")
 		for name, strategy := range self.App.RichStrategyMap {
-			if weight := self.AbTest.GetInt(fmt.Sprintf(keyFormatter, name), 0); weight > 0 {
+			if weight := self.AbTest.GetInt(fmt.Sprintf(keyFormatter, name), strategy.GetDefaultWeight()); weight > 0 {
 				self.richStrategies.Append(name, strategy.New(self), weight)
 			}
 		}

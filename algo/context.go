@@ -1,9 +1,9 @@
 package algo
 
 import (
-	"time"
 	"rela_recommend/service/abtest"
 	"rela_recommend/service/performs"
+	"time"
 )
 
 // ************************************************** 上下文
@@ -12,7 +12,7 @@ type IUserInfo interface {
 
 type IDataInfo interface {
 	GetDataId() int64
-	GetResponseData() interface{}
+	GetResponseData(IContext) interface{}
 	GetRankInfo() *RankInfo
 	SetRankInfo(*RankInfo)
 }

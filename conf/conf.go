@@ -49,6 +49,7 @@ type rpcConfig struct {
 	SearchRpcAddr	string	`toml:"search_rpc_addr"`
 	ApiRpcAddr		string	`toml:"api_rpc_addr"`
 	ChatRoomRpcAddr string	`toml:"chatroom_rpc_addr"`
+	AiSearchRpcAddr string 	`toml:"ai_search_rpc_addr"`
 }
 
 type Config struct {

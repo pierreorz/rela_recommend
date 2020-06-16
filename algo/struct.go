@@ -1,13 +1,12 @@
-
 package algo
 
 import (
-	"math"
-	"fmt"
-	"sort"
 	"bytes"
+	"fmt"
+	"math"
 	"rela_recommend/algo/utils"
 	rutils "rela_recommend/utils"
+	"sort"
 )
 
 type AppInfo struct {
@@ -15,98 +14,122 @@ type AppInfo struct {
 	Name string
 	// module, 属于某个模块
 	Module string
-	Path string
+	Path   string
 	// 算法的abtest key
-	AlgoKey string
+	AlgoKey     string
 	AlgoDefault string
-	AlgoMap map[string]IAlgo
+	AlgoMap     map[string]IAlgo
 	// 构造数据的abtest key
-	BuilderKey string
+	BuilderKey     string
 	BuilderDefault string
-	BuilderMap map[string]IBuilder
+	BuilderMap     map[string]IBuilder
 	// 排序的abtest key
-	SorterKey string
+	SorterKey     string
 	SorterDefault string
-	SorterMap map[string]ISorter
+	SorterMap     map[string]ISorter
 	// 分页的abtest key
-	PagerKey string
+	PagerKey     string
 	PagerDefault string
-	PagerMap map[string]IPager
+	PagerMap     map[string]IPager
 	// 策略的abtest key
 	StrategyKeyFormatter string
-	StrategyMap map[string]IStrategy
+	StrategyMap          map[string]IStrategy
 	// 日志的abtest key
 	LoggerKeyFormatter string
-	LoggerMap map[string]ILogger
+	LoggerMap          map[string]ILogger
 	// 富策略，同时包含加载数据/执行策略/记录内容
 	RichStrategyKeyFormatter string
-	RichStrategyMap map[string]IRichStrategy
+	RichStrategyMap          map[string]IRichStrategy
 }
 
 //********************************* 服务端日志
 type RecommendLog struct {
-	Module string
-	RankId string  
-	Index int64
-	UserId int64
-	DataId int64
-	Algo string
-	AlgoScore float32
-	Score float32
+	Module          string
+	RankId          string
+	Index           int64
+	UserId          int64
+	DataId          int64
+	Algo            string
+	AlgoScore       float32
+	Score           float32
 	RecommendScores string
-	Features string
-	AbMap string
+	Features        string
+	AbMap           string
 }
 
 // 请求参数
 type RecommendRequest struct {
-	App		string 				`json:"app" form:"app"`
-	Type	string				`json:"type" form:"type"`	// 是推荐/热门/
-	Limit   int64  				`json:"limit" form:"limit"`
-	Offset  int64  				`json:"offset" form:"offset"`
-	Ua      string 				`json:"ua" form:"ua"`
-	Lat		float32 			`json:"lat" form:"lat"`
-	Lng		float32 			`json:"lng" form:"lng"`
-	UserId  int64  				`json:"userId" form:"userId"`
-	DataIds []int64				`json:"dataIds" form:"dataIds"`
-	AbMap	map[string]string	`json:"abMap" form:"abMap"`
-	Params	map[string]string	`json:"params" form:"params"`
+	App           string            `json:"app" form:"app"`
+	Type          string            `json:"type" form:"type"` // 是推荐/热门/
+	Limit         int64             `json:"limit" form:"limit"`
+	Offset        int64             `json:"offset" form:"offset"`
+	Ua            string            `json:"ua" form:"ua"`
+	MobileOS      string            `json:"mobileOS" form:"mobileOS"`
+	ClientVersion int               `json:"clientVersion" form:"clientVersion"`
+	Lat           float32           `json:"lat" form:"lat"`
+	Lng           float32           `json:"lng" form:"lng"`
+	UserId        int64             `json:"userId" form:"userId"`
+	DataIds       []int64           `json:"dataIds" form:"dataIds"`
+	AbMap         map[string]string `json:"abMap" form:"abMap"`
+	Params        map[string]string `json:"params" form:"params"`
+
+	// 内部缓存变量
+	osName string
+}
+
+func (self *RecommendRequest) GetOS() string {
+	if self.osName == "" {
+		if os := rutils.GetPlatformName(self.MobileOS); os == "other" || os == "" {
+			self.osName = rutils.GetPlatformName(self.Ua)
+		} else {
+			self.osName = os
+		}
+	}
+	return self.osName
+}
+
+func (self *RecommendRequest) GetVersion() int {
+	if self.ClientVersion > 0 {
+		return self.ClientVersion
+	} else {
+		return 0 // TODO version
+	}
 }
 
 type RecommendResponseItem struct {
-	DataId 		int64		`json:"dataId" form:"dataId"`
-	Data		interface{}	`json:"data" form:"data"`
-	Index 		int			`json:"index" form:"index"`
-	Reason 		string		`json:"reason" form:"reason"`
-	Score 		float32		`json:"score" form:"score"`
+	DataId int64       `json:"dataId" form:"dataId"`
+	Data   interface{} `json:"data" form:"data"`
+	Index  int         `json:"index" form:"index"`
+	Reason string      `json:"reason" form:"reason"`
+	Score  float32     `json:"score" form:"score"`
 }
 
 // 返回参数
 type RecommendResponse struct {
-	Status  string		`json:"status" form:"status"`
-	Message string		`json:"message" form:"message"`
-	RankId	string		`json:"rankId" form:"rankId"`
-	DataIds []int64		`json:"dataIds" form:"dataIds"`
-	DataList []RecommendResponseItem	`json:"dataList" form:"dataList"`
+	Status   string                  `json:"status" form:"status"`
+	Message  string                  `json:"message" form:"message"`
+	RankId   string                  `json:"rankId" form:"rankId"`
+	DataIds  []int64                 `json:"dataIds" form:"dataIds"`
+	DataList []RecommendResponseItem `json:"dataList" form:"dataList"`
 }
 
 type RecommendItem struct {
-	Reason 		string				// 推荐理由
-	Score		float32				// 推荐分数
-	NeedReturn	bool				// 是否返回给前端
+	Reason     string  // 推荐理由
+	Score      float32 // 推荐分数
+	NeedReturn bool    // 是否返回给前端
 }
 
 type RankInfo struct {
-	Features 	*utils.Features			// 特征
-	IsTop		int 					// 1: 置顶， 0: 默认， -1:置底
-	PagedIndex	int						// 分页展示过的index
-	Level		int						// 推荐优先级
-	Recommends	[]RecommendItem	// 推荐系数
-	Punish		float32					// 惩罚系数
-	AlgoName	string					// 算法名称
-	AlgoScore 	float32					// 算法得分
-	Score 		float32					// 最终得分
-	Index 		int						// 排在第几
+	Features   *utils.Features // 特征
+	IsTop      int             // 1: 置顶， 0: 默认， -1:置底
+	PagedIndex int             // 分页展示过的index
+	Level      int             // 推荐优先级
+	Recommends []RecommendItem // 推荐系数
+	Punish     float32         // 惩罚系数
+	AlgoName   string          // 算法名称
+	AlgoScore  float32         // 算法得分
+	Score      float32         // 最终得分
+	Index      int             // 排在第几
 }
 
 // 获取Features的字符串形式：1:1.0,1000:1.0,99:1.0
@@ -125,20 +148,20 @@ func (self *RankInfo) AddRecommend(reason string, score float32) {
 
 // 增加推荐理由，以,隔开：TOP,RECOMMEND
 func (self *RankInfo) ReasonString() string {
-	return self.getRecommendsString(false, func(reason string, score float32) string{
-		return fmt.Sprintf(",%s", reason) 
+	return self.getRecommendsString(false, func(reason string, score float32) string {
+		return fmt.Sprintf(",%s", reason)
 	})
 }
 
 // 将推荐理由转化为字符串
 func (self *RankInfo) RecommendsString() string {
-	return self.getRecommendsString(true, func(reason string, score float32) string{
-		return fmt.Sprintf(",%s:%g", reason, score) 
+	return self.getRecommendsString(true, func(reason string, score float32) string {
+		return fmt.Sprintf(",%s:%g", reason, score)
 	})
 }
 
 // 将推荐理由转化为字符串, returnAll: 是否返回所有，false只返回客户端需要的内容
-func(self *RankInfo) getRecommendsString(returnAll bool, f func(string, float32) string) string {
+func (self *RankInfo) getRecommendsString(returnAll bool, f func(string, float32) string) string {
 	var buffer bytes.Buffer
 	if self.IsTop > 0 {
 		buffer.WriteString(f("TOP", 1))
@@ -216,10 +239,6 @@ func (feature *Feature) ToString() string {
 // 	}
 // 	return 0.0
 // }
-
-
-
-
 
 func Features2String(features []Feature) string {
 	var buffer bytes.Buffer
@@ -302,15 +321,16 @@ type IModel interface {
 
 // 权重进行升序排序
 type KeyWeight struct {
-	Key		string
-	Value 	interface{}
-	Weight 	int
+	Key    string
+	Value  interface{}
+	Weight int
 }
 
 type KeyWeightSorter struct {
-	list 	[]KeyWeight
-	sorted	bool
+	list   []KeyWeight
+	sorted bool
 }
+
 func (self *KeyWeightSorter) Swap(i, j int) {
 	self.list[i], self.list[j] = self.list[j], self.list[i]
 }
@@ -330,7 +350,7 @@ func (self *KeyWeightSorter) Append(key string, value interface{}, weight int) b
 func (self *KeyWeightSorter) Sort() []KeyWeight {
 	if !self.sorted {
 		self.sorted = true
-		sort.Sort(self)	
+		sort.Sort(self)
 	}
 	return self.list
 }
