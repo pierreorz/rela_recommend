@@ -73,6 +73,7 @@ type searchRequest struct {
 	ClientVersion int     `json:"clientVersion" form:"clientVersion"`
 	Query         string  `json:"query" form:"query" `
 	Filter        string  `json:"filter" form:"filter" `
+	ReturnFields  string  `json:"return_fields" form:"return_fields" `
 }
 
 // ** 获取广告列表， 过滤条件：
@@ -113,6 +114,7 @@ func CallAdList(app string, request *algo.RecommendRequest, user *redis.UserProf
 		ClientVersion: request.ClientVersion,
 		Query:         "",
 		Filter:        strings.Join(filters, "*"),
+		ReturnFields:  "*",
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchADRes{}
