@@ -1,10 +1,13 @@
 package match
 
 import (
+	"fmt"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/log"
+	"rela_recommend/rpc/search"
 	"rela_recommend/utils"
+	"strings"
 	"time"
 
 	// "rela_recommend/algo/utils"
@@ -19,19 +22,45 @@ func DoBuildData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
 	// 确定候选用户
-	dataIds := params.DataIds
-	if dataIds == nil || len(dataIds) == 0 {
-		log.Warnf("user list is nil or empty!")
-	}
-	recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
+	searchKeyFormatter := abtest.GetInt("search_match_keyformatter", 0)
+	dataIds := make([]int64, 0)
 	var recMap = utils.SetInt64{}
-	if len(recListKeyFormatter) > 5 {
-		recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
-		if errRedis == nil {
-			recMap.AppendArray(recIdlist)
-			dataIds = utils.NewSetInt64FromArrays(dataIds, recIdlist).ToList()
-		} else {
-			log.Warnf("user recommend list is nil or empty!")
+	if searchKeyFormatter != 0 {
+		recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
+		var recIds = ""
+		if len(recListKeyFormatter) > 5 {
+			recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
+			if errRedis == nil {
+				recMap.AppendArray(recIdlist)
+				temp := make([]string, len(recIdlist))
+				for k, v := range recIdlist {
+					temp[k] = fmt.Sprintf("%d", v)
+				}
+				recIds = strings.Join(temp, ",")
+			} else {
+				log.Warnf("user recommend list is nil or empty!")
+			}
+		}
+		dataIds, errSearch := search.CallMatchList(params.UserId, params.Lat, params.Lng, recIds)
+		if errSearch != nil {
+			fmt.Println(errSearch.Error())
+			fmt.Println(dataIds)
+		}
+	} else {
+		dataIds := params.DataIds
+		if dataIds == nil || len(dataIds) == 0 {
+			log.Warnf("user list is nil or empty!")
+		}
+		recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
+		var recMap = utils.SetInt64{}
+		if len(recListKeyFormatter) > 5 {
+			recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
+			if errRedis == nil {
+				recMap.AppendArray(recIdlist)
+				dataIds = utils.NewSetInt64FromArrays(dataIds, recIdlist).ToList()
+			} else {
+				log.Warnf("user recommend list is nil or empty!")
+			}
 		}
 	}
 
