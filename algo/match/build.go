@@ -94,7 +94,8 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataIds(dataIds)
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
-	if abtest.GetBool("used_ai_search", false) {
+	if abtest.GetBool("used_ai_search", false) && (len(seenIds) > 0) {
+
 		go func() {
 			ok := search.CallMatchSeenList(params.UserId, 300, "", seenIds)
 			if !ok {
