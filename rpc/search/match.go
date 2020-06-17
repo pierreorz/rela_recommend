@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"strings"
 )
 
@@ -97,6 +98,7 @@ func CallMatchSeenList(userId, expiration int64, scenery string, userIds []int64
 		SeenIds:    strsIds,
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
+		log.Infof("paramsData%s", string(paramsData))
 		res := &matchSeenListResIds{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchMatchSeenListUrl, paramsData, res); err == nil {
 			return res.Data == "ok"
