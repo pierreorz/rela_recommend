@@ -14,7 +14,7 @@ type SearchMatchResDataItem struct {
 }
 
 type matchListResIds struct {
-	Ids       []SearchMatchResDataItem `json:"result_data"`
+	Data      []SearchMatchResDataItem `json:"result_data"`
 	TotalSize int64                    `json:"total_size"`
 	AggsData  map[string]interface{}   `json:"-"`
 	Result    string                   `json:"result"`
@@ -49,7 +49,7 @@ func CallMatchList(userId int64, lat, lng float32, userIds []int64) ([]int64, er
 	if paramsData, err := json.Marshal(params); err == nil {
 		res := &matchListResIds{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchMatchListUrl, paramsData, res); err == nil {
-			for _, element := range res.Ids {
+			for _, element := range res.Data {
 				idlist = append(idlist, element.Id)
 			}
 			return idlist, err
