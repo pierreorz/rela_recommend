@@ -89,10 +89,18 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataIds(dataIds)
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
+	if abtest.GetBool("used_ai_search", false) {
+		go func() {
+			ok := search.CallMatchSeenList(params.UserId, 300, "", dataIds[0:params.Limit])
+			if !ok {
+				log.Warn("search seen failed\n")
+			}
+		}()
+	}
 
 	log.Infof("rankid:%s,totallen:%d,cache:%d;recommend:%d,total:%.3f,dataids:%.3f,search:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
 		ctx.GetRankId(), len(dataIds), len(dataList), recMap.Len(),
-		endTime.Sub(startTime).Seconds(), startSearchTime.Sub(startTime).Seconds(), startSearchTime.Sub(startUserTime).Seconds(),
+		endTime.Sub(startTime).Seconds(), startSearchTime.Sub(startTime).Seconds(), startUserTime.Sub(startSearchTime).Seconds(),
 		startProfileTime.Sub(startUserTime).Seconds(),
 		startBuildTime.Sub(startProfileTime).Seconds(), endTime.Sub(startBuildTime).Seconds())
 	return err

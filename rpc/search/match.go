@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// 搜索接口
 const internalSearchMatchListUrl = "/search/quick_match"
 
 type SearchMatchResDataItem struct {
@@ -28,6 +29,24 @@ type searchMatchRequest struct {
 	Lng       float32 `json:"lng" form:"lng" `
 	Lat       float32 `json:"lat" form:"lat" `
 	PinnedIds string  `json:"pinned_ids" form:"pinned_ids" `
+}
+
+// 已读接口
+const internalSearchMatchSeenListUrl = "/seen/quick_match"
+
+type matchSeenListResIds struct {
+	Data      string `json:"data"`
+	Result    string `json:"result"`
+	ErrCode   string `json:"errcode"`
+	ErrDesc   string `json:"errdesc"`
+	ErrDescEn string `json:"errdesc_en"`
+}
+
+type searchMatchSeenRequest struct {
+	UserID     int64  `json:"userId" form:"userId"`
+	Expiration int64  `json:"expiration" form:"expiration" `
+	Scenery    string `json:"scenery" form:"scenery" `
+	SeenIds    string `json:"seen_ids" form:"seen_ids" `
 }
 
 // 获取用户列表
@@ -58,6 +77,34 @@ func CallMatchList(userId int64, lat, lng float32, userIds []int64) ([]int64, er
 		}
 	} else {
 		return idlist, err
+	}
+
+}
+
+// 获取已读用户列表
+func CallMatchSeenList(userId, expiration int64, scenery string, userIds []int64) bool {
+
+	strIds := make([]string, len(userIds))
+	for k, v := range userIds {
+		strIds[k] = fmt.Sprintf("%d", v)
+	}
+	strsIds := strings.Join(strIds, ",")
+
+	params := searchMatchSeenRequest{
+		UserID:     userId,
+		Expiration: expiration,
+		Scenery:    scenery,
+		SeenIds:    strsIds,
+	}
+	if paramsData, err := json.Marshal(params); err == nil {
+		res := &matchSeenListResIds{}
+		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchMatchSeenListUrl, paramsData, res); err == nil {
+			return res.Data == "ok"
+		} else {
+			return false
+		}
+	} else {
+		return false
 	}
 
 }
