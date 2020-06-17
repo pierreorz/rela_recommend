@@ -1,13 +1,11 @@
 package match
 
 import (
-	"fmt"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/utils"
-	"strings"
 	"time"
 
 	// "rela_recommend/algo/utils"
@@ -21,47 +19,29 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
-	// 确定候选用户
-	searchKeyFormatter := abtest.GetInt("search_match_keyformatter", 0)
-	dataIds := make([]int64, 0)
+	dataIds := []int64{}
+	recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
 	var recMap = utils.SetInt64{}
-	if searchKeyFormatter != 0 {
-		recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
-		var recIds = ""
-		if len(recListKeyFormatter) > 5 {
-			recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
-			if errRedis == nil {
-				recMap.AppendArray(recIdlist)
-				temp := make([]string, len(recIdlist))
-				for k, v := range recIdlist {
-					temp[k] = fmt.Sprintf("%d", v)
-				}
-				recIds = strings.Join(temp, ",")
-			} else {
-				log.Warnf("user recommend list is nil or empty!")
-			}
+	if len(recListKeyFormatter) > 5 {
+		recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
+		if errRedis == nil {
+			recMap.AppendArray(recIdlist)
+			dataIds = utils.NewSetInt64FromArrays(dataIds, recIdlist).ToList()
+		} else {
+			log.Warnf("user recommend list is nil or empty!")
 		}
-		dataIds, errSearch := search.CallMatchList(params.UserId, params.Lat, params.Lng, recIds)
-		if errSearch != nil {
-			fmt.Println(errSearch.Error())
-			fmt.Println(dataIds)
+	}
+
+	var startSearchTime = time.Now()
+	if abtest.GetBool("used_ai_search", false) {
+		searchIds, searchErr := search.CallMatchList(params.UserId, params.Lat, params.Lng, dataIds)
+		if err == nil {
+			dataIds = searchIds
+		} else {
+			log.Warnf("search list is err, %s\n", searchErr)
 		}
 	} else {
-		dataIds := params.DataIds
-		if dataIds == nil || len(dataIds) == 0 {
-			log.Warnf("user list is nil or empty!")
-		}
-		recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
-		var recMap = utils.SetInt64{}
-		if len(recListKeyFormatter) > 5 {
-			recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
-			if errRedis == nil {
-				recMap.AppendArray(recIdlist)
-				dataIds = utils.NewSetInt64FromArrays(dataIds, recIdlist).ToList()
-			} else {
-				log.Warnf("user recommend list is nil or empty!")
-			}
-		}
+		dataIds = utils.NewSetInt64FromArrays(dataIds, params.DataIds).ToList()
 	}
 
 	// 获取用户信息
@@ -110,9 +90,9 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
 
-	log.Infof("rankid:%s,totallen:%d,cache:%d;recommend:%d,total:%.3f,dataids:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
+	log.Infof("rankid:%s,totallen:%d,cache:%d;recommend:%d,total:%.3f,dataids:%.3f,search:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
 		ctx.GetRankId(), len(dataIds), len(dataList), recMap.Len(),
-		endTime.Sub(startTime).Seconds(), startUserTime.Sub(startTime).Seconds(),
+		endTime.Sub(startTime).Seconds(), startSearchTime.Sub(startTime).Seconds(), startSearchTime.Sub(startUserTime).Seconds(),
 		startProfileTime.Sub(startUserTime).Seconds(),
 		startBuildTime.Sub(startProfileTime).Seconds(), endTime.Sub(startBuildTime).Seconds())
 	return err

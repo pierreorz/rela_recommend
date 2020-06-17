@@ -2,7 +2,9 @@ package search
 
 import (
 	"encoding/json"
+	"fmt"
 	"rela_recommend/factory"
+	"strings"
 )
 
 const internalSearchMatchListUrl = "/search/quick_match"
@@ -29,21 +31,33 @@ type searchMatchRequest struct {
 }
 
 // 获取用户列表
-func CallMatchList(userId int64, lat, lng float32, pinnedIds string) ([]SearchMatchResDataItem, error) {
+func CallMatchList(userId int64, lat, lng float32, userIds []int64) ([]int64, error) {
+	idlist := make([]int64, 0)
+
+	strIds := make([]string, len(userIds))
+	for k, v := range userIds {
+		strIds[k] = fmt.Sprintf("%d", v)
+	}
+	strsIds := strings.Join(strIds, ",")
+
 	params := searchMatchRequest{
 		UserID:    userId,
 		Lng:       lng,
 		Lat:       lat,
-		PinnedIds: pinnedIds,
+		PinnedIds: strsIds,
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		res := &matchListResIds{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchMatchListUrl, paramsData, res); err == nil {
-			return res.Ids, err
+			for _, element := range res.Ids {
+				idlist = append(idlist, element.Id)
+			}
+			return idlist, err
 		} else {
-			return nil, err
+			return idlist, err
 		}
 	} else {
-		return nil, err
+		return idlist, err
 	}
+
 }
