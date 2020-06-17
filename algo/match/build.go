@@ -37,6 +37,7 @@ func DoBuildData(ctx algo.IContext) error {
 		searchIds, searchErr := search.CallMatchList(params.UserId, params.Lat, params.Lng, dataIds)
 		if err == nil {
 			dataIds = searchIds
+			log.Info("get searchlist len%d, ", len(dataIds))
 		} else {
 			log.Warnf("search list is err, %s\n", searchErr)
 		}
@@ -69,6 +70,7 @@ func DoBuildData(ctx algo.IContext) error {
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.5)
 	dataList := make([]algo.IDataInfo, 0)
 
+	var seenIds = make([]int64, 0)
 	for dataId, data := range usersMap {
 
 		// 推荐集加权
@@ -83,6 +85,9 @@ func DoBuildData(ctx algo.IContext) error {
 			MatchProfile: matchUserMap[dataId],
 			RankInfo:     &algo.RankInfo{Recommends: recommends},
 		}
+		if len(seenIds) <= int(params.Limit) {
+			seenIds = append(seenIds, data.UserId)
+		}
 		dataList = append(dataList, info)
 	}
 	ctx.SetUserInfo(userInfo)
@@ -91,7 +96,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var endTime = time.Now()
 	if abtest.GetBool("used_ai_search", false) {
 		go func() {
-			ok := search.CallMatchSeenList(params.UserId, 300, "", dataIds[0:params.Limit])
+			ok := search.CallMatchSeenList(params.UserId, 300, "", seenIds)
 			if !ok {
 				log.Warn("search seen failed\n")
 			}
