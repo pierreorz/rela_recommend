@@ -72,7 +72,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	var seenIds = make([]int64, 0)
 	for dataId, data := range usersMap {
-
+		log.Infof("dataID:%d, data.UserId:%d", dataId, data.UserId)
 		// 推荐集加权
 		var recommends = []algo.RecommendItem{}
 		if recMap.Contains(data.UserId) {
@@ -86,8 +86,9 @@ func DoBuildData(ctx algo.IContext) error {
 			RankInfo:     &algo.RankInfo{Recommends: recommends},
 		}
 		if len(seenIds) <= int(params.Limit) {
-			seenIds = append(seenIds, data.UserId)
+			seenIds = append(seenIds, dataId)
 		}
+		log.Infof("seenIDs:%d", seenIds)
 		dataList = append(dataList, info)
 	}
 	ctx.SetUserInfo(userInfo)
@@ -95,7 +96,6 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
 	if abtest.GetBool("used_ai_search", false) && (len(seenIds) > 0) {
-
 		go func() {
 			ok := search.CallMatchSeenList(params.UserId, 300, "", seenIds)
 			if !ok {
