@@ -80,7 +80,7 @@ func (self *DoMatchSeenSearchLogger) Do(ctx algo.IContext) error {
 	}
 	if len(seenIds) > 0 {
 		go func() {
-			ok := search.CallMatchSeenList(ctx.GetRequest().UserId, 300, "", seenIds)
+			ok := search.CallMatchSeenList(ctx.GetRequest().UserId, 60*60, "", seenIds)
 			if !ok {
 				log.Warn("search seen failed\n")
 			}
