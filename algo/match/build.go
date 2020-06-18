@@ -37,7 +37,7 @@ func DoBuildData(ctx algo.IContext) error {
 		searchIds, searchErr := search.CallMatchList(params.UserId, params.Lat, params.Lng, dataIds)
 		if err == nil {
 			dataIds = searchIds
-			log.Info("get searchlist len%d, ", len(dataIds))
+			log.Infof("get searchlist len %d\n, ", len(dataIds))
 		} else {
 			log.Warnf("search list is err, %s\n", searchErr)
 		}
