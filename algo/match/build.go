@@ -70,9 +70,8 @@ func DoBuildData(ctx algo.IContext) error {
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.5)
 	dataList := make([]algo.IDataInfo, 0)
 
-	seenIds := make([]int64, 0)
 	for dataId, data := range usersMap {
-		log.Infof("dataID:%d, data.UserId:%d", dataId, data.UserId)
+
 		// 推荐集加权
 		var recommends = []algo.RecommendItem{}
 		if recMap.Contains(data.UserId) {
@@ -85,25 +84,12 @@ func DoBuildData(ctx algo.IContext) error {
 			MatchProfile: matchUserMap[dataId],
 			RankInfo:     &algo.RankInfo{Recommends: recommends},
 		}
-		log.Infof("length of seenIds: %d, limit: %d", len(seenIds), params.Limit)
-		if len(seenIds) <= int(params.Limit) {
-			seenIds = append(seenIds, dataId)
-		}
 		dataList = append(dataList, info)
-		log.Infof("seenIDs:%d, dataList:%d", seenIds, dataList)
 	}
 	ctx.SetUserInfo(userInfo)
 	ctx.SetDataIds(dataIds)
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
-	if abtest.GetBool("used_ai_search", false) && (len(seenIds) > 0) {
-		go func() {
-			ok := search.CallMatchSeenList(params.UserId, 300, "", seenIds)
-			if !ok {
-				log.Warn("search seen failed\n")
-			}
-		}()
-	}
 
 	log.Infof("rankid:%s,totallen:%d,cache:%d;recommend:%d,total:%.3f,dataids:%.3f,search:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
 		ctx.GetRankId(), len(dataIds), len(dataList), recMap.Len(),
