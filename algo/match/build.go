@@ -70,7 +70,7 @@ func DoBuildData(ctx algo.IContext) error {
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.5)
 	dataList := make([]algo.IDataInfo, 0)
 
-	var seenIds = make([]int64, 0)
+	seenIds := make([]int64, 0)
 	for dataId, data := range usersMap {
 		log.Infof("dataID:%d, data.UserId:%d", dataId, data.UserId)
 		// 推荐集加权
@@ -85,11 +85,12 @@ func DoBuildData(ctx algo.IContext) error {
 			MatchProfile: matchUserMap[dataId],
 			RankInfo:     &algo.RankInfo{Recommends: recommends},
 		}
+		log.Infof("length of seenIds: %d, limit: %d", len(seenIds), params.Limit)
 		if len(seenIds) <= int(params.Limit) {
 			seenIds = append(seenIds, dataId)
 		}
-		log.Infof("seenIDs:%d", seenIds)
 		dataList = append(dataList, info)
+		log.Infof("seenIDs:%d, dataList:%d", seenIds, dataList)
 	}
 	ctx.SetUserInfo(userInfo)
 	ctx.SetDataIds(dataIds)
