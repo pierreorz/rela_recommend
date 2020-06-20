@@ -19,21 +19,23 @@ var loggerMap = map[string]algo.ILogger{
 	"features": &algo.LoggerBase{},
 	"performs": &algo.LoggerPerforms{}}
 
-var richStrategyMap = map[string]algo.IRichStrategy {
-		"paged": &strategy.PagedRichStrategy{},
-		// 根据距离排序
-		"distance_sort": &strategy.BaseRichStrategy{ StrategyItemFunc: SortWithDistanceItem },
-		"wilson_behavior": &strategy.BaseRichStrategy{ StrategyItemFunc: ItemBehaviorWilsonItemFunc },
-		"clicked_down": &strategy.BaseRichStrategy{ StrategyItemFunc: UserBehaviorClickedDownItemFunc },
-	}
+var richStrategyMap = map[string]algo.IRichStrategy{
+	"paged": &strategy.PagedRichStrategy{},
+	// 根据距离排序
+	"distance_sort":   &strategy.BaseRichStrategy{StrategyItemFunc: SortWithDistanceItem},
+	"wilson_behavior": &strategy.BaseRichStrategy{StrategyItemFunc: ItemBehaviorWilsonItemFunc},
+	"clicked_down":    &strategy.BaseRichStrategy{StrategyItemFunc: UserBehaviorClickedDownItemFunc},
+}
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	&algo.AlgoBase{AlgoName: "base", FilePath: workDir + "nearby/mods_1.0.model.gz",
-		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0},
 	&algo.AlgoBase{AlgoName: "v1.1", FilePath: workDir + "nearby/mods_1.1.model.gz",
-		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0},
 	&algo.AlgoBase{AlgoName: "v1.2", FilePath: workDir + "nearby/mods_1.2_2.model.gz",
-		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0 },
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0},
+	&algo.AlgoBase{AlgoName: "v1.3", FilePath: workDir + "nearby/mods_1.3_2.model.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetFeaturesV0},
 })
 
 // 附近的人
@@ -44,5 +46,5 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
-	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})

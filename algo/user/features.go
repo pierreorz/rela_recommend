@@ -15,6 +15,7 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 	// 用户
 	var role, wantRoles = 0, make([]int, 0)
 	var userCache *redis.UserProfile
+	var userProfile *redis.NearbyProfile
 	if ctx.GetUserInfo() != nil {
 		user := ctx.GetUserInfo().(*UserInfo)
 		if user.UserCache != nil {
@@ -31,7 +32,7 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 		}
 
 		// 用户画像
-		userProfile := user.UserProfile
+		userProfile = user.UserProfile
 		if userProfile != nil {
 			if userProfile.AgeMap != nil {
 				fs.Add(2000, userProfile.AgeMap["age_18_20"])
@@ -183,9 +184,9 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 		cRole, cWantRoles = rutils.GetInt(curr.RoleName), rutils.GetInts(curr.WantRole)
 		fs.AddCategory(5050, 15, -1, cRole, -1) // 自我认同
 		fs.AddCategories(5070, 15, -1, cWantRoles, -1)
-		fs.AddCategory(5100, 2, 0, rutils.GetInt(data.LiveInfo != nil), 0)	// 是否正在直播
+		fs.AddCategory(5100, 2, 0, rutils.GetInt(data.LiveInfo != nil), 0) // 是否正在直播
 	}
-	
+
 	if currProfile != nil {
 		if currProfile.AgeMap != nil {
 			fs.Add(7000, currProfile.AgeMap["age_18_20"])
@@ -326,14 +327,14 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 		listInteract := data.ItemBehavior.GetNearbyListInteract()
 		fs.Add(9000, float32(listInteract.Count))
 		if listInteract.LastTime > 0 {
-			fs.Add(9001, float32(float64(currTime) - listInteract.LastTime))
+			fs.Add(9001, float32(float64(currTime)-listInteract.LastTime))
 		}
 		// 曝光
 		listExposure := data.ItemBehavior.GetNearbyListExposure()
 		fs.Add(9002, float32(listExposure.Count))
 		if listExposure.LastTime > 0 {
-			fs.Add(9003, float32(float64(currTime) - listExposure.LastTime))
-			fs.Add(9004, float32(listInteract.Count / listExposure.Count))  // 互动率
+			fs.Add(9003, float32(float64(currTime)-listExposure.LastTime))
+			fs.Add(9004, float32(listInteract.Count/listExposure.Count)) // 互动率
 		}
 	}
 	// 该用户对内容实时行为特征
@@ -342,21 +343,21 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 		listInteract := data.UserBehavior.GetNearbyListInteract()
 		fs.Add(9010, float32(listInteract.Count))
 		if listInteract.LastTime > 0 {
-			fs.Add(9011, float32(float64(currTime) - listInteract.LastTime))
+			fs.Add(9011, float32(float64(currTime)-listInteract.LastTime))
 		}
 		// 曝光
 		listExposure := data.UserBehavior.GetNearbyListExposure()
 		fs.Add(9012, float32(listExposure.Count))
 		if listExposure.LastTime > 0 {
-			fs.Add(9013, float32(float64(currTime) - listExposure.LastTime))
-			fs.Add(9014, float32(listInteract.Count / listExposure.Count)) // 互动率
+			fs.Add(9013, float32(float64(currTime)-listExposure.LastTime))
+			fs.Add(9014, float32(listInteract.Count/listExposure.Count)) // 互动率
 		}
-		
+
 	}
 
-	// 交叉特征
+	// ****************************************************    交叉特征
 	fs.AddCategory(10000, 2, 0, rutils.GetInt(role > 0 && rutils.IsInInts(role, cWantRoles)), 0)
-	fs.AddCategory(10002, 2, 0, rutils.GetInt(cRole > 0 &&rutils.IsInInts(cRole, wantRoles)), 0)
+	fs.AddCategory(10002, 2, 0, rutils.GetInt(cRole > 0 && rutils.IsInInts(cRole, wantRoles)), 0)
 	if req := ctx.GetRequest(); req != nil {
 		lng, lat := float64(req.Lng), float64(req.Lat)
 		if req.Lng == 0 || req.Lat == 0 {
@@ -364,5 +365,13 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 		}
 		fs.Add(10005, float32(rutils.EarthDistance(lng, lat, curr.Location.Lon, curr.Location.Lat)/1000.0))
 	}
+
+	// 通过关注的als相关性
+	if userProfile != nil && currProfile != nil {
+		followUser := userProfile.VectorMap["vector_follow_als_user"]
+		followFlooower := currProfile.VectorMap["vector_follow_als_follower"]
+		fs.Add(10006, utils.ArrayMultSum(followUser, followFlooower))
+	}
+
 	return fs
 }
