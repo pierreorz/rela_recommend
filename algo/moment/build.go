@@ -25,6 +25,7 @@ func DoBuildData(ctx algo.IContext) error {
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
 	newIdList := make([]int64, 0)
+	topIdList := make([]int64, 0)
 	if dataIdList == nil || len(dataIdList) == 0 {
 		// 获取推荐日志
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
@@ -59,19 +60,18 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	}
 	//获取热门日志
+	if abtest.GetBool("real_recommend_switched",false){
 	top,_:=behaviorCache.QueryDataBehaviorTop()
 	topIdList :=top.GetTopIds(100)
 	if len(topIdList)==0{
 		log.Warnf("real top list is none,pls check!\n")
 	}
-	var topIdMap=&utils.SetInt64{}
-	if abtest.GetBool("real_recommend_switched",false){
-		topIdMap:=utils.NewSetInt64FromArray(topIdList)
-		if topIdMap==nil{
-			log.Warnf("real top list map is none,pls check~\n")
-		}
 	}
-
+	topIdMap:=utils.NewSetInt64FromArray(topIdList)
+	log.Warnf("real top list map is none,pls check~%s\n",topIdMap)
+	if topIdMap==nil{
+			log.Warnf("real top list map is none,pls check~\n")
+	}
 	// backend recommend list
 	var startBackEndTime = time.Now()
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
@@ -149,11 +149,6 @@ func DoBuildData(ctx algo.IContext) error {
 				if momUser.Status == 0 || momUser.Status == 5 {
 					continue
 				}
-			}
-			if isRecommend := topIdMap.Contains(mom.Moments.Id); isRecommend{
-				log.Warnf("this moment is hot id \n")
-			}else{
-				log.Warnf("this moment is hot id %s\n",mom.Moments.Id)
 			}
 			// 处理置顶
 			var isTop = 0
