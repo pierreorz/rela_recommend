@@ -67,7 +67,6 @@ func DoBuildData(ctx algo.IContext) error {
 	var topIdMap=&utils.SetInt64{}
 	if abtest.GetBool("real_recommend_switched",false){
 		topIdMap:=utils.NewSetInt64FromArray(topIdList)
-		log.Warnf("real top map%s\n",topIdMap)
 		if topIdMap==nil{
 			log.Warnf("real top list map is none,pls check~\n")
 		}
@@ -151,7 +150,9 @@ func DoBuildData(ctx algo.IContext) error {
 					continue
 				}
 			}
-
+			if isRecommend := topIdMap.Contains(mom.Moments.Id); isRecommend{
+				log.Warnf("this moment is hot id \n")
+			}
 			// 处理置顶
 			var isTop = 0
 			if topMap != nil {
