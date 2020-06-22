@@ -62,7 +62,7 @@ func DoBuildData(ctx algo.IContext) error {
 	//获取热门日志
 	if abtest.GetBool("real_recommend_switched",false){
 	top,_:=behaviorCache.QueryDataBehaviorTop()
-	topIdList :=top.GetTopIds(100)
+	topIdList =top.GetTopIds(100)
 	if len(topIdList)==0{
 		log.Warnf("real top list is none,pls check!\n")
 	}
