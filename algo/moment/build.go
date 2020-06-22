@@ -81,8 +81,6 @@ func DoBuildData(ctx algo.IContext) error {
 			log.Warnf("backend recommend list is err, %s\n", err)
 		}
 	}
-	//real top recommend list
-
 	// 获取日志内容
 	var startMomentTime = time.Now()
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds,topIdList).ToList()
