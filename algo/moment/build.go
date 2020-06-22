@@ -152,6 +152,8 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			if isRecommend := topIdMap.Contains(mom.Moments.Id); isRecommend{
 				log.Warnf("this moment is hot id \n")
+			}else{
+				log.Warnf("this moment is hot id %s\n",mom.Moments.Id)
 			}
 			// 处理置顶
 			var isTop = 0
