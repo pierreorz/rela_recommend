@@ -20,7 +20,7 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	behaviorCache:=behavior.NewBehaviorCacheModule(ctx,&factory.CacheCluster)
+	behaviorCache:=behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 	// search list
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
