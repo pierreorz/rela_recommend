@@ -67,6 +67,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var topIdMap=&utils.SetInt64{}
 	if abtest.GetBool("real_recommend_switched",false){
 		topIdMap:=utils.NewSetInt64FromArray(topIdList)
+		log.Warnf("real top map%s\n",topIdMap)
 		if topIdMap==nil{
 			log.Warnf("real top list map is none,pls check~\n")
 		}
@@ -163,9 +164,12 @@ func DoBuildData(ctx algo.IContext) error {
 			if recMap != nil ||topIdMap!=nil{
 				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
 					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
-				} else if isRecommend := topIdMap.Contains(mom.Moments.Id); isRecommend{
-					recommends = append(recommends, algo.RecommendItem{Reason: "REALTOP", Score: realRecommendScore, NeedReturn: true})
+				} else {
+					if isRecommend := topIdMap.Contains(mom.Moments.Id); isRecommend{
+						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: realRecommendScore, NeedReturn: true})
+					}
 				}
+
 			}
 			info := &DataInfo{
 				DataId:               mom.Moments.Id,
