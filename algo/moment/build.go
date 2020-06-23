@@ -60,17 +60,16 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	}
 	//获取热门日志
-	if abtest.GetBool("real_recommend_switched",false){
-	top,_:=behaviorCache.QueryDataBehaviorTop()
-	topIdList =top.GetTopIds(100)
-	if len(topIdList)==0{
-		log.Warnf("real top list is none,pls check!\n")
+	if abtest.GetBool("real_recommend_switched", false) {
+		top, _ := behaviorCache.QueryDataBehaviorTop()
+		topIdList = top.GetTopIds(100)
+		if len(topIdList) == 0 {
+			log.Warnf("real top list is none,pls check!\n")
+		}
 	}
-	}
-	topIdMap:=utils.NewSetInt64FromArray(topIdList)
-	log.Warnf("real top list map is none,pls check~%s\n",topIdMap)
-	if topIdMap==nil{
-			log.Warnf("real top list map is none,pls check~\n")
+	topIdMap := utils.NewSetInt64FromArray(topIdList)
+	if topIdMap == nil {
+		log.Warnf("real top list map is none,pls check~\n")
 	}
 	// backend recommend list
 	var startBackEndTime = time.Now()
@@ -164,7 +163,7 @@ func DoBuildData(ctx algo.IContext) error {
 					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 				} else {
 					if isRecommend := topIdMap.Contains(mom.Moments.Id); isRecommend{
-						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: realRecommendScore, NeedReturn: true})
+						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true})
 					}
 				}
 
