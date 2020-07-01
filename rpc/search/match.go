@@ -41,6 +41,7 @@ type matchSeenListResIds struct {
 	ErrCode   string `json:"errcode"`
 	ErrDesc   string `json:"errdesc"`
 	ErrDescEn string `json:"errdesc_en"`
+	// ReqeustID string `json:"request_id"`
 }
 
 type searchMatchSeenRequest struct {
@@ -72,6 +73,7 @@ func CallMatchList(userId int64, lat, lng float32, userIds []int64) ([]int64, er
 			for _, element := range res.Data {
 				idlist = append(idlist, element.Id)
 			}
+			log.Infof("get paramsData:%s, res:%+v", string(paramsData), res)
 			return idlist, err
 		} else {
 			return idlist, err
