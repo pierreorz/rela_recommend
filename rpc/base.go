@@ -38,11 +38,9 @@ func (cli *HttpClient) doRequest(req *http.Request, internalClientRes interface{
 	var data = make([]byte, 0)
 	if err == nil {
 		data, err = ioutil.ReadAll(resp.Body)
-		log.Infof("do request data: %s", string(data))
 		if err == nil {
 			err = json.Unmarshal(data, internalClientRes)
 		}
-		log.Infof("do request unmarshal result: %+v", internalClientRes)
 	}
 
 	if err != nil {
