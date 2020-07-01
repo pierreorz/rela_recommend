@@ -42,6 +42,7 @@ func (cli *HttpClient) doRequest(req *http.Request, internalClientRes interface{
 		if err == nil {
 			err = json.Unmarshal(data, internalClientRes)
 		}
+		log.Infof("do request unmarshal result: %+v", internalClientRes)
 	}
 
 	if err != nil {

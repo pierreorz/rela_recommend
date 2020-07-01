@@ -73,6 +73,7 @@ func CallMatchList(userId int64, lat, lng float32, userIds []int64) ([]int64, er
 	if paramsData, err := json.Marshal(params); err == nil {
 		res := &matchListResIds{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchMatchListUrl, paramsData, res); err == nil {
+			log.Infof("search result is: %+v", res)
 			for _, element := range res.Data {
 				idlist = append(idlist, element.Id)
 			}
