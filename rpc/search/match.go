@@ -23,9 +23,11 @@ type matchListResIds struct {
 	ErrCode   string                   `json:"errcode"`
 	ErrDesc   string                   `json:"errdesc"`
 	ErrDescEn string                   `json:"errdesc_en"`
+	ReqeustID string                   `json:"request_id"`
 }
 
 type searchMatchRequest struct {
+	Limit     int     `json:"limit" form:"limit"`
 	UserID    int64   `json:"userId" form:"userId"`
 	Lng       float32 `json:"lng" form:"lng" `
 	Lat       float32 `json:"lat" form:"lat" `
@@ -66,6 +68,7 @@ func CallMatchList(userId int64, lat, lng float32, userIds []int64) ([]int64, er
 		Lng:       lng,
 		Lat:       lat,
 		PinnedIds: strsIds,
+		Limit:     2000,
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		res := &matchListResIds{}
