@@ -41,7 +41,7 @@ type matchSeenListResIds struct {
 	ErrCode   string `json:"errcode"`
 	ErrDesc   string `json:"errdesc"`
 	ErrDescEn string `json:"errdesc_en"`
-	// ReqeustID string `json:"request_id"`
+	ReqeustID string `json:"request_id"`
 }
 
 type searchMatchSeenRequest struct {
