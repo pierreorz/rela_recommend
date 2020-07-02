@@ -16,8 +16,10 @@ var sorterMap = map[string]algo.ISorter{
 var pagerMap = map[string]algo.IPager{
 	"base": &algo.PagerBase{}}
 var loggerMap = map[string]algo.ILogger{
-	"features": &algo.LoggerBase{},
-	"performs": &algo.LoggerPerforms{}}
+	"features":             &algo.LoggerBase{},
+	"performs":             &algo.LoggerPerforms{},
+	"do_match_seen_search": &DoMatchSeenSearchLogger{},
+}
 
 var richStrategyMap = map[string]algo.IRichStrategy{
 	"paged": &strategy.PagedRichStrategy{},

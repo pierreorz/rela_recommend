@@ -4,6 +4,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/log"
+	"rela_recommend/rpc/search"
 	"rela_recommend/utils"
 	"time"
 
@@ -18,11 +19,7 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
-	// 确定候选用户
-	dataIds := params.DataIds
-	if dataIds == nil || len(dataIds) == 0 {
-		log.Warnf("user list is nil or empty!")
-	}
+	dataIds := []int64{}
 	recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
 	var recMap = utils.SetInt64{}
 	if len(recListKeyFormatter) > 5 {
@@ -33,6 +30,19 @@ func DoBuildData(ctx algo.IContext) error {
 		} else {
 			log.Warnf("user recommend list is nil or empty!")
 		}
+	}
+
+	var startSearchTime = time.Now()
+	if abtest.GetBool("used_ai_search", false) {
+		searchIds, searchErr := search.CallMatchList(params.UserId, params.Lat, params.Lng, dataIds)
+		if err == nil {
+			dataIds = searchIds
+			log.Infof("get searchlist len %d\n, ", len(dataIds))
+		} else {
+			log.Warnf("search list is err, %s\n", searchErr)
+		}
+	} else {
+		dataIds = utils.NewSetInt64FromArrays(dataIds, params.DataIds).ToList()
 	}
 
 	// 获取用户信息
@@ -81,9 +91,9 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
 
-	log.Infof("rankid:%s,totallen:%d,cache:%d;recommend:%d,total:%.3f,dataids:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
+	log.Infof("rankid:%s,totallen:%d,cache:%d;recommend:%d,total:%.3f,dataids:%.3f,search:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
 		ctx.GetRankId(), len(dataIds), len(dataList), recMap.Len(),
-		endTime.Sub(startTime).Seconds(), startUserTime.Sub(startTime).Seconds(),
+		endTime.Sub(startTime).Seconds(), startSearchTime.Sub(startTime).Seconds(), startUserTime.Sub(startSearchTime).Seconds(),
 		startProfileTime.Sub(startUserTime).Seconds(),
 		startBuildTime.Sub(startProfileTime).Seconds(), endTime.Sub(startBuildTime).Seconds())
 	return err

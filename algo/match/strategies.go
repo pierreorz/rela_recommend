@@ -2,6 +2,8 @@ package match
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/log"
+	"rela_recommend/rpc/search"
 	"time"
 )
 
@@ -61,6 +63,28 @@ func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *a
 		if hasFace {
 			rankInfo.AddRecommend("ImageFaceUpper", 1.0+upperRate)
 		}
+	}
+	return nil
+}
+
+type DoMatchSeenSearchLogger struct{}
+
+// 已读接口调用
+func (self *DoMatchSeenSearchLogger) Do(ctx algo.IContext) error {
+	response := ctx.GetResponse()
+	seenIds := make([]int64, 0)
+	if response != nil {
+		for _, item := range response.DataList {
+			seenIds = append(seenIds, item.DataId)
+		}
+	}
+	if len(seenIds) > 0 {
+		go func() {
+			ok := search.CallMatchSeenList(ctx.GetRequest().UserId, 60*60, "", seenIds)
+			if !ok {
+				log.Warn("search seen failed\n")
+			}
+		}()
 	}
 	return nil
 }
