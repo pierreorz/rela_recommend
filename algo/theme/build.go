@@ -29,7 +29,7 @@ func DoBuildData(ctx algo.IContext) error {
 	dataIdList := params.DataIds
 	newIdList := []int64{}
 	if  (dataIdList == nil || len(dataIdList) == 0) {
-		recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_recommend_list:%d")
+		recListKeyFormatter := abtest.GetString("recommend_list_key", "")//theme_recommend_list:%d
 		if len(recListKeyFormatter) > 5 {
 			dataIdList, err = rdsPikaCache.GetInt64List(params.UserId, recListKeyFormatter)
 			if err == nil {
