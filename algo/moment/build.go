@@ -63,14 +63,8 @@ func DoBuildData(ctx algo.IContext) error {
 	if abtest.GetBool("real_recommend_switched", false) {
 		top, _ := behaviorCache.QueryDataBehaviorTop()
 		hotIdList = top.GetTopIds(100)
-		if len(hotIdList) == 0 {
-			log.Warnf("real hot list is none,pls check!\n")
-		}
 	}
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	if hotIdMap == nil {
-		log.Warnf("real hot list map is none,pls check~\n")
-	}
 	// backend recommend list
 	var startBackEndTime = time.Now()
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
