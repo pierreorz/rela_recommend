@@ -1,22 +1,22 @@
 package redis
 
-import(
+import (
 	"errors"
 	// "encoding/json"
 	// "rela_recommend/log"
-	"rela_recommend/cache"
 	"rela_recommend/algo"
+	"rela_recommend/cache"
 	"rela_recommend/utils"
 )
 
 type Location struct {
-	Lat 	float64		`json:"lat"`
-	Lon 	float64		`json:"lon"`
+	Lat float64 `json:"lat"`
+	Lon float64 `json:"lon"`
 }
 
 type UserProfile struct {
-	UserId         int64    `json:"id"`         // 用户ID
-	Location       Location `json:"location"`            //地理位置
+	UserId         int64    `json:"id"`             // 用户ID
+	Location       Location `json:"location"`       //地理位置
 	Avatar         string   `json:"avatar"`         // 头像
 	IsVip          int      `json:"isVip"`          // 是否是vip
 	LastUpdateTime int64    `json:"lastUpdateTime"` //最后在线时间
@@ -25,17 +25,17 @@ type UserProfile struct {
 	RoleName       string   `json:"roleName"`
 	UserImageCount int      `json:"userImageCount"`
 	WantRole       string   `json:"wantRole"`
-	Status     int       `json:"status"`
-	Affection  int       `json:"affection"`
-	Age        int       `json:"age"`
-	Height     int       `json:"height"`
-	Weight     int       `json:"weight"`
-	Ratio      int       `json:"ratio"`
-	CreateTime JsonTime `json:"createTime"`
-	Horoscope  string    `json:"horoscope"`
+	Status         int      `json:"status"`
+	Affection      int      `json:"affection"`
+	Age            int      `json:"age"`
+	Height         int      `json:"height"`
+	Weight         int      `json:"weight"`
+	Ratio          int      `json:"ratio"`
+	CreateTime     JsonTime `json:"createTime"`
+	Horoscope      string   `json:"horoscope"`
 
-	JsonRoleLike map[string]float32	`json:"jsonRoleLike"`
-	JsonAffeLike map[string]float32	`json:"jsonAffeLike"`
+	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
+	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
 }
 
 type UserCacheModule struct {
@@ -46,10 +46,18 @@ func NewUserCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cach
 	return &UserCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
 
+func (self *UserCacheModule) QueryUserById(id int64) (*UserProfile, error) {
+	ids := []int64{id}
+	if users, err := self.QueryUsersByIds(ids); err == nil && len(users) > 0 {
+		return &users[0], nil
+	}
+	return nil, errors.New("not found user")
+}
+
 // 读取用户信息
 func (self *UserCacheModule) QueryUsersByIds(ids []int64) ([]UserProfile, error) {
 	keyFormatter := "app_user_location:%d"
-	ress, err := self.MGetStructs(UserProfile{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
+	ress, err := self.MGetStructs(UserProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
 	objs := ress.Interface().([]UserProfile)
 	return objs, err
 }
