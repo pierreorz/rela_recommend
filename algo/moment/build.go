@@ -97,8 +97,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	//获取日志离线画像
 	var startMomentOfflineProfileTime = time.Now()
-	var recDataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, recIds,hotIdList).ToList()
-	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(recDataIds)
+	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIds)
 	if momOfflineProfileErr != nil {
 		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
 	}
