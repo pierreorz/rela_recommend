@@ -158,17 +158,16 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			// 处理推荐
 			var recommends = []algo.RecommendItem{}
-			if recMap != nil || hotIdMap!= nil {
-				if recMap != nil {
+			if recMap != nil {
 					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 					}
-				} else {
+				}
+			if hotIdMap != nil{
 					if isRecommend := hotIdMap.Contains(mom.Moments.Id); isRecommend {
 						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true})
 					}
 				}
-			}
 			info := &DataInfo{
 				DataId:               mom.Moments.Id,
 				UserCache:            momUser,
