@@ -22,9 +22,8 @@ func DoBuildData(ctx algo.IContext) error {
 	dataIds := []int64{}
 
 	// 获取用户信息，修正经纬度
-	user, userCacheErr := userCache.QueryUserById(params.UserId)
-	if userCacheErr == nil && user != nil {
-		if params.Lat == 0 || params.Lng == 0 {
+	if params.Lat == 0 || params.Lng == 0 {
+		if user, userCacheErr := userCache.QueryUserById(params.UserId); userCacheErr == nil && user != nil {
 			params.Lat = float32(user.Location.Lat)
 			params.Lng = float32(user.Location.Lon)
 		}
@@ -57,8 +56,8 @@ func DoBuildData(ctx algo.IContext) error {
 
 	// 获取用户信息
 	var startUserTime = time.Now()
-	// user, usersMap, userCacheErr := userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
-	usersMap, usersCacheErr := userCache.QueryUsersMap(dataIds)
+	user, usersMap, usersCacheErr := userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
+	// usersMap, usersCacheErr := userCache.QueryUsersMap(dataIds)
 	if usersCacheErr != nil {
 		log.Warnf("users cache list is err, %s\n", usersCacheErr)
 	}
