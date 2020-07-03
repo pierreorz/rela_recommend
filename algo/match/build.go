@@ -20,6 +20,15 @@ func DoBuildData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
 	dataIds := []int64{}
+
+	// 获取用户信息，修正经纬度
+	if params.Lat == 0 || params.Lng == 0 {
+		if user, userCacheErr := userCache.QueryUserById(params.UserId); userCacheErr == nil && user != nil {
+			params.Lat = float32(user.Location.Lat)
+			params.Lng = float32(user.Location.Lon)
+		}
+	}
+
 	recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
 	var recMap = utils.SetInt64{}
 	if len(recListKeyFormatter) > 5 {
@@ -47,9 +56,9 @@ func DoBuildData(ctx algo.IContext) error {
 
 	// 获取用户信息
 	var startUserTime = time.Now()
-	user, usersMap, userCacheErr := userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
-	if userCacheErr != nil {
-		log.Warnf("users cache list is err, %s\n", userCacheErr)
+	user, usersMap, usersCacheErr := userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
+	if usersCacheErr != nil {
+		log.Warnf("users cache list is err, %s\n", usersCacheErr)
 	}
 
 	// 获取画像信息
