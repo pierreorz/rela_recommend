@@ -10,6 +10,7 @@ import (
 	"rela_recommend/rpc/search"
 	"rela_recommend/utils"
 	"time"
+	"rela_recommend/models/behavior"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -19,11 +20,12 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-
+	behaviorCache:=behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 	// search list
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
 	newIdList := make([]int64, 0)
+	hotIdList := make([]int64, 0)
 	if dataIdList == nil || len(dataIdList) == 0 {
 		// 获取推荐日志
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
@@ -57,7 +59,12 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		}
 	}
-
+	//获取热门日志
+	if abtest.GetBool("real_recommend_switched", false) {
+		top, _ := behaviorCache.QueryDataBehaviorTop()
+		hotIdList = top.GetTopIds(100)
+	}
+	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
 	// backend recommend list
 	var startBackEndTime = time.Now()
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
@@ -67,10 +74,9 @@ func DoBuildData(ctx algo.IContext) error {
 			log.Warnf("backend recommend list is err, %s\n", err)
 		}
 	}
-
 	// 获取日志内容
 	var startMomentTime = time.Now()
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds,hotIdList).ToList()
 	moms, err := momentCache.QueryMomentsByIds(dataIds)
 	userIds := make([]int64, 0)
 	if err != nil {
@@ -85,8 +91,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	//获取日志离线画像
 	var startMomentOfflineProfileTime = time.Now()
-	var recDataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, recIds).ToList()
-	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(recDataIds)
+	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIds)
 	if momOfflineProfileErr != nil {
 		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
 	}
@@ -122,6 +127,7 @@ func DoBuildData(ctx algo.IContext) error {
 		MomentUserProfile: momentUserEmbedding,
 	}
 	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
+	realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
 		// 后期搜索完善此条件去除
@@ -136,7 +142,6 @@ func DoBuildData(ctx algo.IContext) error {
 					continue
 				}
 			}
-
 			// 处理置顶
 			var isTop = 0
 			if topMap != nil {
@@ -147,10 +152,15 @@ func DoBuildData(ctx algo.IContext) error {
 			// 处理推荐
 			var recommends = []algo.RecommendItem{}
 			if recMap != nil {
-				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
-					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
+						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+					}
 				}
-			}
+			if hotIdMap != nil{
+					if isRecommend := hotIdMap.Contains(mom.Moments.Id); isRecommend {
+						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true})
+					}
+				}
 			info := &DataInfo{
 				DataId:               mom.Moments.Id,
 				UserCache:            momUser,
@@ -168,8 +178,8 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataIds(dataIds)
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
-	log.Infof("rankid %s,totallen:%d,paramlen:%d,reclen:%d,searchlen:%d;backendlen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,moment_offline_profile:%.3f,embedding_cache:%.3f,build:%.3f\n",
-		ctx.GetRankId(), len(dataIds), len(dataIdList), len(recIdList), len(newIdList), len(recIds),
+	log.Infof("rankid %s,totallen:%d,paramlen:%d,reclen:%d,searchlen:%d;backendlen:%d;toplen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,moment_offline_profile:%.3f,embedding_cache:%.3f,build:%.3f\n",
+		ctx.GetRankId(), len(dataIds), len(dataIdList), len(recIdList), len(newIdList), len(recIds),len(hotIdList),
 		endTime.Sub(startTime).Seconds(), startBackEndTime.Sub(startTime).Seconds(),
 		startMomentTime.Sub(startBackEndTime).Seconds(),
 		startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(), startBuildTime.Sub(startMomentOfflineProfileTime).Seconds(), startBuildTime.Sub(startEmbeddingTime).Seconds(),
