@@ -57,7 +57,6 @@ func DoBuildData(ctx algo.IContext) error {
 	// 获取用户信息
 	var startUserTime = time.Now()
 	user, usersMap, usersCacheErr := userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
-	// usersMap, usersCacheErr := userCache.QueryUsersMap(dataIds)
 	if usersCacheErr != nil {
 		log.Warnf("users cache list is err, %s\n", usersCacheErr)
 	}
