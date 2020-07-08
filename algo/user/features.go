@@ -366,11 +366,17 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 		fs.Add(10005, float32(rutils.EarthDistance(lng, lat, curr.Location.Lon, curr.Location.Lat)/1000.0))
 	}
 
-	// 通过关注的als相关性
 	if userProfile != nil && currProfile != nil {
+		// 通过关注的als相关性
+
 		followUser := userProfile.VectorMap["vector_follow_als_user"]
-		followFlooower := currProfile.VectorMap["vector_follow_als_follower"]
-		fs.Add(10006, utils.ArrayMultSum(followUser, followFlooower))
+		followFollower := currProfile.VectorMap["vector_follow_als_follower"]
+		fs.Add(10006, utils.ArrayMultSum(followUser, followFollower))
+
+		// 通过点击的als相关性
+		clickUser := userProfile.VectorMap["vector_click_als_user"]
+		clickReceived := currProfile.VectorMap["vector_click_als_received"]
+		fs.Add(10007, utils.ArrayMultSum(clickUser, clickReceived))
 	}
 
 	return fs
