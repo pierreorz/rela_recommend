@@ -1,21 +1,21 @@
 package live
 
 import (
-	"fmt"
-	"time"
-	"sync"
 	"errors"
+	"fmt"
 	"rela_recommend/factory"
 	"rela_recommend/log"
-	"rela_recommend/rpc/api"
 	"rela_recommend/models/pika"
+	"rela_recommend/rpc/api"
+	"sync"
+	"time"
 )
-
 
 var cachedLiveListMap map[int][]pika.LiveCache = map[int][]pika.LiveCache{}
 var cachedLiveListMapUpdateLocker = &sync.RWMutex{}
 
-// 获取缓存的直播列表
+// 获取缓存的直播列表 -1.all; 1. video; 2. audio; 3. multi_audio(radio)
+// https://wiki.rela.me/pages/viewpage.action?pageId=5672757
 func GetCachedLiveMapList(liveType int) []pika.LiveCache {
 	return cachedLiveListMap[liveType]
 }
@@ -30,45 +30,59 @@ func GetCachedLiveMapMap(liveType int) map[int64]*pika.LiveCache {
 	return liveMap
 }
 
+// 通过直播分类获取直播列表
+func GetCachedLiveListByClassify(classify int) []pika.LiveCache {
+	lives := []pika.LiveCache{}
+	liveList := GetCachedLiveMapList(-1) // -1 获取所有直播
+	for i, live := range liveList {
+		// 不限制 或 类型是特定类型
+		if classify <= 0 || live.Live.Classify == classify {
+			lives = append(lives, liveList[i])
+		}
+	}
+	return lives
+}
+
 func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 	liveCacheList := make([]pika.LiveCache, len(lives))
 	for i, live := range lives {
 		liveCache := &liveCacheList[i]
 
-		liveCache.Live.LiveId         		= live.UserID
-		liveCache.Live.LiveTypeId     		= live.LiveType
+		liveCache.Live.LiveId = live.UserID
+		liveCache.Live.LiveTypeId = live.LiveType
 		// liveCache.Live.UserIdStr			= live.UserId
-		liveCache.Live.UserId				= live.UserID
+		liveCache.Live.UserId = live.UserID
 		// liveCache.Live.Text					= live.
-		liveCache.Live.CreateTime			= pika.JsonTime{ Time: live.CreateTime }
+		liveCache.Live.CreateTime = pika.JsonTime{Time: live.CreateTime}
 		// liveCache.Live.UpdateTime			= live.
 		// liveCache.Live.Active				= live.
-		liveCache.Live.TopView				= live.TopView
+		liveCache.Live.TopView = live.TopView
 		// liveCache.Live.Ip					= live.
 		// liveCache.Live.Ua					= live.
-		liveCache.Live.Lat					= live.Lat
-		liveCache.Live.Lng					= live.Lng
+		liveCache.Live.Lat = live.Lat
+		liveCache.Live.Lng = live.Lng
 		// liveCache.Live.City					= live.
 		// liveCache.Live.GemProfitStr			= live.
-		liveCache.Live.GemProfit			= live.GemProfit
-		liveCache.Live.SendMsgCount			= live.SendMsgCount
-		liveCache.Live.ReceivedMsgCount 	= live.ReceivedMsgCount
-		liveCache.Live.ShareCount			= live.ShareCount
+		liveCache.Live.GemProfit = live.GemProfit
+		liveCache.Live.SendMsgCount = live.SendMsgCount
+		liveCache.Live.ReceivedMsgCount = live.ReceivedMsgCount
+		liveCache.Live.ShareCount = live.ShareCount
 		// liveCache.Live.AudioType			= live.
-		liveCache.Live.IsMulti				= live.IsMulti
+		liveCache.Live.IsMulti = live.IsMulti
+		liveCache.Live.Classify = live.Classify
 
 		// liveCache.ScoreStr			= live.Score
-		liveCache.Score				= live.Score
-		liveCache.FansCount			= live.FansCount
-		liveCache.Priority			= live.Priority
-		liveCache.Recommand			= live.Recommend
-		liveCache.RecommandLevel	= live.RecommendLevel
-		liveCache.StarsCount		= live.StarsCount
-		liveCache.TopCount			= live.TopCount
-		liveCache.BottomScore		= live.BottomScore
-		liveCache.DayIncoming		= live.DayIncoming
-		liveCache.MonthIncoming		= live.MonthIncoming
-		liveCache.Data4Api			= live.Data
+		liveCache.Score = live.Score
+		liveCache.FansCount = live.FansCount
+		liveCache.Priority = live.Priority
+		liveCache.Recommand = live.Recommend
+		liveCache.RecommandLevel = live.RecommendLevel
+		liveCache.StarsCount = live.StarsCount
+		liveCache.TopCount = live.TopCount
+		liveCache.BottomScore = live.BottomScore
+		liveCache.DayIncoming = live.DayIncoming
+		liveCache.MonthIncoming = live.MonthIncoming
+		liveCache.Data4Api = live.Data
 	}
 	return liveCacheList
 }
@@ -89,7 +103,7 @@ func updateCachedLiveMap(liveType int, newList []api.SimpleChatroom) (int, int, 
 
 		cachedLiveListMapUpdateLocker.Lock()
 		defer cachedLiveListMapUpdateLocker.Unlock()
-	
+
 		cachedLiveListMap[liveType] = newCacheList
 	}
 	return oldLen, newLen, err
@@ -101,7 +115,7 @@ func refreshLiveMapList(duration time.Duration) {
 	tick := time.NewTicker(duration)
 	for {
 		select {
-		case <- tick.C:
+		case <-tick.C:
 			if factory.ChatRoomRpcClient != nil {
 				var startTime = time.Now()
 				var updateLog []string = []string{}

@@ -1,51 +1,52 @@
 package pika
 
 import (
-	"time"
 	"encoding/json"
+	"rela_recommend/cache"
 	"rela_recommend/log"
 	"rela_recommend/utils"
-	"rela_recommend/cache"
+	"time"
 )
 
 type LiveProfile struct {
-	LiveId         		int64		`json:"id"`         // 用户ID
-	LiveTypeId     		int 		`json:"liveTypeId"`            
-	UserIdStr			string		`json:"userId"`
-	UserId				int64		`json:"-"`
-	Text				string		`json:"text"`
-	CreateTime			JsonTime	`json:"createTime"`
-	UpdateTime			JsonTime	`json:"updateTime"`
-	Active				int			`json:"active"`
-	TopView				int			`json:"topView"`
-	Ip					string		`json:"ip"`
-	Ua					string		`json:"ua"`
-	Lat					float32		`json:"lat"`
-	Lng					float32		`json:"lng"`
-	City				string		`json:"city"`
-	GemProfitStr		string		`json:"gemProfit"`
-	GemProfit			float32		`json:"-"`
-	SendMsgCount		int			`json:"sendMsgCount"`
-	ReceivedMsgCount 	int			`json:"receivedMsgCount"`
-	ShareCount			int			`json:"shareCount"`
-	AudioType			int			`json:"audioType"`
-	IsMulti				int			`json:"isMulti"`
+	LiveId           int64    `json:"id"` // 用户ID
+	LiveTypeId       int      `json:"liveTypeId"`
+	UserIdStr        string   `json:"userId"`
+	UserId           int64    `json:"-"`
+	Text             string   `json:"text"`
+	CreateTime       JsonTime `json:"createTime"`
+	UpdateTime       JsonTime `json:"updateTime"`
+	Active           int      `json:"active"`
+	TopView          int      `json:"topView"`
+	Ip               string   `json:"ip"`
+	Ua               string   `json:"ua"`
+	Lat              float32  `json:"lat"`
+	Lng              float32  `json:"lng"`
+	City             string   `json:"city"`
+	GemProfitStr     string   `json:"gemProfit"`
+	GemProfit        float32  `json:"-"`
+	SendMsgCount     int      `json:"sendMsgCount"`
+	ReceivedMsgCount int      `json:"receivedMsgCount"`
+	ShareCount       int      `json:"shareCount"`
+	AudioType        int      `json:"audioType"`
+	IsMulti          int      `json:"isMulti"`
+	Classify         int      `json:"classify"`
 }
 
 type LiveCache struct {
-	Live 				LiveProfile	`json:"live"`
-	ScoreStr			string		`json:"score"`
-	Score				float32		`json:"-"`
-	FansCount			int			`json:"fansCount"`
-	Priority			float32		`json:"priority"`
-	Recommand			int			`json:"recommand"`
-	RecommandLevel		int			`json:"recommandLevel"`
-	StarsCount			int			`json:"starsCount"`
-	TopCount			int			`json:"topCount"`		
-	BottomScore			int			`json:"bottomScore"`
-	DayIncoming			float32		`json:"dayIncoming"`
-	MonthIncoming		float32		`json:"monthIncoming"`
-	Data4Api			interface{}	`json:"data"`			// 20200305专门为api接口新增的透传参数
+	Live           LiveProfile `json:"live"`
+	ScoreStr       string      `json:"score"`
+	Score          float32     `json:"-"`
+	FansCount      int         `json:"fansCount"`
+	Priority       float32     `json:"priority"`
+	Recommand      int         `json:"recommand"`
+	RecommandLevel int         `json:"recommandLevel"`
+	StarsCount     int         `json:"starsCount"`
+	TopCount       int         `json:"topCount"`
+	BottomScore    int         `json:"bottomScore"`
+	DayIncoming    float32     `json:"dayIncoming"`
+	MonthIncoming  float32     `json:"monthIncoming"`
+	Data4Api       interface{} `json:"data"` // 20200305专门为api接口新增的透传参数
 }
 
 func (self *LiveCache) CheckDataType() {
@@ -53,7 +54,6 @@ func (self *LiveCache) CheckDataType() {
 	self.Live.UserId = utils.GetInt64(self.Live.UserIdStr)
 	self.Live.GemProfit = float32(utils.GetFloat64(self.Live.GemProfitStr))
 }
-
 
 type LiveCacheModule struct {
 	cacheLive cache.Cache
@@ -104,29 +104,26 @@ func (self *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
 	lives := make([]LiveCache, 0)
 	for i := 0; i < len(live_bytes); i++ {
 		live_byte := live_bytes[i]
-		if live_byte!= nil && len(live_byte) > 0 {
+		if live_byte != nil && len(live_byte) > 0 {
 			live := LiveCache{}
 			if err := json.Unmarshal(live_byte, &live); err != nil {
 				log.Error(err.Error(), string(live_byte))
 			} else {
 				live.CheckDataType()
-				if live.Live.UserId > 0	{
+				if live.Live.UserId > 0 {
 					lives = append(lives, live)
 				}
 			}
 		}
 	}
 	var endTime = time.Now()
-	log.Infof("QueryLiveList,all:%.3f,len:%d,cache:%.3f,json:%.3f", 
-		endTime.Sub(startTime).Seconds(), len(lives), 
+	log.Infof("QueryLiveList,all:%.3f,len:%d,cache:%.3f,json:%.3f",
+		endTime.Sub(startTime).Seconds(), len(lives),
 		startJsonTime.Sub(startTime).Seconds(),
-		endTime.Sub(startJsonTime).Seconds() )
+		endTime.Sub(startJsonTime).Seconds())
 	return lives, err
 }
-
 
 func NewLiveCacheModule(cache *cache.Cache) *LiveCacheModule {
 	return &LiveCacheModule{cacheLive: *cache}
 }
-
-
