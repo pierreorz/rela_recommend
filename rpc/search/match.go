@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"rela_recommend/factory"
 	"rela_recommend/log"
+	"rela_recommend/models/redis"
 	"strings"
 )
 
@@ -31,6 +32,7 @@ type searchMatchRequest struct {
 	Lng       float32 `json:"lng" form:"lng" `
 	Lat       float32 `json:"lat" form:"lat" `
 	PinnedIds string  `json:"pinned_ids" form:"pinned_ids" `
+	Filter    string  `json:"filter" form:"filter" `
 }
 
 // 已读接口
@@ -52,8 +54,9 @@ type searchMatchSeenRequest struct {
 	SeenIds    string `json:"seen_ids" form:"seen_ids" `
 }
 
-// 获取用户列表
-func CallMatchList(userId int64, lat, lng float32, userIds []int64) ([]int64, error) {
+// 获取用户列表, 过滤条件：
+// role_name = "1,2,3"
+func CallMatchList(userId int64, lat, lng float32, userIds []int64, user *redis.UserProfile) ([]int64, error) {
 	idlist := make([]int64, 0)
 
 	strIds := make([]string, len(userIds))
@@ -62,11 +65,19 @@ func CallMatchList(userId int64, lat, lng float32, userIds []int64) ([]int64, er
 	}
 	strsIds := strings.Join(strIds, ",")
 
+	filters := []string{}
+	if user.WantRole != "" && user != nil {
+		filters = []string{
+			fmt.Sprintf("role_name:%s", user.WantRole),
+		}
+	}
+
 	params := searchMatchRequest{
 		UserID:    userId,
 		Lng:       lng,
 		Lat:       lat,
 		PinnedIds: strsIds,
+		Filter:    strings.Join(filters, "*"),
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		res := &matchListResIds{}
