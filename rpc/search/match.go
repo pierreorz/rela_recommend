@@ -66,7 +66,7 @@ func CallMatchList(userId int64, lat, lng float32, userIds []int64, user *redis.
 	strsIds := strings.Join(strIds, ",")
 
 	filters := []string{}
-	if user.WantRole != "" && user != nil {
+	if user != nil && user.WantRole != "" {
 		filters = []string{
 			fmt.Sprintf("role_name:%s", user.WantRole),
 		}
