@@ -70,6 +70,7 @@ func CallMatchList(userId int64, lat, lng float32, userIds []int64, user *redis.
 		filters = []string{
 			fmt.Sprintf("role_name:%s", user.WantRole),
 		}
+		log.Infof("filter role_name:%s", filters)
 	}
 
 	params := searchMatchRequest{
