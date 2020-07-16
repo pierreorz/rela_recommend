@@ -46,8 +46,11 @@ func DoBuildData(ctx algo.IContext) error {
 	var startSearchTime = time.Now()
 	if abtest.GetBool("used_ai_search", false) {
 		if !abtest.GetBool("filter_role_name", false) {
+			log.Infof("If search user:%+v", user)
 			user = nil
 		}
+		log.Infof("Build call search user:%+v", user)
+
 		searchIds, searchErr := search.CallMatchList(params.UserId, params.Lat, params.Lng, dataIds, user)
 		if searchErr == nil {
 			dataIds = searchIds
