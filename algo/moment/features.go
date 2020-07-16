@@ -87,6 +87,9 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 		if user.MomentUserProfile!=nil{
 			fs.AddArray(5100,128,user.MomentUserProfile.UserEmbedding)
 		}
+		if memuEmbedding!=nil&&user.MomentUserProfile!=nil{
+			fs.Add(6100,utils.ArrayMultSum(memuEmbedding.UserEmbedding,user.MomentUserProfile.UserEmbedding))
+		}
 
 	}
 	
