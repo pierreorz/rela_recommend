@@ -471,16 +471,6 @@ func IsInInts(v int, vs []int) bool {
 	return false
 }
 
-func ArrayDot(arr1 []float32,arr2 []float32) float32{
-	var result float32
-	if len(arr2) == len(arr1) {
-		for i := 0; i < len(arr1); i++ {
-			result += arr1[i] * arr2[i]
-		}
-	}
-	return result
-}
-
 // 分隔数组
 func SplitList(list []interface{}, partLen int) [][]interface{} {
 	arrs := make([][]interface{}, partLen)
