@@ -16,6 +16,7 @@ var builderMap = map[string]algo.IBuilder{
 var strategyMap = map[string]algo.IStrategy{
 	"time_level": &algo.StrategyBase{ DoSingle: DoTimeLevel },
 	"time_weight": &algo.StrategyBase{ DoSingle: DoTimeWeightLevel },
+	"time_weight_v2": &algo.StrategyBase{ DoSingle: DoTimeWeightLevelV2 },
 	"new_user": &algo.StrategyBase{ DoSingle: AroundNewUserAddWeightFunc },
 	"label_mom":&algo.StrategyBase{ DoSingle: MomLabelAddWeight },
 
