@@ -69,12 +69,13 @@ func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []
 
 	filters := []string{}
 	log.Infof("call search user:%+v", user)
+	wantrole := strings.Join(strings.Split(user.WantRole, ""), ",")
 	if abtest.GetBool("filter_role_name", false) {
-		if user != nil && user.WantRole != "" && user.WantRole != "0" {
+		if user != nil && wantrole != "" && wantrole != "0" {
 			filters = []string{
-				fmt.Sprintf("role_name:%s", user.WantRole),
+				fmt.Sprintf("role_name:%s", wantrole),
 			}
-			log.Infof("filter role name:%s", user.WantRole)
+			log.Infof("filter role name:%s", wantrole)
 		}
 	}
 
