@@ -3,6 +3,7 @@ package search
 import (
 	"encoding/json"
 	"fmt"
+	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/models/redis"
@@ -56,7 +57,8 @@ type searchMatchSeenRequest struct {
 
 // 获取用户列表, 过滤条件：
 // role_name = "1,2,3"
-func CallMatchList(userId int64, lat, lng float32, userIds []int64, user *redis.UserProfile) ([]int64, error) {
+func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []int64, user *redis.UserProfile) ([]int64, error) {
+	abtest := ctx.GetAbTest()
 	idlist := make([]int64, 0)
 
 	strIds := make([]string, len(userIds))
@@ -66,13 +68,12 @@ func CallMatchList(userId int64, lat, lng float32, userIds []int64, user *redis.
 	strsIds := strings.Join(strIds, ",")
 
 	filters := []string{}
-	log.Infof("call search user:%+v", user)
-
-	if user != nil && user.WantRole != "" && user.WantRole != "0" {
-		filters = []string{
-			fmt.Sprintf("role_name:%s", user.WantRole),
+	if abtest.GetBool("filter_role_name", false) {
+		if user != nil && user.WantRole != "" && user.WantRole != "0" {
+			filters = []string{
+				fmt.Sprintf("role_name:%s", user.WantRole),
+			}
 		}
-		log.Infof("filter role_name:%s", filters)
 	}
 
 	params := searchMatchRequest{
