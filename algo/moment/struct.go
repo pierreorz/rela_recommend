@@ -28,7 +28,6 @@ type DataInfo struct {
 	MomentProfile        *redis.MomentsProfile
 	RankInfo             *algo.RankInfo
 	Features             *utils.Features
-	UserBehavior *behavior.UserBehavior
 	ItemBehavior *behavior.UserBehavior
 
 
