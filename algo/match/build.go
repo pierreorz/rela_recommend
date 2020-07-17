@@ -18,22 +18,14 @@ func DoBuildData(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-
-	var user *redis.UserProfile
-	var usersMap map[int64]*redis.UserProfile
 	dataIds := []int64{}
 
 	// 获取用户信息，修正经纬度
+	user, userCacheErr := userCache.QueryUserById(params.UserId)
 	if params.Lat == 0 || params.Lng == 0 {
-		user, err = userCache.QueryUserById(params.UserId)
-		if err == nil && user != nil {
+		if userCacheErr == nil && user != nil {
 			params.Lat = float32(user.Location.Lat)
 			params.Lng = float32(user.Location.Lon)
-		}
-	} else {
-		user, usersMap, err = userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
-		if err != nil {
-			log.Warnf("users cache list is err, %s\n", err)
 		}
 	}
 
@@ -64,7 +56,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	// 获取用户信息
 	var startUserTime = time.Now()
-	user, usersMap, usersCacheErr := userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
+	usersMap, usersCacheErr := userCache.QueryUsersMap(dataIds)
 	if usersCacheErr != nil {
 		log.Warnf("users cache list is err, %s\n", usersCacheErr)
 	}
