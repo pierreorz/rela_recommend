@@ -7,6 +7,7 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/models/redis"
+	"rela_recommend/utils"
 	"strings"
 )
 
@@ -69,9 +70,13 @@ func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []
 
 	filters := []string{}
 	if abtest.GetBool("filter_role_name", false) && user != nil {
-		wantrole := strings.Join(strings.Split(user.WantRole, ""), ",")
-		if wantrole != "" && wantrole != "0" {
-			filters = append(filters, fmt.Sprintf("role_name:%s", wantrole))
+		wantroles := strings.Join(strings.Split(user.WantRole, ""), ",")
+		wantrole := utils.GetInt64s(wantroles)
+		wantrole0 := utils.Remove(wantrole, 0)
+		wantroleStrs := utils.JoinInt64s(wantrole0, ",")
+
+		if wantroleStrs != "" {
+			filters = append(filters, fmt.Sprintf("role_name:%s", wantroleStrs))
 		}
 	}
 
