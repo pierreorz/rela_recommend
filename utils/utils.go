@@ -539,3 +539,11 @@ func StringContains(str string, words []string) bool {
 	}
 	return false
 }
+
+func JoinInt64s(int64s []int64, spliter string) string {
+	strs := make([]string, len(int64s))
+	for k, v := range int64s {
+		strs[k] = fmt.Sprintf("%d", v)
+	}
+	return strings.Join(strs, ",")
+}

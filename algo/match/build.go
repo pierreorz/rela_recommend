@@ -18,12 +18,12 @@ func DoBuildData(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-
 	dataIds := []int64{}
 
 	// 获取用户信息，修正经纬度
+	user, userCacheErr := userCache.QueryUserById(params.UserId)
 	if params.Lat == 0 || params.Lng == 0 {
-		if user, userCacheErr := userCache.QueryUserById(params.UserId); userCacheErr == nil && user != nil {
+		if userCacheErr == nil && user != nil {
 			params.Lat = float32(user.Location.Lat)
 			params.Lng = float32(user.Location.Lon)
 		}
@@ -43,8 +43,8 @@ func DoBuildData(ctx algo.IContext) error {
 
 	var startSearchTime = time.Now()
 	if abtest.GetBool("used_ai_search", false) {
-		searchIds, searchErr := search.CallMatchList(params.UserId, params.Lat, params.Lng, dataIds)
-		if err == nil {
+		searchIds, searchErr := search.CallMatchList(ctx, params.UserId, params.Lat, params.Lng, dataIds, user)
+		if searchErr == nil {
 			dataIds = searchIds
 			log.Infof("get searchlist len %d\n, ", len(dataIds))
 		} else {
@@ -56,7 +56,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	// 获取用户信息
 	var startUserTime = time.Now()
-	user, usersMap, usersCacheErr := userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
+	usersMap, usersCacheErr := userCache.QueryUsersMap(dataIds)
 	if usersCacheErr != nil {
 		log.Warnf("users cache list is err, %s\n", usersCacheErr)
 	}
