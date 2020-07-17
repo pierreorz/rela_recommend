@@ -80,11 +80,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var startMomentTime = time.Now()
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds,hotIdList).ToList()
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module)  // 特征对应的module名称
-	userBehaviorMap, userBehaviorErr := behaviorCache.QueryUserBehaviorMap(behaviorModuleName, params.UserId, dataIds)
 	itemBehaviorMap, itemBehaviorErr := behaviorCache.QueryItemBehaviorMap(behaviorModuleName, dataIds)
-	if userBehaviorErr != nil {
-		log.Warnf("user realtime cache user list is err, %s\n", userBehaviorErr)
-	}
 	if itemBehaviorErr != nil {
 		log.Warnf("user realtime cache item list is err, %s\n", itemBehaviorErr)
 	}
@@ -181,7 +177,6 @@ func DoBuildData(ctx algo.IContext) error {
 				MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 				RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends},
 				MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
-				UserBehavior: userBehaviorMap[mom.Moments.Id],
 				ItemBehavior: itemBehaviorMap[mom.Moments.Id],
 			}
 			dataList = append(dataList, info)

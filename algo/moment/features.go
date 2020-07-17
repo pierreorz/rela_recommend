@@ -104,23 +104,6 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 			fs.Add(9004, float32(listInteract.Count/listExposure.Count)) // 互动率
 		}
 	}
-	// 该用户对内容实时行为特征
-	if data.UserBehavior != nil {
-		// 点击互动
-		listInteract := data.UserBehavior.GetMomentListInteract()
-		fs.Add(9010, float32(listInteract.Count))
-		if listInteract.LastTime > 0 {
-			fs.Add(9011, float32(float64(currTime)-listInteract.LastTime))
-		}
-		// 曝光
-		listExposure := data.UserBehavior.GetMomentListExposure()
-		fs.Add(9012, float32(listExposure.Count))
-		if listExposure.LastTime > 0 {
-			fs.Add(9013, float32(float64(currTime)-listExposure.LastTime))
-			fs.Add(9014, float32(listInteract.Count/listExposure.Count)) // 互动率
-		}
-
-	}
 	
 	// 分词结果
 	if wordsCount > 0 {
