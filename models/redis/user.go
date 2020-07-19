@@ -2,6 +2,8 @@ package redis
 
 import (
 	"errors"
+	"strings"
+
 	// "encoding/json"
 	// "rela_recommend/log"
 	"rela_recommend/algo"
@@ -36,6 +38,20 @@ type UserProfile struct {
 
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
+}
+
+func (self *UserProfile) GetRoleNameInt() int {
+	return utils.GetInt(self.RoleName)
+}
+
+func (self *UserProfile) GetWantRoleInts() []int {
+	var wantRoles []string
+	if strings.Contains(self.WantRole, ",") {
+		wantRoles = strings.Split(self.WantRole, ",")
+	} else {
+		wantRoles = strings.Split(self.WantRole, "")
+	}
+	return utils.GetInts(wantRoles)
 }
 
 type UserCacheModule struct {
