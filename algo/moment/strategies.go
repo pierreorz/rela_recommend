@@ -19,6 +19,17 @@ func DoTimeLevel(ctx algo.IContext, index int) error {
 	return nil
 }
 
+//日志提权策略v2
+func DoTimeWeightLevelV2(ctx algo.IContext, index int) error{
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
+	if timeLevel <= 8 {
+		rankInfo.AddRecommend("momentNearTimeWeightV2", 1.0+float32(0.1/(1.0+float32(timeLevel))))
+	}
+	return nil
+}
+
 //日志提权策略
 func DoTimeWeightLevel(ctx algo.IContext, index int) error{
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)

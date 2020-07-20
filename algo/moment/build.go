@@ -18,6 +18,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var startTime = time.Now()
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
+	app := ctx.GetAppInfo()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache:=behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
@@ -26,6 +27,7 @@ func DoBuildData(ctx algo.IContext) error {
 	recIdList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
+
 	if dataIdList == nil || len(dataIdList) == 0 {
 		// 获取推荐日志
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
@@ -77,6 +79,11 @@ func DoBuildData(ctx algo.IContext) error {
 	// 获取日志内容
 	var startMomentTime = time.Now()
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds,hotIdList).ToList()
+	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module)  // 特征对应的module名称
+	itemBehaviorMap, itemBehaviorErr := behaviorCache.QueryItemBehaviorMap(behaviorModuleName, dataIds)
+	if itemBehaviorErr != nil {
+		log.Warnf("user realtime cache item list is err, %s\n", itemBehaviorErr)
+	}
 	moms, err := momentCache.QueryMomentsByIds(dataIds)
 	userIds := make([]int64, 0)
 	if err != nil {
@@ -170,6 +177,7 @@ func DoBuildData(ctx algo.IContext) error {
 				MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 				RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends},
 				MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
+				ItemBehavior: itemBehaviorMap[mom.Moments.Id],
 			}
 			dataList = append(dataList, info)
 		}

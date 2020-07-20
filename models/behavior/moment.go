@@ -52,3 +52,12 @@ func (self *UserBehavior) GetMomentListInteract() *Behavior {
 		"moment.detail_recommend:like", "moment.detail_recommend:comment", "moment.detail_recommend:share", "moment.detail_recommend:follow",
 	)
 }
+func (self *UserBehavior) GetMomentListRate() float64 {
+	exposure := self.GetMomentListExposure()
+	interact := self.GetMomentListInteract()
+	if exposure.Count > 0 {
+		return interact.Count / exposure.Count
+	}
+	return 0.0
+}
+
