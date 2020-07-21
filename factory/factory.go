@@ -1,21 +1,23 @@
 package factory
 
 import (
-	"gopkg.in/mgo.v2"
 	"rela_recommend/cache"
 	"rela_recommend/cache/memory"
 	cacheUtils "rela_recommend/cache/utils"
-	"rela_recommend/rpc"
 	"rela_recommend/conf"
 	"rela_recommend/log"
+	"rela_recommend/rpc"
 	"rela_recommend/utils"
 	"strings"
 	"time"
 
+	"gopkg.in/mgo.v2"
+
+	"rela_recommend/service/segment"
+
 	"github.com/gocql/gocql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"rela_recommend/service/segment"
 	// "rela_recommend/service/abtest"
 )
 
@@ -32,6 +34,7 @@ var CacheLiveRds cache.Cache
 
 // redis cache
 var CacheCluster cache.Cache
+
 // Behavior cache
 var CacheBehaviorRds cache.Cache
 
@@ -54,6 +57,7 @@ var AiSearchRpcClient *rpc.HttpClient
 
 // 分词
 var Segmenter segment.ISegmenter
+
 //配置相关
 var Cfg *conf.Config
 
@@ -156,7 +160,7 @@ func initCache(cfg *conf.Config) {
 		log.Error(err.Error())
 	}
 
-	memoryCacheSize := 1024 * 1024 * 1024	// 1GB
+	memoryCacheSize := 1024 * 1024 * 1024 // 1GB
 	log.Infof("INIT CacheLocal: %d ....", memoryCacheSize)
 	CacheLoc, err = memory.NewMemoryCache(memoryCacheSize)
 	if err != nil {
@@ -173,16 +177,16 @@ func initMongo(cfg *conf.Config) {
 	}
 }
 
-func initRpc(cfg *conf.Config){
-	SearchRpcClient = rpc.NewHttpClient(cfg.Rpc.SearchRpcAddr, time.Millisecond * 500)
-	ApiRpcClient = rpc.NewHttpClient(cfg.Rpc.ApiRpcAddr, time.Millisecond * 100)
-	ChatRoomRpcClient = rpc.NewHttpClient(cfg.Rpc.ChatRoomRpcAddr, time.Millisecond * 1000)
-	AiSearchRpcClient = rpc.NewHttpClient(cfg.Rpc.AiSearchRpcAddr, time.Millisecond * 300)
+func initRpc(cfg *conf.Config) {
+	SearchRpcClient = rpc.NewHttpClient(cfg.Rpc.SearchRpcAddr, time.Millisecond*500)
+	ApiRpcClient = rpc.NewHttpClient(cfg.Rpc.ApiRpcAddr, time.Millisecond*100)
+	ChatRoomRpcClient = rpc.NewHttpClient(cfg.Rpc.ChatRoomRpcAddr, time.Millisecond*1000)
+	AiSearchRpcClient = rpc.NewHttpClient(cfg.Rpc.AiSearchRpcAddr, time.Millisecond*1000)
 }
 
 func initSegmenter(cfg *conf.Config) {
 	Segmenter = segment.NewSegmenter()
-	log.Infof("INIT Segmenter: %s", Segmenter.Cut("你好分词已经准备好了！")) 
+	log.Infof("INIT Segmenter: %s", Segmenter.Cut("你好分词已经准备好了！"))
 }
 
 func Close() {
