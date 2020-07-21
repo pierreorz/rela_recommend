@@ -42,14 +42,20 @@ func DoBuildData(ctx algo.IContext) error {
 		// 	log.Warnf("recommend list is none, using new, pls check!\n")
 		// }
 		if newMomentLen > 0 {
+
 			momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 			radiusArray := abtest.GetStrings("radius_range", "50km")
 			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
 			//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 			for _, radius := range radiusArray {
-				newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
-					momentTypes, newMomentStartTime, radius)
+				if abtest.GetBool("use_ai_search", false) {
+					newIdList, err=search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
+						momentTypes, newMomentStartTime, radius)
+				} else {
+					newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
+						momentTypes, newMomentStartTime, radius)
+				}
 				//附近日志数量大于10即停止寻找
 				if len(newIdList) > 10 {
 					break
