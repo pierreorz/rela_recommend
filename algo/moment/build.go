@@ -49,7 +49,7 @@ func DoBuildData(ctx algo.IContext) error {
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
 			//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 			for _, radius := range radiusArray {
-				if abtest.GetBool("use_ai_search", true) {
+				if abtest.GetBool("use_ai_search", false) {
 					newIdList, err=search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
 						momentTypes, newMomentStartTime, radius)
 				} else {
@@ -191,7 +191,6 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetUserInfo(userInfo)
 	ctx.SetDataIds(dataIds)
 	ctx.SetDataList(dataList)
-	log.Infof("final read list dataidlist:%s",dataList)
 	var endTime = time.Now()
 	log.Infof("rankid %s,totallen:%d,paramlen:%d,reclen:%d,searchlen:%d;backendlen:%d;toplen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,moment_offline_profile:%.3f,embedding_cache:%.3f,build:%.3f\n",
 		ctx.GetRankId(), len(dataIds), len(dataIdList), len(recIdList), len(newIdList), len(recIds),len(hotIdList),
