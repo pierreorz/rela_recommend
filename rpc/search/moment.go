@@ -3,7 +3,6 @@ package search
 import (
 	"fmt"
 	"strings"
-	"time"
 	"encoding/json"
 	"rela_recommend/factory"
 )
@@ -32,12 +31,11 @@ type searchMomentRequest struct {
 
 // 获取附近日志列表
 func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, momentTypes string, insertTimestamp float32, distance string) ([]int64, error) {
-	now := time.Now().Unix()
 	idlist := make([]int64, 0)
 	filters := []string{
-		fmt.Sprintf("{moment_type:%s}", momentTypes),                     //  moments Type
+		fmt.Sprintf("{momentsType:%s}", momentTypes),                     //  moments Type
 		fmt.Sprintf("distance:(0,%d]",distance),                                   // distance
-		fmt.Sprintf("start_time:[,%d]*end_time:[%d,]",now , insertTimestamp),           // time
+		fmt.Sprintf("insertTimestamp:", insertTimestamp),           // time
 	}
 	params:=searchMomentRequest{
 		UserID:userId,
