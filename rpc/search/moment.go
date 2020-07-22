@@ -7,7 +7,7 @@ import (
 	"rela_recommend/factory"
 )
 
-const internalSearchNearMomentListUrlV1 = "/search/moment"
+const internalSearchNearMomentListUrlV1 = "/search/friend_moments"
 
 type SearchMomentResDataItem struct {
 	Id int64 `json:"id"`
