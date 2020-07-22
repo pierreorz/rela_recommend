@@ -49,7 +49,7 @@ func DoBuildData(ctx algo.IContext) error {
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
 			//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 			for _, radius := range radiusArray {
-				if abtest.GetBool("use_ai_search", false) {
+				if abtest.GetBool("use_ai_search", true) {
 					newIdList, err=search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
 						momentTypes, newMomentStartTime, radius)
 				} else {
