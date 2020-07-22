@@ -5,6 +5,7 @@ import (
 	"strings"
 	"encoding/json"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 )
 
 const internalSearchNearMomentListUrlV1 = "/search/friend_moments"
@@ -51,6 +52,7 @@ func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, m
 			for _, element := range searchRes.Data {
 				idlist = append(idlist, element.Id)
 			}
+			log.Infof("moment list read ,%s",idlist)
 			return idlist, err
 		} else {
 			return idlist, err

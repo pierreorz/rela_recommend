@@ -52,6 +52,7 @@ func DoBuildData(ctx algo.IContext) error {
 				if abtest.GetBool("use_ai_search", true) {
 					newIdList, err=search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
 						momentTypes, newMomentStartTime, radius)
+					log.Infof("use ai search,dataIdList:%s\n",newIdList)
 				} else {
 					newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
 						momentTypes, newMomentStartTime, radius)
