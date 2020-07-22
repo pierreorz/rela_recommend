@@ -33,9 +33,9 @@ type searchMomentRequest struct {
 func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, momentTypes string, insertTimestamp float32, distance string) ([]int64, error) {
 	idlist := make([]int64, 0)
 	filters := []string{
-		fmt.Sprintf("{momentsType:%s}", momentTypes),                     //  moments Type
+		fmt.Sprintf("{moments_type:%s}", momentTypes),                     //  moments Type
 		fmt.Sprintf("distance:(0,%d]",distance),                                   // distance
-		fmt.Sprintf("insertTimestamp:", insertTimestamp),           // time
+		fmt.Sprintf("insert_time:[%d:)", insertTimestamp),           // time
 	}
 	params:=searchMomentRequest{
 		UserID:userId,
