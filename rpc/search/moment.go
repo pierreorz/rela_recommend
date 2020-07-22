@@ -24,6 +24,7 @@ type searchMomentRequest struct {
 	UserID    int64   `json:"userId" form:"userId"`
 	Offset        int64   `json:"offset" form:"offset"`
 	Limit         int64   `json:"limit" form:"limit"`
+	Distance         string   `json:"distance" form:"distance"`
 	Lng       float32 `json:"lng" form:"lng" `
 	Lat       float32 `json:"lat" form:"lat" `
 	Filter    string  `json:"filter" form:"filter" `
@@ -40,6 +41,7 @@ func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, m
 		UserID:userId,
 		Offset:offset,
 		Limit:limit,
+		Distance:distance,
 		Lng:lng,
 		Lat:lat,
 		Filter:        strings.Join(filters, "*"),
