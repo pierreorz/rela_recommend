@@ -34,8 +34,7 @@ func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, m
 	idlist := make([]int64, 0)
 	filters := []string{
 		fmt.Sprintf("{moments_type:%s}", momentTypes),                     //  moments Type
-		fmt.Sprintf("distance:(0,%d]",distance),                                   // distance
-		fmt.Sprintf("insert_time:[%d:)", insertTimestamp),           // time
+		fmt.Sprintf("insert_time:[%f:)", insertTimestamp),           // time
 	}
 	params:=searchMomentRequest{
 		UserID:userId,
