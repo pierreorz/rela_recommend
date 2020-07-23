@@ -166,6 +166,10 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 
 		}
 	}
+	memuEmbedding := data.MatchProfile
+	if memuEmbedding != nil {
+		fs.AddArray(3000, 128, memuEmbedding.UserEmbedding)
+	}
 
 	curr := data.UserCache
 	currMatch := data.MatchProfile
@@ -320,7 +324,13 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 		if currMatch.UserInfoMap != nil {
 			fs.AddCategory(4040, 10, -1, rutils.GetInt(currMatch.UserInfoMap["want_affection"]), -1)
 		}
+		if currMatch.UserEmbedding != nil {
+			fs.AddArray(7000, 128, currMatch.UserEmbedding)
+		}
 
+	}
+	if memuEmbedding != nil && currMatch != nil {
+		fs.Add(6100, utils.ArrayMultSum(memuEmbedding.UserEmbedding, currMatch.UserEmbedding))
 	}
 	return fs
 }
