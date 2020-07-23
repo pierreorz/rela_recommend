@@ -9,7 +9,10 @@ import (
 var appName = "user"
 var workDir = algo.GetWorkDir("/algo_files/user/")
 
-var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildData}}
+var builderMap = map[string]algo.IBuilder{
+	"base": &algo.BuilderBase{DoBuild: DoBuildData},
+	"v1":   &algo.BuilderBase{DoBuild: DoBuildDataV1},
+}
 var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{}}

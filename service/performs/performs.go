@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"rela_recommend/log"
+	"rela_recommend/utils"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -48,6 +51,7 @@ func (self *Performs) addChild(name string) *Performs {
 	}
 }
 
+// 当前节点最后一个且未关闭的对象
 func (self *Performs) findNext() *Performs {
 	if length := self.Length(); length > 0 {
 		currName := self.ItemsName[length-1]
@@ -56,6 +60,15 @@ func (self *Performs) findNext() *Performs {
 		}
 	}
 	return nil
+}
+
+// 递归获取最后一个未关闭对象
+func (self *Performs) FindCurrent() *Performs {
+	if val := self.findNext(); val != nil {
+		return val.FindCurrent()
+	} else {
+		return self
+	}
 }
 
 func (self *Performs) Begin(name string) *Performs {
@@ -97,6 +110,33 @@ func (self *Performs) Run(name string, runFunc func() interface{}) *Performs {
 	return self.EndWithResult(name, result)
 }
 
+func (self *Performs) RunsGo(runMap map[string]func() interface{}) *Performs {
+	if len(runMap) == 0 {
+		return self
+	}
+
+	runMapKeys := []string{"go"}
+	for name := range runMap {
+		runMapKeys = append(runMapKeys, name)
+	}
+	groupName := strings.Join(runMapKeys, "_")
+
+	var group sync.WaitGroup
+	groupPf := self.FindCurrent().addChild(groupName)
+	for name, runFunc := range runMap {
+		group.Add(1)
+		childPf := groupPf.addChild(name)
+		go func(name string, runFunc func() interface{}) {
+			result := runFunc()
+			childPf.EndWithResult(name, result)
+
+			group.Done()
+		}(name, runFunc)
+	}
+	group.Wait()
+	return groupPf.End(groupName)
+}
+
 func (self *Performs) toString(buffer *bytes.Buffer, pre string) {
 	fullName := pre + "." + self.Name
 	if pre == "" {
@@ -107,11 +147,16 @@ func (self *Performs) toString(buffer *bytes.Buffer, pre string) {
 		}
 	}
 	var slog string
-	if self.Result != nil {
-		slog = fmt.Sprintf("%s:%.3f:%v,", fullName, self.Interval, self.Result)
-	} else {
+	switch result := self.Result.(type) {
+	case nil:
 		slog = fmt.Sprintf("%s:%.3f,", fullName, self.Interval)
+	case error:
+		errMsg := strings.Join(utils.Splits(result.Error(), " ,:"), "_")
+		slog = fmt.Sprintf("%s:%.3f::%v,", fullName, self.Interval, errMsg)
+	default:
+		slog = fmt.Sprintf("%s:%.3f:%v,", fullName, self.Interval, self.Result)
 	}
+
 	buffer.WriteString(slog)
 	for _, name := range self.ItemsName {
 		if val, ok := self.ItemsMap[name]; ok {
