@@ -127,10 +127,10 @@ func (self *Performs) RunsGo(runMap map[string]func() interface{}) *Performs {
 		group.Add(1)
 		childPf := groupPf.addChild(name)
 		go func(name string, runFunc func() interface{}) {
+			defer group.Done()
+
 			result := runFunc()
 			childPf.EndWithResult(name, result)
-
-			group.Done()
 		}(name, runFunc)
 	}
 	group.Wait()
