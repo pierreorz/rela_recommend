@@ -35,8 +35,8 @@ func GetCachedLiveListByClassify(classify int) []pika.LiveCache {
 	lives := []pika.LiveCache{}
 	liveList := GetCachedLiveMapList(-1) // -1 获取所有直播
 	for i, live := range liveList {
-		// 不限制 或 类型是特定类型
-		if classify <= 0 || live.Live.Classify == classify {
+		// 不限制 或 类型是特定类型; classify=1时为推荐分类，不限制分类
+		if classify <= 1 || live.Live.Classify == classify {
 			lives = append(lives, liveList[i])
 		}
 	}
