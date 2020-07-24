@@ -5,6 +5,7 @@ import (
 	"rela_recommend/algo/live"
 	"rela_recommend/factory"
 	"rela_recommend/log"
+	"rela_recommend/service/performs"
 	"time"
 
 	// "rela_recommend/algo/utils"
@@ -124,8 +125,8 @@ func DoBuildDataV1(ctx algo.IContext) error {
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module)
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
 	var itemBehaviorMap = map[int64]*behavior.UserBehavior{}
-	pf.RunsGo("caches", map[string]func() interface{}{
-		"user": func() interface{} {
+	pf.RunsGo("caches", map[string]func(*performs.Performs) interface{}{
+		"user": func(*performs.Performs) interface{} {
 			var userCacheErr error
 			user, usersMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
 			if userCacheErr != nil {
@@ -133,7 +134,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 			}
 			return len(usersMap)
 		},
-		"profile": func() interface{} {
+		"profile": func(*performs.Performs) interface{} {
 			var profileCacheErr error
 			userProfile, userProfileMap, profileCacheErr = userCache.QueryNearbyProfileByUserAndUsersMap(params.UserId, dataIds)
 			if profileCacheErr != nil {
@@ -141,7 +142,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 			}
 			return len(usersMap)
 		},
-		"realtime_user": func() interface{} {
+		"realtime_user": func(*performs.Performs) interface{} {
 			var userBehaviorErr error
 			userBehaviorMap, userBehaviorErr = behaviorCache.QueryUserBehaviorMap(behaviorModuleName, params.UserId, dataIds)
 			if userBehaviorErr != nil {
@@ -149,7 +150,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 			}
 			return len(userBehaviorMap)
 		},
-		"realtime_item": func() interface{} {
+		"realtime_item": func(*performs.Performs) interface{} {
 			var itemBehaviorErr error
 			itemBehaviorMap, itemBehaviorErr = behaviorCache.QueryItemBehaviorMap(behaviorModuleName, dataIds)
 			if itemBehaviorErr != nil {
@@ -160,7 +161,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 	})
 
 	// 组装用户信息
-	pf.Run("build", func() interface{} {
+	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId:      params.UserId,
 			UserCache:   user,

@@ -104,13 +104,13 @@ func (self *Performs) EndAndBegin(endName string, beginName string) *Performs {
 	return self.Begin(beginName)
 }
 
-func (self *Performs) Run(name string, runFunc func() interface{}) *Performs {
-	self.Begin(name)
-	result := runFunc()
-	return self.EndWithResult(name, result)
+func (self *Performs) Run(name string, runFunc func(*Performs) interface{}) *Performs {
+	pf := self.Begin(name)
+	result := runFunc(pf)
+	return pf.EndWithResult(name, result)
 }
 
-func (self *Performs) RunsGo(groupName string, runMap map[string]func() interface{}) *Performs {
+func (self *Performs) RunsGo(groupName string, runMap map[string]func(*Performs) interface{}) *Performs {
 	if len(runMap) == 0 {
 		return self
 	}
@@ -128,10 +128,10 @@ func (self *Performs) RunsGo(groupName string, runMap map[string]func() interfac
 	for name, runFunc := range runMap {
 		group.Add(1)
 		childPf := groupPf.addChild(name)
-		go func(name string, runFunc func() interface{}) {
+		go func(name string, runFunc func(*Performs) interface{}) {
 			defer group.Done()
 
-			result := runFunc()
+			result := runFunc(childPf)
 			childPf.EndWithResult(name, result)
 		}(name, runFunc)
 	}
