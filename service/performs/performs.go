@@ -110,16 +110,18 @@ func (self *Performs) Run(name string, runFunc func() interface{}) *Performs {
 	return self.EndWithResult(name, result)
 }
 
-func (self *Performs) RunsGo(runMap map[string]func() interface{}) *Performs {
+func (self *Performs) RunsGo(groupName string, runMap map[string]func() interface{}) *Performs {
 	if len(runMap) == 0 {
 		return self
 	}
 
-	runMapKeys := []string{"go"}
-	for name := range runMap {
-		runMapKeys = append(runMapKeys, name)
+	if groupName == "" {
+		runMapKeys := []string{"go"}
+		for name := range runMap {
+			runMapKeys = append(runMapKeys, name)
+		}
+		groupName = strings.Join(runMapKeys, "_")
 	}
-	groupName := strings.Join(runMapKeys, "_")
 
 	var group sync.WaitGroup
 	groupPf := self.FindCurrent().addChild(groupName)

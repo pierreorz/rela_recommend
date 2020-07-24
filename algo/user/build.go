@@ -124,7 +124,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module)
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
 	var itemBehaviorMap = map[int64]*behavior.UserBehavior{}
-	pf.RunsGo(map[string]func() interface{}{
+	pf.RunsGo("caches", map[string]func() interface{}{
 		"user": func() interface{} {
 			var userCacheErr error
 			user, usersMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
