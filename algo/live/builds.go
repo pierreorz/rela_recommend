@@ -20,22 +20,9 @@ func DoBuildData(ctx algo.IContext) error {
 
 	var lives []pika.LiveCache
 	// 获取主播列表
-	if len(params.Params["type"]) > 0 { // 如果有type参数，使用新的api获取缓存计算
-		liveType := utils.GetInt(params.Params["type"])
-		lives = GetCachedLiveMapList(liveType)
-	} else if len(params.Params["classify"]) > 0 { // 如果有classify参数，使用新的api获取classify计算
-		classify := utils.GetInt(params.Params["classify"])
-		lives = GetCachedLiveListByClassify(classify)
-	} else {
-		liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
-		allLives := GetCachedLiveList()
-		if allLives == nil || len(allLives) == 0 {
-			var err error
-			allLives, err = liveCache.QueryLiveList()
-			log.Warnf("cached live list is nil, %s\n", err)
-		}
-		lives = liveCache.MgetByLiveIds(allLives, params.DataIds)
-	}
+	liveType := utils.GetInt(params.Params["type"])
+	classify := utils.GetInt(params.Params["classify"])
+	lives = GetCachedLiveListByTypeClassify(liveType, classify)
 
 	liveIds := make([]int64, len(lives))
 	for i, _ := range lives {
