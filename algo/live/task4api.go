@@ -33,6 +33,9 @@ func GetCachedLiveMapMap(liveType int) map[int64]*pika.LiveCache {
 // 通过直播分类获取直播列表
 func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache {
 	lives := []pika.LiveCache{}
+	if typeId <= 0 {
+		typeId = -1
+	}
 	liveList := GetCachedLiveMapList(typeId) // -1 获取所有直播
 	for i, live := range liveList {
 		// 不限制 或 类型是特定类型; classify=1时为推荐分类，不限制分类
