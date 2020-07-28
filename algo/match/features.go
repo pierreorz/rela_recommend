@@ -481,7 +481,7 @@ func GetMatchFeaturesv1(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			if matp.MomentMap != nil {
 				fs.Add(2150, matp.MomentMap["moments_count"])
 			}
-			if matp.UserEmbedding != nil {
+			if matp.UserEmbedding != nil and matp.UserEmbedding != 0 {
 				fs.AddArray(3000, 128, matp.UserEmbedding)
 			}
 		}
@@ -643,11 +643,11 @@ func GetMatchFeaturesv1(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		if currMatch.MomentMap != nil {
 			fs.Add(5150, currMatch.MomentMap["moments_count"])
 		}
-		if currMatch.UserEmbedding != nil {
+		if currMatch.UserEmbedding != nil && currMatch.UserEmbedding != 0{
 			fs.AddArray(7000, 128, currMatch.UserEmbedding)
 		}
 	}
-	if user.MatchProfile.UserEmbedding != nil && currMatch != nil {
+	if user.MatchProfile.UserEmbedding != nil && currMatch != nil && user.MatchProfile.UserEmbedding != 0 && currMatch != 0{
 		fs.Add(6100, utils.ArrayMultSum(user.MatchProfile.UserEmbedding, currMatch.UserEmbedding))
 	}
 	return fs
