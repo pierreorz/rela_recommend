@@ -166,10 +166,6 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 
 		}
 	}
-	memuEmbedding := data.MatchProfile
-	if memuEmbedding != nil {
-		fs.AddArray(3000, 128, memuEmbedding.UserEmbedding)
-	}
 
 	curr := data.UserCache
 	currMatch := data.MatchProfile
@@ -324,13 +320,7 @@ func GetMatchFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 		if currMatch.UserInfoMap != nil {
 			fs.AddCategory(4040, 10, -1, rutils.GetInt(currMatch.UserInfoMap["want_affection"]), -1)
 		}
-		if currMatch.UserEmbedding != nil {
-			fs.AddArray(7000, 128, currMatch.UserEmbedding)
-		}
 
-	}
-	if memuEmbedding != nil && currMatch != nil {
-		fs.Add(6100, utils.ArrayMultSum(memuEmbedding.UserEmbedding, currMatch.UserEmbedding))
 	}
 	return fs
 }
@@ -343,8 +333,9 @@ func GetMatchFeaturesv1(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	// 用户
 	var role, wantRoles = 0, make([]int, 0)
 	var memu *redis.UserProfile
+	user := ctx.GetUserInfo().(*UserInfo)
 	if ctx.GetUserInfo() != nil {
-		user := ctx.GetUserInfo().(*UserInfo)
+		// user := ctx.GetUserInfo().(*UserInfo)
 		if user.UserCache != nil {
 			memu = user.UserCache
 			fs.Add(1, float32(memu.Age))
@@ -489,6 +480,9 @@ func GetMatchFeaturesv1(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			}
 			if matp.MomentMap != nil {
 				fs.Add(2150, matp.MomentMap["moments_count"])
+			}
+			if matp.UserEmbedding != nil {
+				fs.AddArray(3000, 128, matp.UserEmbedding)
 			}
 		}
 	}
@@ -649,7 +643,12 @@ func GetMatchFeaturesv1(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		if currMatch.MomentMap != nil {
 			fs.Add(5150, currMatch.MomentMap["moments_count"])
 		}
-
+		if currMatch.UserEmbedding != nil {
+			fs.AddArray(7000, 128, currMatch.UserEmbedding)
+		}
+	}
+	if user.MatchProfile.UserEmbedding != nil && currMatch != nil {
+		fs.Add(6100, utils.ArrayMultSum(user.MatchProfile.UserEmbedding, currMatch.UserEmbedding))
 	}
 	return fs
 }
