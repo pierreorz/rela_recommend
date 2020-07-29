@@ -3,6 +3,7 @@ package match
 import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/redis"
 	"rela_recommend/service"
 	rutils "rela_recommend/utils"
@@ -647,6 +648,7 @@ func GetMatchFeaturesv1(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			fs.AddArray(7000, 128, currMatch.UserEmbedding)
 		}
 	}
+	log.Infof("get 6100 user embedding:%+v, data embedding:%+v", user.MatchProfile.UserEmbedding, currMatch.UserEmbedding)
 	if user.MatchProfile.UserEmbedding != nil && currMatch.UserEmbedding != nil {
 		fs.Add(6100, utils.ArrayMultSum(user.MatchProfile.UserEmbedding, currMatch.UserEmbedding))
 	}
