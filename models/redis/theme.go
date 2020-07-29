@@ -66,11 +66,19 @@ func (self *ThemeUserBehavior) GetTotalInteract() *Behavior {
 		self.DetailFollowThemer, self.DetailFollowReplyer,)
 }
 
-
 type ThemeBehaviorCacheModule struct {
 	CachePikaModule
 }
-
+type ThemeHotCacheModule struct {
+	CachePikaModule
+}
+type DataBehaviorScore struct {
+	DataId int64   `json:"dataId"` // 数据id
+	Score  float64 `json:"score"`  // 得分
+}
+type DataBehaviorTopList struct {
+	Data []DataBehaviorScore `json:"data"` // 热门列表
+}
 func NewThemeBehaviorCacheModule(ctx algo.IContext, cache *cache.Cache) *ThemeBehaviorCacheModule {
 	return &ThemeBehaviorCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
 }
@@ -99,7 +107,18 @@ func (self *ThemeBehaviorCacheModule) QueryBehaviorMap(ids []int64) (map[int64]*
 	objs := ress.Interface().(map[int64]*ThemeUserBehavior)
 	return objs, err
 }
-
+func HotThemeCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *ThemeHotCacheModule{
+	return &ThemeHotCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
+}
+// 热门话题
+func (self *ThemeHotCacheModule) QueryDataBehaviorTop()(*DataBehaviorTopList, error){
+	app := self.ctx.GetAppInfo()
+	topDataKey := self.ctx.GetAbTest().GetString("behavior_data_top_key","behavior:item:%s:top")
+	keyFormatter := fmt.Sprintf(topDataKey,app.Module)
+	objs := &DataBehaviorTopList{}
+	err := self.GetStruct(keyFormatter, objs)
+	return objs,err
+	}
 // 读取用户als特征
 func (self *ThemeUserProfileModule) QueryThemeUserProfileMap(ids []int64) (map[int64]*ThemeUserProfile, error) {
 	keyFormatter := "theme_user_profile:%d"
