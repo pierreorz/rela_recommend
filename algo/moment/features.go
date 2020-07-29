@@ -13,7 +13,7 @@ import (
 func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *utils.Features {
 	fs := &utils.Features{}
 	shareToList := map[string]int{"all": 0, "friends": 1, "self": 2}
-
+	currTime := ctx.GetCreateTime().Unix()
 	data := idata.(*DataInfo)
 	// 发布内容
 	mem, meme := data.MomentCache, data.MomentExtendCache
@@ -87,7 +87,25 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 		if user.MomentUserProfile!=nil{
 			fs.AddArray(5100,128,user.MomentUserProfile.UserEmbedding)
 		}
+		if memuEmbedding!=nil&&user.MomentUserProfile!=nil{
+			fs.Add(6100,utils.ArrayMultSum(memuEmbedding.UserEmbedding,user.MomentUserProfile.UserEmbedding))
+		}
 
+	}// 该内容实时行为特征
+	if data.ItemBehavior != nil {
+		// 点击互动
+		listInteract := data.ItemBehavior.GetMomentListInteract()
+		fs.Add(9000, float32(listInteract.Count))
+		if listInteract.LastTime > 0 {
+			fs.Add(9001, float32(float64(currTime)-listInteract.LastTime))
+		}
+		// 曝光
+		listExposure := data.ItemBehavior.GetMomentListExposure()
+		fs.Add(9002, float32(listExposure.Count))
+		if listExposure.LastTime > 0 {
+			fs.Add(9003, float32(float64(currTime)-listExposure.LastTime))
+			fs.Add(9004, float32(listInteract.Count/listExposure.Count)) // 互动率
+		}
 	}
 	
 	// 分词结果

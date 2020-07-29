@@ -539,3 +539,23 @@ func StringContains(str string, words []string) bool {
 	}
 	return false
 }
+
+// 多char分割字符串
+func Splits(s string, chars string) []string {
+	var charMap = map[rune]bool{}
+	for _, char := range chars {
+		charMap[char] = true
+	}
+	return strings.FieldsFunc(s, func(c rune) bool {
+		_, ok := charMap[c]
+		return ok
+	})
+}
+
+func JoinInt64s(int64s []int64, spliter string) string {
+	strs := make([]string, len(int64s))
+	for k, v := range int64s {
+		strs[k] = fmt.Sprintf("%d", v)
+	}
+	return strings.Join(strs, ",")
+}

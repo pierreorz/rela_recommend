@@ -1,14 +1,13 @@
 package rpc
 
-
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
-	"time"
 	"rela_recommend/log"
+	"time"
 )
 
 type HttpClient struct {
@@ -43,7 +42,7 @@ func (cli *HttpClient) doRequest(req *http.Request, internalClientRes interface{
 			err = json.Unmarshal(data, internalClientRes)
 		}
 	}
-	
+
 	if err != nil {
 		log.Errorf("doRequest err, %s %s %s %s\n", req.Method, req.URL.String(), string(data), err)
 	}
@@ -51,28 +50,28 @@ func (cli *HttpClient) doRequest(req *http.Request, internalClientRes interface{
 }
 
 func (cli *HttpClient) SendPOSTJson(url string, body []byte, internalClientRes interface{}) error {
-	finalUrl := cli.api_host+url
+	finalUrl := cli.api_host + url
 	req, _ := http.NewRequest(http.MethodPost, finalUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	return cli.doRequest(req, internalClientRes)
 }
 
 func (cli *HttpClient) SendGETForm(url, params string, internalClientRes interface{}) error {
-	finalUrl := cli.api_host+url+"?"+params
+	finalUrl := cli.api_host + url + "?" + params
 	req, _ := http.NewRequest(http.MethodGet, finalUrl, nil)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	return cli.doRequest(req, internalClientRes)
 }
 
 func (cli *HttpClient) SendPOSTForm(url string, body []byte, internalClientRes interface{}) error {
-	finalUrl := cli.api_host+url
+	finalUrl := cli.api_host + url
 	req, _ := http.NewRequest(http.MethodPost, finalUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	return cli.doRequest(req, internalClientRes)
 }
 
 func (cli *HttpClient) SendGetHeader(url, headerKey, headerVal string, internalClientRes interface{}) error {
-	finalUrl := cli.api_host+url
+	finalUrl := cli.api_host + url
 	req, _ := http.NewRequest(http.MethodGet, finalUrl, nil)
 	req.Header.Set(headerKey, headerVal)
 	return cli.doRequest(req, internalClientRes)

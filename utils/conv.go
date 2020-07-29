@@ -16,8 +16,8 @@ package utils
 
 import (
 	"fmt"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 // GetString convert interface to string.
@@ -132,60 +132,97 @@ func GetInterfaces(v interface{}) []interface{} {
 	res := make([]interface{}, 0)
 	if v != nil {
 		switch result := v.(type) {
-			case []interface{}:
-				return result
-			case []int64:
-				for _, uid := range result { res = append(res, uid) }
-			case []int32:
-				for _, uid := range result { res = append(res, uid) }
-			case []int:
-				for _, uid := range result { res = append(res, uid) }
-			case []float32:
-				for _, uid := range result { res = append(res, uid) }
-			case []float64:
-				for _, uid := range result { res = append(res, uid) }
-			case []bool:
-				for _, uid := range result { res = append(res, uid) }
-			case []string:
-				for _, uid := range result { res = append(res, uid) }
-			case []byte:
-				for _, uid := range result { res = append(res, uid) }
-			case [][]byte:
-				for _, uid := range result { res = append(res, uid) }
+		case []interface{}:
+			return result
+		case []int64:
+			for _, uid := range result {
+				res = append(res, uid)
+			}
+		case []int32:
+			for _, uid := range result {
+				res = append(res, uid)
+			}
+		case []int:
+			for _, uid := range result {
+				res = append(res, uid)
+			}
+		case []float32:
+			for _, uid := range result {
+				res = append(res, uid)
+			}
+		case []float64:
+			for _, uid := range result {
+				res = append(res, uid)
+			}
+		case []bool:
+			for _, uid := range result {
+				res = append(res, uid)
+			}
+		case []string:
+			for _, uid := range result {
+				res = append(res, uid)
+			}
+		case []byte:
+			for _, uid := range result {
+				res = append(res, uid)
+			}
+		case [][]byte:
+			for _, uid := range result {
+				res = append(res, uid)
+			}
 		}
 	}
 	return res
 }
 
+func GetIntsWithStrings(s []string) []int {
+	var ids = make([]int, 0)
+	for _, uid := range s {
+		ids = append(ids, GetInt(uid))
+	}
+	return ids
+}
+
 func GetInts(v interface{}) []int {
 	if v != nil {
 		switch result := v.(type) {
-			case []int:
-				return result
-			case string:
-				var ids = make([]int, 0)
-				for _, uid := range strings.Split(GetString(v), ",") {
-					ids = append(ids, GetInt(uid))
-				}
-				return ids
+		case []int:
+			return result
+		case []string:
+			return GetIntsWithStrings(result)
+		case string:
+			var ids = make([]int, 0)
+			for _, uid := range strings.Split(GetString(v), ",") {
+				ids = append(ids, GetInt(uid))
+			}
+			return ids
 		}
 	}
 	return make([]int, 0)
 }
 
+func GetInt64sWithStrings(s []string) []int64 {
+	var ids = make([]int64, 0)
+	for _, uid := range s {
+		ids = append(ids, GetInt64(uid))
+	}
+	return ids
+}
 func GetInt64s(v interface{}) []int64 {
 	if v != nil {
 		switch result := v.(type) {
-			case []int64:
-				return result
-			case string:
-				var ids = make([]int64, 0)
-				for _, uid := range strings.Split(GetString(v), ",") {
-					if len(uid) > 0 {
-						ids = append(ids, GetInt64(uid))
-					}
+		case []int64:
+			return result
+		case []string:
+			return GetInt64sWithStrings(result)
+		case string:
+			var ids = make([]int64, 0)
+			for _, uid := range strings.Split(GetString(v), ",") {
+				if len(uid) > 0 {
+					ids = append(ids, GetInt64(uid))
 				}
-				return ids
+			}
+			return ids
 		}
 	}
 	return make([]int64, 0)

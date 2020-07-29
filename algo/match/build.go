@@ -4,6 +4,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/log"
+	"rela_recommend/rpc/search"
 	"rela_recommend/utils"
 	"time"
 
@@ -17,12 +18,17 @@ func DoBuildData(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	dataIds := []int64{}
 
-	// 确定候选用户
-	dataIds := params.DataIds
-	if dataIds == nil || len(dataIds) == 0 {
-		log.Warnf("user list is nil or empty!")
+	// 获取用户信息，修正经纬度
+	user, userCacheErr := userCache.QueryUserById(params.UserId)
+	if params.Lat == 0 || params.Lng == 0 {
+		if userCacheErr == nil && user != nil {
+			params.Lat = float32(user.Location.Lat)
+			params.Lng = float32(user.Location.Lon)
+		}
 	}
+
 	recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
 	var recMap = utils.SetInt64{}
 	if len(recListKeyFormatter) > 5 {
@@ -35,11 +41,24 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	}
 
+	var startSearchTime = time.Now()
+	if abtest.GetBool("used_ai_search", false) {
+		searchIds, searchErr := search.CallMatchList(ctx, params.UserId, params.Lat, params.Lng, dataIds, user)
+		if searchErr == nil {
+			dataIds = searchIds
+			log.Infof("get searchlist len %d\n, ", len(dataIds))
+		} else {
+			log.Warnf("search list is err, %s\n", searchErr)
+		}
+	} else {
+		dataIds = utils.NewSetInt64FromArrays(dataIds, params.DataIds).ToList()
+	}
+
 	// 获取用户信息
 	var startUserTime = time.Now()
-	user, usersMap, userCacheErr := userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
-	if userCacheErr != nil {
-		log.Warnf("users cache list is err, %s\n", userCacheErr)
+	usersMap, usersCacheErr := userCache.QueryUsersMap(dataIds)
+	if usersCacheErr != nil {
+		log.Warnf("users cache list is err, %s\n", usersCacheErr)
 	}
 
 	// 获取画像信息
@@ -81,9 +100,9 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
 
-	log.Infof("rankid:%s,totallen:%d,cache:%d;recommend:%d,total:%.3f,dataids:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
+	log.Infof("rankid:%s,totallen:%d,cache:%d;recommend:%d,total:%.3f,dataids:%.3f,search:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
 		ctx.GetRankId(), len(dataIds), len(dataList), recMap.Len(),
-		endTime.Sub(startTime).Seconds(), startUserTime.Sub(startTime).Seconds(),
+		endTime.Sub(startTime).Seconds(), startSearchTime.Sub(startTime).Seconds(), startUserTime.Sub(startSearchTime).Seconds(),
 		startProfileTime.Sub(startUserTime).Seconds(),
 		startBuildTime.Sub(startProfileTime).Seconds(), endTime.Sub(startBuildTime).Seconds())
 	return err

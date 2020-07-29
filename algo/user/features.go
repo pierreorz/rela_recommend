@@ -26,7 +26,8 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 			fs.Add(4, float32(currTime-userCache.CreateTime.Time.Unix()))
 			fs.AddCategory(10, 15, -1, rutils.GetInt(userCache.Horoscope), -1)
 			fs.AddCategory(30, 10, -1, userCache.Affection, -1)
-			role, wantRoles = rutils.GetInt(userCache.RoleName), rutils.GetInts(userCache.WantRole)
+			// role, wantRoles = rutils.GetInt(userCache.RoleName), rutils.GetInts(userCache.WantRole)
+			role, wantRoles = userCache.GetRoleNameInt(), userCache.GetWantRoleInts()
 			fs.AddCategory(50, 15, -1, role, -1)
 			fs.AddCategories(70, 15, 0, wantRoles, 0)
 		}
@@ -181,7 +182,8 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 		fs.Add(5004, float32(currTime-curr.CreateTime.Time.Unix()))
 		fs.AddCategory(5010, 15, -1, rutils.GetInt(curr.Horoscope), -1)
 		fs.AddCategory(5030, 10, -1, curr.Affection, -1)
-		cRole, cWantRoles = rutils.GetInt(curr.RoleName), rutils.GetInts(curr.WantRole)
+		// cRole, cWantRoles = rutils.GetInt(curr.RoleName), rutils.GetInts(curr.WantRole)
+		cRole, cWantRoles = curr.GetRoleNameInt(), curr.GetWantRoleInts()
 		fs.AddCategory(5050, 15, -1, cRole, -1) // 自我认同
 		fs.AddCategories(5070, 15, -1, cWantRoles, -1)
 		fs.AddCategory(5100, 2, 0, rutils.GetInt(data.LiveInfo != nil), 0) // 是否正在直播
@@ -366,11 +368,17 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 		fs.Add(10005, float32(rutils.EarthDistance(lng, lat, curr.Location.Lon, curr.Location.Lat)/1000.0))
 	}
 
-	// 通过关注的als相关性
 	if userProfile != nil && currProfile != nil {
+		// 通过关注的als相关性
+
 		followUser := userProfile.VectorMap["vector_follow_als_user"]
-		followFlooower := currProfile.VectorMap["vector_follow_als_follower"]
-		fs.Add(10006, utils.ArrayMultSum(followUser, followFlooower))
+		followFollower := currProfile.VectorMap["vector_follow_als_follower"]
+		fs.Add(10006, utils.ArrayMultSum(followUser, followFollower))
+
+		// 通过点击的als相关性
+		clickUser := userProfile.VectorMap["vector_click_als_user"]
+		clickReceived := currProfile.VectorMap["vector_click_als_received"]
+		fs.Add(10007, utils.ArrayMultSum(clickUser, clickReceived))
 	}
 
 	return fs
