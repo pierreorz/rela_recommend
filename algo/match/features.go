@@ -3,7 +3,6 @@ package match
 import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
-	"rela_recommend/log"
 	"rela_recommend/models/redis"
 	"rela_recommend/service"
 	rutils "rela_recommend/utils"
@@ -511,6 +510,13 @@ func GetMatchFeaturesv1(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		// 交叉
 		fs.AddCategory(6000, 2, 0, rutils.GetInt(role > 0 && rutils.IsInInts(role, uWantRoles)), 0)
 		fs.AddCategory(6002, 2, 0, rutils.GetInt(uRole > 0 && rutils.IsInInts(uRole, wantRoles)), 0)
+		// log.Infof("get 6100 user embedding:%+v, data embedding:%+v", user.MatchProfile.UserEmbedding, currMatch.UserEmbedding)
+
+		// if user.MatchProfile != nil {
+		// 	if user.MatchProfile.UserEmbedding != nil && currMatch.UserEmbedding != nil {
+		// 		fs.Add(6100, utils.ArrayMultSum(user.MatchProfile.UserEmbedding, currMatch.UserEmbedding))
+		// 	}
+		// }
 	}
 	// if dataMatch2 != nil {
 	if currMatch != nil {
@@ -647,10 +653,6 @@ func GetMatchFeaturesv1(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		if currMatch.UserEmbedding != nil {
 			fs.AddArray(7000, 128, currMatch.UserEmbedding)
 		}
-	}
-	log.Infof("get 6100 user embedding:%+v, data embedding:%+v", user.MatchProfile.UserEmbedding, currMatch.UserEmbedding)
-	if user.MatchProfile.UserEmbedding != nil && currMatch.UserEmbedding != nil {
-		fs.Add(6100, utils.ArrayMultSum(user.MatchProfile.UserEmbedding, currMatch.UserEmbedding))
 	}
 	return fs
 }
