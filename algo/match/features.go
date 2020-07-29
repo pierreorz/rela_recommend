@@ -647,7 +647,7 @@ func GetMatchFeaturesv1(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			fs.AddArray(7000, 128, currMatch.UserEmbedding)
 		}
 	}
-	if user.MatchProfile.UserEmbedding != nil && currMatch != nil {
+	if user.MatchProfile.UserEmbedding != nil && currMatch.UserEmbedding != nil {
 		fs.Add(6100, utils.ArrayMultSum(user.MatchProfile.UserEmbedding, currMatch.UserEmbedding))
 	}
 	return fs
