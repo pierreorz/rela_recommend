@@ -18,7 +18,7 @@ func DoBuildData(ctx algo.IContext) error {
 	// userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, nil)
+	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, &factory.CacheRds)
 
 	var lives []pika.LiveCache
 	// 获取主播列表
