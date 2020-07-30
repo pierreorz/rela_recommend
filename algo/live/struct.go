@@ -11,7 +11,7 @@ import (
 // 用户信息
 type UserInfo struct {
 	UserId       int64
-	UserCache    *pika.UserProfile
+	UserCache    *redis.UserProfile
 	LiveProfile  *redis.LiveProfile
 	UserConcerns *rutils.SetInt64
 }
@@ -19,7 +19,7 @@ type UserInfo struct {
 // 主播信息
 type LiveInfo struct {
 	UserId      int64
-	UserCache   *pika.UserProfile
+	UserCache   *redis.UserProfile
 	LiveProfile *redis.LiveProfile
 	LiveCache   *pika.LiveCache
 	RankInfo    *algo.RankInfo
