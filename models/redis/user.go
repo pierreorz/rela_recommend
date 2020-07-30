@@ -121,3 +121,8 @@ func (this *UserCacheModule) QueryByUserAndUsersMap(userId int64, userIds []int6
 	}
 	return &user, usersMap, err
 }
+
+// 查询用户关注列表，依赖缓冲，后期使用接口替换
+func (this *UserCacheModule) QueryConcernsByUser(userId int64) ([]int64, error) {
+	return this.SmembersInt64List(userId, "user_concern:%d")
+}

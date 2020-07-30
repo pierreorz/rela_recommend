@@ -15,8 +15,10 @@ func DoBuildData(ctx algo.IContext) error {
 	var startTime = time.Now()
 	params := ctx.GetRequest()
 
-	userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
-	rdsPikaCache := redis.NewLiveCacheModule(nil, &factory.CacheCluster, &factory.PikaCluster)
+	// userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, nil)
 
 	var lives []pika.LiveCache
 	// 获取主播列表
@@ -34,7 +36,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if err != nil {
 		log.Warnf("QueryByUserAndUsers err: %s\n", err)
 	}
-	usersMap := make(map[int64]pika.UserProfile)
+	usersMap := make(map[int64]redis.UserProfile)
 	for i, _ := range users {
 		usersMap[users[i].UserId] = users[i]
 	}
@@ -52,7 +54,7 @@ func DoBuildData(ctx algo.IContext) error {
 	// 获取关注信息
 	startConcernsTime := time.Now()
 	// concerns := make([]int64, 0)
-	concerns, err := userCache.QueryConcernsByUser(params.UserId)
+	concerns, err := redisTheCache.QueryConcernsByUser(params.UserId)
 	if err != nil {
 		log.Warnf("QueryConcernsByUser err: %s\n", err)
 	}
