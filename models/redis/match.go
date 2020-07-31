@@ -19,7 +19,7 @@ type MatchProfile struct {
 	MomentMap    map[string]float32 `json:"moments"`
 	UserInfoMap  map[string]float32 `json:"user_info"`
 	// TimestampMap  map[string]float32 `json:"timestamp"`
-	UserEmbedding []float32 `json:"user_embedding"`
+	UserEmbedding map[string][]float32 `json:"user_embedding"`
 }
 
 // 读取速配画像信息

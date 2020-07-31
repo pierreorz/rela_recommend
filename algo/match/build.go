@@ -67,7 +67,6 @@ func DoBuildData(ctx algo.IContext) error {
 	if matchCacheErr != nil {
 		log.Warnf("match profile cache list is err, %s\n", matchCacheErr)
 	}
-	log.Infof("get user match profile:%+v", matchUser)
 
 	// 生成数据
 	var startBuildTime = time.Now()
