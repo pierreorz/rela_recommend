@@ -2,6 +2,7 @@ package match
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 )
 
@@ -16,6 +17,7 @@ type DataInfo struct {
 	UserCache    *redis.UserProfile
 	MatchProfile *redis.MatchProfile
 	RankInfo     *algo.RankInfo
+	ItemBehavior *behavior.UserBehavior
 }
 
 func (self *DataInfo) GetDataId() int64 {
