@@ -646,22 +646,6 @@ func GetMatchFeaturesv1(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 			fs.AddArray(7000, 128, currMatch.UserEmbedding["graph_embedding"])
 		}
 	}
-
-	if data.ItemBehavior != nil {
-		// 点击互动
-		listInteract := data.ItemBehavior.GetMatchListInteract()
-		fs.Add(9000, float32(listInteract.Count))
-		if listInteract.LastTime > 0 {
-			fs.Add(9001, float32(float64(currTime)-listInteract.LastTime))
-		}
-		// 曝光
-		listExposure := data.ItemBehavior.GetMatchListExposure()
-		fs.Add(9002, float32(listExposure.Count))
-		if listExposure.LastTime > 0 {
-			fs.Add(9003, float32(float64(currTime)-listExposure.LastTime))
-			fs.Add(9004, float32(listInteract.Count/listExposure.Count)) // 互动率
-		}
-	}
 	return fs
 }
 
