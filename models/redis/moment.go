@@ -112,7 +112,7 @@ type MomentsAndExtend struct {
 type MomentUserProfile struct {
 	UserID       int64              `json:"user_id"`
 	UserEmbedding       []float32  `json:"user_embedding"`
-	UserPref             []string `json:"user_pref"`
+	UserPref             []string `json:"user_pref,omitempty"`
 }
 
 type MomentCacheModule struct {

@@ -37,9 +37,11 @@ func DoPrefWeightLevel(ctx algo.IContext, index int) error{
 	rankInfo := dataInfo.GetRankInfo()
 	userInfo:=ctx.GetUserInfo().(*UserInfo)
 	tagList:=dataInfo.MomentCache.MomentsExt.TagList
-	for _,tag := range userInfo.MomentUserProfile.UserPref{
-		if strings.Contains(tag,tagList){
-			rankInfo.AddRecommend("UserTagPref", 1.1)
+	if len(userInfo.MomentUserProfile.UserPref) > 0 {
+		for _, tag := range userInfo.MomentUserProfile.UserPref {
+			if strings.Contains(tag, tagList) {
+				rankInfo.AddRecommend("UserTagPref", 1.1)
+			}
 		}
 	}
 
