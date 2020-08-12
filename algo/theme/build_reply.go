@@ -164,7 +164,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		ctx.SetDataList(dataList)
 		return nil
 	})
-	return nil
+	return err
 }
 
 // 话题详情页的猜你喜欢
