@@ -74,7 +74,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		"theme": func(*performs.Performs) interface{} { // 获取内容缓存
 			var themesMapErr error
 			themesMap, themesMapErr = momentCache.QueryMomentsMapByIds(themeIdList)
-			if themesMapErr != nil {
+			if themesMapErr == nil {
 				for _, mom := range themesMap {
 					if mom.Moments != nil {
 						themesUserIds = append(themesUserIds, mom.Moments.UserId)
