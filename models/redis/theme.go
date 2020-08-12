@@ -120,9 +120,9 @@ type ThemeRelpyItem struct {
 // 获取推荐池内的推荐列表
 func (self *MomentCacheModule) GetThemeRelpyListOrDefault(id int64, defaultId int64, keyFormatter string) ([]ThemeRelpyItem, error) {
 	var resList = make([]ThemeRelpyItem, 0)
-	err := self.GetSetStruct(fmt.Sprintf(keyFormatter, id), resList, 6*60*60, 1*60*60)
+	err := self.GetSetStruct(fmt.Sprintf(keyFormatter, id), &resList, 6*60*60, 1*60*60)
 	if len(resList) == 0 {
-		err = self.GetSetStruct(fmt.Sprintf(keyFormatter, defaultId), resList, 6*60*60, 1*60*60)
+		err = self.GetSetStruct(fmt.Sprintf(keyFormatter, defaultId), &resList, 6*60*60, 1*60*60)
 	}
 	return resList, err
 }
