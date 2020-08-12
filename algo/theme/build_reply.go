@@ -36,7 +36,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			}
 			return len(recommendList)
 		}
-		return err
+		return listErr
 	})
 
 	searchMap := map[int64]search.SearchMomentAuditResDataItem{}
@@ -47,7 +47,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			replyIdList = searchResIds
 			return len(searchResIds)
 		}
-		return nil
+		return searchErr
 	})
 
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
@@ -58,8 +58,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var themesUserIds = []int64{}
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 获取内容缓存
-			replys, err = momentCache.QueryMomentsByIds(replyIds)
-			if err == nil {
+			var replyErr error
+			replys, replyErr = momentCache.QueryMomentsByIds(replyIds)
+			if replyErr == nil {
 				for _, mom := range replys {
 					if mom.Moments != nil {
 						replysUserIds = append(replysUserIds, mom.Moments.UserId)
@@ -68,11 +69,12 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				replysUserIds = utils.NewSetInt64FromArray(replysUserIds).ToList()
 				return len(replysUserIds)
 			}
-			return err
+			return replyErr
 		},
 		"theme": func(*performs.Performs) interface{} { // 获取内容缓存
-			themesMap, err = momentCache.QueryMomentsMapByIds(themeIdList)
-			if err != nil {
+			var themesMapErr error
+			themesMap, themesMapErr = momentCache.QueryMomentsMapByIds(themeIdList)
+			if themesMapErr != nil {
 				for _, mom := range themesMap {
 					if mom.Moments != nil {
 						themesUserIds = append(themesUserIds, mom.Moments.UserId)
@@ -81,7 +83,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				themesUserIds = utils.NewSetInt64FromArray(themesUserIds).ToList()
 				return len(themesUserIds)
 			}
-			return err
+			return themesMapErr
 		},
 	})
 
