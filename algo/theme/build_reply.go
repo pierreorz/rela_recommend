@@ -104,7 +104,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			var themeUserCacheErr error
 			userProfileUserIds := []int64{params.UserId}
 			usersProfileMap, themeUserCacheErr = themeUserCache.QueryThemeUserProfileMap(userProfileUserIds)
-			if usersProfileMap == nil {
+			if themeUserCacheErr == nil {
 				return len(usersProfileMap)
 			}
 			return themeUserCacheErr
