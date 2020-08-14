@@ -117,7 +117,7 @@ func CallMomentAuditMap(userId int64, moments []int64, scenery string,
 
 	ids := utils.JoinInt64s(moments, ",")
 	if returnedRecommend { // 返回运营推荐数据
-		filters = append(filters, fmt.Sprintf("{id:%s|{top_info.scenery:%s,top_info.top_type:top,recommend*start_time:(,now/m]*end_time:[now/m,)}}", ids, scenery))
+		filters = append(filters, fmt.Sprintf("{id:%s|{top_info.scenery:%s*top_info.top_type:top,recommend*start_time:(,now/m]*end_time:[now/m,)}}", ids, scenery))
 	} else {
 		filters = append(filters, fmt.Sprintf("id:%s", ids))
 	}
