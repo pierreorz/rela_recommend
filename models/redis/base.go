@@ -153,7 +153,7 @@ func (self *CachePikaModule) jsonsToValues(jsons []interface{}, objType reflect.
 					newValue := reflect.Indirect(newObj)
 					objs[i] = &newValue
 				} else {
-					log.Warn("json err:", res, err.Error())
+					log.Warnf("json [%v] err: [%s]", res, err)
 				}
 			} else {
 				log.Warn("must []byte:", res)
