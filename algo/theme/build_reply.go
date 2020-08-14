@@ -51,17 +51,10 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			for _, searchRes := range searchReplyMap {
 				replyIdSet.Append(searchRes.Id)
 				themeIdSet.Append(searchRes.ParentId)
-				// 运营配置和算法推荐去重复，以运营配置优先
-				if _, theThemeOK := themeReplyMap[searchRes.ParentId]; theThemeOK {
-					if len(searchRes.GetCurrentTopType("theme")) > 0 {
-						themeReplyMap[searchRes.ParentId] = searchRes.Id
-					}
-				} else {
-					themeReplyMap[searchRes.ParentId] = searchRes.Id
-				}
 			}
 			replyIdList = replyIdSet.ToList()
 			themeIdList = themeIdSet.ToList()
+			themeReplyMap = themeReplayReplaction(searchReplyMap, themeReplyMap, searchScenery) // 运营配置和算法推荐去重复，以运营配置优先
 			return len(searchReplyMap)
 		}
 		return searchReplyMapErr
@@ -154,7 +147,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					var isTop int = 0
 					var recommends = []algo.RecommendItem{}
 					if topType, topTypeOK := searchReplyMap[reply.Moments.Id]; topTypeOK {
-						topTypeRes := topType.GetCurrentTopType("theme")
+						topTypeRes := topType.GetCurrentTopType(searchScenery)
 						isTop = utils.GetInt(topTypeRes == "TOP")
 						if topTypeRes == "RECOMMEND" {
 							recommends = append(recommends, algo.RecommendItem{
@@ -211,6 +204,17 @@ func DoBuildDetailReplyData(ctx algo.IContext) error {
 		}
 		return len(recommendList)
 	})
+	searchScenery := "theme"
+	pf.Run("search", func(*performs.Performs) interface{} { // 搜索过状态 和 返回置顶推荐内容
+		returnedRecommend := abtest.GetBool("search_returned_recommend", false)
+		filtedAudit := abtest.GetBool("search_filted_audit", false)
+		searchReplyMap, searchReplyMapErr := search.CallMomentAuditMap(params.UserId, []int64{}, searchScenery, returnedRecommend, filtedAudit)
+		if searchReplyMapErr == nil {
+			themeReplyMap = themeReplayReplaction(searchReplyMap, themeReplyMap, searchScenery)
+			return len(searchReplyMap)
+		}
+		return searchReplyMapErr
+	})
 
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{UserId: params.UserId}
@@ -240,4 +244,19 @@ func DoBuildDetailReplyData(ctx algo.IContext) error {
 		return nil
 	})
 	return err
+}
+
+// 搜索返回的推荐置顶与算法返回的进行去重，以运营配置优先
+func themeReplayReplaction(searchReplyMap map[int64]search.SearchMomentAuditResDataItem, themeReplyMap map[int64]int64, scenery string) map[int64]int64 {
+	for _, searchRes := range searchReplyMap {
+		// 运营配置和算法推荐去重复，以运营配置优先
+		if _, theThemeOK := themeReplyMap[searchRes.ParentId]; theThemeOK {
+			if len(searchRes.GetCurrentTopType(scenery)) > 0 {
+				themeReplyMap[searchRes.ParentId] = searchRes.Id
+			}
+		} else {
+			themeReplyMap[searchRes.ParentId] = searchRes.Id
+		}
+	}
+	return themeReplyMap
 }
