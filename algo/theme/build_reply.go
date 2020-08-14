@@ -47,7 +47,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		searchReplyMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList, searchScenery, returnedRecommend, filtedAudit)
 		if searchReplyMapErr == nil {
 			replyIdSet := utils.SetInt64{}
-			themeIdSet := utils.SetInt64{}
+			themeIdSet := utils.NewSetInt64FromArray(themeIdList)
 			for _, searchRes := range searchReplyMap {
 				replyIdSet.Append(searchRes.Id)
 				themeIdSet.Append(searchRes.ParentId)
