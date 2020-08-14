@@ -48,7 +48,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		if searchReplyMapErr == nil {
 			replyIdSet := utils.SetInt64{}
 			themeIdSet := utils.SetInt64{}
-			themeReplyMap = map[int64]int64{}
 			for _, searchRes := range searchReplyMap {
 				replyIdSet.Append(searchRes.Id)
 				themeIdSet.Append(searchRes.ParentId)
