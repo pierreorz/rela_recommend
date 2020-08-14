@@ -91,7 +91,6 @@ func DoBuildData(ctx algo.IContext) error {
 		log.Warnf("user realtime cache item list is err, %s\n", itemBehaviorErr)
 	}
 	moms, err := momentCache.QueryMomentsByIds(dataIds)
-	log.Infof("moment profile %s\n",moms)
 	userIds := make([]int64, 0)
 	if err != nil {
 		log.Warnf("moment list is err, %s\n", err)
