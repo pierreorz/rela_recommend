@@ -96,6 +96,9 @@ func DoBuildData(ctx algo.IContext) error {
 		log.Warnf("moment list is err, %s\n", err)
 	} else {
 		for _, mom := range moms {
+			if mom.MomentsExtend==nil{
+				log.Infof("mom profile %s,%s,%s",mom.MomentsExtend,mom.Moments,mom.MomentsProfile)
+			}
 			if mom.Moments != nil {
 				userIds = append(userIds, mom.Moments.UserId)
 			}
