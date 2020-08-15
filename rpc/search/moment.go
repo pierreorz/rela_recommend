@@ -114,7 +114,7 @@ func CallMomentAuditMap(userId int64, moments []int64, scenery string, momentTyp
 	returnedRecommend bool, filtedAudit bool) (map[int64]SearchMomentAuditResDataItem, error) {
 
 	filters := []string{
-		fmt.Sprintf("moments_type", momentTypes),
+		fmt.Sprintf("moments_type:%s", momentTypes),
 	}
 
 	ids := utils.JoinInt64s(moments, ",")
