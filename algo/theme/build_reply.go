@@ -41,10 +41,11 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	preforms.Run("search", func(*performs.Performs) interface{} {     // 搜索过状态 和 返回置顶推荐内容
-		returnedRecommend := abtest.GetBool("search_returned_recommend", false)
+		returnedRecommend := abtest.GetBool("search_returned_recommend", true)
 		filtedAudit := abtest.GetBool("search_filted_audit", false)
 		var searchReplyMapErr error
-		searchReplyMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList, searchScenery, returnedRecommend, filtedAudit)
+		searchReplyMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
+			searchScenery, "themereply", returnedRecommend, filtedAudit)
 		if searchReplyMapErr == nil {
 			replyIdSet := utils.SetInt64{}
 			themeIdSet := utils.NewSetInt64FromArray(themeIdList)
@@ -206,9 +207,10 @@ func DoBuildDetailReplyData(ctx algo.IContext) error {
 	})
 	searchScenery := "theme"
 	pf.Run("search", func(*performs.Performs) interface{} { // 搜索过状态 和 返回置顶推荐内容
-		returnedRecommend := abtest.GetBool("search_returned_recommend", false)
+		returnedRecommend := abtest.GetBool("search_returned_recommend", true)
 		filtedAudit := abtest.GetBool("search_filted_audit", false)
-		searchReplyMap, searchReplyMapErr := search.CallMomentAuditMap(params.UserId, []int64{}, searchScenery, returnedRecommend, filtedAudit)
+		searchReplyMap, searchReplyMapErr := search.CallMomentAuditMap(params.UserId, []int64{},
+			searchScenery, "themereply", returnedRecommend, filtedAudit)
 		if searchReplyMapErr == nil {
 			themeReplyMap = themeReplayReplaction(searchReplyMap, themeReplyMap, searchScenery)
 			return len(searchReplyMap)

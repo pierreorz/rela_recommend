@@ -110,20 +110,25 @@ type searchMomentAuditRequest struct {
 }
 
 // 获取附近日志列表, filtedAudit 是否筛选推荐合规
-func CallMomentAuditMap(userId int64, moments []int64, scenery string,
+func CallMomentAuditMap(userId int64, moments []int64, scenery string, momentTypes string,
 	returnedRecommend bool, filtedAudit bool) (map[int64]SearchMomentAuditResDataItem, error) {
 
-	filters := []string{}
-
-	ids := utils.JoinInt64s(moments, ",")
-	if returnedRecommend { // 返回运营推荐数据
-		filters = append(filters, fmt.Sprintf("{id:%s|{top_info.scenery:%s*top_info.top_type:top,recommend*start_time:(,now/m]*end_time:[now/m,)}}", ids, scenery))
-	} else {
-		filters = append(filters, fmt.Sprintf("id:%s", ids))
+	filters := []string{
+		fmt.Sprintf("moments_type", momentTypes),
 	}
 
-	if filtedAudit {
-		filters = append(filters, "audit_status:1")
+	ids := utils.JoinInt64s(moments, ",")
+
+	idsFilter := fmt.Sprintf("id:%s", ids)
+	if filtedAudit { // 是否要求人审
+		idsFilter = fmt.Sprintf("id:%s*audit_status:1", ids)
+	}
+
+	if returnedRecommend { // 返回运营推荐数据，未审或过审的都可以通过
+		recommendFilter := fmt.Sprintf("{top_info.scenery:%s*top_info.top_type:top,recommend*start_time:(,now/m]*end_time:[now/m,)*!audit_status:2}", scenery)
+		filters = append(filters, fmt.Sprintf("{%s|%s}", idsFilter, recommendFilter))
+	} else {
+		filters = append(filters, idsFilter)
 	}
 
 	params := searchMomentAuditRequest{
