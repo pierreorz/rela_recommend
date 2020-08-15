@@ -8,10 +8,11 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/cache"
 	"rela_recommend/log"
-	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
 	"sync"
 	"time"
+
+	"github.com/chasex/redis-go-cluster"
 )
 
 type CachePikaModule struct {
@@ -219,10 +220,7 @@ func (self *CachePikaModule) Jsons2StructsByRoutine(jsons []interface{}, obj int
 }
 
 func (self *CachePikaModule) Jsons2Structs(jsons []interface{}, obj interface{}) (*reflect.Value, error) {
-	var abtest = abtest.GetAbTest("", 0)
-	if self.ctx != nil {
-		abtest = self.ctx.GetAbTest()
-	}
+	var abtest = self.ctx.GetAbTest()
 	threshold := abtest.GetInt("redis.json.thread.threshold", 200)
 	if len(jsons) > threshold {
 		jobs := abtest.GetInt("redis.json.thread.jobs", 4)
@@ -308,10 +306,7 @@ func (self *CachePikaModule) Jsons2StructsMapByRoutine(ids []int64, jsons []inte
 }
 
 func (self *CachePikaModule) Jsons2StructsMap(ids []int64, jsons []interface{}, obj interface{}) (*reflect.Value, error) {
-	var abtest = abtest.GetAbTest("", 0)
-	if self.ctx != nil {
-		abtest = self.ctx.GetAbTest()
-	}
+	var abtest = self.ctx.GetAbTest()
 	threshold := abtest.GetInt("redis.json.map.thread.threshold", 200)
 	if len(jsons) > threshold {
 		jobs := abtest.GetInt("redis.json.map.thread.jobs", 4)
@@ -384,4 +379,23 @@ func (self *CachePikaModule) GetInt64List(id int64, keyFormater string) ([]int64
 		resInt64s = utils.GetInt64s(utils.GetString(res))
 	}
 	return resInt64s, err
+}
+
+// 从缓存中查询smembers 并转化为 int64
+func (this *UserCacheModule) SmembersInt64List(userId int64, keyFormatter string) ([]int64, error) {
+	var startTime = time.Now()
+	key := fmt.Sprintf(keyFormatter, userId)
+	idstrs, err := this.cache.SMembers(key)
+	userIds := make([]int64, 0)
+	if err == nil {
+		for _, idstr := range idstrs {
+			id, err := redis.Int64(idstr, err)
+			if err == nil && id > 0 {
+				userIds = append(userIds, id)
+			}
+		}
+	}
+	var endTime = time.Now()
+	log.Infof("SmembersInt64List total:%.4f:len:%d", endTime.Sub(startTime).Seconds(), len(userIds))
+	return userIds, err
 }

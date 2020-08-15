@@ -1,20 +1,25 @@
 package performs
 
 import (
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"rela_recommend/log"
+	"rela_recommend/utils"
+	"strings"
+	"sync"
+	"time"
 )
 
 type Performs struct {
-	Name 		string
-	BeginTime 	*time.Time
-	EndTime		*time.Time
-	IsEnd		bool
-	Interval 	float64
-	ItemsName	[]string
-	ItemsMap	map[string]*Performs
+	Name      string               `json:"name"`
+	BeginTime *time.Time           `json:"-"`
+	EndTime   *time.Time           `json:"-"`
+	IsEnd     bool                 `json:"-"`
+	Interval  float64              `json:"interval"`
+	Result    interface{}          `json:"result,omitempty"`
+	ItemsName []string             `json:"-"`
+	ItemsMap  map[string]*Performs `json:"items,omitempty"`
 }
 
 func (self *Performs) check() {
@@ -46,9 +51,10 @@ func (self *Performs) addChild(name string) *Performs {
 	}
 }
 
-func(self *Performs) findNext() *Performs {
+// 当前节点最后一个且未关闭的对象
+func (self *Performs) findNext() *Performs {
 	if length := self.Length(); length > 0 {
-		currName := self.ItemsName[length - 1]
+		currName := self.ItemsName[length-1]
 		if val, ok := self.ItemsMap[currName]; ok && !val.IsEnd {
 			return val
 		}
@@ -56,34 +62,84 @@ func(self *Performs) findNext() *Performs {
 	return nil
 }
 
-func (self *Performs) Begin(name string) {
+// 递归获取最后一个未关闭对象
+func (self *Performs) FindCurrent() *Performs {
+	if val := self.findNext(); val != nil {
+		return val.FindCurrent()
+	} else {
+		return self
+	}
+}
+
+func (self *Performs) Begin(name string) *Performs {
 	self.check()
 	// 递归查找当前活跃级别，如果有就执行递归开始，如果没有就创建
 	if val := self.findNext(); val != nil {
-		val.Begin(name)
+		return val.Begin(name)
 	} else {
-		self.addChild(name)
+		return self.addChild(name)
 	}
 }
 
-func (self *Performs) End(name string) {
+func (self *Performs) End(name string) *Performs {
+	return self.EndWithResult(name, nil)
+}
+
+func (self *Performs) EndWithResult(name string, result interface{}) *Performs {
 	self.check()
 	// 递归查找当前活跃级别，如果下级有就执行递归结束，如果没有就创建
 	if val := self.findNext(); val != nil {
-		val.End(name)
+		return val.EndWithResult(name, result)
 	} else {
 		if self.Name == name {
 			self.IsEnd = true
+			self.Result = result
 		}
+		return self
 	}
 }
 
-func(self *Performs) EndAndBegin(endName string, beginName string) {
+func (self *Performs) EndAndBegin(endName string, beginName string) *Performs {
 	self.End(endName)
-	self.Begin(beginName)
+	return self.Begin(beginName)
 }
 
-func(self *Performs) toString(buffer *bytes.Buffer, pre string) {
+func (self *Performs) Run(name string, runFunc func(*Performs) interface{}) *Performs {
+	pf := self.Begin(name)
+	result := runFunc(pf)
+	return pf.EndWithResult(name, result)
+}
+
+func (self *Performs) RunsGo(groupName string, runMap map[string]func(*Performs) interface{}) *Performs {
+	if len(runMap) == 0 {
+		return self
+	}
+
+	if groupName == "" {
+		runMapKeys := []string{"go"}
+		for name := range runMap {
+			runMapKeys = append(runMapKeys, name)
+		}
+		groupName = strings.Join(runMapKeys, "_")
+	}
+
+	var group sync.WaitGroup
+	groupPf := self.FindCurrent().addChild(groupName)
+	for name, runFunc := range runMap {
+		group.Add(1)
+		childPf := groupPf.addChild(name)
+		go func(name string, runFunc func(*Performs) interface{}) {
+			defer group.Done()
+
+			result := runFunc(childPf)
+			childPf.EndWithResult(name, result)
+		}(name, runFunc)
+	}
+	group.Wait()
+	return groupPf.End(groupName)
+}
+
+func (self *Performs) toString(buffer *bytes.Buffer, pre string) {
 	fullName := pre + "." + self.Name
 	if pre == "" {
 		if self.Name == "" {
@@ -92,7 +148,18 @@ func(self *Performs) toString(buffer *bytes.Buffer, pre string) {
 			fullName = self.Name
 		}
 	}
-	buffer.WriteString(fmt.Sprintf("%s:%.3f,", fullName, self.Interval))
+	var slog string
+	switch result := self.Result.(type) {
+	case nil:
+		slog = fmt.Sprintf("%s:%.3f,", fullName, self.Interval)
+	case error:
+		errMsg := strings.Join(utils.Splits(result.Error(), " ,:"), "_")
+		slog = fmt.Sprintf("%s:%.3f::%v,", fullName, self.Interval, errMsg)
+	default:
+		slog = fmt.Sprintf("%s:%.3f:%v,", fullName, self.Interval, self.Result)
+	}
+
+	buffer.WriteString(slog)
 	for _, name := range self.ItemsName {
 		if val, ok := self.ItemsMap[name]; ok {
 			val.toString(buffer, fullName)
@@ -100,9 +167,15 @@ func(self *Performs) toString(buffer *bytes.Buffer, pre string) {
 	}
 }
 
-func(self *Performs) ToString() string {
+func (self *Performs) ToString() string {
 	self.check()
 	var buffer = &bytes.Buffer{}
 	self.toString(buffer, "")
 	return buffer.String()
+}
+
+func (self *Performs) ToJson() string {
+	self.check()
+	jss, _ := json.Marshal(self)
+	return string(jss)
 }

@@ -27,6 +27,9 @@ type DataInfo struct {
 	RankInfo          *algo.RankInfo
 	Features          *utils.Features
 	ThemeProfile      *redis.ThemeProfile
+
+	ThemeReplyCache       *redis.Moments
+	ThemeReplyExtendCache *redis.MomentsExtend
 }
 
 func (self *DataInfo) GetDataId() int64 {
@@ -34,6 +37,11 @@ func (self *DataInfo) GetDataId() int64 {
 }
 
 func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
+	if self.ThemeReplyCache != nil {
+		return map[string]int64{
+			"replyId": self.ThemeReplyCache.Id,
+		}
+	}
 	return nil
 }
 

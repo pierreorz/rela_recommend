@@ -15,27 +15,16 @@ func DoBuildData(ctx algo.IContext) error {
 	var startTime = time.Now()
 	params := ctx.GetRequest()
 
-	userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
-	rdsPikaCache := redis.NewLiveCacheModule(nil, &factory.CacheCluster, &factory.PikaCluster)
+	// userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, &factory.CacheRds)
 
 	var lives []pika.LiveCache
 	// 获取主播列表
-	if len(params.Params["type"]) > 0 { // 如果有type参数，使用新的api获取缓存计算
-		liveType := utils.GetInt(params.Params["type"])
-		lives = GetCachedLiveMapList(liveType)
-	} else if len(params.Params["classify"]) > 0 { // 如果有classify参数，使用新的api获取classify计算
-		classify := utils.GetInt(params.Params["classify"])
-		lives = GetCachedLiveListByClassify(classify)
-	} else {
-		liveCache := pika.NewLiveCacheModule(&factory.CacheLiveRds)
-		allLives := GetCachedLiveList()
-		if allLives == nil || len(allLives) == 0 {
-			var err error
-			allLives, err = liveCache.QueryLiveList()
-			log.Warnf("cached live list is nil, %s\n", err)
-		}
-		lives = liveCache.MgetByLiveIds(allLives, params.DataIds)
-	}
+	liveType := utils.GetInt(params.Params["type"])
+	classify := utils.GetInt(params.Params["classify"])
+	lives = GetCachedLiveListByTypeClassify(liveType, classify)
 
 	liveIds := make([]int64, len(lives))
 	for i, _ := range lives {
@@ -47,7 +36,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if err != nil {
 		log.Warnf("QueryByUserAndUsers err: %s\n", err)
 	}
-	usersMap := make(map[int64]pika.UserProfile)
+	usersMap := make(map[int64]redis.UserProfile)
 	for i, _ := range users {
 		usersMap[users[i].UserId] = users[i]
 	}
@@ -65,7 +54,7 @@ func DoBuildData(ctx algo.IContext) error {
 	// 获取关注信息
 	startConcernsTime := time.Now()
 	// concerns := make([]int64, 0)
-	concerns, err := userCache.QueryConcernsByUser(params.UserId)
+	concerns, err := redisTheCache.QueryConcernsByUser(params.UserId)
 	if err != nil {
 		log.Warnf("QueryConcernsByUser err: %s\n", err)
 	}

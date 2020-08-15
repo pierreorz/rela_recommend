@@ -72,7 +72,7 @@ func (self *UserCacheModule) QueryUserById(id int64) (*UserProfile, error) {
 
 // 读取用户信息
 func (self *UserCacheModule) QueryUsersByIds(ids []int64) ([]UserProfile, error) {
-	keyFormatter := "app_user_location:%d"
+	keyFormatter := self.ctx.GetAbTest().GetString("user_cache_key_formatter", "app_user_location:%d")
 	ress, err := self.MGetStructs(UserProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
 	objs := ress.Interface().([]UserProfile)
 	return objs, err
@@ -120,4 +120,9 @@ func (this *UserCacheModule) QueryByUserAndUsersMap(userId int64, userIds []int6
 		}
 	}
 	return &user, usersMap, err
+}
+
+// 查询用户关注列表，依赖缓冲，后期使用接口替换
+func (this *UserCacheModule) QueryConcernsByUser(userId int64) ([]int64, error) {
+	return this.SmembersInt64List(userId, "user_concern:%d")
 }
