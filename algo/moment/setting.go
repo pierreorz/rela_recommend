@@ -17,6 +17,7 @@ var strategyMap = map[string]algo.IStrategy{
 	"time_level": &algo.StrategyBase{ DoSingle: DoTimeLevel },
 	"time_weight": &algo.StrategyBase{ DoSingle: DoTimeWeightLevel },
 	"time_weight_v2": &algo.StrategyBase{ DoSingle: DoTimeWeightLevelV2 },
+	"tag_pref": &algo.StrategyBase{ DoSingle: DoPrefWeightLevel },
 	"new_user": &algo.StrategyBase{ DoSingle: AroundNewUserAddWeightFunc },
 	"label_mom":&algo.StrategyBase{ DoSingle: MomLabelAddWeight },
 

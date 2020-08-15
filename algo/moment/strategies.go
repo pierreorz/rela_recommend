@@ -5,6 +5,7 @@ import (
 	"rela_recommend/models/behavior"
 	"rela_recommend/algo/base/strategy"
 	"math"
+	"strings"
 )
 
 // 按照6小时优先策略
@@ -30,6 +31,22 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error{
 	return nil
 }
 
+//推荐日志偏好提权策略
+func DoPrefWeightLevel(ctx algo.IContext, index int) error{
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	userInfo:=ctx.GetUserInfo().(*UserInfo)
+	tagList:=dataInfo.MomentCache.MomentsExt.TagList
+	if len(userInfo.MomentUserProfile.UserPref) > 0 {
+		for _, tag := range userInfo.MomentUserProfile.UserPref {
+			if strings.Contains(tagList, tag) {
+				rankInfo.AddRecommend("UserTagPref", 1.1)
+			}
+		}
+	}
+
+	return nil
+}
 //日志提权策略
 func DoTimeWeightLevel(ctx algo.IContext, index int) error{
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
