@@ -110,10 +110,12 @@ type searchMomentAuditRequest struct {
 }
 
 // 获取附近日志列表, filtedAudit 是否筛选推荐合规
-func CallMomentAuditMap(userId int64, moments []int64, scenery string,
+func CallMomentAuditMap(userId int64, moments []int64, scenery string, momentTypes string,
 	returnedRecommend bool, filtedAudit bool) (map[int64]SearchMomentAuditResDataItem, error) {
 
-	filters := []string{}
+	filters := []string{
+		fmt.Sprintf("moments_type", momentTypes),
+	}
 
 	ids := utils.JoinInt64s(moments, ",")
 

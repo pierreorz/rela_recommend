@@ -30,6 +30,7 @@ func DoBuildData(ctx algo.IContext) error {
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
 
+	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	if dataIdList == nil || len(dataIdList) == 0 {
 		// 获取推荐日志
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
@@ -44,8 +45,6 @@ func DoBuildData(ctx algo.IContext) error {
 		// 	log.Warnf("recommend list is none, using new, pls check!\n")
 		// }
 		if newMomentLen > 0 {
-
-			momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 			radiusArray := abtest.GetStrings("radius_range", "50km")
 			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
@@ -92,7 +91,8 @@ func DoBuildData(ctx algo.IContext) error {
 		preforms.Run("search", func(*performs.Performs) interface{} {
 			returnedRecommend := abtest.GetBool("search_returned_recommend", false)
 			filtedAudit := abtest.GetBool("search_filted_audit", false)
-			searchMomentMap, searchMomentMapErr := search.CallMomentAuditMap(params.UserId, dataIds, searchScenery, returnedRecommend, filtedAudit)
+			searchMomentMap, searchMomentMapErr := search.CallMomentAuditMap(params.UserId, dataIds,
+				searchScenery, momentTypes, returnedRecommend, filtedAudit)
 			if searchMomentMapErr == nil {
 				momentIdSet := utils.SetInt64{}
 				for _, searchRes := range searchMomentMap {
