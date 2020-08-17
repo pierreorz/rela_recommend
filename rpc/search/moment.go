@@ -6,6 +6,7 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/utils"
 	"strings"
+	"time"
 )
 
 const internalSearchNearMomentListUrlV1 = "/search/friend_moments"
@@ -67,10 +68,32 @@ func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, m
 
 const internalSearchAuditUrl = "/search/audit_moment"
 
+type searchMomentAuditResDataItemTopInfo struct {
+	Scenery   string `json:"scenery"` // 场景
+	TopType   string `json:"top_type"`
+	Weight    int64  `json:"weight"`
+	StartTime int64  `json:"start_time"`
+	EndTime   int64  `json:"end_time"`
+}
+
 type SearchMomentAuditResDataItem struct {
-	Id          int64  `json:"id"`
-	TopType     string `json:"top_type"`
-	AuditStatus int    `json:"audit_status"`
+	Id          int64                                 `json:"id"`
+	ParentId    int64                                 `json:"parent_id"`
+	AuditStatus int                                   `json:"audit_status"`
+	TopInfo     []searchMomentAuditResDataItemTopInfo `json:"top_info"`
+}
+
+// 获取当前场景是否置顶
+func (self *SearchMomentAuditResDataItem) GetCurrentTopType(scenery string) string {
+	currentTime := time.Now().Unix()
+	for _, top := range self.TopInfo {
+		if top.Scenery == scenery {
+			if top.StartTime < currentTime && currentTime < top.EndTime {
+				return strings.ToUpper(top.TopType) // 返回 TOP, RECOMMEND
+			}
+		}
+	}
+	return ""
 }
 
 type searchMomentAuditRes struct {
@@ -86,31 +109,46 @@ type searchMomentAuditRequest struct {
 	ReturnFields string `json:"return_fields" form:"return_fields"`
 }
 
-// 获取附近日志列表
-func CallMomentAuditMap(userId int64, moments []int64) ([]int64, map[int64]SearchMomentAuditResDataItem, error) {
+// 获取附近日志列表, filtedAudit 是否筛选推荐合规
+func CallMomentAuditMap(userId int64, moments []int64, scenery string, momentTypes string,
+	returnedRecommend bool, filtedAudit bool) (map[int64]SearchMomentAuditResDataItem, error) {
+
 	filters := []string{
-		fmt.Sprintf("id:%s", utils.JoinInt64s(moments, ",")),
+		fmt.Sprintf("moments_type:%s", momentTypes),
 	}
+
+	ids := utils.JoinInt64s(moments, ",")
+
+	idsFilter := fmt.Sprintf("id:%s", ids)
+	if filtedAudit { // 是否要求人审
+		idsFilter = fmt.Sprintf("id:%s*audit_status:1", ids)
+	}
+
+	if returnedRecommend { // 返回运营推荐数据，未审或过审的都可以通过
+		recommendFilter := fmt.Sprintf("{top_info.scenery:%s*top_info.top_type:top,recommend*start_time:(,now/m]*end_time:[now/m,)*!audit_status:2}", scenery)
+		filters = append(filters, fmt.Sprintf("{%s|%s}", idsFilter, recommendFilter))
+	} else {
+		filters = append(filters, idsFilter)
+	}
+
 	params := searchMomentAuditRequest{
 		UserID:       userId,
 		Filter:       strings.Join(filters, "*"),
-		ReturnFields: "top_type,audit_status",
+		ReturnFields: "parent_id,audit_status,top_info",
 	}
 
-	resIds := []int64{}
 	resMap := map[int64]SearchMomentAuditResDataItem{}
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchMomentAuditRes{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchAuditUrl, paramsData, searchRes); err == nil {
 			for i, element := range searchRes.Data {
 				resMap[element.Id] = searchRes.Data[i]
-				resIds = append(resIds, element.Id)
 			}
-			return resIds, resMap, err
+			return resMap, err
 		} else {
-			return resIds, resMap, err
+			return resMap, err
 		}
 	} else {
-		return resIds, resMap, err
+		return resMap, err
 	}
 }

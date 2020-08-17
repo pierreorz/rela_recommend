@@ -5,12 +5,13 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/log"
+	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/api"
 	"rela_recommend/rpc/search"
+	"rela_recommend/service/performs"
 	"rela_recommend/utils"
 	"time"
-	"rela_recommend/models/behavior"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -18,16 +19,18 @@ func DoBuildData(ctx algo.IContext) error {
 	var startTime = time.Now()
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
+	preforms := ctx.GetPerforms()
 	app := ctx.GetAppInfo()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	behaviorCache:=behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 	// search list
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
 
+	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	if dataIdList == nil || len(dataIdList) == 0 {
 		// 获取推荐日志
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
@@ -36,21 +39,19 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 
 		// 获取最新日志
-		 newMomentLen := abtest.GetInt("new_moment_len", 1000)
+		newMomentLen := abtest.GetInt("new_moment_len", 1000)
 		// if len(recIdList) == 0 {
 		// 	newMomentLen = 1000
 		// 	log.Warnf("recommend list is none, using new, pls check!\n")
 		// }
 		if newMomentLen > 0 {
-
-			momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 			radiusArray := abtest.GetStrings("radius_range", "50km")
 			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
 			//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 			for _, radius := range radiusArray {
 				if abtest.GetBool("use_ai_search", false) {
-					newIdList, err=search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
+					newIdList, err = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
 						momentTypes, newMomentStartTime, radius)
 				} else {
 					newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
@@ -82,10 +83,31 @@ func DoBuildData(ctx algo.IContext) error {
 			log.Warnf("backend recommend list is err, %s\n", err)
 		}
 	}
+
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList).ToList()
+	// 过滤审核
+	searchScenery := "moment"
+	if abtest.GetBool("search_audit_switched", false) {
+		preforms.Run("search", func(*performs.Performs) interface{} {
+			returnedRecommend := abtest.GetBool("search_returned_recommend", false)
+			filtedAudit := abtest.GetBool("search_filted_audit", false)
+			searchMomentMap, searchMomentMapErr := search.CallMomentAuditMap(params.UserId, dataIds,
+				searchScenery, momentTypes, returnedRecommend, filtedAudit)
+			if searchMomentMapErr == nil {
+				momentIdSet := utils.SetInt64{}
+				for _, searchRes := range searchMomentMap {
+					momentIdSet.Append(searchRes.Id)
+				}
+				dataIds = momentIdSet.ToList()
+				return len(searchMomentMap)
+			}
+			return searchMomentMapErr
+		})
+	}
+
 	// 获取日志内容
 	var startMomentTime = time.Now()
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds,hotIdList).ToList()
-	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module)  // 特征对应的module名称
+	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
 	itemBehaviorMap, itemBehaviorErr := behaviorCache.QueryItemBehaviorMap(behaviorModuleName, dataIds)
 	if itemBehaviorErr != nil {
 		log.Warnf("user realtime cache item list is err, %s\n", itemBehaviorErr)
@@ -165,15 +187,15 @@ func DoBuildData(ctx algo.IContext) error {
 			// 处理推荐
 			var recommends = []algo.RecommendItem{}
 			if recMap != nil {
-					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
-						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
-					}
+				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
+					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 				}
-			if hotIdMap != nil{
-					if isRecommend := hotIdMap.Contains(mom.Moments.Id); isRecommend {
-						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true})
-					}
+			}
+			if hotIdMap != nil {
+				if isRecommend := hotIdMap.Contains(mom.Moments.Id); isRecommend {
+					recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true})
 				}
+			}
 			info := &DataInfo{
 				DataId:               mom.Moments.Id,
 				UserCache:            momUser,
@@ -183,7 +205,7 @@ func DoBuildData(ctx algo.IContext) error {
 				MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 				RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends},
 				MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
-				ItemBehavior: itemBehaviorMap[mom.Moments.Id],
+				ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 			}
 			dataList = append(dataList, info)
 		}
@@ -193,7 +215,7 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
 	log.Infof("rankid %s,totallen:%d,paramlen:%d,reclen:%d,searchlen:%d;backendlen:%d;toplen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,moment_offline_profile:%.3f,embedding_cache:%.3f,build:%.3f\n",
-		ctx.GetRankId(), len(dataIds), len(dataIdList), len(recIdList), len(newIdList), len(recIds),len(hotIdList),
+		ctx.GetRankId(), len(dataIds), len(dataIdList), len(recIdList), len(newIdList), len(recIds), len(hotIdList),
 		endTime.Sub(startTime).Seconds(), startBackEndTime.Sub(startTime).Seconds(),
 		startMomentTime.Sub(startBackEndTime).Seconds(),
 		startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(), startBuildTime.Sub(startMomentOfflineProfileTime).Seconds(), startBuildTime.Sub(startEmbeddingTime).Seconds(),

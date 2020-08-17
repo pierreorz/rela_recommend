@@ -72,7 +72,7 @@ func (self *UserCacheModule) QueryUserById(id int64) (*UserProfile, error) {
 
 // 读取用户信息
 func (self *UserCacheModule) QueryUsersByIds(ids []int64) ([]UserProfile, error) {
-	keyFormatter := self.ctx.GetAbTest().GetString("user_cache_key_formatter", "app_user_location:%d")
+	keyFormatter := self.ctx.GetAbTest().GetString("user_cache_key_formatter", "app_user_active_info_search_%d")
 	ress, err := self.MGetStructs(UserProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
 	objs := ress.Interface().([]UserProfile)
 	return objs, err
