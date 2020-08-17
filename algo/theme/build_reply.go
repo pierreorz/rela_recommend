@@ -177,7 +177,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(replyIds)
 		ctx.SetDataList(dataList)
-		return nil
+		return len(dataList)
 	})
 	return err
 }
