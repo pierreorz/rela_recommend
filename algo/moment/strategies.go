@@ -32,15 +32,17 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error{
 }
 
 //推荐日志偏好提权策略
-func DoPrefWeightLevel(ctx algo.IContext, index int) error{
+func DoPrefWeightLevel(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	userInfo:=ctx.GetUserInfo().(*UserInfo)
-	tagList:=dataInfo.MomentCache.MomentsExt.TagList
-	if len(userInfo.MomentUserProfile.UserPref) > 0 {
-		for _, tag := range userInfo.MomentUserProfile.UserPref {
-			if strings.Contains(tagList, tag) {
-				rankInfo.AddRecommend("UserTagPref", 1.1)
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	if dataInfo.MomentCache!= nil {
+		tagList := dataInfo.MomentCache.MomentsExt.TagList
+		if userInfo.MomentUserProfile!=nil&&len(userInfo.MomentUserProfile.UserPref) > 0 {
+			for _, tag := range userInfo.MomentUserProfile.UserPref {
+				if strings.Contains(tagList, tag) {
+					rankInfo.AddRecommend("UserTagPref", 1.1)
+				}
 			}
 		}
 	}
