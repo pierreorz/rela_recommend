@@ -112,7 +112,7 @@ func initDB(cfg *conf.Config) {
 	// if cfg.LogLevel == "debug" {
 	// 	DbR.LogMode(true)
 	// }
-	if cfg.Influxdb != nil && len(cfg.Influxdb.Addr) > 0 && len(cfg.Influxdb.Bucket) > 0 {
+	if len(cfg.Influxdb.Addr) > 0 && len(cfg.Influxdb.Bucket) > 0 {
 		InfluxdbClient = influxdb2.NewClient(cfg.Influxdb.Addr, cfg.Influxdb.Token)
 	}
 }

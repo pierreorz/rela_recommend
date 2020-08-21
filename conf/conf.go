@@ -87,7 +87,7 @@ type Config struct {
 	Rds       rdsConfig       `toml:"rds"`
 	Cassandra cassandraConfig `toml:"cassandra"`
 	Rpc       rpcConfig       `toml:"rpc"`
-	Influxdb  *influxdbConfig `toml:"influxdb"`
+	Influxdb  influxdbConfig  `toml:"influxdb"`
 }
 
 func NewConfigWithFile(fileName string) (*Config, error) {
