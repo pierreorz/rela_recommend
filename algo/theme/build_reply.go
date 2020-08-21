@@ -45,7 +45,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		filtedAudit := abtest.GetBool("search_filted_audit", false)
 		var searchReplyMapErr error
 		searchReplyMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
-			searchScenery, "themereply", returnedRecommend, filtedAudit)
+			searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
 		if searchReplyMapErr == nil {
 			replyIdSet := utils.SetInt64{}
 			themeIdSet := utils.NewSetInt64FromArray(themeIdList)
