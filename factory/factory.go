@@ -114,6 +114,7 @@ func initDB(cfg *conf.Config) {
 	// }
 	if len(cfg.Influxdb.Addr) > 0 && len(cfg.Influxdb.Bucket) > 0 {
 		InfluxdbClient = influxdb2.NewClient(cfg.Influxdb.Addr, cfg.Influxdb.Token)
+		log.Infof("INIT InfluxdbClient: %s ....", cfg.Influxdb.Addr)
 	}
 }
 
