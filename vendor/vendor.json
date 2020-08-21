@@ -22,6 +22,18 @@
 			"revisionTime": "2016-12-07T02:39:22Z"
 		},
 		{
+			"checksumSHA1": "87V6V3+fh/2YQYkd+LTg7Oph5ao=",
+			"path": "github.com/deepmap/oapi-codegen/pkg/runtime",
+			"revision": "fae4b9e07979f25a896eaa21816a7a00bb9a472d",
+			"revisionTime": "2020-08-19T15:23:04Z"
+		},
+		{
+			"checksumSHA1": "y12DCi/vdSUZ4mFt3gNlLRl7UCk=",
+			"path": "github.com/deepmap/oapi-codegen/pkg/types",
+			"revision": "fae4b9e07979f25a896eaa21816a7a00bb9a472d",
+			"revisionTime": "2020-08-19T15:23:04Z"
+		},
+		{
 			"checksumSHA1": "r6Q02gDqUfS6vgI4NalT4njNdw8=",
 			"path": "github.com/gansidui/geohash",
 			"revision": "ebe5ba447f344b681c3bd96d2ca3e1ef5b43b7a8",
@@ -169,6 +181,12 @@
 			"revision": "68f42dd5932d757c640dfef519ab578f62c2a9f2"
 		},
 		{
+			"checksumSHA1": "r4oKb5av9RxYuKMZBtWpTl8Qa7g=",
+			"path": "github.com/influxdata/line-protocol",
+			"revision": "2487e7298839615811464221244c572dc05b50ad",
+			"revisionTime": "2020-03-27T12:31:55Z"
+		},
+		{
 			"checksumSHA1": "lYUMiQOLvV+Okxcm1RQnot+c0ho=",
 			"path": "github.com/jinzhu/gorm",
 			"revision": "52c5c8127cf4aeffde3e0aa9222640832075a90f",
@@ -201,6 +219,12 @@
 			"revisionTime": "2018-11-12T20:58:43Z"
 		},
 		{
+			"checksumSHA1": "Qo2E/26skb9mZQ3b2Mh6QDkpBLs=",
+			"path": "github.com/pkg/errors",
+			"revision": "614d223910a179a466c1767a985424175c39b465",
+			"revisionTime": "2020-01-14T19:47:44Z"
+		},
+		{
 			"checksumSHA1": "+/DuBWJ5ArxaGKKkPyIlnwSJ18M=",
 			"path": "github.com/ssdb/gossdb/ssdb",
 			"revision": "a19fc4ae2aa1889d4d7a1e2279ed5907825c8215",
@@ -229,6 +253,12 @@
 			"path": "gopkg.in/mgo.v2/bson",
 			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
 			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"checksumSHA1": "wZxi5gt6Zfs4vh8795dNA/lva7g=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "0b1645d91e851e735d3e23330303ce81f70adbe3",
+			"revisionTime": "2020-05-06T23:08:38Z"
 		}
 	],
 	"rootPath": "rela_recommend"
