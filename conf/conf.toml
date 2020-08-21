@@ -29,10 +29,10 @@ master_address = "root:qwe123@tcp(localhost:3306)/stay?charset=utf8mb4&parseTime
 addresses="127.0.0.1"
 
 [influxdb]
-addr=https://ts-8vb05ke21nkz4t5d3.influxdata.tsdb.aliyuncs.com:8086
-token=aiadm:AIadm@2020
-org=rela_recommend
-bucket=ai
+addr = "https://ts-8vb05ke21nkz4t5d3.influxdata.tsdb.aliyuncs.com:8086"
+token = "aiadm:AIadm@2020"
+org = "rela_recommend"
+bucket = "ai"
 
 [rpc]
 search_rpc_addr = "http://127.0.0.1"
