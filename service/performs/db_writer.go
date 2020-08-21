@@ -26,7 +26,7 @@ func BeginWatching(org string, bucket string) {
 			select {
 			case item := <-writeItemChan:
 				point := influxdb2.NewPoint(item.Measurement, item.Tags, item.Fields, item.Time)
-				if len(factory.InfluxdbClient.ServerURL()) > 0 {
+				if factory.InfluxdbClient != nil && len(factory.InfluxdbClient.ServerURL()) > 0 {
 					writer := factory.InfluxdbClient.WriteAPIBlocking(org, bucket)
 					if writeErr := writer.WritePoint(context.Background(), point); writeErr != nil {
 						log.Warn("influxdb write err %s", writeErr.Error())
