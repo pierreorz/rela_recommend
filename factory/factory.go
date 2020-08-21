@@ -77,7 +77,7 @@ func Init(cfg *conf.Config) {
 	if 8*60*60 != utils.GetLocalTimeZoneOffset() {
 		panic("not utc+8, then going to quit")
 	}
-	// initDB(cfg)
+	initDB(cfg)
 	initConsul(cfg)
 	initCache(cfg)
 	// initMongo(cfg)
@@ -91,16 +91,16 @@ func initConsul(cfg *conf.Config) {
 }
 
 func initDB(cfg *conf.Config) {
-	var err error
-	DbW, err = gorm.Open("mysql", cfg.Rdb.MasterAddr)
-	if err != nil {
-		log.Error(err.Error())
-	}
-	DbW.DB().SetMaxIdleConns(1)
-	DbW.DB().SetMaxOpenConns(10)
-	if cfg.LogLevel == "debug" {
-		DbW.LogMode(true)
-	}
+	// var err error
+	// DbW, err = gorm.Open("mysql", cfg.Rdb.MasterAddr)
+	// if err != nil {
+	// 	log.Error(err.Error())
+	// }
+	// DbW.DB().SetMaxIdleConns(1)
+	// DbW.DB().SetMaxOpenConns(10)
+	// if cfg.LogLevel == "debug" {
+	// 	DbW.LogMode(true)
+	// }
 	//sqlCreate(DbW)
 
 	// DbR, err = gorm.Open("mysql", cfg.Rdb.SlaveAddr)
