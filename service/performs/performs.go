@@ -179,3 +179,52 @@ func (self *Performs) ToJson() string {
 	jss, _ := json.Marshal(self)
 	return string(jss)
 }
+
+func (self *Performs) toWriteChan(buffer map[string]interface{}, pre string) map[string]interface{} {
+	fullName := pre + "." + self.Name
+	if pre == "" {
+		if self.Name == "" {
+			fullName = "root"
+		} else {
+			fullName = self.Name
+		}
+	}
+	timeName := fullName + ".time"
+	countName := fullName + ".count"
+	errName := fullName + ".error"
+	otherName := fullName + ".other"
+
+	buffer[timeName] = self.Interval
+	switch result := self.Result.(type) {
+	case error:
+		errMsg := strings.Join(utils.Splits(result.Error(), " ,:"), "_")
+		buffer[errName] = errMsg
+	case int, int8, int16, int32, int64, float32, float64, uint, uint8, uint16, uint32, uint64:
+		buffer[countName] = utils.GetFloat64(result)
+	default:
+		buffer[otherName] = fmt.Sprintf("%+v", result)
+	}
+
+	for _, name := range self.ItemsName {
+		if val, ok := self.ItemsMap[name]; ok {
+			val.toWriteChan(buffer, fullName)
+		}
+	}
+	return buffer
+}
+
+// 写入到写入influxdb缓存中
+func (self *Performs) ToWriteChan(table string, app string, time time.Time, fields map[string]interface{}) error {
+	go func() {
+		fields = self.toWriteChan(fields, "")
+		item := &writeItem{
+			Measurement: table,
+			Tags:        map[string]string{"app": app},
+			Fields:      fields,
+			Time:        time,
+		}
+
+		writeItemChan <- item
+	}()
+	return nil
+}

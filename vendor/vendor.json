@@ -135,6 +135,40 @@
 			"revisionTime": "2018-11-12T20:58:43Z"
 		},
 		{
+			"checksumSHA1": "utEO8Ri1DXwksMWLKevg+nrmfc0=",
+			"path": "github.com/influxdata/influxdb-client-go",
+			"revision": "68f42dd5932d757c640dfef519ab578f62c2a9f2",
+			"revisionTime": "2020-08-19T09:28:37Z"
+		},
+		{
+			"path": "github.com/influxdata/influxdb-client-go/v2/api",
+			"revision": "68f42dd5932d757c640dfef519ab578f62c2a9f2"
+		},
+		{
+			"path": "github.com/influxdata/influxdb-client-go/v2/api/http",
+			"revision": "68f42dd5932d757c640dfef519ab578f62c2a9f2"
+		},
+		{
+			"path": "github.com/influxdata/influxdb-client-go/v2/api/write",
+			"revision": "68f42dd5932d757c640dfef519ab578f62c2a9f2"
+		},
+		{
+			"path": "github.com/influxdata/influxdb-client-go/v2/domain",
+			"revision": "68f42dd5932d757c640dfef519ab578f62c2a9f2"
+		},
+		{
+			"path": "github.com/influxdata/influxdb-client-go/v2/internal/http",
+			"revision": "68f42dd5932d757c640dfef519ab578f62c2a9f2"
+		},
+		{
+			"path": "github.com/influxdata/influxdb-client-go/v2/internal/log",
+			"revision": "68f42dd5932d757c640dfef519ab578f62c2a9f2"
+		},
+		{
+			"path": "github.com/influxdata/influxdb-client-go/v2/log",
+			"revision": "68f42dd5932d757c640dfef519ab578f62c2a9f2"
+		},
+		{
 			"checksumSHA1": "lYUMiQOLvV+Okxcm1RQnot+c0ho=",
 			"path": "github.com/jinzhu/gorm",
 			"revision": "52c5c8127cf4aeffde3e0aa9222640832075a90f",

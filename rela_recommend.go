@@ -7,8 +7,8 @@ import (
 	"rela_recommend/conf"
 	"rela_recommend/factory"
 	"rela_recommend/log"
-	"rela_recommend/utils/routers"
 	"rela_recommend/routes"
+	"rela_recommend/utils/routers"
 	"runtime"
 	"syscall"
 
@@ -16,6 +16,7 @@ import (
 	// "time"
 	// "rela_recommend/algo/live"
 	"rela_recommend/service/abtest"
+	"rela_recommend/service/performs"
 )
 
 var (
@@ -66,6 +67,8 @@ func main() {
 	log.Infof("%+v", *cfg)
 
 	factory.Init(cfg)
+
+	performs.BeginWatching(cfg.Influxdb.Org, cfg.Influxdb.Bucket) // 监听写入influxdb
 
 	router := routers.Default()
 	routes.RegisterRouters(router)

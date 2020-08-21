@@ -46,10 +46,17 @@ type cassandraConfig struct {
 }
 
 type rpcConfig struct {
-	SearchRpcAddr	string	`toml:"search_rpc_addr"`
-	ApiRpcAddr		string	`toml:"api_rpc_addr"`
-	ChatRoomRpcAddr string	`toml:"chatroom_rpc_addr"`
-	AiSearchRpcAddr string 	`toml:"ai_search_rpc_addr"`
+	SearchRpcAddr   string `toml:"search_rpc_addr"`
+	ApiRpcAddr      string `toml:"api_rpc_addr"`
+	ChatRoomRpcAddr string `toml:"chatroom_rpc_addr"`
+	AiSearchRpcAddr string `toml:"ai_search_rpc_addr"`
+}
+
+type influxdbConfig struct {
+	Addr   string `toml:"addr"`
+	Token  string `toml:"token"`
+	Org    string `toml:"org"`
+	Bucket string `toml:"bucket"`
 }
 
 type Config struct {
@@ -79,7 +86,8 @@ type Config struct {
 	Rdb       rdbConfig       `toml:"rdb"`
 	Rds       rdsConfig       `toml:"rds"`
 	Cassandra cassandraConfig `toml:"cassandra"`
-	Rpc		rpcConfig	`toml:"rpc"`
+	Rpc       rpcConfig       `toml:"rpc"`
+	Influxdb  *influxdbConfig `toml:"influxdb"`
 }
 
 func NewConfigWithFile(fileName string) (*Config, error) {

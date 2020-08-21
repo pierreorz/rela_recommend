@@ -18,7 +18,9 @@ import (
 	"github.com/gocql/gocql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+
 	// "rela_recommend/service/abtest"
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
 
 // mysql slave
@@ -54,6 +56,9 @@ var SearchRpcClient *rpc.HttpClient
 var ApiRpcClient *rpc.HttpClient
 var ChatRoomRpcClient *rpc.HttpClient
 var AiSearchRpcClient *rpc.HttpClient
+
+// influxdb
+var InfluxdbClient influxdb2.Client
 
 // 分词
 var Segmenter segment.ISegmenter
@@ -107,6 +112,9 @@ func initDB(cfg *conf.Config) {
 	// if cfg.LogLevel == "debug" {
 	// 	DbR.LogMode(true)
 	// }
+	if cfg.Influxdb != nil && len(cfg.Influxdb.Addr) > 0 && len(cfg.Influxdb.Bucket) > 0 {
+		InfluxdbClient = influxdb2.NewClient(cfg.Influxdb.Addr, cfg.Influxdb.Token)
+	}
 }
 
 func initIsProduction(cfg *conf.Config) {
