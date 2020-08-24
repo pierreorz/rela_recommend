@@ -18,7 +18,9 @@ import (
 	"github.com/gocql/gocql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+
 	// "rela_recommend/service/abtest"
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
 
 // mysql slave
@@ -55,6 +57,9 @@ var ApiRpcClient *rpc.HttpClient
 var ChatRoomRpcClient *rpc.HttpClient
 var AiSearchRpcClient *rpc.HttpClient
 
+// influxdb
+var InfluxdbClient influxdb2.Client
+
 // 分词
 var Segmenter segment.ISegmenter
 
@@ -72,7 +77,7 @@ func Init(cfg *conf.Config) {
 	if 8*60*60 != utils.GetLocalTimeZoneOffset() {
 		panic("not utc+8, then going to quit")
 	}
-	// initDB(cfg)
+	initDB(cfg)
 	initConsul(cfg)
 	initCache(cfg)
 	// initMongo(cfg)
@@ -86,16 +91,16 @@ func initConsul(cfg *conf.Config) {
 }
 
 func initDB(cfg *conf.Config) {
-	var err error
-	DbW, err = gorm.Open("mysql", cfg.Rdb.MasterAddr)
-	if err != nil {
-		log.Error(err.Error())
-	}
-	DbW.DB().SetMaxIdleConns(1)
-	DbW.DB().SetMaxOpenConns(10)
-	if cfg.LogLevel == "debug" {
-		DbW.LogMode(true)
-	}
+	// var err error
+	// DbW, err = gorm.Open("mysql", cfg.Rdb.MasterAddr)
+	// if err != nil {
+	// 	log.Error(err.Error())
+	// }
+	// DbW.DB().SetMaxIdleConns(1)
+	// DbW.DB().SetMaxOpenConns(10)
+	// if cfg.LogLevel == "debug" {
+	// 	DbW.LogMode(true)
+	// }
 	//sqlCreate(DbW)
 
 	// DbR, err = gorm.Open("mysql", cfg.Rdb.SlaveAddr)
@@ -107,6 +112,10 @@ func initDB(cfg *conf.Config) {
 	// if cfg.LogLevel == "debug" {
 	// 	DbR.LogMode(true)
 	// }
+	if len(cfg.Influxdb.Addr) > 0 && len(cfg.Influxdb.Bucket) > 0 {
+		InfluxdbClient = influxdb2.NewClient(cfg.Influxdb.Addr, cfg.Influxdb.Token)
+		log.Infof("INIT InfluxdbClient: %s ....", cfg.Influxdb.Addr)
+	}
 }
 
 func initIsProduction(cfg *conf.Config) {

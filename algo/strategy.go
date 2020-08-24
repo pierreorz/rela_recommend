@@ -160,18 +160,28 @@ func (self *LoggerBase) Do(ctx IContext) error {
 type LoggerPerforms struct{}
 
 func (self *LoggerPerforms) Do(ctx IContext) error {
+	app := ctx.GetAppInfo()
 	pfm := ctx.GetPerforms()
 	params := ctx.GetRequest()
 	response := ctx.GetResponse()
+	abtest := ctx.GetAbTest()
 	returnLen := 0
 	if response != nil {
 		returnLen = len(response.DataIds)
 	}
 	log.Infof("performs app:%s,rankId:%s,userId:%d,paramsLen:%d,offset:%d,limit:%d,dataIds:%d,dataList:%d,return:%d;%s\n",
-		ctx.GetAppInfo().Name, ctx.GetRankId(), params.UserId, len(params.DataIds),
+		app.Name, ctx.GetRankId(), params.UserId, len(params.DataIds),
 		params.Offset, params.Limit,
 		len(ctx.GetDataIds()), len(ctx.GetDataList()),
 		returnLen, pfm.ToString())
+
+	if abtest.GetBool("logger_performs_switched", false) {
+		pfm.ToWriteChan("algo", app.Name, ctx.GetCreateTime(), map[string]interface{}{
+			"request.offset": params.Offset,
+			"request.limit":  params.Limit,
+			"response.len":   returnLen,
+		})
+	}
 	return nil
 }
 
