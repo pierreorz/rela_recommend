@@ -182,8 +182,8 @@ func (this *MomentCacheModule) QueryMomentOfflineProfileByIdsMap(momentIds []int
 
 // 读取直播相关用户画像
 func (self *MomentCacheModule) QueryMomentsByIds(ids []int64) ([]MomentsAndExtend, error) {
-	keyFormatter := "friends_moments_moments:%d"
-	ress, err := self.MGetStructs(MomentsAndExtend{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	keyFormatter := self.ctx.GetAbTest().GetString("moment_cache_key_formatter", "friends_moments_moments:%d")
+	ress, err := self.MGetStructs(MomentsAndExtend{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
 	objs := ress.Interface().([]MomentsAndExtend)
 	return objs, err
 }
