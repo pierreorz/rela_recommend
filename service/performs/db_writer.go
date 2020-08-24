@@ -29,10 +29,10 @@ func writeBatchPoints(org string, bucket string, points []*influxdb2write.Point)
 		if factory.InfluxdbClient != nil && len(factory.InfluxdbClient.ServerURL()) > 0 {
 			writer := factory.InfluxdbClient.WriteAPIBlocking(org, bucket)
 			if writeErr := writer.WritePoint(context.Background(), points...); writeErr != nil {
-				log.Warn("influxdb write err %s", writeErr.Error())
+				log.Warnf("influxdb write err %s", writeErr.Error())
 				noWritePoints = points
 			} else {
-				log.Warn("influxdb write len %d", len(points))
+				log.Warnf("influxdb write len %d", len(points))
 			}
 		}
 	}
