@@ -2,23 +2,25 @@ package pika
 
 import (
 	"encoding/json"
-	"github.com/garyburd/redigo/redis"
 	"errors"
+	"fmt"
+	"rela_recommend/cache"
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/utils"
-	"rela_recommend/cache"
-	"time"
 	"strings"
-	"fmt"
+	"time"
+
+	"github.com/garyburd/redigo/redis"
 )
 
 type JsonTime struct {
 	time.Time
 }
+
 func (p *JsonTime) UnmarshalJSON(data []byte) error {
 	dataStr := string(data)
-	if data != nil && dataStr!="null" && len(data) > 0 {
+	if data != nil && dataStr != "null" && len(data) > 0 {
 		var local time.Time
 		var err error
 		if strings.HasSuffix(dataStr, "+0000\"") {
@@ -54,13 +56,13 @@ func NewUserProfileModule(cache *cache.Cache, store *cache.Cache) *UserProfileMo
 }
 
 type Location struct {
-	Lat 	float64		`json:"lat"`
-	Lon 	float64		`json:"lon"`
+	Lat float64 `json:"lat"`
+	Lon float64 `json:"lon"`
 }
 
 type UserProfile struct {
-	UserId         int64    `json:"id"`         // 用户ID
-	Location       Location `json:"location"`            //地理位置
+	UserId         int64    `json:"id"`             // 用户ID
+	Location       Location `json:"location"`       //地理位置
 	Avatar         string   `json:"avatar"`         // 头像
 	IsVip          int      `json:"isVip"`          // 是否是vip
 	LastUpdateTime int64    `json:"lastUpdateTime"` //最后在线时间
@@ -69,42 +71,42 @@ type UserProfile struct {
 	RoleName       string   `json:"roleName"`
 	UserImageCount int      `json:"userImageCount"`
 	WantRole       string   `json:"wantRole"`
-	Status     int       `json:"status"`
-	Affection  int       `json:"affection"`
-	Age        int       `json:"age"`
-	Height     int       `json:"height"`
-	Weight     int       `json:"weight"`
-	Ratio      int       `json:"ratio"`
-	CreateTime JsonTime `json:"createTime"`
-	Horoscope  string    `json:"horoscope"`
+	Status         int      `json:"status"`
+	Affection      int      `json:"affection"`
+	Age            int      `json:"age"`
+	Height         int      `json:"height"`
+	Weight         int      `json:"weight"`
+	Ratio          int      `json:"ratio"`
+	CreateTime     JsonTime `json:"createTime"`
+	Horoscope      string   `json:"horoscope"`
 
-	JsonRoleLike map[string]float32	`json:"jsonRoleLike"`
-	JsonAffeLike map[string]float32	`json:"jsonAffeLike"`
+	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
+	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
 }
 
 func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, error) {
-	var cacheKeyPre = "app_user_location:"
-	var storeKeyPre = "app_user_location:"
+	var cacheKeyPre = "app_user_active_info_search_"
+	var storeKeyPre = "app_user_active_info_search_"
 	var finalError error = nil
 	auls := make([]UserProfile, 0, len(userIds))
 	usersMap := map[int64]UserProfile{}
 	var startTime = time.Now()
 	var cacheKeysMap = map[int64]string{}
 	var cacheKeys = make([]string, 0)
-	for _, id := range userIds {    // 构造缓存keys
+	for _, id := range userIds { // 构造缓存keys
 		cacheKey := cacheKeyPre + utils.GetString(id)
 		cacheKeysMap[id] = cacheKey
 		cacheKeys = append(cacheKeys, cacheKey)
 	}
-	var startRedisTime = time.Now()  // 开始读取缓存
+	var startRedisTime = time.Now() // 开始读取缓存
 	var notFoundUserIds = make([]int64, 0)
 	userStrs, err := factory.CacheCluster.Mget(cacheKeys)
-	var startRedisResTime = time.Now()  // 开始解析缓存结果
-	if err != nil {  // 读取缓存失败
+	var startRedisResTime = time.Now() // 开始解析缓存结果
+	if err != nil {                    // 读取缓存失败
 		log.Error(err.Error())
 		notFoundUserIds = userIds
 	} else {
-		for i, userId := range userIds {  
+		for i, userId := range userIds {
 			userRes := userStrs[i]
 			if userRes == nil {
 				notFoundUserIds = append(notFoundUserIds, userId)
@@ -129,14 +131,14 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 	if len(notFoundUserIds) > 0 {
 		var storeKeys = make([]string, 0)
 		for _, id := range notFoundUserIds {
-			storeKeys = append(storeKeys, storeKeyPre + utils.GetString(id))
+			storeKeys = append(storeKeys, storeKeyPre+utils.GetString(id))
 		}
-		startMongoTime = time.Now()  // 开始读取持久化存储
+		startMongoTime = time.Now() // 开始读取持久化存储
 		storeUserStrs, err := factory.PikaCluster.Mget(storeKeys)
-		if err != nil {  // 读取持久化存储失败
+		if err != nil { // 读取持久化存储失败
 			log.Error(err.Error(), storeKeys, storeUserStrs)
 		} else {
-			start2RedisResTime = time.Now()  // 开始解析持久化存储结果
+			start2RedisResTime = time.Now() // 开始解析持久化存储结果
 			toCacheMap := map[string]interface{}{}
 			for i, userId := range notFoundUserIds {
 				// storeKey := storeKeys[i]
@@ -157,8 +159,8 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 				}
 			}
 
-			start2RedisTime = time.Now()  // 开始将持久化结果写入缓存
-			err = factory.CacheCluster.MsetEx(toCacheMap, 24 * 60 * 60)
+			start2RedisTime = time.Now() // 开始将持久化结果写入缓存
+			err = factory.CacheCluster.MsetEx(toCacheMap, 24*60*60)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -174,7 +176,7 @@ func (this *UserProfileModule) QueryByUserIds(userIds []int64) ([]UserProfile, e
 	}
 	var startLogTime = time.Now()
 	log.Infof("QueryByUserIds,all:%d,redis:%d,pika:%d,final:%d;total:%.3f,redisInit:%.3f,redis:%.3f,redisLoad:%.3f,pika:%.3f,pikaLoad:%.3f,2redis:%.3f\n",
-		len(userIds), len(userIds)-len(notFoundUserIds), len(notFoundUserIds),len(auls),
+		len(userIds), len(userIds)-len(notFoundUserIds), len(notFoundUserIds), len(auls),
 		startLogTime.Sub(startTime).Seconds(), startRedisTime.Sub(startTime).Seconds(),
 		startRedisResTime.Sub(startRedisTime).Seconds(), startMongoTime.Sub(startRedisResTime).Seconds(),
 		start2RedisResTime.Sub(startMongoTime).Seconds(),
@@ -224,7 +226,6 @@ func (this *UserProfileModule) QueryByUserAndUsersMap(userId int64, userIds []in
 	}
 	return &user, usersMap, err
 }
-
 
 // 查询我关注的人的列表, 依赖缓存
 func (this *UserProfileModule) QueryConcernsByUser(userId int64) ([]int64, error) {

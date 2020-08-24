@@ -77,8 +77,9 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 			fs.Add(4001, float32(curr.Age))
 			fs.Add(4002, float32(curr.Height))
 			fs.Add(4003, float32(curr.Weight))
-			fs.Add(4004, float32(rutils.EarthDistance(float64(ctx.GetRequest().Lng), float64(ctx.GetRequest().Lat), meme.Lng, meme.Lat)))
-
+			if meme!=nil {
+				fs.Add(4004, float32(rutils.EarthDistance(float64(ctx.GetRequest().Lng), float64(ctx.GetRequest().Lat), meme.Lng, meme.Lat)))
+			}
 			fs.AddCategory(4010, 13, -1, rutils.GetInt(curr.Horoscope), -1)	// 星座
 			fs.AddCategory(4030, 10, -1, curr.Affection, -1)				// 单身情况
 			uRole, uWantRoles := rutils.GetInt(curr.RoleName), rutils.GetInts(curr.WantRole)
