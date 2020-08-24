@@ -125,7 +125,7 @@ func CallMomentAuditMap(userId int64, moments []int64, scenery string, momentTyp
 	}
 
 	if returnedRecommend { // 返回运营推荐数据，未审或过审的都可以通过
-		recommendFilter := fmt.Sprintf("{top_info.scenery:%s*top_info.top_type:top,recommend*start_time:(,now/m]*end_time:[now/m,)*!audit_status:2}", scenery)
+		recommendFilter := fmt.Sprintf("{top_info.scenery:%s*top_info.top_type:top,recommend*top_info.start_time:(,now/m]*top_info.end_time:[now/m,)*!audit_status:2}", scenery)
 		filters = append(filters, fmt.Sprintf("{%s|%s}", idsFilter, recommendFilter))
 	} else {
 		filters = append(filters, idsFilter)
