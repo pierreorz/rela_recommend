@@ -66,7 +66,7 @@ func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, m
 
 ///////////////////////////////////////////  话题过滤+审核+推荐置顶
 
-const internalSearchAuditUrl = "/search/audit_moment"
+const internalSearchAuditUrlFormatter = "/search/audit_%s"
 
 type searchMomentAuditResDataItemTopInfo struct {
 	Scenery   string `json:"scenery"` // 场景
@@ -140,6 +140,7 @@ func CallMomentAuditMap(userId int64, moments []int64, scenery string, momentTyp
 	resMap := map[int64]SearchMomentAuditResDataItem{}
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchMomentAuditRes{}
+		internalSearchAuditUrl := fmt.Sprintf(internalSearchAuditUrlFormatter, scenery)
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchAuditUrl, paramsData, searchRes); err == nil {
 			for i, element := range searchRes.Data {
 				resMap[element.Id] = searchRes.Data[i]
