@@ -7,7 +7,6 @@ import (
 	rutils "rela_recommend/utils"
 	"time"
 	"strings"
-	"rela_recommend/log"
 )
 
 
@@ -18,9 +17,6 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 	data := idata.(*DataInfo)
 	// 发布内容
 	mem, meme := data.MomentCache, data.MomentExtendCache
-	if meme ==nil{
-		log.Infof("mom profile ,%s\n",meme)
-	}
 	memprofile := data.MomentProfile
 	fs.AddCategory(1, 24, 0, mem.InsertTime.Hour(), 0)
 	fs.AddCategory(30, 7, 0, int(mem.InsertTime.Weekday()), 0)
