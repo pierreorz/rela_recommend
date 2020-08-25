@@ -49,7 +49,7 @@ func BeginWatching(org string, bucket string) {
 				if len(points) >= 10 {
 					points, _ = writeBatchPoints(org, bucket, points)
 				}
-			case <-time.After(time.Millisecond * 100):
+			case <-time.After(time.Millisecond * 300):
 				points, _ = writeBatchPoints(org, bucket, points)
 			}
 		}
