@@ -46,10 +46,10 @@ func BeginWatching(org string, bucket string) {
 			select {
 			case item := <-writeItemChan:
 				points = append(points, influxdb2.NewPoint(item.Measurement, item.Tags, item.Fields, item.Time))
-				if len(points) >= 10 {
+				if len(points) >= 20 {
 					points, _ = writeBatchPoints(org, bucket, points)
 				}
-			case <-time.After(time.Millisecond * 100):
+			case <-time.After(time.Millisecond * 300):
 				points, _ = writeBatchPoints(org, bucket, points)
 			}
 		}
