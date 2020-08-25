@@ -32,7 +32,7 @@ func writeBatchPoints(org string, bucket string, points []*influxdb2write.Point)
 				log.Warnf("influxdb write err %s", writeErr.Error())
 				noWritePoints = points
 			} else {
-				log.Warnf("influxdb write len %d", len(points))
+				log.Infof("influxdb write len %d", len(points))
 			}
 		}
 	}
