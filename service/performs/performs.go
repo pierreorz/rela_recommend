@@ -214,12 +214,12 @@ func (self *Performs) toWriteChan(buffer map[string]interface{}, pre string) map
 }
 
 // 写入到写入influxdb缓存中
-func (self *Performs) ToWriteChan(table string, app string, time time.Time, fields map[string]interface{}) error {
+func (self *Performs) ToWriteChan(table string, tags map[string]string, fields map[string]interface{}, time time.Time) error {
 	go func() {
 		fields = self.toWriteChan(fields, "")
 		item := &writeItem{
 			Measurement: table,
-			Tags:        map[string]string{"app": app},
+			Tags:        tags,
 			Fields:      fields,
 			Time:        time,
 		}

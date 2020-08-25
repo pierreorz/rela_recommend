@@ -175,12 +175,16 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 		len(ctx.GetDataIds()), len(ctx.GetDataList()),
 		returnLen, pfm.ToString())
 
-	if abtest.GetBool("logger_performs_switched", false) {
-		pfm.ToWriteChan("algo", app.Name, ctx.GetCreateTime(), map[string]interface{}{
-			"request.offset": params.Offset,
-			"request.limit":  params.Limit,
-			"response.len":   returnLen,
-		})
+	if abtest.GetBool("logger_performs_writer_switched", true) {
+		pfm.ToWriteChan("algo", map[string]string{
+			"app": app.Name,
+			"os":  params.GetOS(),
+		}, map[string]interface{}{
+			"request.user_id": params.UserId,
+			"request.offset":  params.Offset,
+			"request.limit":   params.Limit,
+			"response.len":    returnLen,
+		}, ctx.GetCreateTime())
 	}
 	return nil
 }
