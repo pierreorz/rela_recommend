@@ -130,6 +130,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 
+	themeIds := make([]int64, 0)
 	preforms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId:    params.UserId,
@@ -170,12 +171,13 @@ func DoBuildReplyData(ctx algo.IContext) error {
 						ThemeReplyExtendCache: reply.MomentsExtend,
 						RankInfo:              &algo.RankInfo{IsTop: isTop, Recommends: recommends},
 					}
+					themeIds = append(themeIds, themeId)
 					dataList = append(dataList, info)
 				}
 			}
 		}
 		ctx.SetUserInfo(userInfo)
-		ctx.SetDataIds(replyIds)
+		ctx.SetDataIds(themeIds)
 		ctx.SetDataList(dataList)
 		return len(dataList)
 	})
