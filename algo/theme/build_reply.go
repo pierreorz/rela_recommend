@@ -175,7 +175,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			}
 		}
 		ctx.SetUserInfo(userInfo)
-		ctx.SetDataIds(replyIds)
+		ctx.SetDataIds(themeIdList)
 		ctx.SetDataList(dataList)
 		return len(dataList)
 	})
