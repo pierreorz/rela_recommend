@@ -210,7 +210,7 @@ func DoBuildDetailReplyData(ctx algo.IContext) error {
 		returnedRecommend := abtest.GetBool("search_returned_recommend", true)
 		filtedAudit := abtest.GetBool("search_filted_audit", false)
 		searchReplyMap, searchReplyMapErr := search.CallMomentAuditMap(params.UserId, []int64{},
-			searchScenery, "themereply", returnedRecommend, filtedAudit)
+			searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
 		if searchReplyMapErr == nil {
 			themeReplyMap = themeReplayReplaction(searchReplyMap, themeReplyMap, searchScenery)
 			return len(searchReplyMap)
@@ -243,7 +243,7 @@ func DoBuildDetailReplyData(ctx algo.IContext) error {
 		ctx.SetDataIds(replyIds)
 		ctx.SetDataList(dataList)
 
-		return nil
+		return len(dataList)
 	})
 	return err
 }
