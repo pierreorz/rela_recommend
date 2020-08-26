@@ -81,7 +81,7 @@ func SimpleUpperItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *
 	dataInfo := iDataInfo.(*DataInfo)
 
 	// 直播用户提权
-	liveUpper := abtest.GetFloat("LiveUpperScore", 1.0)
+	liveUpper := abtest.GetFloat("live_upper_score", 1.0)
 	if dataInfo.LiveInfo != nil && liveUpper != 1.0 {
 		rankInfo.AddRecommend("LiveUpper", liveUpper)
 	}
