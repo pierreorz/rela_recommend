@@ -2,9 +2,9 @@ package user
 
 import (
 	"math"
-	rutils "rela_recommend/utils"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
+	rutils "rela_recommend/utils"
 )
 
 // 使用威尔逊算法估算内容情况：分值大概在0-0.2之间
@@ -16,7 +16,7 @@ func ItemBehaviorWilsonItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, ran
 	if itemBehavior != nil {
 		wilsonScale := abtest.GetFloat64("rich_strategy:wilson_behavior:scale", 2.0)
 		upperRate := strategy.WilsonScore(itemBehavior.GetNearbyListExposure(), itemBehavior.GetNearbyListInteract(), wilsonScale)
-		rankInfo.AddRecommend("WilsonBehavior", 1.0 + float32(upperRate))
+		rankInfo.AddRecommend("WilsonBehavior", 1.0+float32(upperRate))
 	}
 	return nil
 }
@@ -28,9 +28,9 @@ func UserBehaviorClickedDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo
 	if userBehavior := dataInfo.UserBehavior; userBehavior != nil {
 		interactItem := userBehavior.GetNearbyListInteract()
 		if interactItem.Count > 0 {
-			timeSec := (float64(ctx.GetCreateTime().Unix()) - interactItem.LastTime) / 60.0 / 60.0  // 离最后操作了多少小时
+			timeSec := (float64(ctx.GetCreateTime().Unix()) - interactItem.LastTime) / 60.0 / 60.0 // 离最后操作了多少小时
 			if timeSec > 0 {
-				rankInfo.AddRecommend("ClickedDown", 1.0 - float32(1.0 / (1.0 + timeSec)))
+				rankInfo.AddRecommend("ClickedDown", 1.0-float32(1.0/(1.0+timeSec)))
 			}
 		}
 	}
@@ -44,14 +44,14 @@ func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 	dataLocation := dataInfo.UserCache.Location
 
 	distance := rutils.EarthDistance(float64(request.Lng), float64(request.Lat), dataLocation.Lon, dataLocation.Lat)
-	if abtest.GetString("custom_sort_type", "distance") == "distance" {  // 是否按照距离排序
+	if abtest.GetString("custom_sort_type", "distance") == "distance" { // 是否按照距离排序
 		rankInfo.Score = -float32(distance)
-	} else {	// 安装距离分段排序
-		sortWeightType := abtest.GetString("distance_sort_weight_type", "level") 
-		if sortWeightType == "weight" {  // weight:按照权重，10公里为基准
-			weight := float32(0.5 * math.Exp(- distance / 10000.0))
-			rankInfo.AddRecommend("DistanceWeight", 1.0 + weight)
-		} else {  // 按照阶段
+	} else { // 安装距离分段排序
+		sortWeightType := abtest.GetString("distance_sort_weight_type", "level")
+		if sortWeightType == "weight" { // weight:按照权重，10公里为基准
+			weight := float32(0.5 * math.Exp(-distance/10000.0))
+			rankInfo.AddRecommend("DistanceWeight", 1.0+weight)
+		} else { // 按照阶段
 			if distance < 1000 {
 				rankInfo.Level = 7
 			} else if distance < 3000 {
@@ -72,5 +72,20 @@ func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 		}
 
 	}
+	return nil
+}
+
+// 简单的提权策略
+func SimpleUpperItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	abtest := ctx.GetAbTest()
+	dataInfo := iDataInfo.(*DataInfo)
+
+	// 直播用户提权
+	liveUpper := abtest.GetFloat("LiveUpperScore", 1.0)
+	if dataInfo.LiveInfo != nil && liveUpper != 1.0 {
+		rankInfo.AddRecommend("LiveUpper", liveUpper)
+	}
+	// 其他提权
+
 	return nil
 }
