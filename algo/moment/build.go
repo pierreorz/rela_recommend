@@ -277,8 +277,6 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 			}
 		}
 		if len(liveIds) > 0 {
-			log.Warnf("liveIdList,%s\n",liveIds)
-
 			liveIdList, err := search.CallLiveMomentList(liveIds)
 			if err == nil {
 				SetData(liveIdList[:liveLen], ctx)

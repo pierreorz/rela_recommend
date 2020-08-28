@@ -7,6 +7,7 @@ import (
 	"rela_recommend/utils"
 	"strings"
 	"time"
+	"rela_recommend/log"
 )
 
 const internalSearchNearMomentListUrlV1 = "/search/friend_moments"
@@ -41,8 +42,9 @@ func CallLiveMomentList(userIdList []int64)([]int64,error){
 	idlist:=make([]int64 ,0)
 	userIdListstr:=make([]string ,0)
 	for _,userid :=range userIdList{
-		userIdListstr=append(userIdListstr,string(userid))
+		userIdListstr=append(userIdListstr,fmt.Sprintf("%d",userid))
 	}
+	log.Warnf("useridlist %s\n",userIdListstr)
 	filters:=[] string{
 		fmt.Sprintf("user_id=%s", strings.Join(userIdListstr,",")),
 	}
