@@ -421,11 +421,13 @@ func ReturnLiveList(userIdList,momIdList []int64) []int64{
 	res := make([]int64, 0)
 	index:=0
 	for _,userId:=range userIdList{
-		idMap[userId]=momIdList[index]
+		if _, ok := idMap[userId]; ok {
+			continue
+		}else{
+			idMap[userId]=momIdList[index]
+			res=append(res,momIdList[index])
+		}
 		index+=1
-	}
-	for _, k := range idMap {
-		res = append(res, k)
 	}
 	return res
 }
