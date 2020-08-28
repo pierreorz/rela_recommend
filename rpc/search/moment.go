@@ -46,7 +46,7 @@ func CallLiveMomentList(userIdList []int64)([]int64,error){
 	}
 	log.Warnf("useridlist %s\n",userIdListstr )
 	filters:=[] string{
-		fmt.Sprintf("user_id=%s", strings.Join(userIdListstr,",")),
+		fmt.Sprintf("user_id:%s", strings.Join(userIdListstr,",")),
 	}
 	params := searchLiveMomentRequest{
 		Filter:   strings.Join(filters, "*"),
