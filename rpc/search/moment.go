@@ -44,7 +44,7 @@ func CallLiveMomentList(userIdList []int64)([]int64,error){
 	for _,userid :=range userIdList{
 		userIdListstr=append(userIdListstr,fmt.Sprintf("%d",userid))
 	}
-	log.Warnf("useridlist %s\n",userIdListstr)
+	log.Warnf("useridlist %s\n",userIdListstr )
 	filters:=[] string{
 		fmt.Sprintf("user_id=%s", strings.Join(userIdListstr,",")),
 	}

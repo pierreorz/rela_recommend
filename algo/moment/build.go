@@ -277,9 +277,12 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 			}
 		}
 		if len(liveIds) > 0 {
-			liveIdList, err := search.CallLiveMomentList(liveIds)
+			if liveLen>=len(liveIds){
+				liveLen=len(liveIds)
+			}
+			liveIdList, err := search.CallLiveMomentList(liveIds[:liveLen-1])
 			if err == nil {
-				SetData(liveIdList[:liveLen], ctx)
+				SetData(liveIdList, ctx)
 			}
 		}
 	} else {
