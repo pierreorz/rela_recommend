@@ -12,6 +12,8 @@ import (
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
 	"time"
+	"rela_recommend/models/pika"
+	"rela_recommend/algo/live"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -29,8 +31,22 @@ func DoBuildData(ctx algo.IContext) error {
 	recIdList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
-
+	liveIdList :=make([]int64,0)
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
+	if abtest.GetBool("rec_liveMoments_switch",false){
+		var lives []pika.LiveCache
+
+		lives = live.GetCachedLiveListByTypeClassify(-1,-1)
+
+		liveIds := make([]int64, len(lives))
+		for i, _ := range lives {
+			liveIds[i] = lives[i].Live.UserId
+		}
+		if len(liveIds)>0{
+			liveIdList,err=search.CallLiveMomentList(liveIds)
+		}
+	}
+
 	if dataIdList == nil || len(dataIdList) == 0 {
 		// 获取推荐日志
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
@@ -48,6 +64,20 @@ func DoBuildData(ctx algo.IContext) error {
 			radiusArray := abtest.GetStrings("radius_range", "50km")
 			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
+			if abtest.GetBool("near_liveMoments_switch",false){
+				aroundliveMomIdList, _ := search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
+					"live,voice_live", 60*60*24, "50km")
+				liveMoms,liveMomerr:=momentCache.QueryMomentsByIds(aroundliveMomIdList)
+				if err!=nil{
+					log.Warnf("near live mom err,%s\n",liveMomerr)
+				}
+				nearLiveUserIds:= make([]int64, 0)
+				for _,mom :=range liveMoms{
+					nearLiveUserIds=append(nearLiveUserIds,mom.Moments.UserId)
+				}
+				nearLiveUserIds=utils.NewSetInt64FromArray(nearLiveUserIds).ToList()
+				liveIdList=utils.ReturnLiveList(nearLiveUserIds,aroundliveMomIdList)
+			}
 			//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 			for _, radius := range radiusArray {
 				if abtest.GetBool("use_ai_search", false) {
@@ -84,7 +114,7 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	}
 
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList,liveIdList).ToList()
 	// 过滤审核
 	searchScenery := "moment"
 	if abtest.GetBool("search_audit_switched", false) {
@@ -230,67 +260,91 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
-	dataIdList, err := momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
-	if dataIdList == nil || err != nil {
-		ctx.SetUserInfo(nil)
-		ctx.SetDataIds(dataIdList)
-		ctx.SetDataList(make([]algo.IDataInfo, 0))
-		return nil
+	moms, liveMomerr := momentCache.QueryMomentsByIds(params.DataIds)
+	if liveMomerr != nil {
+		return errors.New("liveMomerr ")
 	}
-	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIdList)
-	if momOfflineProfileErr != nil {
-		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
-	}
-	moms, err := momentCache.QueryMomentsByIds(dataIdList)
-	userIds := make([]int64, 0)
-	for _, mom := range moms {
-		if mom.Moments != nil {
-			userIds = append(userIds, mom.Moments.UserId)
-		}
-	}
-	userIds = utils.NewSetInt64FromArray(userIds).ToList()
-	user, usersMap, err := userCache.QueryByUserAndUsersMap(params.UserId, userIds)
-	if err != nil {
-		log.Warnf("users list is err, %s\n", err)
-	}
-	momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr := userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId, userIds)
-	if embeddingCacheErr != nil {
-		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
-	}
-	userInfo := &UserInfo{UserId: params.UserId,
-		UserCache: user,
-		//MomentProfile: momentUser,
-		MomentUserProfile: momentUserEmbedding}
-	dataList := make([]algo.IDataInfo, 0)
-	for _, mom := range moms {
-		if mom.Moments.ShareTo != "all" {
-			continue
-		}
-		if mom.Moments != nil && mom.Moments.Id > 0 {
-			momUser, _ := usersMap[mom.Moments.UserId]
-			//status=0 禁用用户，status=5 注销用户
-			if momUser != nil {
-				if momUser.Status == 0 || momUser.Status == 5 {
-					continue
-				}
-			}
+	momsType:=moms[0].Moments.MomentsType
+	if momsType == "live"|| momsType == "voice_live" {
+		var lives []pika.LiveCache
+		liveLen := abtest.GetInt("live_moment_len", 3)
+		lives = live.GetCachedLiveListByTypeClassify(-1, -1)
 
-			info := &DataInfo{
-				DataId:               mom.Moments.Id,
-				UserCache:            momUser,
-				MomentCache:          mom.Moments,
-				MomentExtendCache:    mom.MomentsExtend,
-				MomentProfile:        mom.MomentsProfile,
-				MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
-				RankInfo:             &algo.RankInfo{},
-				MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
+		liveIds := make([]int64, len(lives))
+		for i, _ := range lives {
+			if lives[i].Live.UserId != moms[0].Moments.UserId {
+				liveIds[i] = lives[i].Live.UserId
 			}
-			dataList = append(dataList, info)
 		}
-		ctx.SetUserInfo(userInfo)
-		ctx.SetDataIds(dataIdList)
-		ctx.SetDataList(dataList)
+		if len(liveIds) > 0 {
+			liveIdList, err := search.CallLiveMomentList(liveIds)
+			if err == nil {
+				SetData(liveIdList[:liveLen], ctx)
+			}
+		}
+	} else {
+		recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
+		dataIdList, err := momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
+		if dataIdList == nil || err != nil {
+			ctx.SetUserInfo(nil)
+			ctx.SetDataIds(dataIdList)
+			ctx.SetDataList(make([]algo.IDataInfo, 0))
+			return nil
+		}
+		momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIdList)
+		if momOfflineProfileErr != nil {
+			log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
+		}
+		moms, err := momentCache.QueryMomentsByIds(dataIdList)
+		userIds := make([]int64, 0)
+		for _, mom := range moms {
+			if mom.Moments != nil {
+				userIds = append(userIds, mom.Moments.UserId)
+			}
+		}
+		userIds = utils.NewSetInt64FromArray(userIds).ToList()
+		user, usersMap, err := userCache.QueryByUserAndUsersMap(params.UserId, userIds)
+		if err != nil {
+			log.Warnf("users list is err, %s\n", err)
+		}
+		momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr := userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId, userIds)
+		if embeddingCacheErr != nil {
+			log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
+		}
+		userInfo := &UserInfo{UserId: params.UserId,
+			UserCache: user,
+			//MomentProfile: momentUser,
+			MomentUserProfile: momentUserEmbedding}
+		dataList := make([]algo.IDataInfo, 0)
+		for _, mom := range moms {
+			if mom.Moments.ShareTo != "all" {
+				continue
+			}
+			if mom.Moments != nil && mom.Moments.Id > 0 {
+				momUser, _ := usersMap[mom.Moments.UserId]
+				//status=0 禁用用户，status=5 注销用户
+				if momUser != nil {
+					if momUser.Status == 0 || momUser.Status == 5 {
+						continue
+					}
+				}
+
+				info := &DataInfo{
+					DataId:               mom.Moments.Id,
+					UserCache:            momUser,
+					MomentCache:          mom.Moments,
+					MomentExtendCache:    mom.MomentsExtend,
+					MomentProfile:        mom.MomentsProfile,
+					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
+					RankInfo:             &algo.RankInfo{},
+					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
+				}
+				dataList = append(dataList, info)
+			}
+			ctx.SetUserInfo(userInfo)
+			ctx.SetDataIds(dataIdList)
+			ctx.SetDataList(dataList)
+		}
 	}
 	return err
 }
@@ -329,11 +383,34 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 	if len(params.DataIds) == 0 {
 		return errors.New("dataIds length must 1")
 	}
+	moms,liveMomerr:=momentCache.QueryMomentsByIds(params.DataIds)
+	if liveMomerr != nil {
+		return errors.New("liveMomerr ")
+	}
+	momsType:=moms[0].Moments.MomentsType
+	if momsType == "live"|| momsType == "voice_live" {
+		var lives []pika.LiveCache
+		liveLen:=abtest.GetInt("live_moment_len",3)
+		lives = live.GetCachedLiveListByTypeClassify(-1,-1)
 
-	recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
-	dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], -999999999, recListKeyFormatter)
-	if err == nil {
-		SetData(dataIdList, ctx)
+		liveIds := make([]int64, len(lives))
+		for i, _ := range lives {
+			if lives[i].Live.UserId != moms[0].Moments.UserId {
+				liveIds[i] = lives[i].Live.UserId
+			}
+		}
+		if len(liveIds)>0{
+			liveIdList,err:=search.CallLiveMomentList(liveIds)
+			if err == nil {
+				SetData(liveIdList[:liveLen], ctx)
+			}
+		}
+	} else {
+		recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
+		dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], -999999999, recListKeyFormatter)
+		if err == nil {
+			SetData(dataIdList, ctx)
+		}
 	}
 	return err
 }
