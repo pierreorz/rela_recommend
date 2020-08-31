@@ -322,7 +322,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 		//MomentProfile: momentUser,
 		MomentUserProfile: momentUserEmbedding}
 	dataList := make([]algo.IDataInfo, 0)
-	for _, mom := range moms {
+	for Level, mom := range moms {
 		if mom.Moments.ShareTo != "all" {
 			continue
 		}
@@ -344,6 +344,9 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 				MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 				RankInfo:             &algo.RankInfo{},
 				MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
+			}
+			if momsType == "live" || momsType == "voice_live"{
+				info.RankInfo.Level=Level
 			}
 			dataList = append(dataList, info)
 		}
