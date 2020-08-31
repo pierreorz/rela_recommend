@@ -414,7 +414,7 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 			}
 			liveIdList, err := search.CallLiveMomentList(liveIds[:liveLen])
 			if err == nil {
-				SetData(liveIdList[:liveLen], ctx)
+				SetData(liveIdList, ctx)
 			}
 		}
 	} else {
