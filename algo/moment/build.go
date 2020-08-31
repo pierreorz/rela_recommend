@@ -406,6 +406,7 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 		for i, _ := range lives {
 			if lives[i].Live.UserId != moms[0].Moments.UserId {
 				liveIds[i] = lives[i].Live.UserId
+				log.Warnf("live ids %s\n",liveIds)
 			}
 		}
 		if len(liveIds) > 0 {
