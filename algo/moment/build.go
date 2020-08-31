@@ -346,7 +346,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 				MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 			}
 			if momsType == "live" || momsType == "voice_live"{
-				info.RankInfo.Level=Level
+				info.RankInfo.Level=-Level
 			}
 			dataList = append(dataList, info)
 		}
