@@ -39,9 +39,11 @@ func DoBuildData(ctx algo.IContext) error {
 		lives = live.GetCachedLiveListByTypeClassify(-1,-1)
 
 		liveIds := make([]int64, len(lives))
+		liveMap := make(map[int64]float64,0)
 		for i, _ := range lives {
-			liveIds[i] = lives[i].Live.UserId
+			liveMap[lives[i].Live.UserId]=float64(lives[i].Score)
 		}
+		liveIds=utils.SortMapByValue(liveMap)
 		if len(liveIds)>0{
 			liveIdList,err=search.CallLiveMomentList(liveIds)
 		}
