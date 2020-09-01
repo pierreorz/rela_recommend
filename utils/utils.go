@@ -416,21 +416,6 @@ func NewSetInt64FromArray(vals []int64) *SetInt64 {
 	return &set
 }
 
-func ReturnLiveList(userIdList,momIdList []int64) []int64{
-	var idMap = map[int64]int64{}
-	res := make([]int64, 0)
-	index:=0
-	for _,userId:=range userIdList{
-		if _, ok := idMap[userId]; ok {
-			continue
-		}else{
-			idMap[userId]=momIdList[index]
-			res=append(res,momIdList[index])
-		}
-		index+=1
-	}
-	return res
-}
 
 func NewSetInt64FromArrays(vals ...[]int64) *SetInt64 {
 	set := SetInt64{}

@@ -76,7 +76,7 @@ func DoBuildData(ctx algo.IContext) error {
 					nearLiveUserIds=append(nearLiveUserIds,mom.Moments.UserId)
 				}
 				nearLiveUserIds=utils.NewSetInt64FromArray(nearLiveUserIds).ToList()
-				liveIdList=utils.ReturnLiveList(nearLiveUserIds,aroundliveMomIdList)
+				liveIdList=ReturnLiveList(nearLiveUserIds,aroundliveMomIdList)
 			}
 			//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 			for _, radius := range radiusArray {
@@ -481,4 +481,20 @@ func SetData(dataIdList []int64, ctx algo.IContext) error {
 		ctx.SetDataList(dataList)
 	}
 	return err
+}
+
+func ReturnLiveList(userIdList,momIdList []int64) []int64{
+	var idMap = map[int64]int64{}
+	res := make([]int64, 0)
+	index:=0
+	for _,userId:=range userIdList{
+		if _, ok := idMap[userId]; ok {
+			continue
+		}else{
+			idMap[userId]=momIdList[index]
+			res=append(res,momIdList[index])
+		}
+		index+=1
+	}
+	return res
 }
