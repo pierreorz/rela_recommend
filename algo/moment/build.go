@@ -280,12 +280,12 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 		}
 		liveIds=utils.SortMapByValue(liveMap)
 		if len(liveIds) > 0 {
-			if liveLen >= len(liveIds) {
-				liveLen = len(liveIds)
+			liveIdList, err := search.CallLiveMomentList(liveIds)
+			if liveLen >= len(liveIdList) {
+				liveLen = len(liveIdList)
 			}
-			liveIdList, err := search.CallLiveMomentList(liveIds[:liveLen])
 			if err == nil {
-				dataIdList = liveIdList
+				dataIdList = liveIdList[:liveLen]
 			}
 		}
 	} else {
@@ -414,12 +414,12 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 		liveIds=utils.SortMapByValue(liveMap)
 		log.Warnf("live ids %s\n",liveIds)
 		if len(liveIds) > 0 {
-			if liveLen>=len(liveIds){
-				liveLen=len(liveIds)
+			liveIdList, err := search.CallLiveMomentList(liveIds)
+			if liveLen>=len(liveIdList){
+				liveLen=len(liveIdList)
 			}
-			liveIdList, err := search.CallLiveMomentList(liveIds[:liveLen])
 			if err == nil {
-				SetData(liveIdList, ctx)
+				SetData(liveIdList[:liveLen], ctx)
 			}
 		}
 	} else {
@@ -471,7 +471,7 @@ func SetData(dataIdList []int64, ctx algo.IContext) error {
 				MomentExtendCache:    nil,
 				MomentProfile:        nil,
 				MomentOfflineProfile: nil,
-				RankInfo:             &algo.RankInfo{Level: i},
+				RankInfo:             &algo.RankInfo{Level: -i},
 				MomentUserProfile:    nil,
 			}
 			dataList = append(dataList, info)
