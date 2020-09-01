@@ -46,6 +46,8 @@ func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache 
 	return lives
 }
 
+
+
 func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 	liveCacheList := make([]pika.LiveCache, len(lives))
 	for i, live := range lives {

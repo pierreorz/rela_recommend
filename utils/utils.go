@@ -416,6 +416,7 @@ func NewSetInt64FromArray(vals []int64) *SetInt64 {
 	return &set
 }
 
+
 func NewSetInt64FromArrays(vals ...[]int64) *SetInt64 {
 	set := SetInt64{}
 	for i, val := range vals {

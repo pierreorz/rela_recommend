@@ -7,9 +7,11 @@ import (
 	"rela_recommend/utils"
 	"strings"
 	"time"
+	"rela_recommend/log"
 )
 
 const internalSearchNearMomentListUrlV1 = "/search/friend_moments"
+const internalSearchLiveMomentListUrl="/search/on_live"
 
 type SearchMomentResDataItem struct {
 	Id int64 `json:"id"`
@@ -30,6 +32,39 @@ type searchMomentRequest struct {
 	Lng      float32 `json:"lng" form:"lng" `
 	Lat      float32 `json:"lat" form:"lat" `
 	Filter   string  `json:"filter" form:"filter" `
+}
+
+type searchLiveMomentRequest struct {
+	Filter   string  `json:"filter" form:"filter" `
+}
+//通过useridList获取正在直播的日志列表
+func CallLiveMomentList(userIdList []int64)([]int64,error){
+	idlist:=make([]int64 ,0)
+	userIdListstr:=make([]string ,0)
+	for _,userid :=range userIdList{
+		userIdListstr=append(userIdListstr,fmt.Sprintf("%d",userid))
+	}
+	log.Warnf("useridlist %s\n",userIdListstr )
+	filters:=[] string{
+		fmt.Sprintf("user_id:%s", strings.Join(userIdListstr,",")),
+	}
+	params := searchLiveMomentRequest{
+		Filter:   strings.Join(filters, "*"),
+	}
+
+	if paramsData, err := json.Marshal(params); err == nil {
+		searchRes := &searchMomentRes{}
+		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchLiveMomentListUrl, paramsData, searchRes); err == nil {
+			for _, element := range searchRes.Data {
+				idlist = append(idlist, element.Id)
+			}
+			return idlist, err
+		} else {
+			return idlist, err
+		}
+	} else {
+		return idlist, err
+	}
 }
 
 // 获取附近日志列表
