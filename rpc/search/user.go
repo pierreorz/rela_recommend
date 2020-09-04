@@ -34,11 +34,11 @@ func CallNearUserIdList(userId int64, lat, lng float32, offset, limit int64, fil
 				filters = append(filters, fmt.Sprintf("affection:%s", apiFilter.Affection))
 			}
 			if apiFilter.MinAge != "" || apiFilter.MaxAge != "" { // 年龄范围
-				filters = append(filters, fmt.Sprintf("age:[%s,%s]", apiFilter.MaxAge, apiFilter.MaxAge))
+				filters = append(filters, fmt.Sprintf("age:[%s,%s]", apiFilter.MinAge, apiFilter.MaxAge))
 			}
 			//会员特权
 			if apiFilter.ActiveDuration != "" { // 是否在线
-				filters = append(filters, fmt.Sprintf("activity_time:(now-%sm,)", apiFilter.ActiveDuration))
+				filters = append(filters, fmt.Sprintf("activity_time:(now-%sm/m,)", apiFilter.ActiveDuration))
 			}
 			if apiFilter.IsVip == "1" { //是否vip
 				filters = append(filters, fmt.Sprintf("vip_end_time:(now/m,)"))
