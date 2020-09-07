@@ -137,7 +137,7 @@ func DoBuildData(ctx algo.IContext) error {
 			return searchMomentMapErr
 		})
 	}
-
+	log.Warnf("searchMomMap ,%s\n",searchMomentMap)
 	// 获取日志内容
 	var startMomentTime = time.Now()
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
