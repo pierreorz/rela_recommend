@@ -14,12 +14,13 @@ func (p *JsonTime) UnmarshalJSON(data []byte) error {
 	if data != nil && dataStr != "null" && len(data) > 0 {
 		var local time.Time
 		var err error
-		var hasSufix = strings.HasSuffix(dataStr, "+0000\"")
-		if hasSufix {
+		if strings.HasSuffix(dataStr, "+0000\"") {
 			local, err = time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", dataStr, time.Local)
-		}
-		if !hasSufix || err != nil {
-			(&local).UnmarshalJSON(data)
+			if err != nil {
+				err = (&local).UnmarshalJSON(data)
+			}
+		} else {
+			err = (&local).UnmarshalJSON(data)
 		}
 		*p = JsonTime{Time: local}
 		return err
