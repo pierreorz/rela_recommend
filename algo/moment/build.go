@@ -117,6 +117,8 @@ func DoBuildData(ctx algo.IContext) error {
 
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList,liveIdList).ToList()
 	// 过滤审核
+	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
+
 	searchScenery := "moment"
 	if abtest.GetBool("search_audit_switched", false) {
 		preforms.Run("search", func(*performs.Performs) interface{} {
@@ -209,6 +211,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 			// 处理置顶
+
 			var isTop = 0
 			if topMap != nil {
 				if _, isTopOk := topMap[mom.Moments.Id]; isTopOk {
@@ -217,6 +220,13 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			// 处理推荐
 			var recommends = []algo.RecommendItem{}
+			if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
+				topTypeRes := topType.GetCurrentTopType(searchScenery)
+				isTop = utils.GetInt(topTypeRes == "TOP")
+				if topTypeRes == "RECOMMEND" {
+					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+				}
+			}
 			if recMap != nil {
 				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
 					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
