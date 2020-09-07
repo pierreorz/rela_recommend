@@ -19,7 +19,7 @@ func (p *JsonTime) UnmarshalJSON(data []byte) error {
 			local, err = time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", dataStr, time.Local)
 		}
 		if !hasSufix || err != nil {
-			err = (&local).UnmarshalJSON(data)
+			(&local).UnmarshalJSON(data)
 		}
 		*p = JsonTime{Time: local}
 		return err
