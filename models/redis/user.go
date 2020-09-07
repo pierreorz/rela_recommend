@@ -93,9 +93,9 @@ func (this *UserCacheModule) QueryByUserAndUsers(userId int64, userIds []int64) 
 				break
 			}
 		}
-		if resUser.UserId == 0 {
-			err = errors.New("user is nil" + utils.GetString(userId))
-		}
+		// if resUser.UserId == 0 {
+		// 	err = errors.New("user is nil" + utils.GetString(userId))
+		// }
 	}
 	return resUser, resUsers, err
 }
