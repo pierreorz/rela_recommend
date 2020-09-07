@@ -153,10 +153,10 @@ func (self *CachePikaModule) jsonsToValues(jsons []interface{}, objType reflect.
 					newValue := reflect.Indirect(newObj)
 					objs[i] = &newValue
 				} else {
-					log.Warn("json err:", res, err.Error())
+					log.Warnf("json %s err:%+v", string(bs), err.Error())
 				}
 			} else {
-				log.Warn("must []byte:", res)
+				log.Warnf("must []byte:%+v\n", res)
 			}
 		}
 	}
@@ -176,9 +176,9 @@ func (self *CachePikaModule) Jsons2StructsBySingle(jsons []interface{}, obj inte
 		}
 	}
 	endTime := time.Now()
-	log.Infof("Jsons2StructsBySingle rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
+	log.Infof("Jsons2StructsBySingle rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f;err:%+v\n",
 		"", len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(),
-		endTime.Sub(startTime).Seconds())
+		endTime.Sub(startTime).Seconds(), err)
 	return &objSlc, err
 }
 
@@ -213,17 +213,17 @@ func (self *CachePikaModule) Jsons2StructsByRoutine(jsons []interface{}, obj int
 	wg.Wait()
 
 	endTime := time.Now()
-	log.Infof("Jsons2StructsByRoutine rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
+	log.Infof("Jsons2StructsByRoutine rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f;err:%+v\n",
 		"", len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(),
-		endTime.Sub(startTime).Seconds())
+		endTime.Sub(startTime).Seconds(), err)
 	return &objSlc, err
 }
 
 func (self *CachePikaModule) Jsons2Structs(jsons []interface{}, obj interface{}) (*reflect.Value, error) {
 	var abtest = self.ctx.GetAbTest()
-	threshold := abtest.GetInt("redis.json.thread.threshold", 200)
+	threshold := abtest.GetInt("redis:json:thread:threshold", 200)
 	if len(jsons) > threshold {
-		jobs := abtest.GetInt("redis.json.thread.jobs", 4)
+		jobs := abtest.GetInt("redis:json:thread:jobs", 4)
 		return self.Jsons2StructsByRoutine(jsons, obj, jobs)
 	} else {
 		return self.Jsons2StructsBySingle(jsons, obj)
@@ -307,9 +307,9 @@ func (self *CachePikaModule) Jsons2StructsMapByRoutine(ids []int64, jsons []inte
 
 func (self *CachePikaModule) Jsons2StructsMap(ids []int64, jsons []interface{}, obj interface{}) (*reflect.Value, error) {
 	var abtest = self.ctx.GetAbTest()
-	threshold := abtest.GetInt("redis.json.map.thread.threshold", 200)
+	threshold := abtest.GetInt("redis:json:map:thread:threshold", 200)
 	if len(jsons) > threshold {
-		jobs := abtest.GetInt("redis.json.map.thread.jobs", 4)
+		jobs := abtest.GetInt("redis:json:map:thread:jobs", 4)
 		return self.Jsons2StructsMapByRoutine(ids, jsons, obj, jobs)
 	} else {
 		return self.Jsons2StructsMapBySingle(ids, jsons, obj)
