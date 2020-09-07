@@ -124,7 +124,8 @@ func DoBuildData(ctx algo.IContext) error {
 		preforms.Run("search", func(*performs.Performs) interface{} {
 			returnedRecommend := abtest.GetBool("search_returned_recommend", false)
 			filtedAudit := abtest.GetBool("search_filted_audit", false)
-			searchMomentMap, searchMomentMapErr := search.CallMomentAuditMap(params.UserId, dataIds,
+			var searchMomentMapErr error
+			searchMomentMap, searchMomentMapErr= search.CallMomentAuditMap(params.UserId, dataIds,
 				searchScenery, momentTypes, returnedRecommend, filtedAudit)
 			if searchMomentMapErr == nil {
 				momentIdSet := utils.SetInt64{}
@@ -137,7 +138,6 @@ func DoBuildData(ctx algo.IContext) error {
 			return searchMomentMapErr
 		})
 	}
-	log.Warnf("searchMomMap ,%s\n",searchMomentMap)
 	// 获取日志内容
 	var startMomentTime = time.Now()
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
