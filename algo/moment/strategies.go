@@ -26,7 +26,8 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error{
 	rankInfo := dataInfo.GetRankInfo()
 	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
 	if timeLevel <= 8 {
-		rankInfo.AddRecommend("momentNearTimeWeightV2", 1.0+float32(0.1/(1.0+float32(timeLevel))))
+		//避免脏数据的影响
+		rankInfo.AddRecommend("momentNearTimeWeightV2", 1.0+float32(0.1/(1.0+math.Max(float64(timeLevel),0))))
 	}
 	return nil
 }
