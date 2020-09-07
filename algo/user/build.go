@@ -195,7 +195,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 		ctx.SetDataIds(dataIds)
 		ctx.SetDataList(dataList)
 
-		return nil
+		return len(dataList)
 	})
 
 	return err
