@@ -112,7 +112,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 
 	// 确定候选用户
 	dataIds := params.DataIds
-	if dataIds != nil || len(dataIds) == 0 {
+	if dataIds == nil || len(dataIds) == 0 {
 		pf.Run("search", func(*performs.Performs) interface{} {
 			var searchErr error
 			if dataIds, searchErr = search.CallNearUserIdList(params.UserId, params.Lat, params.Lng,
