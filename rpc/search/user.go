@@ -39,6 +39,8 @@ func CallNearUserIdList(userId int64, lat, lng float32, offset, limit int64, fil
 			//会员特权
 			if apiFilter.ActiveDuration != "" { // 是否在线
 				filters = append(filters, fmt.Sprintf("activity_time:(now-%sm/m,)", apiFilter.ActiveDuration))
+			} else {
+				filters = append(filters, "activity_time:(now-7d/m,)")
 			}
 			if apiFilter.IsVip == "1" { //是否vip
 				filters = append(filters, fmt.Sprintf("vip_end_time:(now/m,)"))
