@@ -222,6 +222,7 @@ func DoBuildData(ctx algo.IContext) error {
 			// 处理推荐
 			var recommends = []algo.RecommendItem{}
 			if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
+				log.Warnf("searchMapid ,%s\n",searchMomentMap[mom.Moments.Id])
 				topTypeRes := topType.GetCurrentTopType(searchScenery)
 				isTop = utils.GetInt(topTypeRes == "TOP")
 				if topTypeRes == "RECOMMEND" {
