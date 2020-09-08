@@ -25,7 +25,7 @@ func CallNearUserIdList(userId int64, lat, lng float32, offset, limit int64, fil
 	apiFilter := &apiSearchStruct{}
 	if len(filterJson) >= 2 { //解析json '{"a":"1"}'
 		if apiFilterErr := json.Unmarshal([]byte(filterJson), apiFilter); apiFilterErr != nil {
-			log.Warnf("search CallNearUserIdList params error: %+v", apiFilterErr)
+			log.Warnf("search CallNearUserIdList params %s error: %+v", filterJson, apiFilterErr)
 		}
 	}
 
