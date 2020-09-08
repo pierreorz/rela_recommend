@@ -138,7 +138,6 @@ func DoBuildData(ctx algo.IContext) error {
 			return searchMomentMapErr
 		})
 	}
-	log.Warnf("searchMomMap ,%s\n",searchMomentMap)
 	// 获取日志内容
 	var startMomentTime = time.Now()
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
@@ -223,7 +222,6 @@ func DoBuildData(ctx algo.IContext) error {
 			var recommends = []algo.RecommendItem{}
 			if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
 				topTypeRes := topType.GetCurrentTopType(searchScenery)
-				log.Warnf("types of mom %s,%s\n",topTypeRes,mom.Moments.Id)
 				isTop = utils.GetInt(topTypeRes == "TOP")
 				if topTypeRes == "RECOMMEND" {
 					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
