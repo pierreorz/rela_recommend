@@ -222,9 +222,8 @@ func DoBuildData(ctx algo.IContext) error {
 			// 处理推荐
 			var recommends = []algo.RecommendItem{}
 			if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
-				log.Warnf("searchMapid ,%s\n",searchMomentMap[mom.Moments.Id])
 				topTypeRes := topType.GetCurrentTopType(searchScenery)
-				log.Warnf("types of mom %s\n",topTypeRes)
+				log.Warnf("types of mom %s,%s\n",topTypeRes,mom.Moments.Id)
 				isTop = utils.GetInt(topTypeRes == "TOP")
 				if topTypeRes == "RECOMMEND" {
 					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
