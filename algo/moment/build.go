@@ -117,7 +117,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList,liveIdList).ToList()
 	// 过滤审核
-	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
+	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 
 	searchScenery := "moment"
 	if abtest.GetBool("search_audit_switched", false) {
@@ -138,6 +138,7 @@ func DoBuildData(ctx algo.IContext) error {
 			return searchMomentMapErr
 		})
 	}
+	log.Warnf("searchMomMap ,%s\n",searchMomentMap)
 	// 获取日志内容
 	var startMomentTime = time.Now()
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
