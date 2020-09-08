@@ -3,7 +3,7 @@ package search
 import (
 	"encoding/json"
 	"fmt"
-	"theL_api_golang/log"
+	"rela_recommend/log"
 )
 
 const internalSearchNearUserListUrlV1 = "/search/nearby_user"
