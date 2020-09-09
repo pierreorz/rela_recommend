@@ -320,7 +320,7 @@ func (self *ContextBase) Do(app *algo.AppInfo, params *algo.RecommendRequest) er
 	if err == nil {
 		pfm.Begin("page")
 		err = self.DoPage()
-		log.Debugf("page response %+v\n", self.GetResponse())
+		// log.Debugf("page response %+v\n", self.GetResponse())
 		pfm.End("page")
 	}
 
