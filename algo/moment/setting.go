@@ -20,6 +20,8 @@ var strategyMap = map[string]algo.IStrategy{
 	"tag_pref": &algo.StrategyBase{ DoSingle: DoPrefWeightLevel },
 	"new_user": &algo.StrategyBase{ DoSingle: AroundNewUserAddWeightFunc },
 	"label_mom":&algo.StrategyBase{ DoSingle: MomLabelAddWeight },
+	"video_mom":&algo.StrategyBase{ DoSingle: VideoMomWeight },
+
 
 }
 var sorterMap = map[string]algo.ISorter{

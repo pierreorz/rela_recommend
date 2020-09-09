@@ -32,6 +32,18 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error{
 	return nil
 }
 
+//附近日志详情页视频日志提权
+func VideoMomWeight(ctx algo.IContext, index int) error {
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	if dataInfo.MomentCache != nil {
+		if dataInfo.MomentCache.MomentsType == "video" {
+			rankInfo.AddRecommend("VideoMomWeight", 1.2)
+		}
+	}
+	return nil
+}
+
 //推荐日志偏好提权策略
 func DoPrefWeightLevel(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
