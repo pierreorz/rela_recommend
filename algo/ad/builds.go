@@ -33,7 +33,7 @@ func DoBuildData(ctx algo.IContext) error {
 	pf.Run("search", func(*performs.Performs) interface{} {
 		clientName := abtest.GetString("backend_app_name", "1") // 1: rela 2: 饭角
 		var searchErr error
-		if searchResList, searchErr = search.CallAdList(clientName, params, user); searchErr != nil {
+		if searchResList, searchErr = search.CallAdList(clientName, params, user); searchErr == nil {
 			return len(searchResList)
 		} else {
 			return searchErr
