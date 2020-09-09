@@ -431,7 +431,11 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 		}
 	} else {
 		recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
-		dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], -999999999, recListKeyFormatter)
+		var defaultId = -999999999
+		if momsType == "video" {
+			defaultId = -999999998
+		}
+		dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], int64(defaultId), recListKeyFormatter)
 		if err == nil {
 			SetData(dataIdList, ctx)
 		}
