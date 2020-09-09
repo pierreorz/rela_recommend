@@ -17,6 +17,10 @@ func DoBuildData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	// behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 
+	if params.Limit == 0 {
+		params.Limit = abtest.GetInt64("default_limit", 50)
+	}
+
 	// 获取用户信息
 	var user *redis.UserProfile
 	pf.Run("user", func(*performs.Performs) interface{} {
@@ -33,7 +37,7 @@ func DoBuildData(ctx algo.IContext) error {
 	pf.Run("search", func(*performs.Performs) interface{} {
 		clientName := abtest.GetString("backend_app_name", "1") // 1: rela 2: 饭角
 		var searchErr error
-		if searchResList, searchErr = search.CallAdList(clientName, params, user); searchErr != nil {
+		if searchResList, searchErr = search.CallAdList(clientName, params, user); searchErr == nil {
 			return len(searchResList)
 		} else {
 			return searchErr

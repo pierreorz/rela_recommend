@@ -1,105 +1,105 @@
 package base
 
 import (
-	"fmt"
-	"time"
 	"errors"
+	"fmt"
 	"rela_recommend/algo"
 	"rela_recommend/log"
-	uutils "rela_recommend/utils"
 	"rela_recommend/service/abtest"
 	"rela_recommend/service/performs"
+	uutils "rela_recommend/utils"
+	"time"
 )
 
 type ContextBase struct {
-	RankId string
+	RankId     string
 	CreateTime time.Time
-	Platform int
-	App *algo.AppInfo
-	Request *algo.RecommendRequest
-	AbTest *abtest.AbTest
-	DataIds []int64
-	Algo algo.IAlgo
+	Platform   int
+	App        *algo.AppInfo
+	Request    *algo.RecommendRequest
+	AbTest     *abtest.AbTest
+	DataIds    []int64
+	Algo       algo.IAlgo
 
-	User algo.IUserInfo
+	User     algo.IUserInfo
 	DataList []algo.IDataInfo
 
 	Performs *performs.Performs
 	Response *algo.RecommendResponse
 
 	// 要执行的富策略
-	richStrategies	*algo.KeyWeightSorter
+	richStrategies *algo.KeyWeightSorter
 }
 
-func(self *ContextBase) GetRankId() string {
+func (self *ContextBase) GetRankId() string {
 	return self.RankId
 }
 
-func(self *ContextBase) GetAppInfo() *algo.AppInfo {
+func (self *ContextBase) GetAppInfo() *algo.AppInfo {
 	return self.App
 }
 
-func(self *ContextBase) GetCreateTime() time.Time {
+func (self *ContextBase) GetCreateTime() time.Time {
 	return self.CreateTime
 }
 
-func(self *ContextBase) GetPlatform() int {
+func (self *ContextBase) GetPlatform() int {
 	return self.Platform
 }
 
-func(self *ContextBase) GetRequest() *algo.RecommendRequest {
+func (self *ContextBase) GetRequest() *algo.RecommendRequest {
 	return self.Request
 }
 
-func(self *ContextBase) GetAbTest() *abtest.AbTest {
+func (self *ContextBase) GetAbTest() *abtest.AbTest {
 	return self.AbTest
 }
 
-func(self *ContextBase) GetUserInfo() algo.IUserInfo {
+func (self *ContextBase) GetUserInfo() algo.IUserInfo {
 	return self.User
 }
 
-func(self *ContextBase) SetUserInfo(user algo.IUserInfo) {
+func (self *ContextBase) SetUserInfo(user algo.IUserInfo) {
 	self.User = user
 }
 
-func(self *ContextBase) GetDataIds() []int64 {
+func (self *ContextBase) GetDataIds() []int64 {
 	return self.DataIds
 }
 
-func(self *ContextBase) SetDataIds(dataIds []int64) {
+func (self *ContextBase) SetDataIds(dataIds []int64) {
 	self.DataIds = dataIds
 }
 
-func(self *ContextBase) GetDataList() []algo.IDataInfo {
+func (self *ContextBase) GetDataList() []algo.IDataInfo {
 	return self.DataList
 }
 
-func(self *ContextBase) GetDataLength() int {
+func (self *ContextBase) GetDataLength() int {
 	return len(self.DataList)
 }
 
-func(self *ContextBase) SetDataList(dataList []algo.IDataInfo) {
+func (self *ContextBase) SetDataList(dataList []algo.IDataInfo) {
 	self.DataList = dataList
 }
 
-func(self *ContextBase) GetDataByIndex(index int) algo.IDataInfo {
+func (self *ContextBase) GetDataByIndex(index int) algo.IDataInfo {
 	return self.DataList[index]
 }
 
-func(self *ContextBase) GetPerforms() *performs.Performs {
+func (self *ContextBase) GetPerforms() *performs.Performs {
 	return self.Performs
 }
 
-func(self *ContextBase) GetResponse() *algo.RecommendResponse {
+func (self *ContextBase) GetResponse() *algo.RecommendResponse {
 	return self.Response
 }
 
-func(self *ContextBase) SetResponse(response *algo.RecommendResponse) {
+func (self *ContextBase) SetResponse(response *algo.RecommendResponse) {
 	self.Response = response
 }
 
-func(self *ContextBase) DoNew(app *algo.AppInfo, params *algo.RecommendRequest) error {
+func (self *ContextBase) DoNew(app *algo.AppInfo, params *algo.RecommendRequest) error {
 	if app == nil {
 		return errors.New("app is nil")
 	}
@@ -143,7 +143,7 @@ func (self *ContextBase) DoInit() error {
 }
 
 // 构建数据
-func(self *ContextBase) DoBuildData() error {
+func (self *ContextBase) DoBuildData() error {
 	var err error
 	app := self.GetAppInfo()
 	if app.BuilderMap != nil {
@@ -168,14 +168,15 @@ func(self *ContextBase) DoBuildData() error {
 }
 
 // 执行特征工程
-func(self *ContextBase) DoFeatures() error {
+func (self *ContextBase) DoFeatures() error {
 	if self.Algo != nil {
 		return self.Algo.DoFeatures(self)
 	}
 	return nil
 }
+
 // 执行算法
-func(self *ContextBase) DoAlgo() error {
+func (self *ContextBase) DoAlgo() error {
 	if self.Algo != nil {
 		return self.Algo.Predict(self)
 	}
@@ -183,7 +184,7 @@ func(self *ContextBase) DoAlgo() error {
 }
 
 // 执行策略
-func(self *ContextBase) DoStrategies() error {
+func (self *ContextBase) DoStrategies() error {
 	var err error
 	app := self.GetAppInfo()
 
@@ -204,12 +205,12 @@ func(self *ContextBase) DoStrategies() error {
 			}
 		}
 	}
-	
+
 	// 添加默认策略，计算推荐分数，计算推荐理由
-	strategySorter.Append("default_recommend_score", &algo.StrategyBase{ DoSingle: algo.StrategyScoreFunc }, 1000)
+	strategySorter.Append("default_recommend_score", &algo.StrategyBase{DoSingle: algo.StrategyScoreFunc}, 1000)
 
 	// 执行策略
-	strategySorter.Foreach(func(key string, value interface{})error {
+	strategySorter.Foreach(func(key string, value interface{}) error {
 		if err = value.(algo.IStrategy).Do(self); err != nil {
 			log.Warnf("%s strategy %s error: %s", app.Name, key, err)
 		}
@@ -219,7 +220,7 @@ func(self *ContextBase) DoStrategies() error {
 }
 
 // 执行排序
-func(self *ContextBase) DoSort() error {
+func (self *ContextBase) DoSort() error {
 	var err error
 	app := self.GetAppInfo()
 	if app.SorterMap != nil {
@@ -236,7 +237,7 @@ func(self *ContextBase) DoSort() error {
 }
 
 // 执行分页
-func(self *ContextBase) DoPage() error {
+func (self *ContextBase) DoPage() error {
 	var err error
 	appInfo := self.GetAppInfo()
 	pages := self.GetAppInfo().PagerMap
@@ -252,8 +253,9 @@ func(self *ContextBase) DoPage() error {
 	}
 	return err
 }
+
 // 执行打日志
-func(self *ContextBase) DoLog() error {
+func (self *ContextBase) DoLog() error {
 	var err error
 	app := self.GetAppInfo()
 	if app.LoggerMap != nil {
@@ -264,7 +266,7 @@ func(self *ContextBase) DoLog() error {
 				loggerSorter.Append(name, logger, weight)
 			}
 		}
-		loggerSorter.Foreach(func(key string, value interface{})error {
+		loggerSorter.Foreach(func(key string, value interface{}) error {
 			if err = value.(algo.ILogger).Do(self); err != nil {
 				log.Warnf("%s logger %s error: %s", app.Name, key, err)
 			}
@@ -282,7 +284,7 @@ func(self *ContextBase) DoLog() error {
 	return err
 }
 
-func(self *ContextBase) Do(app *algo.AppInfo, params *algo.RecommendRequest) error {
+func (self *ContextBase) Do(app *algo.AppInfo, params *algo.RecommendRequest) error {
 	var err = self.DoNew(app, params)
 	pfm := self.GetPerforms()
 	if err == nil {
@@ -318,6 +320,7 @@ func(self *ContextBase) Do(app *algo.AppInfo, params *algo.RecommendRequest) err
 	if err == nil {
 		pfm.Begin("page")
 		err = self.DoPage()
+		// log.Debugf("page response %+v\n", self.GetResponse())
 		pfm.End("page")
 	}
 
