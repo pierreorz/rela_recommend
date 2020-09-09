@@ -7,6 +7,7 @@ import (
 	"rela_recommend/log"
 	"rela_recommend/models/pika"
 	"rela_recommend/rpc/api"
+	"rela_recommend/service/performs"
 	"sync"
 	"time"
 )
@@ -45,8 +46,6 @@ func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache 
 	}
 	return lives
 }
-
-
 
 func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 	liveCacheList := make([]pika.LiveCache, len(lives))
@@ -119,28 +118,35 @@ func refreshLiveMapList(duration time.Duration) {
 	log.Infof("refreshLiveList api task start: %s\n", duration)
 	tick := time.NewTicker(duration)
 	for {
+		pf := &performs.Performs{}
 		select {
 		case <-tick.C:
-			if factory.ChatRoomRpcClient != nil {
-				var startTime = time.Now()
-				var updateLog []string = []string{}
-				for _, liveType := range api.ChatRoomLiveTypes {
-					var typeTimeStart = time.Now()
-					lives, err := api.CallChatRoomList(liveType)
-					var typeTimeTotal = time.Now().Sub(typeTimeStart).Seconds()
-					if err == nil {
-						oldLen, newLen, err2 := updateCachedLiveMap(liveType, lives)
-
-						updateLog = append(updateLog, fmt.Sprintf("type %d time %.3f old %d new %d err %s", liveType, typeTimeTotal, oldLen, newLen, err2))
-					} else {
-						updateLog = append(updateLog, fmt.Sprintf("type %d time %.3f err %s", liveType, typeTimeTotal, err))
+			pf.Run("rpcs", func(perform *performs.Performs) interface{} {
+				if factory.ChatRoomRpcClient != nil {
+					for _, liveType := range api.ChatRoomLiveTypes {
+						pf.Run(fmt.Sprintf("type%s", liveType), func(perform *performs.Performs) interface{} {
+							lives, err := api.CallChatRoomList(liveType)
+							if err == nil {
+								if _, newLen, err2 := updateCachedLiveMap(liveType, lives); err2 == nil {
+									return newLen
+								} else {
+									return err2
+								}
+							} else {
+								return err
+							}
+						})
 					}
+				} else {
+					return errors.New("api not ready")
 				}
-				var endTime = time.Now()
-				log.Infof("refreshLiveList api over %.3f: %+v\n", endTime.Sub(startTime).Seconds(), updateLog)
-			} else {
-				log.Warnf("refreshLiveList err:api is not ready\n")
-			}
+				return nil
+			})
+
+			log.Debugf("algo.task:live:%s\n", pf.ToString())
+			pf.ToWriteChan("algo.task", map[string]string{
+				"app": "live.rpc",
+			}, map[string]interface{}{}, *pf.BeginTime)
 		}
 	}
 }
