@@ -48,6 +48,11 @@ func StrategyScoreFunc(ctx IContext, index int) error {
 			rankInfo.Score *= item.Score
 		}
 	}
+	// 防止score正负无穷导致返回无法序列化, 最大值10000
+	score64 := float64(rankInfo.Score)
+	if math.IsInf(score64, 0) {
+		rankInfo.Score = float32(math.Copysign(100000000, score64))
+	}
 	return nil
 }
 
