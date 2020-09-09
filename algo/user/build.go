@@ -5,6 +5,7 @@ import (
 	"rela_recommend/algo/live"
 	"rela_recommend/factory"
 	"rela_recommend/log"
+	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	"time"
 
@@ -111,8 +112,16 @@ func DoBuildDataV1(ctx algo.IContext) error {
 
 	// 确定候选用户
 	dataIds := params.DataIds
-	if dataIds != nil || len(dataIds) == 0 {
-		log.Warnf("user list is nil or empty!")
+	if dataIds == nil || len(dataIds) == 0 {
+		pf.Run("search", func(*performs.Performs) interface{} {
+			var searchErr error
+			if dataIds, searchErr = search.CallNearUserIdList(params.UserId, params.Lat, params.Lng,
+				0, 2000, params.Params["search"]); searchErr == nil {
+				return len(dataIds)
+			} else {
+				return searchErr
+			}
+		})
 	}
 
 	// 获取用户信息
@@ -186,7 +195,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 		ctx.SetDataIds(dataIds)
 		ctx.SetDataList(dataList)
 
-		return nil
+		return len(dataList)
 	})
 
 	return err
