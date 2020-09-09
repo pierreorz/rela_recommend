@@ -40,7 +40,7 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	})
 
-	pf.Run("search", func(*performs.Performs) interface{} {
+	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId:    params.UserId,
 			UserCache: user,
