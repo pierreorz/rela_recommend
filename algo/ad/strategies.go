@@ -20,9 +20,9 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 	var cntRate float64 = 1.0
 	if sd.Exposure > 0 {
 		runningRate := float64(ctx.GetCreateTime().Unix()-sd.StartTime) / float64(sd.EndTime-sd.StartTime)
-		exposureRate := float64(sd.HistoryExposures+1) / float64(sd.Exposure+1) // 加1防止0出现导致无穷大
+		exposureRate := float64(sd.HistoryExposures) / float64(sd.Exposure)
 		cnt_z := abtest.GetFloat64("base_score_cnt_z", 20.0)
-		cntRate = math.Pow(runningRate/exposureRate, cnt_z)
+		cntRate = math.Min(math.Pow(runningRate/exposureRate, cnt_z), 10000) // 无穷大
 	}
 
 	var clickRate float64 = 1.0
