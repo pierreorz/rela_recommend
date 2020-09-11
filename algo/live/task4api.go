@@ -124,7 +124,7 @@ func refreshLiveMapList(duration time.Duration) {
 			pf.Run("rpcs", func(perform *performs.Performs) interface{} {
 				if factory.ChatRoomRpcClient != nil {
 					for _, liveType := range api.ChatRoomLiveTypes {
-						pf.Run(fmt.Sprintf("type%s", liveType), func(perform *performs.Performs) interface{} {
+						pf.Run(fmt.Sprintf("type%d", liveType), func(perform *performs.Performs) interface{} {
 							lives, err := api.CallChatRoomList(liveType)
 							if err == nil {
 								if _, newLen, err2 := updateCachedLiveMap(liveType, lives); err2 == nil {
@@ -142,12 +142,12 @@ func refreshLiveMapList(duration time.Duration) {
 				}
 				return nil
 			})
-
-			log.Debugf("algo.task:live:%s\n", pf.ToString())
-			pf.ToWriteChan("algo.task", map[string]string{
-				"app": "live.rpc",
-			}, map[string]interface{}{}, *pf.BeginTime)
 		}
+
+		log.Debugf("algo.task:live:%s\n", pf.ToString())
+		pf.ToWriteChan("algo.task", map[string]string{
+			"app": "live.rpc",
+		}, map[string]interface{}{}, *pf.BeginTime)
 	}
 }
 
