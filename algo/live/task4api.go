@@ -144,7 +144,7 @@ func refreshLiveMapList(duration time.Duration) {
 			})
 		}
 
-		log.Debugf("algo.task:live:%s\n", pf.ToString())
+		log.Debugf("algo.task:live.rpc:%s\n", pf.ToString())
 		pf.ToWriteChan("algo.task", map[string]string{
 			"app": "live.rpc",
 		}, map[string]interface{}{}, *pf.BeginTime)

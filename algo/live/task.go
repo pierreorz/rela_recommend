@@ -60,7 +60,7 @@ func refreshLiveList(duration time.Duration) {
 			})
 		}
 
-		log.Debugf("algo.task:live:%s\n", pf.ToString())
+		log.Debugf("algo.task:live.cache:%s\n", pf.ToString())
 		pf.ToWriteChan("algo.task", map[string]string{
 			"app": "live.cache",
 		}, map[string]interface{}{}, *pf.BeginTime)
