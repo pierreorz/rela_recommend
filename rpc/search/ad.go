@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/models/redis"
+	"rela_recommend/utils"
 	"strings"
 	"time"
 )
@@ -41,17 +43,47 @@ type SearchADResDataItem struct {
 	HistoryFails     int     `json:"history_fails"`
 }
 
+// 返回给客户端类型
+type SearchADResDataItemAdwordsInfo struct {
+	LocationId string `json:"location_id"`
+	AppId      string `json:"app_id"`
+	Height     int    `json:"height"`
+}
+
+// 配置的平台设定
+type searchADResDataItemAdwordsInfoPlatform struct {
+	IOS     *SearchADResDataItemAdwordsInfo `json:"ios"`
+	Android *SearchADResDataItemAdwordsInfo `json:"android"`
+	Other   *SearchADResDataItemAdwordsInfo `json:"other"`
+}
+
 // 获取分平台的配置
-func (self *SearchADResDataItem) GetPlatformAdwordsInfo(os string) string {
-	var adwordsInfo = map[string]interface{}{}
-	if json.Unmarshal([]byte(self.AdwordsInfo), &adwordsInfo) == nil {
-		if val, ok := adwordsInfo[os]; ok {
-			if str, err := json.Marshal(val); err == nil {
-				return string(str)
-			}
-		}
+func (self *SearchADResDataItem) GetPlatformAdwordsInfo(os string) *SearchADResDataItemAdwordsInfo {
+	var res = &SearchADResDataItemAdwordsInfo{}
+	if err := json.Unmarshal([]byte(self.AdwordsInfo), &res); err == nil {
+		log.Debugf("adwordsInfo %d outer error:%v\n", self.Id, err)
 	}
-	return self.AdwordsInfo
+
+	var platforms = &searchADResDataItemAdwordsInfoPlatform{}
+	if err := json.Unmarshal([]byte(self.AdwordsInfo), &platforms); err == nil {
+		var platformInfo *SearchADResDataItemAdwordsInfo
+		switch os {
+		case "ios":
+			platformInfo = platforms.IOS
+		case "android":
+			platformInfo = platforms.Android
+		case "other":
+			platformInfo = platforms.Other
+		}
+		if platformInfo != nil { // 重写字段
+			res.LocationId = utils.CoalesceString(platformInfo.LocationId, res.LocationId)
+			res.AppId = utils.CoalesceString(platformInfo.AppId, res.AppId)
+			res.Height = utils.CoalesceInt(platformInfo.Height, res.Height)
+		}
+	} else {
+		log.Debugf("adwordsInfo %d platform error:%v\n", self.Id, err)
+	}
+	return res
 }
 
 type searchADRes struct {
