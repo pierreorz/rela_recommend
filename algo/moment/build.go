@@ -117,12 +117,15 @@ func DoBuildData(ctx algo.IContext) error {
 
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList,liveIdList).ToList()
 	// 过滤审核
+	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
+
 	searchScenery := "moment"
 	if abtest.GetBool("search_audit_switched", false) {
 		preforms.Run("search", func(*performs.Performs) interface{} {
 			returnedRecommend := abtest.GetBool("search_returned_recommend", false)
 			filtedAudit := abtest.GetBool("search_filted_audit", false)
-			searchMomentMap, searchMomentMapErr := search.CallMomentAuditMap(params.UserId, dataIds,
+			var searchMomentMapErr error
+			searchMomentMap, searchMomentMapErr= search.CallMomentAuditMap(params.UserId, dataIds,
 				searchScenery, momentTypes, returnedRecommend, filtedAudit)
 			if searchMomentMapErr == nil {
 				momentIdSet := utils.SetInt64{}
@@ -135,7 +138,6 @@ func DoBuildData(ctx algo.IContext) error {
 			return searchMomentMapErr
 		})
 	}
-
 	// 获取日志内容
 	var startMomentTime = time.Now()
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
@@ -209,6 +211,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 			// 处理置顶
+
 			var isTop = 0
 			if topMap != nil {
 				if _, isTopOk := topMap[mom.Moments.Id]; isTopOk {
@@ -217,6 +220,13 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			// 处理推荐
 			var recommends = []algo.RecommendItem{}
+			if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
+				topTypeRes := topType.GetCurrentTopType(searchScenery)
+				isTop = utils.GetInt(topTypeRes == "TOP")
+				if topTypeRes == "RECOMMEND" {
+					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+				}
+			}
 			if recMap != nil {
 				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
 					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
