@@ -416,7 +416,6 @@ func NewSetInt64FromArray(vals []int64) *SetInt64 {
 	return &set
 }
 
-
 func NewSetInt64FromArrays(vals ...[]int64) *SetInt64 {
 	set := SetInt64{}
 	for i, val := range vals {
@@ -513,6 +512,15 @@ func CoalesceString(strs ...string) string {
 		}
 	}
 	return ""
+}
+
+func CoalesceInt(ints ...int) int {
+	for _, i := range ints {
+		if i != 0 {
+			return i
+		}
+	}
+	return 0
 }
 
 func IfElse(b bool, trueValue float64, falseValue float64) float64 {
