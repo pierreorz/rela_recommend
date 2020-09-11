@@ -25,14 +25,22 @@ var writeItemChan chan *writeItem = make(chan *writeItem, 10000)
 func writeBatchPoints(org string, bucket string, points []*influxdb2write.Point) ([]*influxdb2write.Point, error) {
 	var noWritePoints = make([]*influxdb2write.Point, 0)
 	var writeErr error
-	if len(points) > 0 {
+	pointsLen := len(points)
+	if pointsLen > 0 {
 		if factory.InfluxdbClient != nil && len(factory.InfluxdbClient.ServerURL()) > 0 {
 			writer := factory.InfluxdbClient.WriteAPIBlocking(org, bucket)
 			if writeErr := writer.WritePoint(context.Background(), points...); writeErr != nil {
-				log.Warnf("influxdb write err %s", writeErr.Error())
-				noWritePoints = points
+				warnIndex := int(0.8 * float64(cap(writeItemChan))) // 警戒线 80%
+				if pointsLen > warnIndex {                          // 超出警戒线则抛弃部分数据
+					startIndex := int(0.2 * float64(cap(writeItemChan))) // 丢弃20%
+					log.Warnf("influxdb write err and than %d, drop %d, %s\n", warnIndex, startIndex, writeErr.Error())
+					noWritePoints = points[startIndex:]
+				} else {
+					log.Warnf("influxdb write err len %d, %s\n", pointsLen, writeErr.Error())
+					noWritePoints = points
+				}
 			} else {
-				log.Infof("influxdb write len %d", len(points))
+				log.Debugf("influxdb write len %d\n", pointsLen)
 			}
 		}
 	}
