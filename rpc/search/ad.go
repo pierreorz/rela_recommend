@@ -45,16 +45,16 @@ type SearchADResDataItem struct {
 
 // 返回给客户端类型
 type SearchADResDataItemAdwordsInfo struct {
-	LocationId string `json:"location_id"`
-	AppId      string `json:"app_id"`
-	Height     int    `json:"height"`
+	LocationId string `json:"location_id,omitempty"`
+	AppId      string `json:"app_id,omitempty"`
+	Height     int    `json:"height,omitempty"`
 }
 
 // 配置的平台设定
 type searchADResDataItemAdwordsInfoPlatform struct {
-	IOS     *SearchADResDataItemAdwordsInfo `json:"ios"`
-	Android *SearchADResDataItemAdwordsInfo `json:"android"`
-	Other   *SearchADResDataItemAdwordsInfo `json:"other"`
+	IOS     *SearchADResDataItemAdwordsInfo `json:"ios,omitempty"`
+	Android *SearchADResDataItemAdwordsInfo `json:"android,omitempty"`
+	Other   *SearchADResDataItemAdwordsInfo `json:"other,omitempty"`
 }
 
 // 获取分平台的配置
