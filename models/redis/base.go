@@ -106,7 +106,7 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 	ress, err := self.cache.Mget(keys)
 	var endCacheTime = time.Now()
 	if err != nil {
-		log.Warnf("CachePikaModule mget warn: %s\n", err)
+		log.Errorf("CachePikaModule mget error: %s\n", err)
 	}
 	var notFoundIndexs = make([]int, 0)
 	var notFoundKeys = make([]string, 0)
@@ -177,13 +177,13 @@ func (self *CachePikaModule) jsonsToValues(keyFormater string, jsons []interface
 						newValue := reflect.Indirect(newObj)
 						objs[i] = &newValue
 					} else {
-						log.Warnf("json %s err:%+v", string(bs2), err.Error())
+						log.Warnf("jsonsToValues:%s json %s err:%+v", keyFormater, string(bs2), err.Error())
 					}
 				} else {
-					log.Warnf("decompress %s err:%+v", string(bs), errDe.Error())
+					log.Warnf("jsonsToValues:%s decompress %s err:%+v", keyFormater, string(bs), errDe.Error())
 				}
 			} else {
-				log.Warnf("must []byte:%+v\n", res)
+				log.Warnf("jsonsToValues:%s must []byte:%+v\n", keyFormater, res)
 			}
 		}
 	}
@@ -203,8 +203,8 @@ func (self *CachePikaModule) Jsons2StructsBySingle(keyFormater string, jsons []i
 		}
 	}
 	endTime := time.Now()
-	log.Infof("Jsons2StructsBySingle rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f;err:%+v\n",
-		"", len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(),
+	log.Infof("Jsons2StructsBySingle rankId:%s,keyformater:%s,all:%d,notfound:%d,final:%d;total:%.4f;err:%+v\n",
+		"", keyFormater, len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(),
 		endTime.Sub(startTime).Seconds(), err)
 	return &objSlc, err
 }
@@ -240,8 +240,8 @@ func (self *CachePikaModule) Jsons2StructsByRoutine(keyFormater string, jsons []
 	wg.Wait()
 
 	endTime := time.Now()
-	log.Infof("Jsons2StructsByRoutine rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f;err:%+v\n",
-		"", len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(),
+	log.Infof("Jsons2StructsByRoutine rankId:%s,keyformater:%s,all:%d,notfound:%d,final:%d;total:%.4f;err:%+v\n",
+		"", keyFormater, len(jsons), len(jsons)-objSlc.Len(), objSlc.Len(),
 		endTime.Sub(startTime).Seconds(), err)
 	return &objSlc, err
 }
@@ -287,8 +287,8 @@ func (self *CachePikaModule) Jsons2StructsMapBySingle(ids []int64, keyFormater s
 	}
 	finalLen := objMap.Len()
 	endTime := time.Now()
-	log.Infof("Jsons2StructsMapBySingle rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
-		"", len(jsons), len(jsons)-finalLen, finalLen, endTime.Sub(startTime).Seconds())
+	log.Infof("Jsons2StructsMapBySingle rankId:%s,keyformater:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
+		"", keyFormater, len(jsons), len(jsons)-finalLen, finalLen, endTime.Sub(startTime).Seconds())
 	return &objMap, err
 }
 
@@ -326,8 +326,8 @@ func (self *CachePikaModule) Jsons2StructsMapByRoutine(ids []int64, keyFormater 
 	wg.Wait()
 	finalLen := objMap.Len()
 	endTime := time.Now()
-	log.Infof("Jsons2StructsMapByRoutine rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
-		"", len(jsons), len(jsons)-finalLen, finalLen,
+	log.Infof("Jsons2StructsMapByRoutine rankId:%s,keyformater:%s,all:%d,notfound:%d,final:%d;total:%.4f\n",
+		"", keyFormater, len(jsons), len(jsons)-finalLen, finalLen,
 		endTime.Sub(startTime).Seconds())
 	return &objMap, err
 }
