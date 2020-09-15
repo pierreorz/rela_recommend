@@ -9,11 +9,17 @@ import (
 	"rela_recommend/cache"
 	"rela_recommend/log"
 	"rela_recommend/utils"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/chasex/redis-go-cluster"
 )
+
+var compressMap = map[string]utils.ICompress{
+	".gz":   &utils.Gzip{},
+	".gzip": &utils.Gzip{},
+}
 
 type CachePikaModule struct {
 	cache cache.Cache
@@ -23,6 +29,26 @@ type CachePikaModule struct {
 
 func NewCachePikaModule(ctx algo.IContext, cache cache.Cache) *CachePikaModule {
 	return &CachePikaModule{ctx: ctx, cache: cache}
+}
+
+// 压缩value
+func (self *CachePikaModule) compress(key string, value []byte) ([]byte, error) {
+	for end, compresser := range compressMap {
+		if strings.HasSuffix(key, end) {
+			return compresser.Compress(value)
+		}
+	}
+	return value, nil
+}
+
+// 解压value
+func (self *CachePikaModule) decompress(key string, value []byte) ([]byte, error) {
+	for end, compresser := range compressMap {
+		if strings.HasSuffix(key, end) {
+			return compresser.Decompress(value)
+		}
+	}
+	return value, nil
 }
 
 // 读取缓存。cacheTime：redis的缓存时间；cacheNilTime: pika也不存在的key写入redis的缓存时间
@@ -74,10 +100,7 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 	var startTime = time.Now()
 	dataLen := len(ids)
 	// 构造keys
-	keys := make([]string, dataLen)
-	for i, id := range ids {
-		keys[i] = fmt.Sprintf(keyFormater, id)
-	}
+	keys := utils.FormatKeyInt64s(keyFormater, ids)
 	var startCacheTime = time.Now()
 	// 从缓存读取
 	ress, err := self.cache.Mget(keys)
@@ -142,18 +165,22 @@ func (self *CachePikaModule) MGet(ids []int64, keyFormater string) ([]interface{
 }
 
 // 将interface类型转化为特定类型，顺序保证
-func (self *CachePikaModule) jsonsToValues(jsons []interface{}, objType reflect.Type) ([]*reflect.Value, error) {
+func (self *CachePikaModule) jsonsToValues(keyFormater string, jsons []interface{}, objType reflect.Type) ([]*reflect.Value, error) {
 	objs := make([]*reflect.Value, len(jsons), len(jsons))
 	for i, res := range jsons {
 		if res != nil {
 			var newObj = reflect.New(objType)
 			bs, ok := res.([]byte)
 			if ok {
-				if err := json.Unmarshal(bs, newObj.Interface()); err == nil {
-					newValue := reflect.Indirect(newObj)
-					objs[i] = &newValue
+				if bs2, errDe := self.decompress(keyFormater, bs); errDe == nil { // 解压缩
+					if err := json.Unmarshal(bs2, newObj.Interface()); err == nil {
+						newValue := reflect.Indirect(newObj)
+						objs[i] = &newValue
+					} else {
+						log.Warnf("json %s err:%+v", string(bs2), err.Error())
+					}
 				} else {
-					log.Warnf("json %s err:%+v", string(bs), err.Error())
+					log.Warnf("decompress %s err:%+v", string(bs), errDe.Error())
 				}
 			} else {
 				log.Warnf("must []byte:%+v\n", res)
@@ -164,12 +191,12 @@ func (self *CachePikaModule) jsonsToValues(jsons []interface{}, objType reflect.
 }
 
 // 单线程转化json为struct.去除空值，不保证顺序
-func (self *CachePikaModule) Jsons2StructsBySingle(jsons []interface{}, obj interface{}) (*reflect.Value, error) {
+func (self *CachePikaModule) Jsons2StructsBySingle(keyFormater string, jsons []interface{}, obj interface{}) (*reflect.Value, error) {
 	startTime := time.Now()
 	objLen := len(jsons)
 	objTyp := reflect.TypeOf(obj)
 	objSlc := reflect.MakeSlice(reflect.SliceOf(objTyp), 0, objLen)
-	ress, err := self.jsonsToValues(jsons, objTyp)
+	ress, err := self.jsonsToValues(keyFormater, jsons, objTyp)
 	for _, res := range ress {
 		if res != nil {
 			objSlc = reflect.Append(objSlc, *res)
@@ -183,7 +210,7 @@ func (self *CachePikaModule) Jsons2StructsBySingle(jsons []interface{}, obj inte
 }
 
 // 多线程转化json为struct.去除空值，不保证顺序
-func (self *CachePikaModule) Jsons2StructsByRoutine(jsons []interface{}, obj interface{}, partLen int) (*reflect.Value, error) {
+func (self *CachePikaModule) Jsons2StructsByRoutine(keyFormater string, jsons []interface{}, obj interface{}, partLen int) (*reflect.Value, error) {
 	startTime := time.Now()
 
 	parts := utils.SplitList(jsons, partLen)
@@ -197,7 +224,7 @@ func (self *CachePikaModule) Jsons2StructsByRoutine(jsons []interface{}, obj int
 		wg.Add(1)
 		go func(part []interface{}) {
 			defer wg.Done()
-			partRes, partErr := self.jsonsToValues(part, objTyp)
+			partRes, partErr := self.jsonsToValues(keyFormater, part, objTyp)
 			lockHandler.Lock()
 			defer lockHandler.Unlock()
 			if err == nil {
@@ -219,14 +246,14 @@ func (self *CachePikaModule) Jsons2StructsByRoutine(jsons []interface{}, obj int
 	return &objSlc, err
 }
 
-func (self *CachePikaModule) Jsons2Structs(jsons []interface{}, obj interface{}) (*reflect.Value, error) {
+func (self *CachePikaModule) Jsons2Structs(keyFormater string, jsons []interface{}, obj interface{}) (*reflect.Value, error) {
 	var abtest = self.ctx.GetAbTest()
 	threshold := abtest.GetInt("redis:json:thread:threshold", 200)
 	if len(jsons) > threshold {
 		jobs := abtest.GetInt("redis:json:thread:jobs", 4)
-		return self.Jsons2StructsByRoutine(jsons, obj, jobs)
+		return self.Jsons2StructsByRoutine(keyFormater, jsons, obj, jobs)
 	} else {
-		return self.Jsons2StructsBySingle(jsons, obj)
+		return self.Jsons2StructsBySingle(keyFormater, jsons, obj)
 	}
 }
 
@@ -234,7 +261,7 @@ func (self *CachePikaModule) MGetStructs(obj interface{}, ids []int64, keyFormat
 	startTime := time.Now()
 	ress, err := self.MGetSet(ids, keyFormater, cacheTime, cacheNilTime)
 	startJsonTime := time.Now()
-	objs, err := self.Jsons2Structs(ress, obj)
+	objs, err := self.Jsons2Structs(keyFormater, ress, obj)
 	endTime := time.Now()
 	log.Infof("UnmarshalKey:%s,rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f,read:%.4f,json:%.4f\n",
 		keyFormater, "", len(ids), len(ids)-objs.Len(), objs.Len(),
@@ -244,7 +271,7 @@ func (self *CachePikaModule) MGetStructs(obj interface{}, ids []int64, keyFormat
 }
 
 // 单线程转化json为struct Map.去除空值，不保证顺序
-func (self *CachePikaModule) Jsons2StructsMapBySingle(ids []int64, jsons []interface{}, obj interface{}) (*reflect.Value, error) {
+func (self *CachePikaModule) Jsons2StructsMapBySingle(ids []int64, keyFormater string, jsons []interface{}, obj interface{}) (*reflect.Value, error) {
 	startTime := time.Now()
 	objLen := len(jsons)
 	var keyObj int64 = 0
@@ -252,7 +279,7 @@ func (self *CachePikaModule) Jsons2StructsMapBySingle(ids []int64, jsons []inter
 	objEleType := reflect.TypeOf(obj)
 	objMapType := reflect.MapOf(objKeyType, objEleType)
 	objMap := reflect.MakeMapWithSize(objMapType, objLen)
-	ress, err := self.jsonsToValues(jsons, objEleType)
+	ress, err := self.jsonsToValues(keyFormater, jsons, objEleType)
 	for i, res := range ress {
 		if res != nil {
 			objMap.SetMapIndex(reflect.ValueOf(ids[i]), *res)
@@ -266,7 +293,7 @@ func (self *CachePikaModule) Jsons2StructsMapBySingle(ids []int64, jsons []inter
 }
 
 // 多线程转化json为struct.去除空值，不保证顺序
-func (self *CachePikaModule) Jsons2StructsMapByRoutine(ids []int64, jsons []interface{}, obj interface{}, partLen int) (*reflect.Value, error) {
+func (self *CachePikaModule) Jsons2StructsMapByRoutine(ids []int64, keyFormater string, jsons []interface{}, obj interface{}, partLen int) (*reflect.Value, error) {
 	startTime := time.Now()
 	objLen := len(jsons)
 
@@ -283,7 +310,7 @@ func (self *CachePikaModule) Jsons2StructsMapByRoutine(ids []int64, jsons []inte
 		wg.Add(1)
 		go func(ids []int64, part []interface{}) {
 			defer wg.Done()
-			partRes, partErr := self.jsonsToValues(part, objEleType)
+			partRes, partErr := self.jsonsToValues(keyFormater, part, objEleType)
 			lockHandler.Lock()
 			defer lockHandler.Unlock()
 			if err == nil {
@@ -305,14 +332,14 @@ func (self *CachePikaModule) Jsons2StructsMapByRoutine(ids []int64, jsons []inte
 	return &objMap, err
 }
 
-func (self *CachePikaModule) Jsons2StructsMap(ids []int64, jsons []interface{}, obj interface{}) (*reflect.Value, error) {
+func (self *CachePikaModule) Jsons2StructsMap(ids []int64, keyFormater string, jsons []interface{}, obj interface{}) (*reflect.Value, error) {
 	var abtest = self.ctx.GetAbTest()
 	threshold := abtest.GetInt("redis:json:map:thread:threshold", 200)
 	if len(jsons) > threshold {
 		jobs := abtest.GetInt("redis:json:map:thread:jobs", 4)
-		return self.Jsons2StructsMapByRoutine(ids, jsons, obj, jobs)
+		return self.Jsons2StructsMapByRoutine(ids, keyFormater, jsons, obj, jobs)
 	} else {
-		return self.Jsons2StructsMapBySingle(ids, jsons, obj)
+		return self.Jsons2StructsMapBySingle(ids, keyFormater, jsons, obj)
 	}
 }
 
@@ -320,8 +347,7 @@ func (self *CachePikaModule) MGetStructsMap(obj interface{}, ids []int64, keyFor
 	startTime := time.Now()
 	ress, err := self.MGetSet(ids, keyFormater, cacheTime, cacheNilTime)
 	startJsonTime := time.Now()
-	objs, err := self.Jsons2StructsMap(ids, ress, obj)
-	objs.MapKeys()
+	objs, err := self.Jsons2StructsMap(ids, keyFormater, ress, obj)
 	endTime := time.Now()
 	log.Infof("MGetStructsMap:%s,rankId:%s,all:%d,notfound:%d,final:%d;total:%.4f,read:%.4f,json:%.4f\n",
 		keyFormater, "", len(ids), len(ids)-objs.Len(), objs.Len(),
@@ -336,7 +362,9 @@ func (self *CachePikaModule) GetSetStruct(key string, obj interface{}, cacheTime
 	if err == nil {
 		bytes, ok := res.([]byte)
 		if ok {
-			err = json.Unmarshal(bytes, obj)
+			if bytes, err = self.compress(key, bytes); err == nil {
+				err = json.Unmarshal(bytes, obj)
+			}
 		} else {
 			err = errors.New("cache data not []byte")
 		}
@@ -356,9 +384,11 @@ func (self *CachePikaModule) SetStruct(key string, obj interface{}, cacheTime in
 
 	var startTime = time.Now()
 	if obj != nil {
-		res, err = json.Marshal(obj)
-		if err == nil {
-			err = self.cache.SetEx(key, res, cacheTime)
+		var bytes = []byte{}
+		if bytes, err = json.Marshal(obj); err == nil {
+			if res, err = self.compress(key, bytes); err == nil {
+				err = self.cache.SetEx(key, res, cacheTime)
+			}
 		}
 	} else {
 		if cacheNilTime > 0 {
@@ -374,9 +404,15 @@ func (self *CachePikaModule) SetStruct(key string, obj interface{}, cacheTime in
 // 从redis中获取用户id
 func (self *CachePikaModule) GetInt64List(id int64, keyFormater string) ([]int64, error) {
 	var resInt64s = make([]int64, 0)
-	res, err := self.GetSet(fmt.Sprintf(keyFormater, id), 6*60*60, 1*60*60)
+	key := fmt.Sprintf(keyFormater, id)
+	res, err := self.GetSet(key, 6*60*60, 1*60*60)
 	if err == nil {
-		resInt64s = utils.GetInt64s(utils.GetString(res))
+		bytes, ok := res.([]byte)
+		if ok {
+			if bytes, err = self.compress(key, bytes); err == nil {
+				resInt64s = utils.GetInt64s(utils.GetString(bytes))
+			}
+		}
 	}
 	return resInt64s, err
 }
