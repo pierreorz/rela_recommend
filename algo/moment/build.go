@@ -164,9 +164,8 @@ func DoBuildData(ctx algo.IContext) error {
 	if momOfflineProfileErr != nil {
 		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
 	}
-	// 获取用户信息
-	log.Warnf("moment embedding is err,%s\n", momOfflineProfileMap)
 
+	// 获取用户信息
 	var startUserTime = time.Now()
 	user, usersMap, err := userCache.QueryByUserAndUsersMap(params.UserId, userIds)
 	if err != nil {
@@ -214,9 +213,6 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		if mom.Moments.ShareTo != "all" {
 			continue
-		}
-		if momOfflineProfileMap[mom.Moments.Id]!=nil{
-			log.Warnf("moment user ai tags list is err, %s\n",momOfflineProfileMap[mom.Moments.Id].AiTags )
 		}
 
 		if mom.Moments.Id > 0 {

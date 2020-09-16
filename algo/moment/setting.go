@@ -21,6 +21,8 @@ var strategyMap = map[string]algo.IStrategy{
 	"new_user": &algo.StrategyBase{ DoSingle: AroundNewUserAddWeightFunc },
 	"label_mom":&algo.StrategyBase{ DoSingle: MomLabelAddWeight },
 	"video_mom":&algo.StrategyBase{ DoSingle: VideoMomWeight },
+	"edit_tag":&algo.StrategyBase{ DoSingle: EditTagWeight },
+
 
 
 }
