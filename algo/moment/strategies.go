@@ -32,6 +32,7 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error{
 	return nil
 }
 
+
 //附近日志详情页视频日志提权
 func VideoMomWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)

@@ -138,6 +138,7 @@ func DoBuildData(ctx algo.IContext) error {
 			return searchMomentMapErr
 		})
 	}
+	filteredAudit :=abtest.GetBool("search_filted_audit", false)
 	// 获取日志内容
 	var startMomentTime = time.Now()
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
@@ -164,6 +165,8 @@ func DoBuildData(ctx algo.IContext) error {
 		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
 	}
 	// 获取用户信息
+	log.Warnf("moment embedding is err,%s\n", momOfflineProfileMap)
+
 	var startUserTime = time.Now()
 	user, usersMap, err := userCache.QueryByUserAndUsersMap(params.UserId, userIds)
 	if err != nil {
@@ -186,6 +189,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if embeddingCacheErr != nil {
 		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
 	}
+	log.Warnf("moment user ai tags list is err, %s\n", momentUserEmbedding.AiTags)
 
 	var startBuildTime = time.Now()
 	userInfo := &UserInfo{
@@ -202,9 +206,17 @@ func DoBuildData(ctx algo.IContext) error {
 		if mom.Moments==nil ||mom.MomentsExtend==nil{
 			continue
 		}
+		//搜索过滤开关
+		if filteredAudit{
+			if mom.MomentsProfile!=nil&&mom.MomentsProfile.AuditStatus==0{
+				continue
+			}
+		}
 		if mom.Moments.ShareTo != "all" {
 			continue
 		}
+		log.Warnf("moment user ai tags list is err, %s\n",momOfflineProfileMap[mom.Moments.Id].AiTags )
+
 		if mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
 			//status=0 禁用用户，status=5 注销用户
