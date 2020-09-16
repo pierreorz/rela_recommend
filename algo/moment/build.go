@@ -215,7 +215,9 @@ func DoBuildData(ctx algo.IContext) error {
 		if mom.Moments.ShareTo != "all" {
 			continue
 		}
-		log.Warnf("moment user ai tags list is err, %s\n",momOfflineProfileMap[mom.Moments.Id].AiTags )
+		if momOfflineProfileMap[mom.Moments.Id].AiTags!=nil{
+			log.Warnf("moment user ai tags list is err, %s\n",momOfflineProfileMap[mom.Moments.Id].AiTags )
+		}
 
 		if mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
