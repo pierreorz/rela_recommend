@@ -43,7 +43,7 @@ func EditTagWeight(ctx algo.IContext, index int) error {
 		if len(tags)>0{
 			for _,nameMap :=range tags{
 				if strings.Contains(editTag,nameMap["name"]){
-					rankInfo.AddRecommend("UserTagPref", 1.1)
+					rankInfo.AddRecommend("EditTagWeight", 1.1)
 				}
 			}
 		}
