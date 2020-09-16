@@ -115,7 +115,7 @@ type MomentUserProfile struct {
 	UserID       int64              `json:"user_id"`
 	UserEmbedding       []float32  `json:"user_embedding"`
 	UserPref             []string `json:"user_pref,omitempty"`
-	AiTags              map[string]*UserPref  `json:"ai_tags,omitempty"`
+	AiTags              map[string][]*UserPref  `json:"ai_tags,omitempty"`
 }
 
 type UserPref struct {

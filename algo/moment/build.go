@@ -189,7 +189,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if embeddingCacheErr != nil {
 		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
 	}
-	log.Warnf("moment user ai tags list is err, %s\n", momentUserEmbedding.AiTags)
+	log.Warnf("moment user ai tags list is err, %s\n", momentUserEmbedding.AiTags["long"])
 
 	var startBuildTime = time.Now()
 	userInfo := &UserInfo{
