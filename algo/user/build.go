@@ -41,10 +41,10 @@ func DoBuildSearchData(ctx algo.IContext) error {
 
 		// 组装被曝光者信息
 		dataList := make([]algo.IDataInfo, 0)
-		for i, userId := range dataIds {
+		for _, userId := range dataIds {
 			info := &DataInfo{
 				DataId:   userId,
-				RankInfo: &algo.RankInfo{Level: i},
+				RankInfo: &algo.RankInfo{},
 			}
 			dataList = append(dataList, info)
 		}

@@ -103,6 +103,15 @@ func (self *SorterBase) Do(ctx IContext) error {
 	return nil
 }
 
+// 返回，不做排序
+type SorterOrigin struct {
+	Context IContext
+}
+
+func (self *SorterOrigin) Do(ctx IContext) error {
+	return nil
+}
+
 // 分页组件
 type IPager interface {
 	Do(ctx IContext) error
