@@ -38,13 +38,17 @@ func DoBuildData(ctx algo.IContext) error {
 
 		lives = live.GetCachedLiveListByTypeClassify(-1,-1)
 
-		liveIds := make([]int64, len(lives))
-		for i, _ := range lives {
-			liveIds[i] = lives[i].Live.UserId
+		//liveIds := make([]int64, len(lives))
+		if len(lives)>0{
+			for i, _ := range lives {
+				//直接获取日志id
+				//liveIds[i] = lives[i].Live.MomentsID
+				liveIdList=append(liveIdList,lives[i].Live.MomentsID)
+			}
 		}
-		if len(liveIds)>0{
-			liveIdList,err=search.CallLiveMomentList(liveIds)
-		}
+		//if len(liveIds)>0{
+		//	liveIdList,err=search.CallLiveMomentList(liveIds)
+		//}
 	}
 
 	if dataIdList == nil || len(dataIdList) == 0 {
