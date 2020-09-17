@@ -44,6 +44,7 @@ func DoBuildData(ctx algo.IContext) error {
 				//直接获取日志id
 				//liveIds[i] = lives[i].Live.MomentsID
 				liveIdList=append(liveIdList,lives[i].Live.MomentsID)
+				log.Warnf("mom live id ,%s\n",lives[i].Live.MomentsID)
 			}
 		}
 		//if len(liveIds)>0{
