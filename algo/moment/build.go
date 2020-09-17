@@ -69,19 +69,33 @@ func DoBuildData(ctx algo.IContext) error {
 			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
 			if abtest.GetBool("near_liveMoments_switch",false){
-				//服务端优化附近日志接口后可以直接将momentstype 添加live以及voice_live
-				aroundliveMomIdList, _ := search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 100,
-					"live,voice_live", 60*60*24, "50km")
-				liveMoms,liveMomerr:=momentCache.QueryMomentsByIds(aroundliveMomIdList)
-				if err!=nil{
-					log.Warnf("near live mom err,%s\n",liveMomerr)
+				var lives []pika.LiveCache
+
+				lives = live.GetCachedLiveListByTypeClassify(-1,-1)
+				if len(lives)>0{
+					for i, _ := range lives {
+						//直接获取日志id
+						//liveIds[i] = lives[i].Live.MomentsID
+						momLat :=lives[i].Live.Lat
+						momLng :=lives[i].Live.Lng
+						if utils.EarthDistance(float64(momLng),float64(momLat),float64(params.Lng),float64(params.Lat))/1000.0<50{
+							liveIdList=append(liveIdList,lives[i].Live.MomentsID)
+						}
+					}
 				}
-				nearLiveUserIds:= make([]int64, 0)
-				for _,mom :=range liveMoms{
-					nearLiveUserIds=append(nearLiveUserIds,mom.Moments.UserId)
-				}
-				nearLiveUserIds=utils.NewSetInt64FromArray(nearLiveUserIds).ToList()
-				liveIdList=ReturnLiveList(nearLiveUserIds,aroundliveMomIdList)
+				////服务端优化附近日志接口后可以直接将momentstype 添加live以及voice_live
+				//aroundliveMomIdList, _ := search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 100,
+				//	"live,voice_live", 60*60*24, "50km")
+				//liveMoms,liveMomerr:=momentCache.QueryMomentsByIds(aroundliveMomIdList)
+				//if err!=nil{
+				//	log.Warnf("near live mom err,%s\n",liveMomerr)
+				//}
+				//nearLiveUserIds:= make([]int64, 0)
+				//for _,mom :=range liveMoms{
+				//	nearLiveUserIds=append(nearLiveUserIds,mom.Moments.UserId)
+				//}
+				//nearLiveUserIds=utils.NewSetInt64FromArray(nearLiveUserIds).ToList()
+				//liveIdList=ReturnLiveList(nearLiveUserIds,aroundliveMomIdList)
 			}
 			//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 			for _, radius := range radiusArray {
