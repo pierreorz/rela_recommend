@@ -296,18 +296,18 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 		for i, _ := range lives {
 			if lives[i].Live.UserId != livemoms[0].Moments.UserId {
 				//获取直播日志：得分的map
-				liveMap[lives[i].Live.UserId] = float64(lives[i].Score)
+				liveMap[lives[i].Live.MomentsID] = float64(lives[i].Score)
 			}
 		}
 		//根据score分数得到liveidlist
 		liveIds=utils.SortMapByValue(liveMap)
 		if len(liveIds) > 0 {
-			liveIdList, err := search.CallLiveMomentList(liveIds)
-			if liveLen >= len(liveIdList) {
-				liveLen = len(liveIdList)
+			//liveIdList, err := search.CallLiveMomentList(liveIds)
+			if liveLen >= len(liveIds) {
+				liveLen = len(liveIds)
 			}
 			if err == nil {
-				dataIdList = liveIdList[:liveLen]
+				dataIdList = liveIds[:liveLen]
 			}
 		}
 	} else {
@@ -432,18 +432,18 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 		for i, _ := range lives {
 			if lives[i].Live.UserId != moms[0].Moments.UserId {
 				//获取用户：分数map
-				liveMap[lives[i].Live.UserId] = float64(lives[i].Score)
+				liveMap[lives[i].Live.MomentsID] = float64(lives[i].Score)
 			}
 		}
 		liveIds=utils.SortMapByValue(liveMap)
 		log.Warnf("live ids %s\n",liveIds)
 		if len(liveIds) > 0 {
-			liveIdList, err := search.CallLiveMomentList(liveIds)
-			if liveLen>=len(liveIdList){
-				liveLen=len(liveIdList)
+			//liveIdList, err := search.CallLiveMomentList(liveIds)
+			if liveLen>=len(liveIds){
+				liveLen=len(liveIds)
 			}
 			if err == nil {
-				SetData(liveIdList[:liveLen], ctx)
+				SetData(liveIds[:liveLen], ctx)
 			}
 		}
 	} else {
