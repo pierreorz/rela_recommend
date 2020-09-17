@@ -116,6 +116,12 @@ func (self *PagerBase) Do(ctx IContext) error {
 	minIndex := int(math.Max(float64(params.Offset), 0.0))
 	maxIndex := int(math.Max(index, 0.0))
 
+	response, err := self.BuildResponse(ctx, minIndex, maxIndex)
+	ctx.SetResponse(response)
+	return err
+}
+
+func (self *PagerBase) BuildResponse(ctx IContext, minIndex int, maxIndex int) (*RecommendResponse, error) {
 	returnIds, returnObjs := make([]int64, 0), make([]RecommendResponseItem, 0)
 	for i := minIndex; i < maxIndex; i++ {
 		currData := ctx.GetDataByIndex(i)
@@ -130,8 +136,18 @@ func (self *PagerBase) Do(ctx IContext) error {
 			Reason: rankInfo.ReasonString()})
 	}
 	response := &RecommendResponse{RankId: ctx.GetRankId(), DataIds: returnIds, DataList: returnObjs, Status: "ok"}
+	return response, nil
+}
+
+// 不分页返回原版数据
+type PagerOrigin struct {
+	PagerBase
+}
+
+func (self *PagerOrigin) Do(ctx IContext) error {
+	response, err := self.BuildResponse(ctx, 0, ctx.GetDataLength())
 	ctx.SetResponse(response)
-	return nil
+	return err
 }
 
 type ILogger interface {

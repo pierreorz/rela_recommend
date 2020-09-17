@@ -7,6 +7,7 @@ import (
 )
 
 const internalSearchNearUserListUrlV1 = "/search/nearby_user"
+const internalSearchUserListUrlV1 = "/search/common_user"
 
 type apiSearchStruct struct {
 	MinAge         string `json:"minAge"`
@@ -57,5 +58,10 @@ func CallNearUserIdList(userId int64, lat, lng float32, offset, limit int64, fil
 		filters = append(filters, fmt.Sprintf("horoscope:%s", apiFilter.Horoscope))
 	}
 
-	return CallSearchIdList(internalSearchNearUserListUrlV1, userId, lat, lng, offset, limit, filters)
+	return CallSearchIdList(internalSearchNearUserListUrlV1, userId, lat, lng, offset, limit, filters, "")
+}
+
+// 获取搜索用户列表
+func CallSearchUserIdList(userId int64, lat, lng float32, offset, limit int64, query string) ([]int64, error) {
+	return CallSearchIdList(internalSearchUserListUrlV1, userId, lat, lng, offset, limit, []string{}, query)
 }
