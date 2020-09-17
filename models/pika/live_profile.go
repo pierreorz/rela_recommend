@@ -31,6 +31,7 @@ type LiveProfile struct {
 	AudioType        int      `json:"audioType"`
 	IsMulti          int      `json:"isMulti"`
 	Classify         int      `json:"classify"`
+	MomentsID        int64    `json:"momentsID"`
 }
 
 type LiveCache struct {

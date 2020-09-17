@@ -34,6 +34,7 @@ type SimpleChatroom struct {
 	MonthIncoming    float32   `json:"monthIncoming"`
 	IsMulti          int       `json:"isMulti"`
 	Classify         int       `json:"classify"`
+	MomentsID        int64     `json:"momentsID"`
 	CreateTime       time.Time `json:"createTime"`
 	Data             string    `json:"data"`
 }
