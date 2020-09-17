@@ -34,9 +34,9 @@ func (self *DataInfo) GetDataId() int64 {
 
 // 返回给服务端的数据
 type responseItem struct {
-	Lat            float64 `json:"lat"`
-	Lng            float64 `json:"lng"`
-	LastActiveTime int64   `json:"lastActiveTime"`
+	Lat            float64 `json:"lat"`            // 纬度
+	Lng            float64 `json:"lng"`            // 经度
+	LastActiveTime int64   `json:"lastActiveTime"` // 最后活跃时间
 }
 
 func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
