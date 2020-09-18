@@ -79,7 +79,6 @@ func DoBuildData(ctx algo.IContext) error {
 						//liveIds[i] = lives[i].Live.MomentsID
 						momLat :=lives[i].Live.Lat
 						momLng :=lives[i].Live.Lng
-						log.Warnf("live mom id %s,distance %s",lives[i].Live.MomentsID,utils.EarthDistance(float64(momLng),float64(momLat),float64(params.Lng),float64(params.Lat))/1000.0)
 						if utils.EarthDistance(float64(momLng),float64(momLat),float64(params.Lng),float64(params.Lat))/1000.0<50{
 							liveIdList=append(liveIdList,lives[i].Live.MomentsID)
 						}
