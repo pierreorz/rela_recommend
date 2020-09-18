@@ -451,7 +451,6 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 			}
 		}
 		liveIds=utils.SortMapByValue(liveMap)
-		log.Warnf("live ids %s\n",liveIds)
 		if len(liveIds) > 0 {
 			//liveIdList, err := search.CallLiveMomentList(liveIds)
 			if liveLen>=len(liveIds){
