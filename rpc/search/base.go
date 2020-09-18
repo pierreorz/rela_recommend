@@ -25,9 +25,10 @@ type searchBaseRequest struct {
 	Lng      float32 `json:"lng" form:"lng" `
 	Lat      float32 `json:"lat" form:"lat" `
 	Filter   string  `json:"filter" form:"filter" `
+	Query    string  `json:"query" form:"query" `
 }
 
-func CallSearchIdList(url string, userId int64, lat, lng float32, offset, limit int64, filters []string) ([]int64, error) {
+func CallSearchIdList(url string, userId int64, lat, lng float32, offset, limit int64, filters []string, query string) ([]int64, error) {
 	idlist := make([]int64, 0)
 	params := searchBaseRequest{
 		UserID: userId,
@@ -36,6 +37,7 @@ func CallSearchIdList(url string, userId int64, lat, lng float32, offset, limit 
 		Lng:    lng,
 		Lat:    lat,
 		Filter: strings.Join(filters, "*"),
+		Query:  query,
 	}
 
 	if paramsData, err := json.Marshal(params); err == nil {

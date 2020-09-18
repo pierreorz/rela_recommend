@@ -45,7 +45,7 @@ func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 
 	distance := rutils.EarthDistance(float64(request.Lng), float64(request.Lat), dataLocation.Lon, dataLocation.Lat)
 	if abtest.GetString("custom_sort_type", "distance") == "distance" { // 是否按照距离排序
-		rankInfo.Score = -float32(distance)
+		rankInfo.Level = -int(distance)
 	} else { // 安装距离分段排序
 		sortWeightType := abtest.GetString("distance_sort_weight_type", "level")
 		if sortWeightType == "weight" { // weight:按照权重，10公里为基准
