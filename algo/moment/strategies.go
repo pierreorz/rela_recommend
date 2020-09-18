@@ -6,7 +6,6 @@ import (
 	"rela_recommend/algo/base/strategy"
 	"math"
 	"strings"
-	"rela_recommend/log"
 )
 
 // 按照6小时优先策略
@@ -44,7 +43,6 @@ func EditTagWeight(ctx algo.IContext, index int) error {
 		if len(tags)>0{
 			for _,nameMap :=range tags{
 				if strings.Contains(editTag,nameMap["name"]){
-					log.Warnf("editTag,%s %s\n",editTag,nameMap["name"])
 					rankInfo.AddRecommend("EditTagWeight", 1.1)
 				}
 			}
