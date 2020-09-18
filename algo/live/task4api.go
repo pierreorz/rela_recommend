@@ -52,7 +52,7 @@ func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) []int64 {
 	lives := GetCachedLiveListByTypeClassify(typeId, classify)
 	momentsIds := []int64{}
 	for _, live := range lives {
-		momentsIds = append(momentsIds, live.Live.MomentsID)
+		momentsIds = append(momentsIds, live.Live.MomentsId)
 	}
 	return momentsIds
 }
