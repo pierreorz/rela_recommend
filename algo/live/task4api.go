@@ -47,6 +47,16 @@ func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache 
 	return lives
 }
 
+// 通过直播分类获取直播开播日志列表
+func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) []int64 {
+	lives := GetCachedLiveListByTypeClassify(typeId, classify)
+	momentsIds := []int64{}
+	for _, live := range lives {
+		momentsIds = append(momentsIds, live.Live.MomentsID)
+	}
+	return momentsIds
+}
+
 func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 	liveCacheList := make([]pika.LiveCache, len(lives))
 	for i, live := range lives {
@@ -74,6 +84,7 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 		// liveCache.Live.AudioType			= live.
 		liveCache.Live.IsMulti = live.IsMulti
 		liveCache.Live.Classify = live.Classify
+		liveCache.Live.MomentsID = live.MomentsID
 
 		// liveCache.ScoreStr			= live.Score
 		liveCache.Score = live.Score
