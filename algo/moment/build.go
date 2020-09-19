@@ -31,12 +31,12 @@ func DoBuildData(ctx algo.IContext) error {
 	recIdList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
-	liveIdList :=make([]int64,0)
+	liveMomentIds :=make([]int64,0)
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	if abtest.GetBool("rec_liveMoments_switch",false){
 		//var lives []pika.LiveCache
 
-		liveIdList = live.GetCachedLiveMomentListByTypeClassify(-1,-1)
+		liveMomentIds = live.GetCachedLiveMomentListByTypeClassify(-1,-1)
 
 		//liveIds := make([]int64, len(lives))
 		//if len(liveIds)>0{
@@ -65,7 +65,7 @@ func DoBuildData(ctx algo.IContext) error {
 				var lives []pika.LiveCache
 
 				lives = live.GetCachedLiveListByTypeClassify(-1,-1)
-				liveIdList=ReturnAroundLiveMom(lives,params.Lng,params.Lat)
+				liveMomentIds=ReturnAroundLiveMom(lives,params.Lng,params.Lat)
 				////服务端优化附近日志接口后可以直接将momentstype 添加live以及voice_live
 				//aroundliveMomIdList, _ := search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 100,
 				//	"live,voice_live", 60*60*24, "50km")
@@ -116,7 +116,7 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	}
 
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList,liveIdList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList,liveMomentIds).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 
@@ -404,8 +404,7 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 		var lives []pika.LiveCache
 		liveLen := abtest.GetInt("live_moment_len", 3)
 		lives = live.GetCachedLiveListByTypeClassify(-1, -1)
-		liveIds := make([]int64, 0)
-		liveIds = ReturnTopnScoreLiveMom(lives, liveLen, params.DataIds[0])
+		liveIds := ReturnTopnScoreLiveMom(lives, liveLen, params.DataIds[0])
 		SetData(liveIds, ctx)
 
 	} else {
