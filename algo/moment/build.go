@@ -31,20 +31,17 @@ func DoBuildData(ctx algo.IContext) error {
 	recIdList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
-	liveIdList :=make([]int64,0)
+	liveMomentIds :=make([]int64,0)
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	if abtest.GetBool("rec_liveMoments_switch",false){
-		var lives []pika.LiveCache
+		//var lives []pika.LiveCache
 
-		lives = live.GetCachedLiveListByTypeClassify(-1,-1)
+		liveMomentIds = live.GetCachedLiveMomentListByTypeClassify(-1,-1)
 
-		liveIds := make([]int64, len(lives))
-		for i, _ := range lives {
-			liveIds[i] = lives[i].Live.UserId
-		}
-		if len(liveIds)>0{
-			liveIdList,err=search.CallLiveMomentList(liveIds)
-		}
+		//liveIds := make([]int64, len(lives))
+		//if len(liveIds)>0{
+		//	liveIdList,err=search.CallLiveMomentList(liveIds)
+		//}
 	}
 
 	if dataIdList == nil || len(dataIdList) == 0 {
@@ -65,19 +62,23 @@ func DoBuildData(ctx algo.IContext) error {
 			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
 			if abtest.GetBool("near_liveMoments_switch",false){
-				//服务端优化附近日志接口后可以直接将momentstype 添加live以及voice_live
-				aroundliveMomIdList, _ := search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 100,
-					"live,voice_live", 60*60*24, "50km")
-				liveMoms,liveMomerr:=momentCache.QueryMomentsByIds(aroundliveMomIdList)
-				if err!=nil{
-					log.Warnf("near live mom err,%s\n",liveMomerr)
-				}
-				nearLiveUserIds:= make([]int64, 0)
-				for _,mom :=range liveMoms{
-					nearLiveUserIds=append(nearLiveUserIds,mom.Moments.UserId)
-				}
-				nearLiveUserIds=utils.NewSetInt64FromArray(nearLiveUserIds).ToList()
-				liveIdList=ReturnLiveList(nearLiveUserIds,aroundliveMomIdList)
+				var lives []pika.LiveCache
+
+				lives = live.GetCachedLiveListByTypeClassify(-1,-1)
+				liveMomentIds=ReturnAroundLiveMom(lives,params.Lng,params.Lat)
+				////服务端优化附近日志接口后可以直接将momentstype 添加live以及voice_live
+				//aroundliveMomIdList, _ := search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 100,
+				//	"live,voice_live", 60*60*24, "50km")
+				//liveMoms,liveMomerr:=momentCache.QueryMomentsByIds(aroundliveMomIdList)
+				//if err!=nil{
+				//	log.Warnf("near live mom err,%s\n",liveMomerr)
+				//}
+				//nearLiveUserIds:= make([]int64, 0)
+				//for _,mom :=range liveMoms{
+				//	nearLiveUserIds=append(nearLiveUserIds,mom.Moments.UserId)
+				//}
+				//nearLiveUserIds=utils.NewSetInt64FromArray(nearLiveUserIds).ToList()
+				//liveIdList=ReturnLiveList(nearLiveUserIds,aroundliveMomIdList)
 			}
 			//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 			for _, radius := range radiusArray {
@@ -115,7 +116,7 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	}
 
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList,liveIdList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList,liveMomentIds).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 
@@ -286,26 +287,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 		var lives []pika.LiveCache
 		liveLen := abtest.GetInt("live_moment_len", 3)
 		lives = live.GetCachedLiveListByTypeClassify(-1, -1)
-
-		liveIds := make([]int64, len(lives))
-		liveMap :=make(map[int64]float64,0)
-		for i, _ := range lives {
-			if lives[i].Live.UserId != livemoms[0].Moments.UserId {
-				//获取直播日志：得分的map
-				liveMap[lives[i].Live.UserId] = float64(lives[i].Score)
-			}
-		}
-		//根据score分数得到liveidlist
-		liveIds=utils.SortMapByValue(liveMap)
-		if len(liveIds) > 0 {
-			liveIdList, err := search.CallLiveMomentList(liveIds)
-			if liveLen >= len(liveIdList) {
-				liveLen = len(liveIdList)
-			}
-			if err == nil {
-				dataIdList = liveIdList[:liveLen]
-			}
-		}
+		dataIdList = ReturnTopnScoreLiveMom(lives, liveLen, params.DataIds[0])
 	} else {
 		recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
 		dataIdList, err = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
@@ -420,28 +402,11 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 	if momsType == "live"|| momsType == "voice_live" {
 		//判断日志类型
 		var lives []pika.LiveCache
-		liveLen:=abtest.GetInt("live_moment_len",3)
-		lives = live.GetCachedLiveListByTypeClassify(-1,-1)
+		liveLen := abtest.GetInt("live_moment_len", 3)
+		lives = live.GetCachedLiveListByTypeClassify(-1, -1)
+		liveIds := ReturnTopnScoreLiveMom(lives, liveLen, params.DataIds[0])
+		SetData(liveIds, ctx)
 
-		liveIds := make([]int64, len(lives))
-		liveMap :=make(map[int64]float64,0)
-		for i, _ := range lives {
-			if lives[i].Live.UserId != moms[0].Moments.UserId {
-				//获取用户：分数map
-				liveMap[lives[i].Live.UserId] = float64(lives[i].Score)
-			}
-		}
-		liveIds=utils.SortMapByValue(liveMap)
-		log.Warnf("live ids %s\n",liveIds)
-		if len(liveIds) > 0 {
-			liveIdList, err := search.CallLiveMomentList(liveIds)
-			if liveLen>=len(liveIdList){
-				liveLen=len(liveIdList)
-			}
-			if err == nil {
-				SetData(liveIdList[:liveLen], ctx)
-			}
-		}
 	} else {
 		recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
 		var defaultId = -999999999
@@ -507,6 +472,37 @@ func SetData(dataIdList []int64, ctx algo.IContext) error {
 	return err
 }
 
+func ReturnAroundLiveMom(lives []pika.LiveCache,userLng float32,userLat float32) []int64{
+	res :=make([]int64,0)
+	if len(lives)>0{
+		for i, _ := range lives {
+			//直接获取日志id
+			//liveIds[i] = lives[i].Live.MomentsID
+			momLat :=lives[i].Live.Lat
+			momLng :=lives[i].Live.Lng
+			if utils.EarthDistance(float64(momLng),float64(momLat),float64(userLng),float64(userLat))/1000.0<50{
+				res=append(res,lives[i].Live.MomentsID)
+			}
+		}
+	}
+	return res
+}
+
+func ReturnTopnScoreLiveMom(lives []pika.LiveCache,topn int,userId int64)[]int64{
+	res :=make([]int64,0)
+	liveMap :=make(map[int64]float64,0)
+	for i, _ := range lives {
+		if lives[i].Live.UserId != userId {
+			//获取用户：分数map
+			liveMap[lives[i].Live.MomentsID] = float64(lives[i].Score)
+		}
+	}
+	res=utils.SortMapByValue(liveMap)
+	if topn>=len(res){
+		topn=len(res)
+	}
+	return res[:topn]
+}
 func ReturnLiveList(userIdList,momIdList []int64) []int64{
 	//根据userid和momid获取每个用户最新的直播日志
 	var idMap = map[int64]int64{}
