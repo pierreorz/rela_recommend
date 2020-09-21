@@ -213,8 +213,12 @@ func DoBuildData(ctx algo.IContext) error {
 		if mom.Moments.ShareTo != "all" {
 			continue
 		}
-		log.Warnf("mom aitags,%s\n",momOfflineProfileMap[mom.Moments.Id].AiTag)
-		log.Warnf("mom aitags,%s\n",momentUserEmbeddingMap[mom.Moments.UserId].AiTag)
+		if momOfflineProfileMap[mom.Moments.Id]!=nil{
+			log.Warnf("mom aitags,%s\n",momOfflineProfileMap[mom.Moments.Id].AiTag)
+		}
+		if momentUserEmbeddingMap[mom.Moments.UserId]!=nil{
+			log.Warnf("mom aitags,%s\n",momentUserEmbeddingMap[mom.Moments.UserId].AiTag)
+		}
 		if mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
 			//status=0 禁用用户，status=5 注销用户
