@@ -43,7 +43,7 @@ func AssignTagAddWeight(ctx algo.IContext, index int) error {
 		if len(tagList)>0{
 			assignTag := abtest.GetString("assign_tag", "_")
 			if strings.Contains(tagList, assignTag) {
-				rankInfo.AddRecommend("AssignTagWeight", 1.2)
+				rankInfo.AddRecommend("AssignTagWeight", 1.1)
 			}
 		}
 
