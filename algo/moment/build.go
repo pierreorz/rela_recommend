@@ -213,6 +213,9 @@ func DoBuildData(ctx algo.IContext) error {
 		if mom.Moments.ShareTo != "all" {
 			continue
 		}
+		if momOfflineProfileMap[mom.Moments.Id]!=nil{
+			log.Warnf("moment user Embedding cache list is err, %s\n", momOfflineProfileMap[mom.Moments.Id].AiTag)
+		}
 		if mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
 			//status=0 禁用用户，status=5 注销用户
