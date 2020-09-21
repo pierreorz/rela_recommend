@@ -31,6 +31,7 @@ type LiveProfile struct {
 	AudioType        int      `json:"audioType"`
 	IsMulti          int      `json:"isMulti"`
 	Classify         int      `json:"classify"`
+	MomentsID        int64    `json:"momentsId"`
 }
 
 type LiveCache struct {
@@ -117,7 +118,7 @@ func (self *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
 		}
 	}
 	var endTime = time.Now()
-	log.Infof("QueryLiveList,all:%.3f,len:%d,cache:%.3f,json:%.3f",
+	log.Debugf("QueryLiveList,all:%.3f,len:%d,cache:%.3f,json:%.3f",
 		endTime.Sub(startTime).Seconds(), len(lives),
 		startJsonTime.Sub(startTime).Seconds(),
 		endTime.Sub(startJsonTime).Seconds())

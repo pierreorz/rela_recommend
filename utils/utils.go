@@ -29,6 +29,15 @@ func FormatKeyInt64(str string, i int64) string {
 	return fmt.Sprintf("%s%d", str, i)
 }
 
+func FormatKeyInt64s(keyFormater string, ids []int64) []string {
+	dataLen := len(ids)
+	keys := make([]string, dataLen)
+	for i, id := range ids {
+		keys[i] = fmt.Sprintf(keyFormater, id)
+	}
+	return keys
+}
+
 func EarthDistance(lng1, lat1, lng2, lat2 float64) float64 {
 	radius := 6378137.0 // 6378137
 	rad := math.Pi / 180.0
@@ -512,6 +521,15 @@ func CoalesceString(strs ...string) string {
 		}
 	}
 	return ""
+}
+
+func CoalesceInt(ints ...int) int {
+	for _, i := range ints {
+		if i != 0 {
+			return i
+		}
+	}
+	return 0
 }
 
 func IfElse(b bool, trueValue float64, falseValue float64) float64 {

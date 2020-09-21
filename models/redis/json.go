@@ -1,22 +1,26 @@
 package redis
 
 import (
-	"time"
 	"strings"
+	"time"
 )
 
 type JsonTime struct {
 	time.Time
 }
+
 func (p *JsonTime) UnmarshalJSON(data []byte) error {
 	dataStr := string(data)
-	if data != nil && dataStr!="null" && len(data) > 0 {
+	if data != nil && dataStr != "null" && len(data) > 0 {
 		var local time.Time
 		var err error
 		if strings.HasSuffix(dataStr, "+0000\"") {
 			local, err = time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", dataStr, time.Local)
+			if err != nil {
+				err = (&local).UnmarshalJSON(data)
+			}
 		} else {
-			(&local).UnmarshalJSON(data)
+			err = (&local).UnmarshalJSON(data)
 		}
 		*p = JsonTime{Time: local}
 		return err

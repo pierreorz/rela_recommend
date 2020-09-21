@@ -48,6 +48,11 @@ func StrategyScoreFunc(ctx IContext, index int) error {
 			rankInfo.Score *= item.Score
 		}
 	}
+	// 防止score正负无穷导致返回无法序列化, 最大值10000
+	score64 := float64(rankInfo.Score)
+	if math.IsInf(score64, 0) {
+		rankInfo.Score = float32(math.Copysign(100000000, score64))
+	}
 	return nil
 }
 
@@ -98,6 +103,15 @@ func (self *SorterBase) Do(ctx IContext) error {
 	return nil
 }
 
+// 返回，不做排序
+type SorterOrigin struct {
+	Context IContext
+}
+
+func (self *SorterOrigin) Do(ctx IContext) error {
+	return nil
+}
+
 // 分页组件
 type IPager interface {
 	Do(ctx IContext) error
@@ -111,6 +125,12 @@ func (self *PagerBase) Do(ctx IContext) error {
 	minIndex := int(math.Max(float64(params.Offset), 0.0))
 	maxIndex := int(math.Max(index, 0.0))
 
+	response, err := self.BuildResponse(ctx, minIndex, maxIndex)
+	ctx.SetResponse(response)
+	return err
+}
+
+func (self *PagerBase) BuildResponse(ctx IContext, minIndex int, maxIndex int) (*RecommendResponse, error) {
 	returnIds, returnObjs := make([]int64, 0), make([]RecommendResponseItem, 0)
 	for i := minIndex; i < maxIndex; i++ {
 		currData := ctx.GetDataByIndex(i)
@@ -125,8 +145,18 @@ func (self *PagerBase) Do(ctx IContext) error {
 			Reason: rankInfo.ReasonString()})
 	}
 	response := &RecommendResponse{RankId: ctx.GetRankId(), DataIds: returnIds, DataList: returnObjs, Status: "ok"}
+	return response, nil
+}
+
+// 不分页返回原版数据
+type PagerOrigin struct {
+	PagerBase
+}
+
+func (self *PagerOrigin) Do(ctx IContext) error {
+	response, err := self.BuildResponse(ctx, 0, ctx.GetDataLength())
 	ctx.SetResponse(response)
-	return nil
+	return err
 }
 
 type ILogger interface {
@@ -160,18 +190,32 @@ func (self *LoggerBase) Do(ctx IContext) error {
 type LoggerPerforms struct{}
 
 func (self *LoggerPerforms) Do(ctx IContext) error {
+	app := ctx.GetAppInfo()
 	pfm := ctx.GetPerforms()
 	params := ctx.GetRequest()
 	response := ctx.GetResponse()
+	abtest := ctx.GetAbTest()
 	returnLen := 0
 	if response != nil {
 		returnLen = len(response.DataIds)
 	}
 	log.Infof("performs app:%s,rankId:%s,userId:%d,paramsLen:%d,offset:%d,limit:%d,dataIds:%d,dataList:%d,return:%d;%s\n",
-		ctx.GetAppInfo().Name, ctx.GetRankId(), params.UserId, len(params.DataIds),
+		app.Name, ctx.GetRankId(), params.UserId, len(params.DataIds),
 		params.Offset, params.Limit,
 		len(ctx.GetDataIds()), len(ctx.GetDataList()),
 		returnLen, pfm.ToString())
+
+	if abtest.GetBool("logger_performs_writer_switched", true) {
+		pfm.ToWriteChan("algo", map[string]string{
+			"app": app.Name,
+			"os":  params.GetOS(),
+		}, map[string]interface{}{
+			"request.user_id": params.UserId,
+			"request.offset":  params.Offset,
+			"request.limit":   params.Limit,
+			"response.len":    returnLen,
+		}, ctx.GetCreateTime())
+	}
 	return nil
 }
 

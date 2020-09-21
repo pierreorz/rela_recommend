@@ -32,8 +32,21 @@ func (self *DataInfo) GetDataId() int64 {
 	return self.DataId
 }
 
+// 返回给服务端的数据
+type responseItem struct {
+	Lat            float64 `json:"lat"`            // 纬度
+	Lng            float64 `json:"lng"`            // 经度
+	LastActiveTime int64   `json:"lastActiveTime"` // 最后活跃时间
+}
+
 func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
-	return nil
+	res := &responseItem{}
+	if self.UserCache != nil {
+		res.Lat = self.UserCache.Location.Lat
+		res.Lng = self.UserCache.Location.Lon
+		res.LastActiveTime = self.UserCache.LastUpdateTime
+	}
+	return res
 }
 
 func (self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {

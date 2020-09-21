@@ -10,14 +10,15 @@ var appName = "user"
 var workDir = algo.GetWorkDir("/algo_files/user/")
 
 var builderMap = map[string]algo.IBuilder{
-	"base": &algo.BuilderBase{DoBuild: DoBuildData},
-	"v1":   &algo.BuilderBase{DoBuild: DoBuildDataV1},
+	"v1": &algo.BuilderBase{DoBuild: DoBuildDataV1},
 }
 var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
-	"base": &algo.SorterBase{}}
+	"base":   &algo.SorterBase{},
+	"origin": &algo.SorterOrigin{}}
 var pagerMap = map[string]algo.IPager{
-	"base": &algo.PagerBase{}}
+	"base":   &algo.PagerBase{},
+	"origin": &algo.PagerOrigin{}}
 var loggerMap = map[string]algo.ILogger{
 	"features": &algo.LoggerBase{},
 	"performs": &algo.LoggerPerforms{}}
@@ -28,6 +29,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"distance_sort":   &strategy.BaseRichStrategy{StrategyItemFunc: SortWithDistanceItem},
 	"wilson_behavior": &strategy.BaseRichStrategy{StrategyItemFunc: ItemBehaviorWilsonItemFunc},
 	"clicked_down":    &strategy.BaseRichStrategy{StrategyItemFunc: UserBehaviorClickedDownItemFunc},
+	"simple_upper":    &strategy.BaseRichStrategy{StrategyItemFunc: SimpleUpperItemFunc, DefaultWeight: 2},
 }
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
@@ -51,3 +53,21 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
 	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+// ***************************************************************** 用户搜索
+var searchBuilderMap = map[string]algo.IBuilder{
+	"base": &algo.BuilderBase{DoBuild: DoBuildSearchData},
+}
+var searchStrategyMap = map[string]algo.IStrategy{}
+var searchRichStrategyMap = map[string]algo.IRichStrategy{}
+
+// 用户搜索
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "user.search", Module: "user", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "base", AlgoMap: nil,
+	BuilderKey: "build", BuilderDefault: "base", BuilderMap: searchBuilderMap,
+	SorterKey: "sorter", SorterDefault: "origin", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "origin", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: searchStrategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: searchRichStrategyMap})

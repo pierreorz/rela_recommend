@@ -5,6 +5,7 @@ import (
 	"rela_recommend/models/behavior"
 	"rela_recommend/algo/base/strategy"
 	"math"
+	"strings"
 )
 
 // 按照6小时优先策略
@@ -25,11 +26,42 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error{
 	rankInfo := dataInfo.GetRankInfo()
 	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
 	if timeLevel <= 8 {
-		rankInfo.AddRecommend("momentNearTimeWeightV2", 1.0+float32(0.1/(1.0+float32(timeLevel))))
+		//避免脏数据的影响
+		rankInfo.AddRecommend("momentNearTimeWeightV2", 1.0+float32(0.1/(1.0+math.Max(float64(timeLevel),0))))
 	}
 	return nil
 }
 
+//附近日志详情页视频日志提权
+func VideoMomWeight(ctx algo.IContext, index int) error {
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	if dataInfo.MomentCache != nil {
+		if dataInfo.MomentCache.MomentsType == "video" {
+			rankInfo.AddRecommend("VideoMomWeight", 1.2)
+		}
+	}
+	return nil
+}
+
+//推荐日志偏好提权策略
+func DoPrefWeightLevel(ctx algo.IContext, index int) error {
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	if dataInfo.MomentCache!= nil {
+		tagList := dataInfo.MomentCache.MomentsExt.TagList
+		if userInfo.MomentUserProfile!=nil&&len(userInfo.MomentUserProfile.UserPref) > 0 {
+			for _, tag := range userInfo.MomentUserProfile.UserPref {
+				if strings.Contains(tagList, tag) {
+					rankInfo.AddRecommend("UserTagPref", 1.1)
+				}
+			}
+		}
+	}
+
+	return nil
+}
 //日志提权策略
 func DoTimeWeightLevel(ctx algo.IContext, index int) error{
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)

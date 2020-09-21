@@ -14,6 +14,17 @@ make build
 ./rela_recommend --conf=conf.toml  # conf.toml需要从服务器上拷贝
 ```
 
+### 缓存
+```
+缓存使用二级缓存来节省内存空间，持久化在pika内，缓存在redis
+缓存支持压缩格式
+| key后缀 | 压缩解析方式 |
+| --- | --- |
+| .gz | gzip压缩 |
+| .gzip | gzip压缩 |
+
+```
+
 ### match 速配
 
 | 时间 | 版本 | 负责人 | 算法 | 特征 | 目标 | 说明 |

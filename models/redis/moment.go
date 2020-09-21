@@ -1,12 +1,13 @@
 package redis
 
-import(
-	"time"
+import (
 	"fmt"
 	"rela_recommend/utils"
+	"time"
 
-	"rela_recommend/cache"
 	"rela_recommend/algo"
+	"rela_recommend/cache"
+
 	"github.com/gansidui/geohash"
 )
 
@@ -44,7 +45,6 @@ type Moments struct {
 	MomentsExt MomentsExt `gorm:"column:ext" json:"ext,omitempty"`
 }
 
-
 type MomentsExt struct {
 	ThemeClass      string `json:"themeClass,omitempty"`
 	ThemeReplyClass string `json:"themeReplyClass,omitempty"`
@@ -56,11 +56,11 @@ type MomentsExt struct {
 	VideoType       string `json:"videoType,omitempty"`    // 4.7.3视频新增类型 PGC 官方 UGC 个人
 	IsCoverImage    bool   `json:"isCoverImage,omitempty"` // 4.9.1封面图
 	IsLandscape     int    `json:"isLandscape,omitempty"`  // 横屏
-	SyncMainPage    bool   `json:"syncMainPage,omitempty"`  //是否同步到主页
-	AtUserList      string `json:"atUserList,omitempty"`    //提及用户列表
-	TagList         string `json:"tagList,omitempty"`    //标签组
-	IsFive          int    `json:"isFive,omitempty"`     //5.0版本此值为1
-	Reason          string `json:"reason,omitempty"`     //推荐网页的理由
+	SyncMainPage    bool   `json:"syncMainPage,omitempty"` //是否同步到主页
+	AtUserList      string `json:"atUserList,omitempty"`   //提及用户列表
+	TagList         string `json:"tagList,omitempty"`      //标签组
+	IsFive          int    `json:"isFive,omitempty"`       //5.0版本此值为1
+	Reason          string `json:"reason,omitempty"`       //推荐网页的理由
 }
 
 type MomentsExtend struct {
@@ -94,24 +94,25 @@ type MomentsExtend struct {
 }
 
 type MomentsProfile struct {
-	LikeCnt				int			`json:"likeCnt,omitempty"`  
-	TextCnt				int			`json:"textCnt,omitempty"` 
-	MomentsTextWords 	[]string	`json:"momentsTextWords,omitempty"` 
+	LikeCnt          int      `json:"likeCnt,omitempty"`
+	TextCnt          int      `json:"textCnt,omitempty"`
+	MomentsTextWords []string `json:"momentsTextWords,omitempty"`
 }
 
 type MomentOfflineProfile struct {
-	Id int64 `json:"moment_id"`
-	MomentEmbedding []float32  `json:"moment_embedding"`
+	Id              int64     `json:"moment_id"`
+	MomentEmbedding []float32 `json:"moment_embedding"`
 }
 type MomentsAndExtend struct {
-	Moments 		*Moments		`gorm:"column:moments" json:"moments,omitempty"`        
-	MomentsExtend	*MomentsExtend	`gorm:"column:moments_extend" json:"momentsExtend,omitempty"`        
-	MomentsProfile	*MomentsProfile	`gorm:"column:moments_profile" json:"momentsProfile,omitempty"` 
+	Moments        *Moments        `gorm:"column:moments" json:"moments,omitempty"`
+	MomentsExtend  *MomentsExtend  `gorm:"column:moments_extend" json:"momentsExtend,omitempty"`
+	MomentsProfile *MomentsProfile `gorm:"column:moments_profile" json:"momentsProfile,omitempty"`
 }
 
 type MomentUserProfile struct {
 	UserID       int64              `json:"user_id"`
 	UserEmbedding       []float32  `json:"user_embedding"`
+	UserPref             []string `json:"user_pref,omitempty"`
 
 }
 
@@ -119,15 +120,14 @@ type MomentCacheModule struct {
 	CachePikaModule
 }
 
-
 func NewMomentCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *MomentCacheModule {
 	return &MomentCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
 
 // 从缓存中获取以逗号分割的字符串，并转化成int64. 如 keys11  1,2,3,4,5
 func (self *MomentCacheModule) GetInt64ListFromGeohash(lat float32, lng float32, len int, keyFormatter string) ([]int64, error) {
-	geohash,_:=geohash.Encode(float64(lat),float64(lng),len)
-	res, err := self.GetSet(fmt.Sprintf(keyFormatter, geohash), 24 * 60 * 60, 1 * 60 * 60)
+	geohash, _ := geohash.Encode(float64(lat), float64(lng), len)
+	res, err := self.GetSet(fmt.Sprintf(keyFormatter, geohash), 24*60*60, 1*60*60)
 	if err == nil {
 		return utils.GetInt64s(utils.GetString(res)), nil
 	}
@@ -141,6 +141,7 @@ func (self *UserCacheModule) QueryMomentUserProfileByIds(ids []int64) ([]MomentU
 	objs := ress.Interface().([]MomentUserProfile)
 	return objs, err
 }
+
 // 获取当前用户和用户列表Map
 func (this *UserCacheModule) QueryMomentUserProfileByUserAndUsersMap(userId int64, userIds []int64) (*MomentUserProfile, map[int64]*MomentUserProfile, error) {
 	allIds := append(userIds, userId)
@@ -159,7 +160,6 @@ func (this *UserCacheModule) QueryMomentUserProfileByUserAndUsersMap(userId int6
 	return resUser, resUsersMap, err
 }
 
-
 //读取日志画像特征
 func (self *MomentCacheModule) QueryMomentOfflineProfileByIds(ids []int64) ([]MomentOfflineProfile, error) {
 	keyFormatter := "moment_offline_profile:%d"
@@ -174,28 +174,41 @@ func (this *MomentCacheModule) QueryMomentOfflineProfileByIdsMap(momentIds []int
 	var resMomentsMap = make(map[int64]*MomentOfflineProfile, 0)
 	if err == nil {
 		for i, moment := range moments {
-				resMomentsMap[moment.Id] = &moments[i]
+			resMomentsMap[moment.Id] = &moments[i]
 		}
 	}
-	return  resMomentsMap, err
+	return resMomentsMap, err
 }
 
 // 读取直播相关用户画像
 func (self *MomentCacheModule) QueryMomentsByIds(ids []int64) ([]MomentsAndExtend, error) {
-	keyFormatter := "friends_moments_moments:%d"
+	keyFormatter := self.ctx.GetAbTest().GetString("moment_cache_key_formatter", "friends_moments_moments:%d")
 	ress, err := self.MGetStructs(MomentsAndExtend{}, ids, keyFormatter, 24 * 60 * 60, 60 * 60 * 1)
 	objs := ress.Interface().([]MomentsAndExtend)
 	return objs, err
 }
 
+func (self *MomentCacheModule) QueryMomentsMapByIds(ids []int64) (map[int64]MomentsAndExtend, error) {
+	momsMap := map[int64]MomentsAndExtend{}
+	moms, err := self.QueryMomentsByIds(ids)
+	if err == nil {
+		for i, mom := range moms {
+			if mom.Moments != nil {
+				momsMap[mom.Moments.Id] = moms[i]
+			}
+		}
+	}
+	return momsMap, err
+}
+
 func (self *MomentCacheModule) GetInt64ListOrDefault(id int64, defaultId int64, keyFormatter string) ([]int64, error) {
 	var resInt64s = make([]int64, 0)
-	res, err := self.GetSet(fmt.Sprintf(keyFormatter, id), 6 * 60 * 60, 1 * 60 * 60)
+	res, err := self.GetSet(fmt.Sprintf(keyFormatter, id), 6*60*60, 1*60*60)
 	if err == nil {
 		resInt64s = utils.GetInt64s(utils.GetString(res))
 	}
 	if len(resInt64s) == 0 {
-		res, err := self.GetSet(fmt.Sprintf(keyFormatter, defaultId), 6 * 60 * 60, 1 * 60 * 60)
+		res, err := self.GetSet(fmt.Sprintf(keyFormatter, defaultId), 6*60*60, 1*60*60)
 		if err == nil {
 			resInt64s = utils.GetInt64s(utils.GetString(res))
 		}

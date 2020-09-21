@@ -30,6 +30,12 @@ master_address = "relaadmindatadb2:a72db4e137e4b399c2ff64cb8f39ceed@tcp(datadb-n
 [cassandra]
 addresses="172.31.42.3,172.31.40.149,172.31.38.171"
 
+[influxdb]
+addr = "https://ts-8vb05ke21nkz4t5d3.influxdata.tsdb.aliyuncs.com:8086"
+token = "aiadm:AIadm@2020"
+org = "rela_recommend"
+bucket = "ai"
+
 [rpc]
 search_rpc_addr = "http://172.16.13.247/v2"
 chatroom_rpc_addr = "http://chatroom:7420"
