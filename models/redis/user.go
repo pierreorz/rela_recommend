@@ -91,7 +91,7 @@ func (this *UserCacheModule) QueryByUserAndUsers(userId int64, userIds []int64) 
 	users, err := this.QueryUsersByIds(allIds)
 	var resUser UserProfile
 	var resUsers []UserProfile
-	log.Infof("QueryByUserAndUsers:%s,user:%+v, users:%+v\n", resUser, resUsers)
+	log.Infof("QueryByUserAndUsers: users:%+v\n", users)
 	if err == nil {
 		for i, user := range users {
 			if user.UserId == userId {
@@ -122,6 +122,7 @@ func (this *UserCacheModule) QueryUsersMap(userIds []int64) (map[int64]*UserProf
 func (this *UserCacheModule) QueryByUserAndUsersMap(userId int64, userIds []int64) (*UserProfile, map[int64]*UserProfile, error) {
 	user, users, err := this.QueryByUserAndUsers(userId, userIds)
 	usersMap := make(map[int64]*UserProfile, 0)
+	log.Infof("QueryByUserAndUsersMap: user:%+v users:%+v\n", user, users)
 	for i, u := range users {
 		if u.UserId > 0 {
 			usersMap[u.UserId] = &users[i]
