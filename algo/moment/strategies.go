@@ -60,7 +60,7 @@ func EditTagWeight(ctx algo.IContext, index int) error {
 		tags :=dataInfo.MomentOfflineProfile.AiTag
 		if len(tags)>0&&len(editTag)>1{
 			for _,nameMap :=range tags{
-				if strings.Contains(editTag,nameMap["name"]){
+				if strings.Contains(editTag,nameMap.Name){
 					rankInfo.AddRecommend("EditTagWeight", 1.1)
 				}
 			}
