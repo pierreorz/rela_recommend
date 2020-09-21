@@ -22,9 +22,7 @@ var strategyMap = map[string]algo.IStrategy{
 	"label_mom":&algo.StrategyBase{ DoSingle: MomLabelAddWeight },
 	"video_mom":&algo.StrategyBase{ DoSingle: VideoMomWeight },
 	"edit_tags":&algo.StrategyBase{ DoSingle: EditTagWeight },
-
-
-
+	"assignTag_weight":&algo.StrategyBase{ DoSingle: AssignTagAddWeight },
 }
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{},
