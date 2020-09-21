@@ -139,6 +139,7 @@ func DoBuildData(ctx algo.IContext) error {
 			return searchMomentMapErr
 		})
 	}
+	filteredAudit :=abtest.GetBool("search_filted_audit", false)
 	// 获取日志内容
 	var startMomentTime = time.Now()
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
@@ -164,6 +165,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if momOfflineProfileErr != nil {
 		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
 	}
+
 	// 获取用户信息
 	var startUserTime = time.Now()
 	user, usersMap, err := userCache.QueryByUserAndUsersMap(params.UserId, userIds)
@@ -187,7 +189,6 @@ func DoBuildData(ctx algo.IContext) error {
 	if embeddingCacheErr != nil {
 		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
 	}
-
 	var startBuildTime = time.Now()
 	userInfo := &UserInfo{
 		UserId:    params.UserId,
@@ -202,6 +203,12 @@ func DoBuildData(ctx algo.IContext) error {
 		// 后期搜索完善此条件去除
 		if mom.Moments==nil ||mom.MomentsExtend==nil{
 			continue
+		}
+		//搜索过滤开关
+		if filteredAudit{
+			if mom.MomentsProfile!=nil&&mom.MomentsProfile.AuditStatus==0{
+				continue
+			}
 		}
 		if mom.Moments.ShareTo != "all" {
 			continue

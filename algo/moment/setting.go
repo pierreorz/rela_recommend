@@ -21,8 +21,8 @@ var strategyMap = map[string]algo.IStrategy{
 	"new_user": &algo.StrategyBase{ DoSingle: AroundNewUserAddWeightFunc },
 	"label_mom":&algo.StrategyBase{ DoSingle: MomLabelAddWeight },
 	"video_mom":&algo.StrategyBase{ DoSingle: VideoMomWeight },
-
-
+	"edit_tags":&algo.StrategyBase{ DoSingle: EditTagWeight },
+	"assignTag_weight":&algo.StrategyBase{ DoSingle: AssignTagAddWeight },
 }
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{},
@@ -67,6 +67,11 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
 	&algo.AlgoBase{AlgoName: "model_rec_v2", FilePath: workDir + "mods_xg_4.1.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
+	&algo.AlgoBase{AlgoName: "model_around_v4", FilePath: workDir + "mods_xg_5.1.dumps.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures },
+	&algo.AlgoBase{AlgoName: "model_around_v5", FilePath: workDir + "mods_xglr_5.1.dumps.gz",
+		Model: &utils.GradientBoostingLRClassifier{}, FeaturesFunc: GetMomentFeatures },
+
 })
 
 

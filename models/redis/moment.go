@@ -94,6 +94,7 @@ type MomentsExtend struct {
 }
 
 type MomentsProfile struct {
+	AuditStatus   int      `json:"auditStatus,omitempty"`
 	LikeCnt          int      `json:"likeCnt,omitempty"`
 	TextCnt          int      `json:"textCnt,omitempty"`
 	MomentsTextWords []string `json:"momentsTextWords,omitempty"`
@@ -102,6 +103,7 @@ type MomentsProfile struct {
 type MomentOfflineProfile struct {
 	Id              int64     `json:"moment_id"`
 	MomentEmbedding []float32 `json:"moment_embedding"`
+	AiTag           []*TagScore `json:"ai_tags,omitempty"`
 }
 type MomentsAndExtend struct {
 	Moments        *Moments        `gorm:"column:moments" json:"moments,omitempty"`
@@ -113,7 +115,12 @@ type MomentUserProfile struct {
 	UserID       int64              `json:"user_id"`
 	UserEmbedding       []float32  `json:"user_embedding"`
 	UserPref             []string `json:"user_pref,omitempty"`
+	AiTag              map[string][]*TagScore  `json:"ai_tags,omitempty"`
+}
 
+type TagScore struct {
+	Name    string `json:"name,omitempty"`
+	Score   float32 `json:"score,omitempty"`
 }
 
 type MomentCacheModule struct {
