@@ -74,8 +74,14 @@ func (self *UserCacheModule) QueryUserById(id int64) (*UserProfile, error) {
 func (self *UserCacheModule) QueryUsersByIds(ids []int64) ([]UserProfile, error) {
 	keyFormatter := self.ctx.GetAbTest().GetString("user_cache_key_formatter", "app_user_active_info_search_%d")
 	ress, err := self.MGetStructs(UserProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
-	objs := ress.Interface().([]UserProfile)
-	return objs, err
+	if err == nil {
+		if objs, ok := ress.Interface().([]UserProfile); ok {
+			return objs, err
+		} else {
+			err = errors.New("convert error")
+		}
+	}
+	return []UserProfile{}, err
 }
 
 // 获取当前用户和用户列表
