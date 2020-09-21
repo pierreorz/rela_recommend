@@ -8,6 +8,7 @@ import (
 	// "rela_recommend/log"
 	"rela_recommend/algo"
 	"rela_recommend/cache"
+	"rela_recommend/log"
 	"rela_recommend/utils"
 )
 
@@ -90,6 +91,7 @@ func (this *UserCacheModule) QueryByUserAndUsers(userId int64, userIds []int64) 
 	users, err := this.QueryUsersByIds(allIds)
 	var resUser UserProfile
 	var resUsers []UserProfile
+	log.Infof("QueryByUserAndUsers:%s,user:%+v, users:%+v\n", resUser, resUsers)
 	if err == nil {
 		for i, user := range users {
 			if user.UserId == userId {
