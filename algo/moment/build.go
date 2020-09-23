@@ -383,12 +383,14 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 		return errors.New("follow detail moms data not exists")
 	}
 	dataIdList := make([]int64, 0)
-	if len(momIds) > 0 {
-		dataIdList, _ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
-		SetData(dataIdList, ctx)
-	} else {
-		SetData(dataIdList, ctx)
+	if len(momIds) > 0&&momIds[0].Moments!=nil&&momIds[0].Moments.Secret==0{
+		dataIdList, err = momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
+		if err != nil {
+			return errors.New("follow detail query redis err")
+		}
 	}
+	SetData(dataIdList, ctx)
+
 	return err
 }
 
