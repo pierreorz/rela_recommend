@@ -107,9 +107,9 @@ func DoBuildDataV1(ctx algo.IContext) error {
 			}
 			return len(usersMap)
 		},
-		"realtime_user": func(*performs.Performs) interface{} {
+		"realtime_useritem": func(*performs.Performs) interface{} {
 			var userBehaviorErr error
-			userBehaviorMap, userBehaviorErr = behaviorCache.QueryUserBehaviorMap(behaviorModuleName, params.UserId, dataIds)
+			userBehaviorMap, userBehaviorErr = behaviorCache.QueryUserItemBehaviorMap(behaviorModuleName, params.UserId, dataIds)
 			if userBehaviorErr != nil {
 				return userBehaviorErr
 			}
