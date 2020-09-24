@@ -17,6 +17,7 @@ func DoBuildSearchData(ctx algo.IContext) error {
 	pf := ctx.GetPerforms()
 	params := ctx.GetRequest()
 	abtest := ctx.GetAbTest()
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
 	// 确定候选用户
 	dataIds := params.DataIds
@@ -33,18 +34,33 @@ func DoBuildSearchData(ctx algo.IContext) error {
 		})
 	}
 
+	// 获取用户信息
+	var user *redis.UserProfile
+	var usersMap = map[int64]*redis.UserProfile{}
+	pf.RunsGo("caches", map[string]func(*performs.Performs) interface{}{
+		"user": func(*performs.Performs) interface{} {
+			var userCacheErr error
+			user, usersMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
+			if userCacheErr != nil {
+				return userCacheErr
+			}
+			return len(usersMap)
+		},
+	})
 	// 组装用户信息
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
-			UserId: params.UserId,
+			UserId:    params.UserId,
+			UserCache: user,
 		}
 
 		// 组装被曝光者信息
 		dataList := make([]algo.IDataInfo, 0)
 		for _, userId := range dataIds {
 			info := &DataInfo{
-				DataId:   userId,
-				RankInfo: &algo.RankInfo{},
+				DataId:    userId,
+				UserCache: usersMap[userId],
+				RankInfo:  &algo.RankInfo{},
 			}
 			dataList = append(dataList, info)
 		}
