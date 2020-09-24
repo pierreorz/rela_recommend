@@ -45,9 +45,9 @@ type SearchADResDataItem struct {
 
 // 返回给客户端类型
 type SearchADResDataItemAdwordsInfo struct {
-	LocationId string `json:"location_id,omitempty"`
-	AppId      string `json:"app_id,omitempty"`
-	Height     int    `json:"height,omitempty"`
+	LocationId  string `json:"location_id,omitempty"`
+	AppId       string `json:"app_id,omitempty"`
+	WidthHeight string `json:"width_height,omitempty"` // "400:50"
 }
 
 // 配置的平台设定
@@ -78,7 +78,7 @@ func (self *SearchADResDataItem) GetPlatformAdwordsInfo(os string) *SearchADResD
 		if platformInfo != nil { // 重写字段
 			res.LocationId = utils.CoalesceString(platformInfo.LocationId, res.LocationId)
 			res.AppId = utils.CoalesceString(platformInfo.AppId, res.AppId)
-			res.Height = utils.CoalesceInt(platformInfo.Height, res.Height)
+			res.WidthHeight = utils.CoalesceString(platformInfo.WidthHeight, res.WidthHeight)
 		}
 	} else {
 		log.Debugf("adwordsInfo %d platform error:%v\n", self.Id, err)
