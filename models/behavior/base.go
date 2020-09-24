@@ -88,7 +88,7 @@ type BehaviorCacheModule struct {
 
 // 读取user item相关行为
 func (self *BehaviorCacheModule) QueryUserItemBehaviorMap(module string, userId int64, ids []int64) (map[int64]*UserBehavior, error) {
-	keyFormatter := fmt.Sprintf("behavior:%s:%d:%%d", module, userId)
+	keyFormatter := fmt.Sprintf("behavior:%s:%d:%%d.gz", module, userId)
 	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*UserBehavior)
 	return objs, err
