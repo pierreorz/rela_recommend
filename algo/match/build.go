@@ -3,10 +3,9 @@ package match
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/rpc/search"
+	"rela_recommend/service/performs"
 	"rela_recommend/utils"
-	"time"
 
 	// "rela_recommend/algo/utils"
 	"rela_recommend/models/redis"
@@ -14,96 +13,103 @@ import (
 
 func DoBuildData(ctx algo.IContext) error {
 	var err error
-	var startTime = time.Now()
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
+	pfms := ctx.GetPerforms()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	dataIds := []int64{}
+	dataIds := params.DataIds
 
 	// 获取用户信息，修正经纬度
-	user, userCacheErr := userCache.QueryUserById(params.UserId)
-	if params.Lat == 0 || params.Lng == 0 {
-		if userCacheErr == nil && user != nil {
-			params.Lat = float32(user.Location.Lat)
-			params.Lng = float32(user.Location.Lon)
+	var user *redis.UserProfile
+	pfms.Run("user", func(*performs.Performs) interface{} { // 获取推荐列表
+		var userCacheErr error
+		if user, userCacheErr = userCache.QueryUserById(params.UserId); userCacheErr == nil {
+			if params.Lat == 0 || params.Lng == 0 {
+				if userCacheErr == nil && user != nil {
+					params.Lat = float32(user.Location.Lat)
+					params.Lng = float32(user.Location.Lon)
+				}
+			}
+			return 1
 		}
-	}
+		return userCacheErr
+	})
 
-	recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
 	var recMap = utils.SetInt64{}
-	if len(recListKeyFormatter) > 5 {
-		recIdlist, errRedis := userCache.GetInt64List(params.UserId, recListKeyFormatter)
-		if errRedis == nil {
-			recMap.AppendArray(recIdlist)
-			dataIds = utils.NewSetInt64FromArrays(dataIds, recIdlist).ToList()
-		} else {
-			log.Warnf("user recommend list is nil or empty!")
+	pfms.RunsGo("ids", map[string]func(*performs.Performs) interface{}{
+		"search": func(*performs.Performs) interface{} {
+			var searchErr error
+			if abtest.GetBool("used_ai_search", false) {
+				if dataIds, searchErr = search.CallMatchList(ctx, params.UserId, params.Lat, params.Lng, dataIds, user); searchErr == nil {
+					return len(dataIds)
+				}
+			}
+			return searchErr
+		},
+		"recommend": func(*performs.Performs) interface{} {
+			var recErr error
+			recListKeyFormatter := abtest.GetString("match_recommend_keyformatter", "") // match_recommend_list_v1:%d
+			if len(recListKeyFormatter) > 5 {
+				var recIdlist = []int64{}
+				if recIdlist, recErr = userCache.GetInt64List(params.UserId, recListKeyFormatter); recErr == nil {
+					recMap.AppendArray(recIdlist)
+					return len(recIdlist)
+				}
+			}
+			return recErr
+		},
+	})
+	dataIds = utils.NewSetInt64FromArrays(dataIds, recMap.ToList()).ToList()
+
+	var usersMap = map[int64]*redis.UserProfile{}
+	var matchUser *redis.MatchProfile
+	var matchUserMap = map[int64]*redis.MatchProfile{}
+	pfms.RunsGo("caches", map[string]func(*performs.Performs) interface{}{
+		"user": func(*performs.Performs) interface{} { // 获取用户信息
+			var usersCacheErr error
+			if usersMap, usersCacheErr = userCache.QueryUsersMap(dataIds); usersCacheErr == nil {
+				return len(usersMap)
+			}
+			return usersCacheErr
+		},
+		"profile": func(*performs.Performs) interface{} { // 获取画像信息
+			var matchCacheErr error
+			matchUser, matchUserMap, matchCacheErr = userCache.QueryMatchProfileByUserAndUsersMap(params.UserId, dataIds)
+			if matchCacheErr == nil {
+				return len(matchUserMap)
+			}
+			return matchCacheErr
+		},
+	})
+
+	pfms.Run("build", func(*performs.Performs) interface{} {
+		userInfo := &UserInfo{
+			UserId:       params.UserId,
+			UserCache:    user,
+			MatchProfile: matchUser}
+
+		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.5)
+		dataList := make([]algo.IDataInfo, 0)
+
+		for dataId, data := range usersMap {
+			// 推荐集加权
+			var recommends = []algo.RecommendItem{}
+			if recMap.Contains(data.UserId) {
+				recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+			}
+
+			info := &DataInfo{
+				DataId:       dataId,
+				UserCache:    data,
+				MatchProfile: matchUserMap[dataId],
+				RankInfo:     &algo.RankInfo{Recommends: recommends},
+			}
+			dataList = append(dataList, info)
 		}
-	}
-
-	var startSearchTime = time.Now()
-	if abtest.GetBool("used_ai_search", false) {
-		searchIds, searchErr := search.CallMatchList(ctx, params.UserId, params.Lat, params.Lng, dataIds, user)
-		if searchErr == nil {
-			dataIds = searchIds
-			log.Infof("get searchlist len %d\n, ", len(dataIds))
-		} else {
-			log.Warnf("search list is err, %s\n", searchErr)
-		}
-	} else {
-		dataIds = utils.NewSetInt64FromArrays(dataIds, params.DataIds).ToList()
-	}
-
-	// 获取用户信息
-	var startUserTime = time.Now()
-	usersMap, usersCacheErr := userCache.QueryUsersMap(dataIds)
-	if usersCacheErr != nil {
-		log.Warnf("users cache list is err, %s\n", usersCacheErr)
-	}
-
-	// 获取画像信息
-	var startProfileTime = time.Now()
-	matchUser, matchUserMap, matchCacheErr := userCache.QueryMatchProfileByUserAndUsersMap(params.UserId, dataIds)
-	if matchCacheErr != nil {
-		log.Warnf("match profile cache list is err, %s\n", matchCacheErr)
-	}
-
-	// 生成数据
-	var startBuildTime = time.Now()
-
-	userInfo := &UserInfo{
-		UserId:       params.UserId,
-		UserCache:    user,
-		MatchProfile: matchUser}
-
-	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.5)
-	dataList := make([]algo.IDataInfo, 0)
-
-	for dataId, data := range usersMap {
-
-		// 推荐集加权
-		var recommends = []algo.RecommendItem{}
-		if recMap.Contains(data.UserId) {
-			recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
-		}
-
-		info := &DataInfo{
-			DataId:       dataId,
-			UserCache:    data,
-			MatchProfile: matchUserMap[dataId],
-			RankInfo:     &algo.RankInfo{Recommends: recommends},
-		}
-		dataList = append(dataList, info)
-	}
-	ctx.SetUserInfo(userInfo)
-	ctx.SetDataIds(dataIds)
-	ctx.SetDataList(dataList)
-	var endTime = time.Now()
-
-	log.Infof("rankid:%s,totallen:%d,cache:%d;recommend:%d,total:%.3f,dataids:%.3f,search:%.3f,user_cache:%.3f,profile_cache:%.3f,build:%.3f\n",
-		ctx.GetRankId(), len(dataIds), len(dataList), recMap.Len(),
-		endTime.Sub(startTime).Seconds(), startSearchTime.Sub(startTime).Seconds(), startUserTime.Sub(startSearchTime).Seconds(),
-		startProfileTime.Sub(startUserTime).Seconds(),
-		startBuildTime.Sub(startProfileTime).Seconds(), endTime.Sub(startBuildTime).Seconds())
+		ctx.SetUserInfo(userInfo)
+		ctx.SetDataIds(dataIds)
+		ctx.SetDataList(dataList)
+		return len(dataList)
+	})
 	return err
 }
