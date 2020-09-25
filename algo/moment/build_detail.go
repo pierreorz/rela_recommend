@@ -149,7 +149,7 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 		var lives []pika.LiveCache
 		liveLen := abtest.GetInt("live_moment_len", 3)
 		lives = live.GetCachedLiveListByTypeClassify(-1, -1)
-		liveIds := ReturnTopnScoreLiveMom(lives, liveLen, params.DataIds[0])
+		liveIds := ReturnTopnScoreLiveMom(lives, liveLen, moms[0].Moments.UserId)
 		SetData(liveIds, ctx)
 
 	} else {
