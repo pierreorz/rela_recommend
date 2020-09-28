@@ -42,7 +42,7 @@ func ShortPrefAddWeight(ctx algo.IContext, index int) error{
 	if userInfo.MomentUserProfile!=nil&&dataInfo.MomentOfflineProfile!=nil{
 		shortPrefs :=userInfo.MomentUserProfile.AiTag["short"]
 		tags :=dataInfo.MomentOfflineProfile.AiTag
-		if len(tags)>0{
+		if len(tags)>0&&len(shortPrefs)>0{
 			for _,tag :=range tags{
 				tagList+=tag.Name
 			}
