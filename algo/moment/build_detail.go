@@ -68,10 +68,13 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 		MomentUserProfile: momentUserEmbedding}
 	dataList := make([]algo.IDataInfo, 0)
 	for i, mom := range moms {
-		if mom.Moments.ShareTo != "all" {
-			continue
-		}
 		if mom.Moments != nil && mom.Moments.Id > 0 {
+			if mom.Moments.ShareTo != "all" {
+				continue
+			}
+			if mom.Moments.Id==params.DataIds[0]{
+				continue
+			}
 			momUser, _ := usersMap[mom.Moments.UserId]
 			//status=0 禁用用户，status=5 注销用户
 			if momUser != nil {
@@ -125,7 +128,7 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 			return errors.New("follow detail query redis err")
 		}
 	}
-	SetData(dataIdList, ctx)
+	SetData(dataIdList, ctx,params.DataIds[0])
 
 	return err
 }
@@ -150,7 +153,7 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 		liveLen := abtest.GetInt("live_moment_len", 3)
 		lives = live.GetCachedLiveListByTypeClassify(-1, -1)
 		liveIds := ReturnTopnScoreLiveMom(lives, liveLen, moms[0].Moments.UserId)
-		SetData(liveIds, ctx)
+		SetData(liveIds, ctx,params.DataIds[0])
 
 	} else {
 		recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
@@ -160,13 +163,13 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 		}
 		dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], int64(defaultId), recListKeyFormatter)
 		if err == nil {
-			SetData(dataIdList, ctx)
+			SetData(dataIdList, ctx,params.DataIds[0])
 		}
 	}
 	return err
 }
 
-func SetData(dataIdList []int64, ctx algo.IContext) error {
+func SetData(dataIdList []int64, ctx algo.IContext,momsId int64) error {
 	var err error
 	params := ctx.GetRequest()
 	userInfo := &UserInfo{UserId: params.UserId}
@@ -186,10 +189,13 @@ func SetData(dataIdList []int64, ctx algo.IContext) error {
 	usersMap, err := userCache.QueryUsersMap(userIds)
 	dataList := make([]algo.IDataInfo, 0)
 	for i, mom := range moms {
-		if mom.Moments.ShareTo != "all" {
-			continue
-		}
 		if mom.Moments != nil && mom.Moments.Id > 0 {
+			if mom.Moments.ShareTo != "all" {
+				continue
+			}
+			if mom.Moments.Id==momsId{
+				continue
+			}
 			momUser, _ := usersMap[mom.Moments.UserId]
 			//status=0 禁用用户，status=5 注销用户
 			if momUser != nil {
