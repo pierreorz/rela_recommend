@@ -33,6 +33,30 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error{
 }
 
 
+//用户短期偏好提取
+func ShortPrefAddWeight(ctx algo.IContext, index int) error{
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	tagList :=""
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	if userInfo.MomentUserProfile!=nil&&dataInfo.MomentOfflineProfile!=nil{
+		shortPrefs :=userInfo.MomentUserProfile.AiTag["short"]
+		tags :=dataInfo.MomentOfflineProfile.AiTag
+		if len(tags)>0{
+			for _,tag :=range tags{
+				tagList+=tag.Name
+			}
+			for _,shortPref :=range shortPrefs{
+				if strings.Contains(tagList,shortPref.Name){
+					rankInfo.AddRecommend("shortPrefWeight", 1+shortPref.Score)
+				}
+			}
+		}
+
+	}
+	return nil
+}
+
 //指定标签提权
 func AssignTagAddWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
