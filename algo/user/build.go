@@ -21,8 +21,7 @@ func DoBuildSearchData(ctx algo.IContext) error {
 
 	// 确定候选用户
 	dataIds := params.DataIds
-	alwaysUseSearch := abtest.GetBool("always_use_search", false) // 是否一直使用search
-	if dataIds == nil || len(dataIds) == 0 || alwaysUseSearch {
+	if abtest.GetBool("always_use_search", false) { // 是否一直使用search
 		pf.Run("search", func(*performs.Performs) interface{} {
 			var searchErr error
 			if dataIds, searchErr = search.CallSearchUserIdList(params.UserId, params.Lat, params.Lng,
