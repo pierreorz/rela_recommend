@@ -1,24 +1,20 @@
 package moment
 
 import (
-	"errors"
 	"rela_recommend/algo"
+	"rela_recommend/algo/live"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
+	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/api"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
-	"time"
-	"rela_recommend/models/pika"
-	"rela_recommend/algo/live"
 )
 
 func DoBuildData(ctx algo.IContext) error {
 	var err error
-	var startTime = time.Now()
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
 	preforms := ctx.GetPerforms()
@@ -31,103 +27,95 @@ func DoBuildData(ctx algo.IContext) error {
 	recIdList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
-	liveMomentIds :=make([]int64,0)
-	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
-	if abtest.GetBool("rec_liveMoments_switch",false){
-		//var lives []pika.LiveCache
-
-		liveMomentIds = live.GetCachedLiveMomentListByTypeClassify(-1,-1)
-
-		//liveIds := make([]int64, len(lives))
-		//if len(liveIds)>0{
-		//	liveIdList,err=search.CallLiveMomentList(liveIds)
-		//}
-	}
-
-	if dataIdList == nil || len(dataIdList) == 0 {
-		// 获取推荐日志
-		recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
-		if len(recListKeyFormatter) > 5 {
-			recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
-		}
-
-		// 获取最新日志
-		newMomentLen := abtest.GetInt("new_moment_len", 1000)
-		// if len(recIdList) == 0 {
-		// 	newMomentLen = 1000
-		// 	log.Warnf("recommend list is none, using new, pls check!\n")
-		// }
-		if newMomentLen > 0 {
-			radiusArray := abtest.GetStrings("radius_range", "50km")
-			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
-			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
-			if abtest.GetBool("near_liveMoments_switch",false){
-				var lives []pika.LiveCache
-
-				lives = live.GetCachedLiveListByTypeClassify(-1,-1)
-				liveMomentIds=ReturnAroundLiveMom(lives,params.Lng,params.Lat)
-				////服务端优化附近日志接口后可以直接将momentstype 添加live以及voice_live
-				//aroundliveMomIdList, _ := search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, 100,
-				//	"live,voice_live", 60*60*24, "50km")
-				//liveMoms,liveMomerr:=momentCache.QueryMomentsByIds(aroundliveMomIdList)
-				//if err!=nil{
-				//	log.Warnf("near live mom err,%s\n",liveMomerr)
-				//}
-				//nearLiveUserIds:= make([]int64, 0)
-				//for _,mom :=range liveMoms{
-				//	nearLiveUserIds=append(nearLiveUserIds,mom.Moments.UserId)
-				//}
-				//nearLiveUserIds=utils.NewSetInt64FromArray(nearLiveUserIds).ToList()
-				//liveIdList=ReturnLiveList(nearLiveUserIds,aroundliveMomIdList)
-			}
-			//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
-			for _, radius := range radiusArray {
-				if abtest.GetBool("use_ai_search", false) {
-					newIdList, err = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
-						momentTypes, newMomentStartTime, radius)
-				} else {
-					newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
-						momentTypes, newMomentStartTime, radius)
-				}
-				//附近日志数量大于10即停止寻找
-				if len(newIdList) > 10 {
-					break
-				}
-			}
-
-			if err != nil {
-				return err
-			}
-		}
-	}
-	//获取热门日志
-	if abtest.GetBool("real_recommend_switched", false) {
-		top, _ := behaviorCache.QueryDataBehaviorTop()
-		hotIdList = top.GetTopIds(100)
-	}
-	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	// backend recommend list
-	var startBackEndTime = time.Now()
+	liveMomentIds := make([]int64, 0)
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
-	if abtest.GetBool("backend_recommend_switched", false) { // 是否开启后台推荐日志
-		recIds, topMap, recMap, err = api.CallBackendRecommendMomentList(2)
-		if err != nil {
-			log.Warnf("backend recommend list is err, %s\n", err)
-		}
+	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
+
+	if abtest.GetBool("rec_liveMoments_switch", false) {
+		liveMomentIds = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 	}
 
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList,liveMomentIds).ToList()
+	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
+		"recommend": func(*performs.Performs) interface{} { // 获取推荐日志
+			if dataIdList == nil || len(dataIdList) == 0 {
+				recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
+				if len(recListKeyFormatter) > 5 {
+					recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
+					return len(recIdList)
+				}
+			}
+			return nil
+		},
+		"new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
+			newMomentLen := abtest.GetInt("new_moment_len", 1000)
+			if newMomentLen > 0 {
+				radiusArray := abtest.GetStrings("radius_range", "50km")
+				newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
+				newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
+				if abtest.GetBool("near_liveMoments_switch", false) {
+					var lives []pika.LiveCache
+
+					lives = live.GetCachedLiveListByTypeClassify(-1, -1)
+					liveMomentIds = ReturnAroundLiveMom(lives, params.Lng, params.Lat)
+				}
+				//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
+				var errSearch error
+				for _, radius := range radiusArray {
+					if abtest.GetBool("use_ai_search", false) {
+						newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
+							momentTypes, newMomentStartTime, radius)
+					} else {
+						newIdList, errSearch = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
+							momentTypes, newMomentStartTime, radius)
+					}
+					//附近日志数量大于10即停止寻找
+					if len(newIdList) > 10 {
+						break
+					}
+				}
+
+				if errSearch != nil {
+					return err
+				}
+				return len(newIdList)
+			}
+			return nil
+		},
+		"hot": func(*performs.Performs) interface{} { // 热门列表
+			if abtest.GetBool("real_recommend_switched", false) {
+				if top, topErr := behaviorCache.QueryDataBehaviorTop(); topErr == nil {
+					hotIdList = top.GetTopIds(100)
+					return len(hotIdList)
+				} else {
+					return topErr
+				}
+			}
+			return nil
+		},
+		"backend": func(*performs.Performs) interface{} { // 管理后台配置推荐列表
+			var errBackend error
+			if abtest.GetBool("backend_recommend_switched", false) { // 是否开启后台推荐日志
+				recIds, topMap, recMap, errBackend = api.CallBackendRecommendMomentList(2)
+				if errBackend == nil {
+					return len(recIds)
+				}
+			}
+			return errBackend
+		},
+	})
+
+	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
-
+	filteredAudit := abtest.GetBool("search_filted_audit", false)
 	searchScenery := "moment"
 	if abtest.GetBool("search_audit_switched", false) {
 		preforms.Run("search", func(*performs.Performs) interface{} {
 			returnedRecommend := abtest.GetBool("search_returned_recommend", false)
-			filtedAudit := abtest.GetBool("search_filted_audit", false)
 			var searchMomentMapErr error
-			searchMomentMap, searchMomentMapErr= search.CallMomentAuditMap(params.UserId, dataIds,
-				searchScenery, momentTypes, returnedRecommend, filtedAudit)
+			searchMomentMap, searchMomentMapErr = search.CallMomentAuditMap(params.UserId, dataIds,
+				searchScenery, momentTypes, returnedRecommend, filteredAudit)
 			if searchMomentMapErr == nil {
 				momentIdSet := utils.SetInt64{}
 				for _, searchRes := range searchMomentMap {
@@ -139,383 +127,145 @@ func DoBuildData(ctx algo.IContext) error {
 			return searchMomentMapErr
 		})
 	}
-	// 获取日志内容
-	var startMomentTime = time.Now()
+
+	var itemBehaviorMap = map[int64]*behavior.UserBehavior{} // 获取日志行为
+	var moms = []redis.MomentsAndExtend{}                    // 获取日志缓存
+	var userIds = make([]int64, 0)
+	var momOfflineProfileMap = map[int64]*redis.MomentOfflineProfile{} // 获取日志离线画像
+
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
-	itemBehaviorMap, itemBehaviorErr := behaviorCache.QueryItemBehaviorMap(behaviorModuleName, dataIds)
-	if itemBehaviorErr != nil {
-		log.Warnf("user realtime cache item list is err, %s\n", itemBehaviorErr)
-	}
-	moms, err := momentCache.QueryMomentsByIds(dataIds)
-	userIds := make([]int64, 0)
-	if err != nil {
-		log.Warnf("moment list is err, %s\n", err)
-	} else {
+	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
+		"item_behavior": func(*performs.Performs) interface{} { // 获取日志行为
+			var itemBehaviorErr error
+			itemBehaviorMap, itemBehaviorErr = behaviorCache.QueryItemBehaviorMap(behaviorModuleName, dataIds)
+			if itemBehaviorErr == nil {
+				return len(itemBehaviorMap)
+			}
+			return itemBehaviorErr
+		},
+		"moment": func(*performs.Performs) interface{} { // 获取日志缓存
+			var momsErr error
+			if moms, momsErr = momentCache.QueryMomentsByIds(dataIds); momsErr == nil {
+				for _, mom := range moms {
+					if mom.Moments != nil {
+						userIds = append(userIds, mom.Moments.UserId)
+					}
+				}
+				userIds = utils.NewSetInt64FromArray(userIds).ToList()
+				return len(moms)
+			}
+			return momsErr
+		},
+		"profile": func(*performs.Performs) interface{} { // 获取日志离线画像
+			var momOfflineProfileErr error
+			momOfflineProfileMap, momOfflineProfileErr = momentCache.QueryMomentOfflineProfileByIdsMap(dataIds)
+			if momOfflineProfileErr == nil {
+				return len(momOfflineProfileMap)
+			}
+			return momOfflineProfileErr
+		},
+	})
+
+	var user *redis.UserProfile
+	var usersMap = map[int64]*redis.UserProfile{}
+	var momentUserEmbedding *redis.MomentUserProfile
+	var momentUserEmbeddingMap = map[int64]*redis.MomentUserProfile{}
+	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
+		"user": func(*performs.Performs) interface{} { // 获取用户信息
+			var userErr error
+			user, usersMap, userErr = userCache.QueryByUserAndUsersMap(params.UserId, userIds)
+			if userErr == nil {
+				return len(usersMap)
+			}
+			return userErr
+		},
+		"profile": func(*performs.Performs) interface{} { // 获取用户信息
+			var embeddingCacheErr error
+			momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr = userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId, userIds)
+			if embeddingCacheErr == nil {
+				return len(momentUserEmbeddingMap)
+			}
+			return embeddingCacheErr
+		},
+	})
+
+	preforms.Run("build", func(*performs.Performs) interface{} {
+		userInfo := &UserInfo{
+			UserId:            params.UserId,
+			UserCache:         user,
+			MomentUserProfile: momentUserEmbedding,
+		}
+
+		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
+		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
+		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
-			if mom.Moments != nil {
-				userIds = append(userIds, mom.Moments.UserId)
+			// 后期搜索完善此条件去除
+			if mom.Moments == nil || mom.MomentsExtend == nil {
+				continue
 			}
-		}
-		userIds = utils.NewSetInt64FromArray(userIds).ToList()
-	}
-	//获取日志离线画像
-	var startMomentOfflineProfileTime = time.Now()
-	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIds)
-	if momOfflineProfileErr != nil {
-		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
-	}
-	// 获取用户信息
-	var startUserTime = time.Now()
-	user, usersMap, err := userCache.QueryByUserAndUsersMap(params.UserId, userIds)
-	if err != nil {
-		log.Warnf("users list is err, %s\n", err)
-	}
-
-	//// 获取画像信息
-	//var startProfileTime = time.Now()
-	//emptyIds := make([]int64, 0)
-	//momentUser, _, matchCacheErr := userCache.QueryMatchProfileByUserAndUsersMap(params.UserId,emptyIds)
-	//if matchCacheErr != nil {
-	//	log.Warnf("match profile cache list is err, %s\n", matchCacheErr)
-	//}
-
-	//获取user embedding
-
-	var startEmbeddingTime = time.Now()
-
-	momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr := userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId, userIds)
-	if embeddingCacheErr != nil {
-		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
-	}
-
-	var startBuildTime = time.Now()
-	userInfo := &UserInfo{
-		UserId:    params.UserId,
-		UserCache: user,
-		//MomentProfile: momentUser,
-		MomentUserProfile: momentUserEmbedding,
-	}
-	backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
-	realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
-	dataList := make([]algo.IDataInfo, 0)
-	for _, mom := range moms {
-		// 后期搜索完善此条件去除
-		if mom.Moments==nil ||mom.MomentsExtend==nil{
-			continue
-		}
-		if mom.Moments.ShareTo != "all" {
-			continue
-		}
-		if mom.Moments.Id > 0 {
-			momUser, _ := usersMap[mom.Moments.UserId]
-			//status=0 禁用用户，status=5 注销用户
-			if momUser != nil {
-				if momUser.Status == 0 || momUser.Status == 5 {
+			//搜索过滤开关
+			if filteredAudit {
+				if mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 0 {
 					continue
 				}
 			}
-			// 处理置顶
+			if mom.Moments.ShareTo != "all" {
+				continue
+			}
+			if mom.Moments.Id > 0 {
+				momUser, _ := usersMap[mom.Moments.UserId]
+				//status=0 禁用用户，status=5 注销用户
+				if momUser != nil {
+					if momUser.Status == 0 || momUser.Status == 5 {
+						continue
+					}
+				}
+				// 处理置顶
 
-			var isTop = 0
-			if topMap != nil {
-				if _, isTopOk := topMap[mom.Moments.Id]; isTopOk {
-					isTop = 1
+				var isTop = 0
+				if topMap != nil {
+					if _, isTopOk := topMap[mom.Moments.Id]; isTopOk {
+						isTop = 1
+					}
 				}
-			}
-			// 处理推荐
-			var recommends = []algo.RecommendItem{}
-			if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
-				topTypeRes := topType.GetCurrentTopType(searchScenery)
-				isTop = utils.GetInt(topTypeRes == "TOP")
-				if topTypeRes == "RECOMMEND" {
-					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+				// 处理推荐
+				var recommends = []algo.RecommendItem{}
+				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
+					topTypeRes := topType.GetCurrentTopType(searchScenery)
+					isTop = utils.GetInt(topTypeRes == "TOP")
+					if topTypeRes == "RECOMMEND" {
+						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+					}
 				}
-			}
-			if recMap != nil {
-				if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
-					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+				if recMap != nil {
+					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
+						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+					}
 				}
-			}
-			if hotIdMap != nil {
-				if isRecommend := hotIdMap.Contains(mom.Moments.Id); isRecommend {
-					recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true})
+				if hotIdMap != nil {
+					if isRecommend := hotIdMap.Contains(mom.Moments.Id); isRecommend {
+						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true})
+					}
 				}
+				info := &DataInfo{
+					DataId:               mom.Moments.Id,
+					UserCache:            momUser,
+					MomentCache:          mom.Moments,
+					MomentExtendCache:    mom.MomentsExtend,
+					MomentProfile:        mom.MomentsProfile,
+					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends},
+					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
+					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
+				}
+				dataList = append(dataList, info)
 			}
-			info := &DataInfo{
-				DataId:               mom.Moments.Id,
-				UserCache:            momUser,
-				MomentCache:          mom.Moments,
-				MomentExtendCache:    mom.MomentsExtend,
-				MomentProfile:        mom.MomentsProfile,
-				MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
-				RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends},
-				MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
-				ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
-			}
-			dataList = append(dataList, info)
 		}
-	}
-	ctx.SetUserInfo(userInfo)
-	ctx.SetDataIds(dataIds)
-	ctx.SetDataList(dataList)
-	var endTime = time.Now()
-	log.Infof("rankid %s,totallen:%d,paramlen:%d,reclen:%d,searchlen:%d;backendlen:%d;toplen:%d;total:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,moment_offline_profile:%.3f,embedding_cache:%.3f,build:%.3f\n",
-		ctx.GetRankId(), len(dataIds), len(dataIdList), len(recIdList), len(newIdList), len(recIds), len(hotIdList),
-		endTime.Sub(startTime).Seconds(), startBackEndTime.Sub(startTime).Seconds(),
-		startMomentTime.Sub(startBackEndTime).Seconds(),
-		startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(), startBuildTime.Sub(startMomentOfflineProfileTime).Seconds(), startBuildTime.Sub(startEmbeddingTime).Seconds(),
-		endTime.Sub(startBuildTime).Seconds())
+		ctx.SetUserInfo(userInfo)
+		ctx.SetDataIds(dataIds)
+		ctx.SetDataList(dataList)
+		return len(dataList)
+	})
 	return nil
-}
-
-// 附近日志详情页推荐
-func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
-	var err error
-	abtest := ctx.GetAbTest()
-	params := ctx.GetRequest()
-	dataIdList := make([]int64, 0)
-	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	livemoms, liveMomerr := momentCache.QueryMomentsByIds(params.DataIds)
-	if liveMomerr != nil {
-		return errors.New("liveMomerr ")
-	}
-	momsType := livemoms[0].Moments.MomentsType
-
-	if momsType == "live" || momsType == "voice_live" {
-		//判断日志是否是直播日志
-		var lives []pika.LiveCache
-		liveLen := abtest.GetInt("live_moment_len", 3)
-		lives = live.GetCachedLiveListByTypeClassify(-1, -1)
-		dataIdList = ReturnTopnScoreLiveMom(lives, liveLen, params.DataIds[0])
-	} else {
-		recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
-		dataIdList, err = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
-	}
-
-	if dataIdList == nil || err != nil {
-		ctx.SetUserInfo(nil)
-		ctx.SetDataIds(dataIdList)
-		ctx.SetDataList(make([]algo.IDataInfo, 0))
-		return nil
-	}
-	momOfflineProfileMap, momOfflineProfileErr := momentCache.QueryMomentOfflineProfileByIdsMap(dataIdList)
-	if momOfflineProfileErr != nil {
-		log.Warnf("moment embedding is err,%s\n", momOfflineProfileErr)
-	}
-	moms, err := momentCache.QueryMomentsByIds(dataIdList)
-	userIds := make([]int64, 0)
-	for _, mom := range moms {
-		if mom.Moments != nil {
-			userIds = append(userIds, mom.Moments.UserId)
-		}
-	}
-	userIds = utils.NewSetInt64FromArray(userIds).ToList()
-	user, usersMap, err := userCache.QueryByUserAndUsersMap(params.UserId, userIds)
-	if err != nil {
-		log.Warnf("users list is err, %s\n", err)
-	}
-	momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr := userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId, userIds)
-	if embeddingCacheErr != nil {
-		log.Warnf("moment user Embedding cache list is err, %s\n", embeddingCacheErr)
-	}
-	userInfo := &UserInfo{UserId: params.UserId,
-		UserCache: user,
-		//MomentProfile: momentUser,
-		MomentUserProfile: momentUserEmbedding}
-	dataList := make([]algo.IDataInfo, 0)
-	for i, mom := range moms {
-		if mom.Moments.ShareTo != "all" {
-			continue
-		}
-		if mom.Moments != nil && mom.Moments.Id > 0 {
-			momUser, _ := usersMap[mom.Moments.UserId]
-			//status=0 禁用用户，status=5 注销用户
-			if momUser != nil {
-				if momUser.Status == 0 || momUser.Status == 5 {
-					continue
-				}
-			}
-
-			info := &DataInfo{
-				DataId:               mom.Moments.Id,
-				UserCache:            momUser,
-				MomentCache:          mom.Moments,
-				MomentExtendCache:    mom.MomentsExtend,
-				MomentProfile:        mom.MomentsProfile,
-				MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
-				RankInfo:             &algo.RankInfo{},
-				MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
-			}
-			if momsType == "live" || momsType == "voice_live"{
-				info.RankInfo.Level=-i
-			}
-			dataList = append(dataList, info)
-		}
-		ctx.SetUserInfo(userInfo)
-		ctx.SetDataIds(dataIdList)
-		ctx.SetDataList(dataList)
-	}
-
-	return err
-}
-
-// 关注页日志详情页推荐
-func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
-	var err error
-	abtest := ctx.GetAbTest()
-	params := ctx.GetRequest()
-	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	if len(params.DataIds) == 0 {
-		return errors.New("dataIds length must 1")
-	}
-
-	recListKeyFormatter := abtest.GetString("friend_detail_before_list_key", "moment.friend_before_moment:%d")
-	momIds, err := momentCache.QueryMomentsByIds(params.DataIds)
-	if err != nil {
-		return errors.New("follow detail moms data not exists")
-	}
-	dataIdList := make([]int64, 0)
-	if len(momIds) > 0 {
-		dataIdList, _ := momentCache.GetInt64List(momIds[0].Moments.UserId, recListKeyFormatter)
-		SetData(dataIdList, ctx)
-	} else {
-		SetData(dataIdList, ctx)
-	}
-	return err
-}
-
-// 推荐页日志详情页推荐
-func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
-	var err error
-	abtest := ctx.GetAbTest()
-	params := ctx.GetRequest()
-	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	if len(params.DataIds) == 0 {
-		return errors.New("dataIds length must 1")
-	}
-	moms,liveMomerr:=momentCache.QueryMomentsByIds(params.DataIds)
-	if liveMomerr != nil {
-		return errors.New("liveMomerr ")
-	}
-	momsType:=moms[0].Moments.MomentsType
-	if momsType == "live"|| momsType == "voice_live" {
-		//判断日志类型
-		var lives []pika.LiveCache
-		liveLen := abtest.GetInt("live_moment_len", 3)
-		lives = live.GetCachedLiveListByTypeClassify(-1, -1)
-		liveIds := ReturnTopnScoreLiveMom(lives, liveLen, params.DataIds[0])
-		SetData(liveIds, ctx)
-
-	} else {
-		recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
-		var defaultId = -999999999
-		if momsType == "video" {
-			defaultId = -999999998
-		}
-		dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], int64(defaultId), recListKeyFormatter)
-		if err == nil {
-			SetData(dataIdList, ctx)
-		}
-	}
-	return err
-}
-
-func SetData(dataIdList []int64, ctx algo.IContext) error {
-	var err error
-	params := ctx.GetRequest()
-	userInfo := &UserInfo{UserId: params.UserId}
-	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	moms, err := momentCache.QueryMomentsByIds(dataIdList)
-	if err != nil {
-		return errors.New("query mom err")
-	}
-	userIds := make([]int64, 0)
-	for _, mom := range moms {
-		if mom.Moments != nil {
-			userIds = append(userIds, mom.Moments.UserId)
-		}
-	}
-	userIds = utils.NewSetInt64FromArray(userIds).ToList()
-	usersMap, err := userCache.QueryUsersMap(userIds)
-	dataList := make([]algo.IDataInfo, 0)
-	for i, mom := range moms {
-		if mom.Moments.ShareTo != "all" {
-			continue
-		}
-		if mom.Moments != nil && mom.Moments.Id > 0 {
-			momUser, _ := usersMap[mom.Moments.UserId]
-			//status=0 禁用用户，status=5 注销用户
-			if momUser != nil {
-				if momUser.Status == 0 || momUser.Status == 5 {
-					continue
-				}
-			}
-
-			info := &DataInfo{
-				DataId:               mom.Moments.Id,
-				UserCache:            nil,
-				MomentCache:          nil,
-				MomentExtendCache:    nil,
-				MomentProfile:        nil,
-				MomentOfflineProfile: nil,
-				RankInfo:             &algo.RankInfo{Level: -i},
-				MomentUserProfile:    nil,
-			}
-			dataList = append(dataList, info)
-		}
-		ctx.SetUserInfo(userInfo)
-		ctx.SetDataIds(dataIdList)
-		ctx.SetDataList(dataList)
-	}
-	return err
-}
-
-func ReturnAroundLiveMom(lives []pika.LiveCache,userLng float32,userLat float32) []int64{
-	res :=make([]int64,0)
-	if len(lives)>0{
-		for i, _ := range lives {
-			//直接获取日志id
-			//liveIds[i] = lives[i].Live.MomentsID
-			momLat :=lives[i].Live.Lat
-			momLng :=lives[i].Live.Lng
-			if utils.EarthDistance(float64(momLng),float64(momLat),float64(userLng),float64(userLat))/1000.0<50{
-				res=append(res,lives[i].Live.MomentsID)
-			}
-		}
-	}
-	return res
-}
-
-func ReturnTopnScoreLiveMom(lives []pika.LiveCache,topn int,userId int64)[]int64{
-	res :=make([]int64,0)
-	liveMap :=make(map[int64]float64,0)
-	for i, _ := range lives {
-		if lives[i].Live.UserId != userId {
-			//获取用户：分数map
-			liveMap[lives[i].Live.MomentsID] = float64(lives[i].Score)
-		}
-	}
-	res=utils.SortMapByValue(liveMap)
-	if topn>=len(res){
-		topn=len(res)
-	}
-	return res[:topn]
-}
-func ReturnLiveList(userIdList,momIdList []int64) []int64{
-	//根据userid和momid获取每个用户最新的直播日志
-	var idMap = map[int64]int64{}
-	res := make([]int64, 0)
-	index:=0
-	for _,userId:=range userIdList{
-		if _, ok := idMap[userId]; ok {
-			continue
-		}else{
-			idMap[userId]=momIdList[index]
-			res=append(res,momIdList[index])
-		}
-		index+=1
-	}
-	return res
 }

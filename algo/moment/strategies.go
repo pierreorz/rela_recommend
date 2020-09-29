@@ -32,6 +32,42 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error{
 	return nil
 }
 
+
+//指定标签提权
+func AssignTagAddWeight(ctx algo.IContext, index int) error {
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	abtest := ctx.GetAbTest()
+	if dataInfo.MomentCache != nil {
+		tagList := dataInfo.MomentCache.MomentsExt.TagList
+		if len(tagList)>0{
+			assignTag := abtest.GetString("assign_tag", "_")
+			if strings.Contains(tagList, assignTag) {
+				rankInfo.AddRecommend("AssignTagWeight", 1.1)
+			}
+		}
+
+	}
+	return nil
+}
+//运营后台配置提权
+func EditTagWeight(ctx algo.IContext, index int) error {
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	abtest := ctx.GetAbTest()
+	editTag :=abtest.GetString("edit_tags","")
+	if dataInfo.MomentOfflineProfile!=nil{
+		tags :=dataInfo.MomentOfflineProfile.AiTag
+		if len(tags)>0&&len(editTag)>1{
+			for _,nameMap :=range tags{
+				if strings.Contains(editTag,nameMap.Name){
+					rankInfo.AddRecommend("EditTagWeight", 1.1)
+				}
+			}
+		}
+	}
+	return nil
+}
 //附近日志详情页视频日志提权
 func VideoMomWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)

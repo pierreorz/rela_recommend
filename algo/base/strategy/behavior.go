@@ -1,27 +1,25 @@
 package strategy
 
-
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/models/behavior"
 )
 
-
 // 数据行为处理策略
 type BaseBehaviorRichStrategy struct {
-	ctx					algo.IContext
-	cacheModule				*behavior.BehaviorCacheModule
+	ctx         algo.IContext
+	cacheModule *behavior.BehaviorCacheModule
 
-	DefaultWeight			int
-	UserBehaviorMap			map[int64]*behavior.UserBehavior
-	ItemBehaviorMap			map[int64]*behavior.UserBehavior
+	DefaultWeight   int
+	UserBehaviorMap map[int64]*behavior.UserBehavior
+	ItemBehaviorMap map[int64]*behavior.UserBehavior
 
-	UserStrategyFunc		func(algo.IContext, map[int64]*behavior.UserBehavior) error
-	UserStrategyItemFunc	func(algo.IContext, algo.IDataInfo, *behavior.UserBehavior, *algo.RankInfo) error
+	UserStrategyFunc     func(algo.IContext, map[int64]*behavior.UserBehavior) error
+	UserStrategyItemFunc func(algo.IContext, algo.IDataInfo, *behavior.UserBehavior, *algo.RankInfo) error
 
-	ItemStrategyFunc		func(algo.IContext, map[int64]*behavior.UserBehavior) error
-	ItemStrategyItemFunc	func(algo.IContext, algo.IDataInfo, *behavior.UserBehavior, *algo.RankInfo) error
+	ItemStrategyFunc     func(algo.IContext, map[int64]*behavior.UserBehavior) error
+	ItemStrategyItemFunc func(algo.IContext, algo.IDataInfo, *behavior.UserBehavior, *algo.RankInfo) error
 }
 
 func (self *BaseBehaviorRichStrategy) GetDefaultWeight() int {
@@ -30,25 +28,25 @@ func (self *BaseBehaviorRichStrategy) GetDefaultWeight() int {
 
 func (self *BaseBehaviorRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {
 	return &BaseBehaviorRichStrategy{
-		ctx: ctx, 
-		cacheModule: behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds),
-		UserBehaviorMap: map[int64]*behavior.UserBehavior{},
-		ItemBehaviorMap: map[int64]*behavior.UserBehavior{},
-		UserStrategyFunc: self.UserStrategyFunc,
+		ctx:                  ctx,
+		cacheModule:          behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds),
+		UserBehaviorMap:      map[int64]*behavior.UserBehavior{},
+		ItemBehaviorMap:      map[int64]*behavior.UserBehavior{},
+		UserStrategyFunc:     self.UserStrategyFunc,
 		UserStrategyItemFunc: self.UserStrategyItemFunc,
-		ItemStrategyFunc: self.ItemStrategyFunc,
+		ItemStrategyFunc:     self.ItemStrategyFunc,
 		ItemStrategyItemFunc: self.ItemStrategyItemFunc}
 }
 func (self *BaseBehaviorRichStrategy) BuildData() error {
 	app := self.ctx.GetAppInfo()
 	params := self.ctx.GetRequest()
-	if userBehavior, err := self.cacheModule.QueryUserBehaviorMap(
-			app.Module, params.UserId, self.ctx.GetDataIds()); err == nil {
-		self.UserBehaviorMap =	userBehavior
+	if userBehavior, err := self.cacheModule.QueryUserItemBehaviorMap(
+		app.Module, params.UserId, self.ctx.GetDataIds()); err == nil {
+		self.UserBehaviorMap = userBehavior
 	}
 	if itemBehavior, err := self.cacheModule.QueryItemBehaviorMap(
-			app.Module, self.ctx.GetDataIds()); err == nil {
-		self.ItemBehaviorMap =	itemBehavior
+		app.Module, self.ctx.GetDataIds()); err == nil {
+		self.ItemBehaviorMap = itemBehavior
 	}
 	return nil
 }

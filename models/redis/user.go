@@ -84,6 +84,7 @@ func (this *UserCacheModule) QueryByUserAndUsers(userId int64, userIds []int64) 
 	users, err := this.QueryUsersByIds(allIds)
 	var resUser UserProfile
 	var resUsers []UserProfile
+	// log.Infof("QueryByUserAndUsers: users:%+v\n", users)
 	if err == nil {
 		for i, user := range users {
 			if user.UserId == userId {
@@ -93,9 +94,9 @@ func (this *UserCacheModule) QueryByUserAndUsers(userId int64, userIds []int64) 
 				break
 			}
 		}
-		// if resUser.UserId == 0 {
-		// 	err = errors.New("user is nil" + utils.GetString(userId))
-		// }
+		if resUser.UserId == 0 { // 如果找不到用户，则返回其他列表
+			resUsers = users
+		}
 	}
 	return resUser, resUsers, err
 }
@@ -114,6 +115,7 @@ func (this *UserCacheModule) QueryUsersMap(userIds []int64) (map[int64]*UserProf
 func (this *UserCacheModule) QueryByUserAndUsersMap(userId int64, userIds []int64) (*UserProfile, map[int64]*UserProfile, error) {
 	user, users, err := this.QueryByUserAndUsers(userId, userIds)
 	usersMap := make(map[int64]*UserProfile, 0)
+	// log.Infof("QueryByUserAndUsersMap: user:%+v users:%+v\n", user, users)
 	for i, u := range users {
 		if u.UserId > 0 {
 			usersMap[u.UserId] = &users[i]
