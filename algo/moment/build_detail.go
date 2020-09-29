@@ -128,7 +128,7 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 			return errors.New("follow detail query redis err")
 		}
 	}
-	SetData(dataIdList, ctx,params.DataIds[0])
+	SetData(dataIdList, ctx,params.DataIds[0],true)
 
 	return err
 }
@@ -153,7 +153,7 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 		liveLen := abtest.GetInt("live_moment_len", 3)
 		lives = live.GetCachedLiveListByTypeClassify(-1, -1)
 		liveIds := ReturnTopnScoreLiveMom(lives, liveLen, moms[0].Moments.UserId)
-		SetData(liveIds, ctx,params.DataIds[0])
+		SetData(liveIds, ctx,params.DataIds[0],false)
 
 	} else {
 		recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
@@ -163,13 +163,13 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 		}
 		dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], int64(defaultId), recListKeyFormatter)
 		if err == nil {
-			SetData(dataIdList, ctx,params.DataIds[0])
+			SetData(dataIdList, ctx,params.DataIds[0],false)
 		}
 	}
 	return err
 }
 
-func SetData(dataIdList []int64, ctx algo.IContext,momsId int64) error {
+func SetData(dataIdList []int64, ctx algo.IContext,momsId int64,filter bool) error {
 	var err error
 	params := ctx.GetRequest()
 	userInfo := &UserInfo{UserId: params.UserId}
@@ -194,6 +194,10 @@ func SetData(dataIdList []int64, ctx algo.IContext,momsId int64) error {
 				continue
 			}
 			if mom.Moments.Id==momsId{
+				continue
+			}
+			//关注日志去掉匿名日志
+			if filter&&mom.Moments.Secret==1{
 				continue
 			}
 			momUser, _ := usersMap[mom.Moments.UserId]
