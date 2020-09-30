@@ -102,6 +102,9 @@ func (self *Behavior) GetTopCountTagsMap(category string, n int) map[int64]*Beha
 }
 
 func (self *Behavior) Merge(other *Behavior) *Behavior {
+	if self.CountMap == nil {
+		self.CountMap = map[string]*BehaviorTag{}
+	}
 	if other != nil {
 		self.Count += other.Count
 		self.LastTime = math.Max(self.LastTime, other.LastTime)
