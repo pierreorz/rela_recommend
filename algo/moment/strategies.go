@@ -261,13 +261,13 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 					var count float64 = 0.0
 					for _, tag := range dataInfo.MomentProfile.Tags {
 						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil {
-							rate := math.Max(userTag.Count/userInteract.Count, 1.0)
-							hour := math.Abs(currTime-userTag.LastTime) / (60 * 60)
+							rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
+							hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
 							score += utils.ExpLogit(rate) * math.Exp(hour)
 							count += 1.0
 						}
 					}
-					if count > 0 {
+					if count > 0.0 && score > 0.0 {
 						var finalScore = float32(1.0 + score/count*weight)
 						rankInfo.AddRecommend("UserTagIteract", finalScore)
 					}
