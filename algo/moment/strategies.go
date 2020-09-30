@@ -5,6 +5,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"strings"
 )
@@ -265,6 +266,7 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 							hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
 							score += utils.ExpLogit(rate) * math.Exp(hour)
 							count += 1.0
+							log.Debugf("UserBehaviorInteractStrategyFunc:%d,rate:%f,hour:%f,score:%f,count:%f", tag.Id, rate, hour, score, count)
 						}
 					}
 					if count > 0.0 && score > 0.0 {
