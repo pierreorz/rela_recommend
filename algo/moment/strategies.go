@@ -257,11 +257,11 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 				dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 				if dataInfo.MomentProfile != nil { // todo 对每个进行提权
 					rankInfo := dataInfo.GetRankInfo()
-					var score float64 = 1.0
+					var score float64 = 0.0
 					var count float64 = 0.0
 					for _, tag := range dataInfo.MomentProfile.Tags {
 						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil {
-							rate := userTag.Count / userInteract.Count
+							rate := math.Max(userTag.Count/userInteract.Count, 1.0)
 							hour := math.Abs(currTime-userTag.LastTime) / (60 * 60)
 							score += utils.ExpLogit(rate) * math.Exp(hour)
 							count += 1.0
