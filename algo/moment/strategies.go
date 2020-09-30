@@ -4,6 +4,7 @@ import (
 	"math"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
+	"rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
 	"strings"
 )
@@ -243,13 +244,36 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 // 根据用户实时行为偏好，进行的策略
 func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
-	// todo 用户实时偏好
-	for index := 0; index < ctx.GetDataLength(); index++ {
-		dataInfo := ctx.GetDataByIndex(index)
-		rankInfo := dataInfo.GetRankInfo()
-		var score float32 = 1.0
-		// todo 对每个进行提权
-		rankInfo.AddRecommend("UserBehaviorIteract", score)
+	var abtest = ctx.GetAbTest()
+	var currTime = float64(ctx.GetCreateTime().Unix())
+	var userInfo = ctx.GetUserInfo().(*UserInfo)
+	if userInfo.UserBehavior != nil {
+		userInteract := userInfo.UserBehavior.GetMomentListInteract()
+		if userInteract.Count > 0 {
+			weight := abtest.GetFloat64("user_behavior_interact_weight", 1.0)
+			tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
+			// todo 用户实时偏好
+			for index := 0; index < ctx.GetDataLength(); index++ {
+				dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+				if dataInfo.MomentProfile != nil { // todo 对每个进行提权
+					rankInfo := dataInfo.GetRankInfo()
+					var score float64 = 1.0
+					var count float64 = 0.0
+					for _, tag := range dataInfo.MomentProfile.Tags {
+						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil {
+							rate := userTag.Count / userInteract.Count
+							hour := math.Abs(currTime-userTag.LastTime) / (60 * 60)
+							score += utils.ExpLogit(rate) * math.Exp(hour)
+							count += 1.0
+						}
+					}
+					if count > 0 {
+						var finalScore = float32(1.0 + score/count*weight)
+						rankInfo.AddRecommend("UserTagIteract", finalScore)
+					}
+				}
+			}
+		}
 	}
 	return err
 }

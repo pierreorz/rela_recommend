@@ -92,6 +92,15 @@ func (self *Behavior) GetTopCountTags(category string, n int) []*BehaviorTag {
 	return res
 }
 
+func (self *Behavior) GetTopCountTagsMap(category string, n int) map[int64]*BehaviorTag {
+	tagMap := map[int64]*BehaviorTag{}
+	tags := self.GetTopCountTags(category, n)
+	for i, tag := range tags {
+		tagMap[tag.Id] = tags[i]
+	}
+	return tagMap
+}
+
 func (self *Behavior) Merge(other *Behavior) *Behavior {
 	if other != nil {
 		self.Count += other.Count
