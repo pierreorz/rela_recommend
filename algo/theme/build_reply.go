@@ -8,35 +8,48 @@ import (
 	"rela_recommend/service/performs"
 
 	// "rela_recommend/models/pika"
+	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/utils"
 )
 
 func DoBuildReplyData(ctx algo.IContext) error {
 	var err error
+	app := ctx.GetAppInfo()
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
 	preforms := ctx.GetPerforms()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 
 	replyIdList := []int64{}           // 话题参与 ids
 	themeIdList := []int64{}           // 主话题Ids
 	themeReplyMap := map[int64]int64{} // 话题与参与话题对应关系
+	var userBehavior *behavior.UserBehavior
 
-	preforms.Run("recommend_list", func(*performs.Performs) interface{} { // 获取推荐列表
-		recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_reply_recommend_list:%d")
-		recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(params.UserId, -999999999, recListKeyFormatter)
-		if listErr == nil {
-			for _, recommend := range recommendList {
-				replyIdList = append(replyIdList, recommend.ThemeReplyID)
-				themeIdList = append(themeIdList, recommend.ThemeID)
-				themeReplyMap[recommend.ThemeID] = recommend.ThemeReplyID
+	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
+		"list": func(*performs.Performs) interface{} { // 获取推荐列表
+			recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_reply_recommend_list:%d")
+			recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(params.UserId, -999999999, recListKeyFormatter)
+			if listErr == nil {
+				for _, recommend := range recommendList {
+					replyIdList = append(replyIdList, recommend.ThemeReplyID)
+					themeIdList = append(themeIdList, recommend.ThemeID)
+					themeReplyMap[recommend.ThemeID] = recommend.ThemeReplyID
+				}
+				return len(recommendList)
 			}
-			return len(recommendList)
-		}
-		return listErr
+			return listErr
+		}, "user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
+			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
+			if realtimeErr == nil {
+				userBehavior = realtimes[params.UserId]
+				return len(realtimes)
+			}
+			return realtimeErr
+		},
 	})
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
@@ -133,9 +146,10 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	themeIds := make([]int64, 0)
 	preforms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
-			UserId:    params.UserId,
-			UserCache: user,
-			ThemeUser: usersProfileMap[params.UserId]}
+			UserId:       params.UserId,
+			UserCache:    user,
+			ThemeUser:    usersProfileMap[params.UserId],
+			UserBehavior: userBehavior}
 
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 		dataList := make([]algo.IDataInfo, 0)

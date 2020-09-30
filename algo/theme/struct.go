@@ -6,6 +6,7 @@ import (
 
 	// "rela_recommend/models/pika"
 	"rela_recommend/algo/utils"
+	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 )
 
@@ -15,6 +16,7 @@ type UserInfo struct {
 	UserCache    *redis.UserProfile
 	UserConcerns *rutils.SetInt64
 	ThemeUser    *redis.ThemeUserProfile
+	UserBehavior *behavior.UserBehavior
 }
 
 // 话题信息
