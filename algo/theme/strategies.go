@@ -125,7 +125,7 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	var userInfo = ctx.GetUserInfo().(*UserInfo)
 	if userInfo.UserBehavior != nil {
-		userInteract := userInfo.UserBehavior.GetMomentListInteract()
+		userInteract := userInfo.UserBehavior.GetThemeDetailInteract()
 		if userInteract.Count > 0 {
 			weight := abtest.GetFloat64("user_behavior_interact_weight", 1.0)
 			tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
