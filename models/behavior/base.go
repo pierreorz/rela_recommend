@@ -8,6 +8,7 @@ import (
 	"rela_recommend/cache"
 	"rela_recommend/models/redis"
 	"rela_recommend/utils"
+	"sort"
 )
 
 type BehaviorItemLog struct {
@@ -16,10 +17,46 @@ type BehaviorItemLog struct {
 	LastTime float64 `json:"last_time"`
 }
 
+///                    *********************** tags
+type BehaviorTag struct {
+	Id       int64   `json:"id"`
+	Category string  `json:"category"`
+	Name     string  `json:"name"`
+	Count    float64 `json:"count"`
+	LastTime float64 `json:"last_time"`
+}
+
+func (self *BehaviorTag) Merge(other *BehaviorTag) *BehaviorTag {
+	self.Id = other.Id
+	self.Category = other.Category
+	self.Name = other.Name
+	self.Count += other.Count
+	self.LastTime = math.Max(self.LastTime, other.LastTime)
+	return self
+}
+
+// 排序
+type behaviorTagSorter []*BehaviorTag
+
+func (a behaviorTagSorter) Len() int      { return len(a) }
+func (a behaviorTagSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a behaviorTagSorter) Less(i, j int) bool { // 按照 Count , lastTime, Name 倒序
+	if a[i].Count == a[j].Count {
+		if a[i].LastTime == a[j].LastTime {
+			return a[i].Id > a[j].Id
+		} else {
+			return a[i].LastTime > a[j].LastTime
+		}
+	} else {
+		return a[i].Count > a[j].Count
+	}
+}
+
 type Behavior struct {
-	Count    float64           `json:"count"`
-	LastTime float64           `json:"last_time"`
-	LastList []BehaviorItemLog `json:"last_list"` // 最后操作列表
+	Count    float64                 `json:"count"`
+	LastTime float64                 `json:"last_time"`
+	LastList []BehaviorItemLog       `json:"last_list"` // 最后操作列表
+	CountMap map[string]*BehaviorTag `json:"count_map"` // 类别对应的标签
 }
 
 // 获取最后操作dataids列表
@@ -40,15 +77,54 @@ func (self *Behavior) GetLastUserIds() []int64 {
 	return ids.ToList()
 }
 
+// 获取top n的map，返回去除前缀
+func (self *Behavior) GetTopCountTags(category string, n int) []*BehaviorTag {
+	var res = behaviorTagSorter{}
+	for key, tag := range self.CountMap {
+		if tag.Category == category {
+			res = append(res, self.CountMap[key])
+		}
+	}
+	sort.Sort(res)
+	if n < len(res) {
+		res = res[:n]
+	}
+	return res
+}
+
+func (self *Behavior) GetTopCountTagsMap(category string, n int) map[int64]*BehaviorTag {
+	tagMap := map[int64]*BehaviorTag{}
+	tags := self.GetTopCountTags(category, n)
+	for i, tag := range tags {
+		tagMap[tag.Id] = tags[i]
+	}
+	return tagMap
+}
+
+func (self *Behavior) Merge(other *Behavior) *Behavior {
+	if self.CountMap == nil {
+		self.CountMap = map[string]*BehaviorTag{}
+	}
+	if other != nil {
+		self.Count += other.Count
+		self.LastTime = math.Max(self.LastTime, other.LastTime)
+		self.LastList = append(self.LastList, other.LastList...)
+		for categoryName, tag := range other.CountMap {
+			if current, ok := self.CountMap[categoryName]; ok {
+				self.CountMap[categoryName] = current.Merge(tag)
+			} else {
+				self.CountMap[categoryName] = other.CountMap[categoryName]
+			}
+		}
+	}
+	return self
+}
+
 // 合并行为
 func MergeBehaviors(behaviors ...*Behavior) *Behavior {
 	res := &Behavior{}
 	for _, behavior := range behaviors {
-		if behavior != nil {
-			res.Count += behavior.Count
-			res.LastTime = math.Max(res.LastTime, behavior.LastTime)
-			res.LastList = append(res.LastList, behavior.LastList...)
-		}
+		res = res.Merge(behavior)
 	}
 	return res
 }
@@ -70,13 +146,13 @@ func (self *UserBehavior) Get(name string) *Behavior {
 func (self *UserBehavior) Gets(names ...string) *Behavior {
 	res := &Behavior{}
 	if self.BehaviorMap != nil {
+		var behaviors = []*Behavior{}
 		for _, name := range names {
 			if behavior, ok := self.BehaviorMap[name]; ok && behavior != nil {
-				res.Count += behavior.Count
-				res.LastTime = math.Max(res.LastTime, behavior.LastTime)
+				behaviors = append(behaviors, behavior)
 			}
 		}
-		return res
+		res = MergeBehaviors(behaviors...)
 	}
 	return res
 }

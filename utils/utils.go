@@ -577,3 +577,16 @@ func JoinInt64s(int64s []int64, spliter string) string {
 	}
 	return strings.Join(strs, ",")
 }
+
+func MergeMapStringFloat64(maps ...map[string]float64) map[string]float64 {
+	var res = map[string]float64{}
+	if len(maps) > 0 {
+		res = maps[0]
+		for _, mp := range maps[1:] {
+			for mpk, mpv := range mp {
+				res[mpk] = res[mpk] + mpv
+			}
+		}
+	}
+	return res
+}
