@@ -3,6 +3,7 @@ package algo
 import (
 	"math"
 	"rela_recommend/log"
+	rutils "rela_recommend/utils"
 	"sort"
 )
 
@@ -199,16 +200,19 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 	if response != nil {
 		returnLen = len(response.DataIds)
 	}
-	log.Infof("performs app:%s,rankId:%s,userId:%d,paramsLen:%d,offset:%d,limit:%d,dataIds:%d,dataList:%d,return:%d;%s\n",
-		app.Name, ctx.GetRankId(), params.UserId, len(params.DataIds),
+	version := params.GetVersion()
+	log.Infof("performs app:%s,os:%s,version:%d,rankId:%s,userId:%d,paramsLen:%d,offset:%d,limit:%d,dataIds:%d,dataList:%d,return:%d;%s\n",
+		app.Name, params.GetOS(), version,
+		ctx.GetRankId(), params.UserId, len(params.DataIds),
 		params.Offset, params.Limit,
 		len(ctx.GetDataIds()), len(ctx.GetDataList()),
 		returnLen, pfm.ToString())
 
 	if abtest.GetBool("logger_performs_writer_switched", true) {
 		pfm.ToWriteChan("algo", map[string]string{
-			"app": app.Name,
-			"os":  params.GetOS(),
+			"app":     app.Name,
+			"os":      params.GetOS(),
+			"version": rutils.GetString(version),
 		}, map[string]interface{}{
 			"request.user_id": params.UserId,
 			"request.offset":  params.Offset,

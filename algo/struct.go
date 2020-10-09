@@ -74,7 +74,8 @@ type RecommendRequest struct {
 	Params        map[string]string `json:"params" form:"params"`
 
 	// 内部缓存变量
-	osName string
+	osName  string
+	version int
 }
 
 func (self *RecommendRequest) GetOS() string {
@@ -89,11 +90,14 @@ func (self *RecommendRequest) GetOS() string {
 }
 
 func (self *RecommendRequest) GetVersion() int {
-	if self.ClientVersion > 0 {
-		return self.ClientVersion
-	} else {
-		return 0 // TODO version
+	if self.version == 0 {
+		if self.ClientVersion > 0 {
+			self.version = self.ClientVersion
+		} else {
+			self.version = rutils.GetVersion(self.Ua)
+		}
 	}
+	return self.version
 }
 
 type RecommendResponseItem struct {
