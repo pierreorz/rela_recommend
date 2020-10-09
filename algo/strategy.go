@@ -200,8 +200,9 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 	if response != nil {
 		returnLen = len(response.DataIds)
 	}
-	log.Infof("performs app:%s,rankId:%s,userId:%d,paramsLen:%d,offset:%d,limit:%d,dataIds:%d,dataList:%d,return:%d;%s\n",
-		app.Name, ctx.GetRankId(), params.UserId, len(params.DataIds),
+	log.Infof("performs app:%s,os:%s,version:%d,rankId:%s,userId:%d,paramsLen:%d,offset:%d,limit:%d,dataIds:%d,dataList:%d,return:%d;%s\n",
+		app.Name, params.GetOS(), params.GetVersion(),
+		ctx.GetRankId(), params.UserId, len(params.DataIds),
 		params.Offset, params.Limit,
 		len(ctx.GetDataIds()), len(ctx.GetDataList()),
 		returnLen, pfm.ToString())
