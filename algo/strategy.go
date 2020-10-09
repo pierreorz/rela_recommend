@@ -200,8 +200,9 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 	if response != nil {
 		returnLen = len(response.DataIds)
 	}
+	version := params.GetVersion()
 	log.Infof("performs app:%s,os:%s,version:%d,rankId:%s,userId:%d,paramsLen:%d,offset:%d,limit:%d,dataIds:%d,dataList:%d,return:%d;%s\n",
-		app.Name, params.GetOS(), params.GetVersion(),
+		app.Name, params.GetOS(), version,
 		ctx.GetRankId(), params.UserId, len(params.DataIds),
 		params.Offset, params.Limit,
 		len(ctx.GetDataIds()), len(ctx.GetDataList()),
@@ -211,7 +212,7 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 		pfm.ToWriteChan("algo", map[string]string{
 			"app":     app.Name,
 			"os":      params.GetOS(),
-			"version": rutils.GetString(params.GetVersion()),
+			"version": rutils.GetString(version),
 		}, map[string]interface{}{
 			"request.user_id": params.UserId,
 			"request.offset":  params.Offset,
