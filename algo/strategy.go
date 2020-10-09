@@ -3,6 +3,7 @@ package algo
 import (
 	"math"
 	"rela_recommend/log"
+	rutils "rela_recommend/utils"
 	"sort"
 )
 
@@ -207,8 +208,9 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 
 	if abtest.GetBool("logger_performs_writer_switched", true) {
 		pfm.ToWriteChan("algo", map[string]string{
-			"app": app.Name,
-			"os":  params.GetOS(),
+			"app":     app.Name,
+			"os":      params.GetOS(),
+			"version": rutils.GetString(params.GetVersion()),
 		}, map[string]interface{}{
 			"request.user_id": params.UserId,
 			"request.offset":  params.Offset,
