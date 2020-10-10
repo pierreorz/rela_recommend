@@ -1,21 +1,21 @@
 package abtest
 
 import (
-	"time"
+	"encoding/json"
+	"hash/fnv"
+	"rela_recommend/log"
+	"rela_recommend/utils"
 	"strconv"
 	"strings"
-	"hash/fnv"
-	"encoding/json"
-	"rela_recommend/utils"
-	"rela_recommend/log"
+	"time"
 )
 
 // 测试版本，每个测试版本可以修改多个因子
 type TestingVersion struct {
-	Name string                 `json:"name"` 
-	Desc string					`json:"desc"`
-	Percentage int          	`json:"percentage"`  // 概率 0-100
-	FactorMap map[string]Factor `json:"factor_map"`
+	Name       string            `json:"name"`
+	Desc       string            `json:"desc"`
+	Percentage int               `json:"percentage"` // 概率 0-100
+	FactorMap  map[string]Factor `json:"factor_map"`
 }
 
 func (self *TestingVersion) GetFormulaKeys() []string {
@@ -28,15 +28,15 @@ func (self *TestingVersion) GetFormulaKeys() []string {
 
 // 测试，每个测试可以包含多个测试版本，每次只会命中其中一个
 type Testing struct {
-	Name string                 `json:"name"` 
-	Desc string					`json:"desc"`
-	App string					`json:"app"`
-	Group string                `json:"group"` 
-	Status int                  `json:"status"`		 //状态,0:新建，1:上线，2:下线
-	DailyChange int				`json:"daily_change"` //测试名单每天变化,0:不变，1:变
-	BeginTime time.Time         `json:"begin_time"` 
-	EndTime time.Time           `json:"end_time"` 
-	Versions []TestingVersion   `json:"versions"` 
+	Name        string           `json:"name"`
+	Desc        string           `json:"desc"`
+	App         string           `json:"app"`
+	Group       string           `json:"group"`
+	Status      int              `json:"status"`       //状态,0:新建，1:上线，2:下线
+	DailyChange int              `json:"daily_change"` //测试名单每天变化,0:不变，1:变
+	BeginTime   time.Time        `json:"begin_time"`
+	EndTime     time.Time        `json:"end_time"`
+	Versions    []TestingVersion `json:"versions"`
 }
 
 func (self *Testing) GetFormulaKeys() []string {
@@ -49,10 +49,10 @@ func (self *Testing) GetFormulaKeys() []string {
 
 // 白名单，可以设置某些人的某些因子为特定值
 type WhiteName struct {
-	Name string					`json:"name"`
-	Desc string					`json:"desc"`
-	App string					`json:"app"`
-	Ids []int64					`json:"ids"`
+	Name      string            `json:"name"`
+	Desc      string            `json:"desc"`
+	App       string            `json:"app"`
+	Ids       []int64           `json:"ids"`
 	FactorMap map[string]Factor `json:"factor_map"`
 }
 
@@ -65,32 +65,33 @@ func (self *WhiteName) GetFormulaKeys() []string {
 }
 
 type AbTest struct {
-	App string									`json:"app"`			// 服务名称
-	DataId int64								`json:"data_id"`		// userid
-	Ua string									`json:"ua"`
-	Lat			float32 						`json:"lat"`
-	Lng			float32 						`json:"lng"`
-	DataAttr map[string]interface{}				`json:"data_attr"`		// user 属性
-	RankId string 								`json:"rank_id"`		// 唯一请求id
-	CurrentTime time.Time						`json:"create_time"`	// abtest时间
-	SettingMap map[string]string				`json:"setting_map"`	// 用户自定义配置
-	FactorMap map[string]string					`json:"factor_map"`		// 返回的配置对
-	HitTestingMap map[string]TestingVersion		`json:"hit_testing_map"`// 命中的test
-	HitWriteMap map[string]WhiteName			`json:"hit_write_list"`	// 命中的白名单
+	App           string                    `json:"app"`     // 服务名称
+	DataId        int64                     `json:"data_id"` // userid
+	Ua            string                    `json:"ua"`
+	Lat           float32                   `json:"lat"`
+	Lng           float32                   `json:"lng"`
+	DataAttr      map[string]interface{}    `json:"data_attr"`       // user 属性
+	RankId        string                    `json:"rank_id"`         // 唯一请求id
+	CurrentTime   time.Time                 `json:"create_time"`     // abtest时间
+	SettingMap    map[string]string         `json:"setting_map"`     // 用户自定义配置
+	FactorMap     map[string]string         `json:"factor_map"`      // 返回的配置对
+	HitTestingMap map[string]TestingVersion `json:"hit_testing_map"` // 命中的test
+	HitWriteMap   map[string]WhiteName      `json:"hit_write_list"`  // 命中的白名单
 }
 
 // 生成用户AB码
 func (self *AbTest) generateInt(preString string, dailyChange int) int {
 	idString := preString + utils.GetString(self.DataId)
-	if(dailyChange == 1) {
-		idString = self.CurrentTime.Format("2000-01-01") + idString
+	if dailyChange == 1 {
+		idString = self.CurrentTime.Format("2006-01-02") + idString
 	}
 	hash32 := fnv.New32a()
 	hash32.Write([]byte(idString))
 	res := hash32.Sum32()
-	
+
 	return int(res % 100)
 }
+
 // 更新因子
 func (self *AbTest) updateFactor(newMap map[string]Factor) {
 	for key, val := range newMap {
@@ -102,12 +103,13 @@ func (self *AbTest) update(newMap map[string]string) {
 		self.FactorMap[key] = val
 	}
 }
+
 // 命中测试
 func (self *AbTest) updateTesting(test Testing) {
-	var perVal = self.generateInt(test.Name, test.DailyChange)  // 随机出AB分组因子
+	var perVal = self.generateInt(test.Name, test.DailyChange) // 随机出AB分组因子
 	var perSum int = 0
 	for _, version := range test.Versions {
-		if perSum <= perVal && perVal < perSum + version.Percentage {
+		if perSum <= perVal && perVal < perSum+version.Percentage {
 			self.updateFactor(version.FactorMap)
 			self.HitTestingMap[test.Name] = version
 			break
@@ -118,6 +120,7 @@ func (self *AbTest) updateTesting(test Testing) {
 		log.Warn("percentage sum > 100:", test.Name)
 	}
 }
+
 // 命中测试
 func (self *AbTest) updateWhite(white WhiteName) {
 	for _, id := range white.Ids {
@@ -147,8 +150,8 @@ func GetFormulaKeys(defMap map[string]Factor, testings []Testing, whiteLists []W
 }
 
 // 初始化内容
-func (self *AbTest) Init(defMap map[string]map[string]Factor, testingMap map[string][]Testing, 
-						 whiteListMap map[string][]WhiteName, settingMap map[string]string) {
+func (self *AbTest) Init(defMap map[string]map[string]Factor, testingMap map[string][]Testing,
+	whiteListMap map[string][]WhiteName, settingMap map[string]string) {
 	self.CurrentTime = time.Now()
 	self.RankId = utils.UniqueId()
 	self.SettingMap = settingMap
