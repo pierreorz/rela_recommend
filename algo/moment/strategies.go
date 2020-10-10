@@ -7,6 +7,7 @@ import (
 	"rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
 	"strings"
+	"rela_recommend/log"
 )
 
 // 按照6小时优先策略
@@ -253,6 +254,7 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 		if userInteract.Count > 0 {
 			weight := abtest.GetFloat64("user_behavior_interact_weight", 1.0)
 			tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
+			log.Infof("UserTagInteract pref,%s\n",tagMap)
 			// todo 用户实时偏好
 			for index := 0; index < ctx.GetDataLength(); index++ {
 				dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -271,7 +273,7 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 					}
 					if count > 0.0 && score > 0.0 {
 						var finalScore = float32(1.0 + score/count*weight)
-						rankInfo.AddRecommend("UserTagIteract", finalScore)
+						rankInfo.AddRecommend("UserTagInteract", finalScore)
 					}
 				}
 			}
