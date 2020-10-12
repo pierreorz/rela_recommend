@@ -182,7 +182,7 @@ func (self *LoggerBase) Do(ctx IContext) error {
 				RecommendScores: rankInfo.RecommendsString(),
 				Features:        rankInfo.GetFeaturesString(),
 				AbMap:           ctx.GetAbTest().GetTestings()}
-			log.Infof("%+v\n", logStr)
+			log.Infof("%+v\n", logStr) // 此日志格式会有实时任务解析，谨慎更改
 		}
 	}
 	return nil
@@ -201,12 +201,26 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 		returnLen = len(response.DataIds)
 	}
 	version := params.GetVersion()
-	log.Infof("performs app:%s,os:%s,version:%d,rankId:%s,userId:%d,paramsLen:%d,offset:%d,limit:%d,dataIds:%d,dataList:%d,return:%d;%s\n",
-		app.Name, params.GetOS(), version,
-		ctx.GetRankId(), params.UserId, len(params.DataIds),
-		params.Offset, params.Limit,
-		len(ctx.GetDataIds()), len(ctx.GetDataList()),
-		returnLen, pfm.ToString())
+
+	requestLog := RecommendRequestLog{
+		App:     app.Name,
+		Limit:   params.Limit,
+		Offset:  params.Offset,
+		Ua:      params.Ua,
+		Os:      params.GetOS(),
+		Version: params.GetVersion(),
+		Lat:     params.Lat,
+		Lng:     params.Lng,
+		UserId:  params.UserId,
+		// DataIds
+		AbMap:  params.AbMap,
+		Params: params.Params,
+		//
+		RankId:   ctx.GetRankId(),
+		Returns:  returnLen,
+		performs: pfm.ToJson(),
+	}
+	log.Infof("performs %s\n", requestLog.ToJson())
 
 	if abtest.GetBool("logger_performs_writer_switched", true) {
 		pfm.ToWriteChan("algo", map[string]string{

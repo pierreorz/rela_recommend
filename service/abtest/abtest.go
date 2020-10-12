@@ -196,7 +196,7 @@ func (self *AbTest) Init(defMap map[string]map[string]Factor, testingMap map[str
 
 	// 记录abtest日志
 	if logJson, logErr := json.Marshal(self); logErr == nil {
-		log.Infof("abtest %s", logJson)
+		log.Infof("abtest %s", logJson) // 此日志格式会有实时任务解析，谨慎更改
 	}
 }
 
