@@ -211,7 +211,7 @@ func DoBuildData(ctx algo.IContext) error {
 			//搜索过滤开关(运营推荐不管审核状态)
 			if _,ok :=searchMomentMap[mom.Moments.Id];!ok{
 				if filteredAudit {
-					if (mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 0)||(mom.MomentsProfile==nil)|| {
+					if (mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 0)||(mom.MomentsProfile==nil) {
 						continue
 					}
 				}
