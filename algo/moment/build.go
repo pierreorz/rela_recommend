@@ -210,7 +210,7 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			//搜索过滤开关
 			if filteredAudit {
-				if mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 0 {
+				if (mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 0)||(mom.MomentsProfile==nil) {
 					continue
 				}
 			}
