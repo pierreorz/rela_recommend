@@ -19,7 +19,7 @@ type RecommendLog struct {
 
 // 记录request日志
 type RecommendRequestLog struct {
-	App     string            `json:"app"`
+	Module  string            `json:"module"`
 	Type    string            `json:"type"` // 是推荐/热门/
 	Limit   int64             `json:"limit"`
 	Offset  int64             `json:"offset"`
