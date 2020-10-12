@@ -208,7 +208,7 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 		Offset:  params.Offset,
 		Ua:      params.Ua,
 		Os:      params.GetOS(),
-		Version: params.GetVersion(),
+		Version: version,
 		Lat:     params.Lat,
 		Lng:     params.Lng,
 		UserId:  params.UserId,
