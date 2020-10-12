@@ -119,14 +119,14 @@ func DoBuildData(ctx algo.IContext) error {
 		preforms.Run("search", func(*performs.Performs) interface{} {
 			returnedRecommend := abtest.GetBool("search_returned_recommend", false)
 			var searchMomentMapErr error
-			searchMomentMap, searchMomentMapErr = search.CallMomentAuditMap(params.UserId, dataIds,
-				searchScenery, momentTypes, returnedRecommend, filteredAudit)
+			searchMomentMap, searchMomentMapErr = search.CallMomentTopMap(params.UserId,
+				searchScenery, momentTypes, returnedRecommend)
 			if searchMomentMapErr == nil {
 				momentIdSet := utils.SetInt64{}
 				for _, searchRes := range searchMomentMap {
 					momentIdSet.Append(searchRes.Id)
 				}
-				dataIds = momentIdSet.ToList()
+				dataIds = momentIdSet.AppendArray(dataIds).ToList()
 				return len(searchMomentMap)
 			}
 			return searchMomentMapErr
