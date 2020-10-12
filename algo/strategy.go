@@ -203,7 +203,7 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 	version := params.GetVersion()
 
 	requestLog := RecommendRequestLog{
-		App:     app.Name,
+		Module:  app.Name,
 		Limit:   params.Limit,
 		Offset:  params.Offset,
 		Ua:      params.Ua,
