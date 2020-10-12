@@ -370,6 +370,35 @@ func GetPlatformName(ua string) string {
 	return "other"
 }
 
+var versionRe = regexp.MustCompile(`/(\d{1,2})\.(\d{1,2})(?:\.(\d{1,2}))?`)
+
+// 获取版本信息：5.3.6 返回 5.3.6; 5.4 返回 5.4.0
+func GetVersionString(ua string) string {
+	if matched := versionRe.FindAllStringSubmatch(ua, -1); len(matched) > 0 {
+		var vs = []string{}
+		for _, s := range matched[0][1:] {
+			vs = append(vs, IfElseString(s != "", s, "0"))
+		}
+		return strings.Join(vs, ".")
+	}
+	return ""
+}
+
+// 获取版本信息：5.3.6 返回 50306; 5.4 返回 50400
+func GetVersion(ua string) int {
+	var version int = 0
+	// theL/5.20.4  matched [[/5.20.4 5 20 4]]
+	if vs := strings.Split(GetVersionString(ua), "."); len(vs) > 0 {
+		fmt.Printf("\t%s  match: %s \n", ua, strings.Join(vs, ","))
+		for _, s := range vs {
+			if v, err := strconv.Atoi(s); err == nil {
+				version = version*100 + v
+			}
+		}
+	}
+	return version
+}
+
 // Set 结构
 type SetInt64 struct {
 	intMap map[int64]int
@@ -576,4 +605,17 @@ func JoinInt64s(int64s []int64, spliter string) string {
 		strs[k] = fmt.Sprintf("%d", v)
 	}
 	return strings.Join(strs, ",")
+}
+
+func MergeMapStringFloat64(maps ...map[string]float64) map[string]float64 {
+	var res = map[string]float64{}
+	if len(maps) > 0 {
+		res = maps[0]
+		for _, mp := range maps[1:] {
+			for mpk, mpv := range mp {
+				res[mpk] = res[mpk] + mpv
+			}
+		}
+	}
+	return res
 }

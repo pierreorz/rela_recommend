@@ -1,10 +1,11 @@
 package moment
 
 import (
-	"rela_recommend/algo"
-	"rela_recommend/models/behavior"
-	"rela_recommend/algo/base/strategy"
 	"math"
+	"rela_recommend/algo"
+	"rela_recommend/algo/base/strategy"
+	"rela_recommend/algo/utils"
+	"rela_recommend/models/behavior"
 	"strings"
 )
 
@@ -21,33 +22,32 @@ func DoTimeLevel(ctx algo.IContext, index int) error {
 }
 
 //日志提权策略v2
-func DoTimeWeightLevelV2(ctx algo.IContext, index int) error{
+func DoTimeWeightLevelV2(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
 	if timeLevel <= 8 {
 		//避免脏数据的影响
-		rankInfo.AddRecommend("momentNearTimeWeightV2", 1.0+float32(0.1/(1.0+math.Max(float64(timeLevel),0))))
+		rankInfo.AddRecommend("momentNearTimeWeightV2", 1.0+float32(0.1/(1.0+math.Max(float64(timeLevel), 0))))
 	}
 	return nil
 }
 
-
 //用户短期偏好提取
-func ShortPrefAddWeight(ctx algo.IContext, index int) error{
+func ShortPrefAddWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	tagList :=""
+	tagList := ""
 	userInfo := ctx.GetUserInfo().(*UserInfo)
-	if userInfo.MomentUserProfile!=nil&&dataInfo.MomentOfflineProfile!=nil{
-		shortPrefs :=userInfo.MomentUserProfile.AiTag["short"]
-		tags :=dataInfo.MomentOfflineProfile.AiTag
-		if len(tags)>0&&len(shortPrefs)>0{
-			for _,tag :=range tags{
-				tagList+=tag.Name
+	if userInfo.MomentUserProfile != nil && dataInfo.MomentOfflineProfile != nil {
+		shortPrefs := userInfo.MomentUserProfile.AiTag["short"]
+		tags := dataInfo.MomentOfflineProfile.AiTag
+		if len(tags) > 0 && len(shortPrefs) > 0 {
+			for _, tag := range tags {
+				tagList += tag.Name
 			}
-			for _,shortPref :=range shortPrefs{
-				if strings.Contains(tagList,shortPref.Name){
+			for _, shortPref := range shortPrefs {
+				if strings.Contains(tagList, shortPref.Name) {
 					rankInfo.AddRecommend("shortPrefWeight", 1+shortPref.Score)
 				}
 			}
@@ -64,7 +64,7 @@ func AssignTagAddWeight(ctx algo.IContext, index int) error {
 	abtest := ctx.GetAbTest()
 	if dataInfo.MomentCache != nil {
 		tagList := dataInfo.MomentCache.MomentsExt.TagList
-		if len(tagList)>0{
+		if len(tagList) > 0 {
 			assignTag := abtest.GetString("assign_tag", "_")
 			if strings.Contains(tagList, assignTag) {
 				rankInfo.AddRecommend("AssignTagWeight", 1.1)
@@ -74,17 +74,18 @@ func AssignTagAddWeight(ctx algo.IContext, index int) error {
 	}
 	return nil
 }
+
 //运营后台配置提权
 func EditTagWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	abtest := ctx.GetAbTest()
-	editTag :=abtest.GetString("edit_tags","")
-	if dataInfo.MomentOfflineProfile!=nil{
-		tags :=dataInfo.MomentOfflineProfile.AiTag
-		if len(tags)>0&&len(editTag)>1{
-			for _,nameMap :=range tags{
-				if strings.Contains(editTag,nameMap.Name){
+	editTag := abtest.GetString("edit_tags", "")
+	if dataInfo.MomentOfflineProfile != nil {
+		tags := dataInfo.MomentOfflineProfile.AiTag
+		if len(tags) > 0 && len(editTag) > 1 {
+			for _, nameMap := range tags {
+				if strings.Contains(editTag, nameMap.Name) {
 					rankInfo.AddRecommend("EditTagWeight", 1.1)
 				}
 			}
@@ -92,6 +93,7 @@ func EditTagWeight(ctx algo.IContext, index int) error {
 	}
 	return nil
 }
+
 //附近日志详情页视频日志提权
 func VideoMomWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -109,9 +111,9 @@ func DoPrefWeightLevel(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	userInfo := ctx.GetUserInfo().(*UserInfo)
-	if dataInfo.MomentCache!= nil {
+	if dataInfo.MomentCache != nil {
 		tagList := dataInfo.MomentCache.MomentsExt.TagList
-		if userInfo.MomentUserProfile!=nil&&len(userInfo.MomentUserProfile.UserPref) > 0 {
+		if userInfo.MomentUserProfile != nil && len(userInfo.MomentUserProfile.UserPref) > 0 {
 			for _, tag := range userInfo.MomentUserProfile.UserPref {
 				if strings.Contains(tagList, tag) {
 					rankInfo.AddRecommend("UserTagPref", 1.1)
@@ -122,8 +124,9 @@ func DoPrefWeightLevel(ctx algo.IContext, index int) error {
 
 	return nil
 }
+
 //日志提权策略
-func DoTimeWeightLevel(ctx algo.IContext, index int) error{
+func DoTimeWeightLevel(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
@@ -136,17 +139,15 @@ func DoTimeWeightLevel(ctx algo.IContext, index int) error{
 }
 
 //标签日志提权
-func MomLabelAddWeight(ctx algo.IContext, index int) error{
+func MomLabelAddWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	labelScore := ctx.GetAbTest().GetFloat("label_score", 1.2)
-	if dataInfo.MomentCache.MomentsExt.TagList!=""{
-		rankInfo.AddRecommend("labelMomWeight",labelScore)
+	if dataInfo.MomentCache.MomentsExt.TagList != "" {
+		rankInfo.AddRecommend("labelMomWeight", labelScore)
 	}
 	return nil
 }
-
-
 
 // 按照秒级时间优先策略
 func DoTimeFirstLevel(ctx algo.IContext, index int) error {
@@ -157,19 +158,18 @@ func DoTimeFirstLevel(ctx algo.IContext, index int) error {
 }
 
 //附近日志新用户提权策略
-func AroundNewUserAddWeightFunc(ctx algo.IContext, index int) error{
+func AroundNewUserAddWeightFunc(ctx algo.IContext, index int) error {
 	abtest := ctx.GetAbTest()
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	if newUserDefine:=abtest.GetInt("new_user_define",0);newUserDefine>0{
-		hourInterval:=int(ctx.GetCreateTime().Sub(dataInfo.UserCache.CreateTime.Time).Hours())/24
-		if hourInterval<newUserDefine{
-			rankInfo.AddRecommend("newUserWeight",1.2)
+	if newUserDefine := abtest.GetInt("new_user_define", 0); newUserDefine > 0 {
+		hourInterval := int(ctx.GetCreateTime().Sub(dataInfo.UserCache.CreateTime.Time).Hours()) / 24
+		if hourInterval < newUserDefine {
+			rankInfo.AddRecommend("newUserWeight", 1.2)
 		}
 	}
 	return nil
 }
-
 
 // 按数据被访问行为进行策略提降权
 func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itembehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
@@ -180,37 +180,36 @@ func ItemBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, itemb
 		listRate := strategy.WilsonScore(itembehavior.GetMomentListExposure(), itembehavior.GetMomentListInteract(), 3)
 		upperRate := float32(listRate)
 		if upperRate != 0.0 {
-			rankInfo.AddRecommend("ItemBehaviorV1", 1.0 + upperRate)
+			rankInfo.AddRecommend("ItemBehaviorV1", 1.0+upperRate)
 		}
-	} else{
-	var avgExpCount float64 = 50
+	} else {
+		var avgExpCount float64 = 50
 
-	listCountScore, listRateScore, listTimeScore := strategy.BehaviorCountRateTimeScore(
-	itembehavior.GetMomentListExposure(), itembehavior.GetMomentListInteract(), avgExpCount, 0, 0, 0)
+		listCountScore, listRateScore, listTimeScore := strategy.BehaviorCountRateTimeScore(
+			itembehavior.GetMomentListExposure(), itembehavior.GetMomentListInteract(), avgExpCount, 0, 0, 0)
 
-	upperRate := float32(listCountScore * listRateScore * listTimeScore)
+		upperRate := float32(listCountScore * listRateScore * listTimeScore)
 
-	if upperRate != 0.0 {
-	rankInfo.AddRecommend("ItemBehavior", 1.0 + upperRate)
+		if upperRate != 0.0 {
+			rankInfo.AddRecommend("ItemBehavior", 1.0+upperRate)
 		}
 	}
 	return err
 }
 
 //日志详情页看过沉底策略
-func DetailRecommendStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error{
+func DetailRecommendStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
 	var err error
-	if userbehavior!=nil{
-		behaviorCount:=behavior.MergeBehaviors(userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract())
-		if behaviorCount!=nil{
-			if behaviorCount.Count>0{
-				rankInfo.Level=int(-math.Min(behaviorCount.Count, 3))
+	if userbehavior != nil {
+		behaviorCount := behavior.MergeBehaviors(userbehavior.GetMomentListExposure(), userbehavior.GetMomentListInteract())
+		if behaviorCount != nil {
+			if behaviorCount.Count > 0 {
+				rankInfo.Level = int(-math.Min(behaviorCount.Count, 3))
 			}
 		}
 	}
-	return  err
+	return err
 }
-
 
 // 按用户访问行为进行策略提降权
 func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userbehavior *behavior.UserBehavior, rankInfo *algo.RankInfo) error {
@@ -236,6 +235,44 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 
 			if upperRate != 0.0 {
 				rankInfo.AddRecommend("UserBehavior", 1.0+upperRate)
+			}
+		}
+	}
+	return err
+}
+
+// 根据用户实时行为偏好，进行的策略
+func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
+	var err error
+	var abtest = ctx.GetAbTest()
+	var currTime = float64(ctx.GetCreateTime().Unix())
+	var userInfo = ctx.GetUserInfo().(*UserInfo)
+	if userInfo.UserBehavior != nil {
+		userInteract := userInfo.UserBehavior.GetMomentListInteract()
+		if userInteract.Count > 0 {
+			weight := abtest.GetFloat64("user_behavior_interact_weight", 1.0)
+			tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
+			// todo 用户实时偏好
+			for index := 0; index < ctx.GetDataLength(); index++ {
+				dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+				if dataInfo.MomentProfile != nil { // todo 对每个进行提权
+					rankInfo := dataInfo.GetRankInfo()
+					var score float64 = 0.0
+					var count float64 = 0.0
+					for _, tag := range dataInfo.MomentProfile.Tags {
+						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil && tag.Id != 23 && tag.Id != 24 {
+							rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
+							hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
+							score += utils.ExpLogit(rate) * math.Exp(hour)
+							count += 1.0
+							// log.Debugf("UserBehaviorInteractStrategyFunc:%d,rate:%f,hour:%f,score:%f,count:%f", tag.Id, rate, hour, score, count)
+						}
+					}
+					if count > 0.0 && score > 0.0 {
+						var finalScore = float32(1.0 + score/count*weight)
+						rankInfo.AddRecommend("UserTagIteract", finalScore)
+					}
+				}
 			}
 		}
 	}

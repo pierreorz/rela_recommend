@@ -93,11 +93,18 @@ type MomentsExtend struct {
 	LinkTopicFlag       int8   `gorm:"column:link_topic_flag" json:"linkTopicFlag,omitempty"`              //是否关联话题
 }
 
+type MomentsProfileTagScore struct {
+	Id    int64   `json:"id", omitempty`
+	Name  string  `json:"tagCn,omitempty"`
+	Score float32 `json:"score,omitempty"`
+}
+
 type MomentsProfile struct {
-	AuditStatus      int      `json:"auditStatus,omitempty"`
-	LikeCnt          int      `json:"likeCnt,omitempty"`
-	TextCnt          int      `json:"textCnt,omitempty"`
-	MomentsTextWords []string `json:"momentsTextWords,omitempty"`
+	AuditStatus      int                      `json:"auditStatus,omitempty"`
+	LikeCnt          int                      `json:"likeCnt,omitempty"`
+	TextCnt          int                      `json:"textCnt,omitempty"`
+	MomentsTextWords []string                 `json:"momentsTextWords,omitempty"`
+	Tags             []MomentsProfileTagScore `json:"tags,omitempty"`
 }
 
 type MomentOfflineProfile struct {

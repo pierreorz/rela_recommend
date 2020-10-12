@@ -35,6 +35,7 @@ func DoBuildData(ctx algo.IContext) error {
 		liveMomentIds = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 	}
 
+	var userBehavior *behavior.UserBehavior // 用户实时行为
 	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
 		"recommend": func(*performs.Performs) interface{} { // 获取推荐日志
 			if dataIdList == nil || len(dataIdList) == 0 {
@@ -45,8 +46,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 			return nil
-		},
-		"new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
+		}, "new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
 			newMomentLen := abtest.GetInt("new_moment_len", 1000)
 			if newMomentLen > 0 {
 				radiusArray := abtest.GetStrings("radius_range", "50km")
@@ -80,8 +80,7 @@ func DoBuildData(ctx algo.IContext) error {
 				return len(newIdList)
 			}
 			return nil
-		},
-		"hot": func(*performs.Performs) interface{} { // 热门列表
+		}, "hot": func(*performs.Performs) interface{} { // 热门列表
 			if abtest.GetBool("real_recommend_switched", false) {
 				if top, topErr := behaviorCache.QueryDataBehaviorTop(); topErr == nil {
 					hotIdList = top.GetTopIds(100)
@@ -91,8 +90,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 			return nil
-		},
-		"backend": func(*performs.Performs) interface{} { // 管理后台配置推荐列表
+		}, "backend": func(*performs.Performs) interface{} { // 管理后台配置推荐列表
 			var errBackend error
 			if abtest.GetBool("backend_recommend_switched", false) { // 是否开启后台推荐日志
 				recIds, topMap, recMap, errBackend = api.CallBackendRecommendMomentList(2)
@@ -101,6 +99,13 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 			return errBackend
+		}, "user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
+			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
+			if realtimeErr == nil {
+				userBehavior = realtimes[params.UserId]
+				return len(realtimes)
+			}
+			return realtimeErr
 		},
 	})
 
@@ -155,8 +160,7 @@ func DoBuildData(ctx algo.IContext) error {
 				return len(moms)
 			}
 			return momsErr
-		},
-		"profile": func(*performs.Performs) interface{} { // 获取日志离线画像
+		}, "profile": func(*performs.Performs) interface{} { // 获取日志离线画像
 			var momOfflineProfileErr error
 			momOfflineProfileMap, momOfflineProfileErr = momentCache.QueryMomentOfflineProfileByIdsMap(dataIds)
 			if momOfflineProfileErr == nil {
@@ -194,6 +198,7 @@ func DoBuildData(ctx algo.IContext) error {
 			UserId:            params.UserId,
 			UserCache:         user,
 			MomentUserProfile: momentUserEmbedding,
+			UserBehavior:      userBehavior,
 		}
 
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
