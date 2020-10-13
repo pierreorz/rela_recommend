@@ -1,6 +1,9 @@
 package algo
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"time"
+)
 
 //********************************* 服务端日志
 type RecommendLog struct {
@@ -19,8 +22,7 @@ type RecommendLog struct {
 
 // 记录request日志
 type RecommendRequestLog struct {
-	Module  string            `json:"module"`
-	Type    string            `json:"type"` // 是推荐/热门/
+	Module  string            `json:"module"` // 对应abtest中的app
 	Limit   int64             `json:"limit"`
 	Offset  int64             `json:"offset"`
 	Ua      string            `json:"ua"`
@@ -33,9 +35,10 @@ type RecommendRequestLog struct {
 	AbMap   map[string]string `json:"ab_map"`
 	Params  map[string]string `json:"params"`
 	// 返回
-	RankId   string `json:"rank_id"`
-	Returns  int    `json:"returns"`
-	performs string `json:"performs"`
+	CreateTime time.Time `json:"create_time"`
+	RankId     string    `json:"rank_id"`
+	Returns    int       `json:"returns"`
+	performs   string    `json:"performs"`
 }
 
 func (self *RecommendRequestLog) ToJson() string {

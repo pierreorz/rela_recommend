@@ -389,7 +389,7 @@ func GetVersion(ua string) int {
 	var version int = 0
 	// theL/5.20.4  matched [[/5.20.4 5 20 4]]
 	if vs := strings.Split(GetVersionString(ua), "."); len(vs) > 0 {
-		fmt.Printf("\t%s  match: %s \n", ua, strings.Join(vs, ","))
+		// fmt.Printf("\t%s  match: %s \n", ua, strings.Join(vs, ","))
 		for _, s := range vs {
 			if v, err := strconv.Atoi(s); err == nil {
 				version = version*100 + v

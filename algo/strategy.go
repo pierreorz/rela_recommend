@@ -216,9 +216,10 @@ func (self *LoggerPerforms) Do(ctx IContext) error {
 		AbMap:  params.AbMap,
 		Params: params.Params,
 		//
-		RankId:   ctx.GetRankId(),
-		Returns:  returnLen,
-		performs: pfm.ToJson(),
+		CreateTime: ctx.GetCreateTime(),
+		RankId:     ctx.GetRankId(),
+		Returns:    returnLen,
+		performs:   pfm.ToJson(),
 	}
 	log.Infof("performs %s\n", requestLog.ToJson())
 
