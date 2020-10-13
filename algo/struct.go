@@ -42,21 +42,6 @@ type AppInfo struct {
 	RichStrategyMap          map[string]IRichStrategy
 }
 
-//********************************* 服务端日志
-type RecommendLog struct {
-	Module          string
-	RankId          string
-	Index           int64
-	UserId          int64
-	DataId          int64
-	Algo            string
-	AlgoScore       float32
-	Score           float32
-	RecommendScores string
-	Features        string
-	AbMap           string
-}
-
 // 请求参数
 type RecommendRequest struct {
 	App           string            `json:"app" form:"app"`
