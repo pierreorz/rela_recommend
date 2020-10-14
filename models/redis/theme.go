@@ -49,7 +49,7 @@ type ThemeProfile struct {
 	AiTag          []ThemeTag `json:"ai_tags"`
 }
 type ThemeTag struct {
-	TagId  string  `json:"id"`
+	TagId   int `json:"id"`
 	TaName string `json:"name"`
 }
 type UserTag struct { // 用户长短期偏好
@@ -57,7 +57,7 @@ type UserTag struct { // 用户长短期偏好
 	UserShortTag []DadaTagScore `json:"short"`
 }
 type DadaTagScore struct {
-	TagId	string `json:"id"`
+	TagId	int `json:"id"`
 	TagName string `json:"name"`
 	TagScore float32 `json:"score"`
 	

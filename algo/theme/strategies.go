@@ -1,6 +1,7 @@
 package theme
 
 import (
+	"fmt"
 	"math"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
@@ -113,7 +114,8 @@ func ThemeTagWeight(ctx algo.IContext,index int) error {
 		tags := data.ThemeProfile.AiTag
 		if len(tags) > 0 && len(editTag) > 1 {
 			for _, nameMap := range tags {
-				if strings.Contains(editTag, nameMap.TagId) {
+				idStr := fmt.Sprintf("%s",nameMap.TagId)
+				if strings.Contains(editTag, idStr) {
 					rankInfo.AddRecommend("EditTagWeight", 1.1)
 					}
 				}
