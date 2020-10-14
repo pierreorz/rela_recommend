@@ -115,7 +115,7 @@ func DoBuildData(ctx algo.IContext) error {
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
 	searchScenery := "moment"
-	if abtest.GetBool("search_audit_switched", false)&&abtest.GetBool("search_returned_recommend", false){
+	if abtest.GetBool("search_returned_recommend", false){
 		preforms.Run("search", func(*performs.Performs) interface{} {
 			var searchMomentMapErr error
 			searchMomentMap, searchMomentMapErr = search.CallMomentTopMap(params.UserId,
