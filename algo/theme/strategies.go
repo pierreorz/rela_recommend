@@ -152,9 +152,9 @@ func UserShortTagWegiht(ctx algo.IContext,index int) error {
 	rankInfo := data.GetRankInfo()
 	tag_map :=userData.ThemeUser.AiTag
 	ThemetagList := data.ThemeProfile.AiTag
-	shortTagList := tag_map["short"].UserShortTag
+	shortTagList := tag_map.UserShortTag
 
-	if len(shortTagList)>0 && len(ThemetagList)>0{
+	if len(shortTagList)>0 && len(shortTagList)>0{
 		for i:=0;i <len(shortTagList);i++{
 			userTag :=shortTagList[i].TagId
 			for j:=0;i<len(ThemetagList);j++{

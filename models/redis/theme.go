@@ -46,7 +46,7 @@ type ThemeProfile struct {
 	ThemeID        int64     `json:"theme_id"`
 	ThemeEmbedding []float32 `json:"theme_embedding"`
 	ThemeCateg     []float32 `json:"theme_categ_embedding"`
-	AiTag          ThemeTag `json:"ai_tags"`
+	AiTag          []ThemeTag `json:"ai_tags"`
 }
 type ThemeTag struct {
 	TagId  string  `json:"id"`
