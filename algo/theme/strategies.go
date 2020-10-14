@@ -145,14 +145,14 @@ func UserThemeProfile(ctx algo.IContext,index int) error {
 	return nil
 }
 
-//用户标签提权
-func UserTagWegiht(ctx algo.IContext,index int) error {
+//用户短期偏好提权
+func UserShortTagWegiht(ctx algo.IContext,index int) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
 	data := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := data.GetRankInfo()
 	tag_map :=userData.ThemeUser.AiTag
 	ThemetagList := data.ThemeProfile.AiTag
-	shortTagList := tag_map["long"].UserShortTag
+	shortTagList := tag_map["short"].UserShortTag
 
 	if len(shortTagList)>0 && len(ThemetagList)>0{
 		for i:=0;i <len(shortTagList);i++{
