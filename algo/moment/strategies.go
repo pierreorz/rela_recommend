@@ -47,7 +47,8 @@ func ShortPrefAddWeight(ctx algo.IContext, index int) error {
 				tagList += tag.Name
 			}
 			for _, shortPref := range shortPrefs {
-				if strings.Contains(tagList, shortPref.Name) {
+				//对情感恋爱以及宠物的短期偏好不提权
+				if strings.Contains(tagList, shortPref.Name)&&shortPref.Name!="情感恋爱"&&shortPref.Name!="宠物" {
 					rankInfo.AddRecommend("shortPrefWeight", 1+shortPref.Score)
 				}
 			}
@@ -260,17 +261,17 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 					var score float64 = 0.0
 					var count float64 = 0.0
 					for _, tag := range dataInfo.MomentProfile.Tags {
-						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil && tag.Id != 23 && tag.Id != 24 {
+						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil &&tag.Id!=23 {
 							rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
 							hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
-							score += utils.ExpLogit(rate) * math.Exp(hour)
+							score += utils.ExpLogit(rate) * math.Exp(-hour)
 							count += 1.0
-							// log.Debugf("UserBehaviorInteractStrategyFunc:%d,rate:%f,hour:%f,score:%f,count:%f", tag.Id, rate, hour, score, count)
+							//log.Debugf("UserBehaviorInteractStrategyFunc:%d,rate:%f,hour:%f,score:%f,count:%f,userTag:%s", tag.Id, rate, hour, score, count,userTag)
 						}
 					}
 					if count > 0.0 && score > 0.0 {
 						var finalScore = float32(1.0 + score/count*weight)
-						rankInfo.AddRecommend("UserTagIteract", finalScore)
+						rankInfo.AddRecommend("UserTagInteract", finalScore)
 					}
 				}
 			}

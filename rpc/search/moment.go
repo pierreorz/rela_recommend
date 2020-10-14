@@ -188,3 +188,42 @@ func CallMomentAuditMap(userId int64, moments []int64, scenery string, momentTyp
 		return resMap, err
 	}
 }
+
+
+/////////////////////// 日志置顶以及推荐接口
+
+const internalSearchTopUrlFormatter = "/search/top_moment"
+
+
+func CallMomentTopMap(userId int64,  scenery string, momentTypes string) (map[int64]SearchMomentAuditResDataItem, error) {
+
+	filters := []string{
+		fmt.Sprintf("moments_type:%s", momentTypes),
+	}
+
+	// 返回运营推荐数据，未审或过审的都可以通过
+	recommendFilter := fmt.Sprintf("{top_info.scenery:%s*top_info.top_type:top,recommend*top_info.start_time:(,now/m]*top_info.end_time:[now/m,)}", scenery)
+	filters = append(filters, fmt.Sprintf("%s", recommendFilter))
+
+
+	params := searchMomentAuditRequest{
+		UserID:       userId,
+		Filter:       strings.Join(filters, "*"),
+		ReturnFields: "parent_id,audit_status,top_info",
+	}
+
+	resMap := map[int64]SearchMomentAuditResDataItem{}
+	if paramsData, err := json.Marshal(params); err == nil {
+		searchRes := &searchMomentAuditRes{}
+		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchTopUrlFormatter, paramsData, searchRes); err == nil {
+			for i, element := range searchRes.Data {
+				resMap[element.Id] = searchRes.Data[i]
+			}
+			return resMap, err
+		} else {
+			return resMap, err
+		}
+	} else {
+		return resMap, err
+	}
+}
