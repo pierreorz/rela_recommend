@@ -115,18 +115,17 @@ func DoBuildData(ctx algo.IContext) error {
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
 	searchScenery := "moment"
-	if abtest.GetBool("search_audit_switched", false) {
+	if abtest.GetBool("search_returned_recommend", false){
 		preforms.Run("search", func(*performs.Performs) interface{} {
-			returnedRecommend := abtest.GetBool("search_returned_recommend", false)
 			var searchMomentMapErr error
-			searchMomentMap, searchMomentMapErr = search.CallMomentAuditMap(params.UserId, dataIds,
-				searchScenery, momentTypes, returnedRecommend, filteredAudit)
+			searchMomentMap, searchMomentMapErr = search.CallMomentTopMap(params.UserId,
+				searchScenery, momentTypes)
 			if searchMomentMapErr == nil {
 				momentIdSet := utils.SetInt64{}
 				for _, searchRes := range searchMomentMap {
 					momentIdSet.Append(searchRes.Id)
 				}
-				dataIds = momentIdSet.ToList()
+				dataIds = momentIdSet.AppendArray(dataIds).ToList()
 				return len(searchMomentMap)
 			}
 			return searchMomentMapErr
@@ -209,10 +208,12 @@ func DoBuildData(ctx algo.IContext) error {
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
 			}
-			//搜索过滤开关
-			if filteredAudit {
-				if mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 0 {
-					continue
+			//搜索过滤开关(运营推荐不管审核状态)
+			if _,ok :=searchMomentMap[mom.Moments.Id];!ok{
+				if filteredAudit {
+					if (mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 0)||(mom.MomentsProfile==nil) {
+						continue
+					}
 				}
 			}
 			if mom.Moments.ShareTo != "all" {

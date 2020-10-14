@@ -140,7 +140,7 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil && tag.Id != 23 && tag.Id != 24 {
 							rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
 							hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
-							score += autils.ExpLogit(rate) * math.Exp(hour)
+							score += autils.ExpLogit(rate) * math.Exp(-hour)
 							count += 1.0
 							// log.Debugf("UserBehaviorInteractStrategyFunc:%d,rate:%f,hour:%f,score:%f,count:%f", tag.Id, rate, hour, score, count)
 						}
