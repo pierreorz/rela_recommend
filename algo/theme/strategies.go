@@ -161,7 +161,8 @@ func UserShortTagWegiht(ctx algo.IContext,index int) error {
 			userTag :=shortTagList[i].TagId
 			for j:=0;i<len(ThemetagList);j++{
 				themeTag:=ThemetagList[j].TagId
-				if userTag==themeTag{
+				idStr := fmt.Sprintf("%s",userTag)
+				if idStr==themeTag{
 					rankInfo.AddRecommend("UserShortTagProfile", 1.3)
 				}
 
