@@ -161,9 +161,8 @@ func UserShortTagWegiht(ctx algo.IContext,index int) error {
 			userTag :=shortTagList[i].TagId
 			for j:=0;i<len(ThemetagList);j++{
 				themeTag:=ThemetagList[j].TagId
-				idStr := fmt.Sprintf("%s",userTag)
-				if idStr==themeTag{
-					rankInfo.AddRecommend("UserTagProfile", 1.3)
+				if userTag==themeTag{
+					rankInfo.AddRecommend("UserShortTagProfile", 1.3)
 				}
 
 			}
@@ -208,7 +207,7 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 					var score float64 = 0.0
 					var count float64 = 0.0
 					for _, tag := range dataInfo.MomentProfile.Tags {
-						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil && tag.Id != 23 && tag.Id != 24 {
+						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil && tag.Id != 23  {
 							rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
 							hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
 							score += autils.ExpLogit(rate) * math.Exp(-hour)
