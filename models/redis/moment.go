@@ -229,3 +229,12 @@ func (self *MomentCacheModule) GetInt64ListOrDefault(id int64, defaultId int64, 
 	}
 	return resInt64s, err
 }
+
+func (self *MomentCacheModule) GetInt64ListByIds(ids []int64, keyFormatter string) ([]int64, error) {
+	var resInt64s = make([]int64, 0)
+	res, err := self.MGetSet(ids, keyFormatter, 6*60*60, 1*60*60)
+	if err == nil {
+		resInt64s = utils.GetInt64s(utils.GetString(res))
+	}
+	return resInt64s, err
+}
