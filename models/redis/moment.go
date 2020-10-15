@@ -131,7 +131,12 @@ type TagScore struct {
 }
 
 type TagList struct {
-	MomentIds []int64 `json:"moment_ids,omitempty"`
+	Moments []*Ids `json:"moments,omitempty"`
+}
+
+type Ids struct{
+	MomentId  int64 `json:"moment_id,omitempty"`
+	ReplyId    int64 `json:"reply_id,omitempty"`
 }
 
 type MomentCacheModule struct {

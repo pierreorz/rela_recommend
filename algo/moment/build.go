@@ -108,21 +108,25 @@ func DoBuildData(ctx algo.IContext) error {
 				if userInteract.Count > 0 {
 					//获取用户实时互动日志的各个标签的实时热门数据
 					tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
-					tagList :=make([]int64,0)
+					tagList := make([]int64, 0)
 					for key, _ := range tagMap {
 						//去掉情感恋爱
 						if key != 23 {
-							tagList=append(tagList, key)
+							tagList = append(tagList, key)
 						}
 					}
-					tagLists,err :=momentCache.GetInt64ListByIds(tagList,"friends_moments_moment_tag:%d")
+					tagLists, err := momentCache.GetInt64ListByIds(tagList, "friends_moments_moment_tag:%d")
 					tagIdSet := utils.SetInt64{}
-					if err==nil{
-						for _,momentIds :=range tagLists{
-							tagIdSet.AppendArray(momentIds.MomentIds)
+					if err == nil {
+						for _, tagList := range tagLists {
+							if tagList.Moments != nil {
+								for _, moment := range tagList.Moments {
+									tagIdSet.Append(moment.MomentId)
+								}
+							}
 						}
 					}
-					tagIdList=tagIdSet.ToList()
+					tagIdList = tagIdSet.ToList()
 				}
 				return len(tagIdList)
 			}
