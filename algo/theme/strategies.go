@@ -156,7 +156,7 @@ func UserShortTagWegiht(ctx algo.IContext,index int) error {
 	ThemetagList := data.ThemeProfile.AiTag
 	shortTagList := tag_map.UserShortTag
 
-	if len(shortTagList)>0 && len(shortTagList)>0{
+	if len(shortTagList)>0 && len(ThemetagList)>0{
 		for i:=0;i <len(shortTagList);i++{
 			userTag :=shortTagList[i].TagId
 			for j:=0;j<len(ThemetagList);j++{
