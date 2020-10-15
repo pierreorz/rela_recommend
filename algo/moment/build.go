@@ -11,7 +11,6 @@ import (
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
-	"rela_recommend/log"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -114,11 +113,9 @@ func DoBuildData(ctx algo.IContext) error {
 						if key != 23 {
 							singleIdList, _ := momentCache.GetInt64ListOrDefault(int64(key), -1, "friends_moments_moment_tag:%d")
 							tagIdList = append(tagIdList,singleIdList...)
-							log.Debugf("tag hot id list %s\n",tagIdList)
 						}
 					}
 				}
-				log.Debugf("tag hot id list %s\n",tagIdList)
 				return len(tagIdList)
 			}
 			return realtimeErr
