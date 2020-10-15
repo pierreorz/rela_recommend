@@ -4,9 +4,9 @@ import (
 	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
-
 	// "rela_recommend/models/pika"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
@@ -23,6 +23,24 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
+
+	tagListCache := redis.UserTagListCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	var tagList []int64
+	var nums int
+	if ctx.GetDataLength()>5{
+		nums = 5
+	}else{
+		nums = ctx.GetDataLength()
+	}
+	for index := 0; index < nums; index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		if dataInfo.MomentProfile != nil {
+			for _, tag := range dataInfo.MomentProfile.Tags{
+				tagList=append(tagList, tag.Id)
+			}
+		}
+	}
+
 
 	replyIdList := []int64{}           // 话题参与 ids
 	themeIdList := []int64{}           // 主话题Ids
@@ -51,6 +69,19 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return realtimeErr
 		},
 	})
+	themeTagList := []int64{}
+	tagLineList,listErr:= tagListCache.GetUserTagListDefault(tagList,"theme")
+	if listErr == nil {
+		for _, tagLine := range tagLineList {
+			momentList:=tagLine.MomentDict
+			for _,themeDict := range momentList{
+				replyIdList=append(replyIdList,themeDict.ThemeId)
+				themeIdList=append(themeIdList,themeDict.ThemeRelpyId)
+				themeTagList=append(themeTagList,themeDict.ThemeId)
+				}
+			}
+		}
+	log.Infof("Taglist+++++++++++++++++:%s",len(themeTagList))
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	preforms.Run("search", func(*performs.Performs) interface{} {     // 搜索过状态 和 返回置顶推荐内容
