@@ -160,9 +160,11 @@ func UserShortTagWegiht(ctx algo.IContext,index int) error {
 		for i:=0;i <len(shortTagList);i++{
 			userTag :=shortTagList[i].TagId
 			for j:=0;j<len(ThemetagList);j++{
-				themeTag:=ThemetagList[j].TagId
-				idStr := fmt.Sprintf("%s",userTag)
-				if idStr==themeTag && shortTagList[i].TagName!="情感恋爱" && shortTagList[i].TagName!="宠物"{
+				themeTagLine:=ThemetagList[j]
+				themeTag :=themeTagLine.TagId
+				themeName :=themeTagLine.TaName
+				userTagStr := fmt.Sprintf("%s",userTag)
+				if userTagStr==themeTag && themeName!="情感恋爱" && themeName!="宠物"{
 					rankInfo.AddRecommend("UserShortTagProfile", 1.3)
 				}
 
