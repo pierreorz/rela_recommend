@@ -115,7 +115,14 @@ func DoBuildData(ctx algo.IContext) error {
 							tagList=append(tagList, key)
 						}
 					}
-					tagIdList,err=momentCache.GetInt64ListByIds(tagList,"friends_moments_moment_tag:%d")
+					tagLists,err :=momentCache.GetInt64ListByIds(tagList,"friends_moments_moment_tag:%d")
+					tagIdSet := utils.SetInt64{}
+					if err==nil{
+						for _,momentIds :=range tagLists{
+							tagIdSet.AppendArray(momentIds.MomentIds)
+						}
+					}
+					tagIdList=tagIdSet.ToList()
 				}
 				return len(tagIdList)
 			}
