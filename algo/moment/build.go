@@ -102,7 +102,7 @@ func DoBuildData(ctx algo.IContext) error {
 			return errBackend
 		}, "user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
-			if realtimeErr == nil {
+			if realtimeErr == nil&&abtest.GetInt("rich_strategy:user_behavior_interact:weight",1)==1 {
 				userBehavior = realtimes[params.UserId]
 				userInteract := userBehavior.GetMomentListInteract()
 				if userInteract.Count > 0 {
