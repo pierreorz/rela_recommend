@@ -153,21 +153,23 @@ func UserShortTagWegiht(ctx algo.IContext,index int) error {
 	data := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := data.GetRankInfo()
 	tag_map :=userData.ThemeUser.AiTag
-	ThemetagList := data.ThemeProfile.AiTag
-	shortTagList := tag_map.UserShortTag
+	ThemetagLine := data.ThemeProfile
+	if ThemetagLine.AiTag!=nil {
+		shortTagList := tag_map.UserShortTag
+		ThemetagList := ThemetagLine.AiTag
+		if len(shortTagList) > 0 && len(ThemetagList) > 0 {
+			for i := 0; i < len(shortTagList); i++ {
+				userTag := shortTagList[i].TagId
+				for j := 0; j < len(ThemetagList); j++ {
+					themeTagLine := ThemetagList[j]
+					themeTag := themeTagLine.TagId
+					themeName := themeTagLine.TaName
+					userTagStr := fmt.Sprintf("%s", userTag)
+					if userTagStr == themeTag && themeName != "情感恋爱" && themeName != "宠物" {
+						rankInfo.AddRecommend("UserShortTagProfile", 1.3)
+					}
 
-	if len(shortTagList)>0 && len(ThemetagList)>0{
-		for i:=0;i <len(shortTagList);i++{
-			userTag :=shortTagList[i].TagId
-			for j:=0;j<len(ThemetagList);j++{
-				themeTagLine:=ThemetagList[j]
-				themeTag :=themeTagLine.TagId
-				themeName :=themeTagLine.TaName
-				userTagStr := fmt.Sprintf("%s",userTag)
-				if userTagStr==themeTag && themeName!="情感恋爱" && themeName!="宠物"{
-					rankInfo.AddRecommend("UserShortTagProfile", 1.3)
 				}
-
 			}
 		}
 	}
