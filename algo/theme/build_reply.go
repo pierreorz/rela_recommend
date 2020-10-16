@@ -37,6 +37,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		if dataInfo.MomentProfile != nil {
 			for _, tag := range dataInfo.MomentProfile.Tags{
 				tagList=append(tagList, tag.Id)
+				log.Infof("tagid",tag.Id)
 			}
 		}
 	}
@@ -70,8 +71,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	themeTagList := []int64{}
+	tagListTest :=[]int64{1,2,3}
 	log.Infof("============================:%s",tagList)
-	tagLineList,listErr:= tagListCache.GetUserTagListDefault(tagList,"theme")
+	tagLineList,listErr:= tagListCache.GetUserTagListDefault(tagListTest,"theme")
 	if listErr == nil {
 		for _, tagLine := range tagLineList {
 			momentList:=tagLine.MomentDict
