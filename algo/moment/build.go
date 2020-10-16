@@ -27,6 +27,7 @@ func DoBuildData(ctx algo.IContext) error {
 	recIdList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
+	tagRecommendIdList := make([]int64, 0)
 	liveMomentIds := make([]int64, 0)
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
@@ -101,16 +102,34 @@ func DoBuildData(ctx algo.IContext) error {
 			return errBackend
 		}, "user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
-			if realtimeErr == nil {
+			if realtimeErr == nil&&abtest.GetInt("rich_strategy:user_behavior_interact:weight",1)==1 {
 				userBehavior = realtimes[params.UserId]
-				return len(realtimes)
+				userInteract := userBehavior.GetMomentListInteract()
+				if userInteract.Count > 0 {
+					//获取用户实时互动日志的各个标签的实时热门数据
+					tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
+					tagList := make([]int64, 0)
+					for key, _ := range tagMap {
+						//去掉情感恋爱
+						if key != 23 {
+							tagList = append(tagList, key)
+						}
+					}
+					tagRecommends, _ := momentCache.QueryTagRecommendsByIds(tagList, "friends_moments_moment_tag:%d")
+					tagRecommendSet := utils.SetInt64{}
+					for _,tagRecommend :=range tagRecommends{
+						tagRecommendSet.AppendArray(tagRecommend.GetMomentIds())
+					}
+					tagRecommendIdList = tagRecommendSet.ToList()
+				}
+				return len(tagRecommendIdList)
 			}
 			return realtimeErr
 		},
 	})
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds,tagRecommendIdList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
