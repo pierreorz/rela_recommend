@@ -33,16 +33,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var userBehavior *behavior.UserBehavior // 用户实时行为
 
 	var tagList []int64
-	userInteract := userBehavior.GetThemeDetailInteract()
-	if userInteract.Count > 0{
-		tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
-		for key, _ := range tagMap {
-			if key != 23 {
-				tagList=append(tagList,key)
-			}
-		}
-	}
-
 	log.Infof("activeTagList",len(tagList))
 	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
 		"list": func(*performs.Performs) interface{} { // 获取推荐列表
@@ -61,11 +51,22 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
 			if realtimeErr == nil {
 				userBehavior = realtimes[params.UserId]
+				userInteract := userBehavior.GetThemeDetailInteract()
+				if userInteract.Count > 0{
+					tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
+					for key, _ := range tagMap {
+						if key != 23 {
+							tagList=append(tagList,key)
+						}
+					}
+				}
 				return len(realtimes)
 			}
 			return realtimeErr
 		},
 	})
+	log.Infof("activeTagList",len(tagList))
+	//根据实时行为获取偏好池数据
 	themeTagList := []int64{}
 	tagLineList,listErr:= tagListCache.GetUserTagListDefault(tagList,"theme")
 	if listErr == nil {
