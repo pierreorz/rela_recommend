@@ -27,7 +27,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	tagListCache := redis.UserTagListCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
 	var tagList []int64
-	var userInfo = ctx.GetUserInfo().(*UserInfo)
+	userInfo := ctx.GetUserInfo().(*UserInfo)
 	if userInfo.UserBehavior != nil {
 		userInteract := userInfo.UserBehavior.GetThemeDetailInteract()
 		if userInteract.Count > 0 {
