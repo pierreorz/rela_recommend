@@ -26,30 +26,24 @@ func DoBuildReplyData(ctx algo.IContext) error {
 
 	tagListCache := redis.UserTagListCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
-	var tagList []int64
-	var nums int
-	log.Infof("+++++++++++++",ctx.GetDataLength())
-	if ctx.GetDataLength()>5{
-		nums = 5
-	}else{
-		nums = ctx.GetDataLength()
-	}
-	for index := 0; index < nums; index++ {
-		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-		if dataInfo.MomentProfile != nil {
-			for _, tag := range dataInfo.MomentProfile.Tags{
-				tagList=append(tagList, tag.Id)
-				log.Infof("tagid",tag.Id)
-			}
-		}
-	}
-
 
 	replyIdList := []int64{}           // 话题参与 ids
 	themeIdList := []int64{}           // 主话题Ids
 	themeReplyMap := map[int64]int64{} // 话题与参与话题对应关系
-	var userBehavior *behavior.UserBehavior
+	var userBehavior *behavior.UserBehavior // 用户实时行为
 
+	var tagList []int64
+	userInteract := userBehavior.GetThemeDetailInteract()
+	if userInteract.Count > 0{
+		tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
+		for key, _ := range tagMap {
+			if key != 23 {
+				tagList=append(tagList,key)
+			}
+		}
+	}
+
+	log.Infof("activeTagList",len(tagList))
 	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
 		"list": func(*performs.Performs) interface{} { // 获取推荐列表
 			recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_reply_recommend_list:%d")
@@ -73,9 +67,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	themeTagList := []int64{}
-	tagListTest :=[]int64{2,3,4}
-	log.Infof("============================:%s",tagList)
-	tagLineList,listErr:= tagListCache.GetUserTagListDefault(tagListTest,"theme")
+	tagLineList,listErr:= tagListCache.GetUserTagListDefault(tagList,"theme")
 	if listErr == nil {
 		for _, tagLine := range tagLineList {
 			momentList:=tagLine.MomentDict
