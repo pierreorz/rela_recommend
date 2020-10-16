@@ -130,13 +130,21 @@ type TagScore struct {
 	Score float32 `json:"score,omitempty"`
 }
 
-type TagList struct {
-	Moments []*Ids `json:"moments,omitempty"`
+type TagRecommend struct {
+	Moments []*TagRecommendMoment `json:"moments,omitempty"`
 }
 
-type Ids struct{
+type TagRecommendMoment struct{
 	MomentId  int64 `json:"moment_id,omitempty"`
 	ReplyId    int64 `json:"reply_id,omitempty"`
+}
+
+func(self *TagRecommend) GetMomentIds() []int64 {
+	res := make([]int64, 0)
+	for _,value := range self.Moments{
+		res=append(res,value.MomentId)
+	}
+	return res
 }
 
 type MomentCacheModule struct {
@@ -240,8 +248,8 @@ func (self *MomentCacheModule) GetInt64ListOrDefault(id int64, defaultId int64, 
 	return resInt64s, err
 }
 
-func (self *MomentCacheModule) GetInt64ListByIds(ids []int64, keyFormatter string) ([]TagList, error) {
-	res, err := self.MGetStructs(TagList{},ids, keyFormatter, 6*60*60, 1*60*60)
-	objs := res.Interface().([]TagList)
+func (self *MomentCacheModule) QueryTagRecommendsByIds(ids []int64, keyFormatter string) ([]TagRecommend, error) {
+	res, err := self.MGetStructs(TagRecommend{},ids, keyFormatter, 6*60*60, 1*60*60)
+	objs := res.Interface().([]TagRecommend)
 	return objs, err
 }

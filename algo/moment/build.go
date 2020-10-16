@@ -27,7 +27,7 @@ func DoBuildData(ctx algo.IContext) error {
 	recIdList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
-	tagIdList := make([]int64, 0)
+	tagRecommendIdList := make([]int64, 0)
 	liveMomentIds := make([]int64, 0)
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
@@ -115,27 +115,21 @@ func DoBuildData(ctx algo.IContext) error {
 							tagList = append(tagList, key)
 						}
 					}
-					tagLists, err := momentCache.GetInt64ListByIds(tagList, "friends_moments_moment_tag:%d")
-					tagIdSet := utils.SetInt64{}
-					if err == nil {
-						for _, tagList := range tagLists {
-							if tagList.Moments != nil {
-								for _, moment := range tagList.Moments {
-									tagIdSet.Append(moment.MomentId)
-								}
-							}
-						}
+					tagRecommends, _ := momentCache.QueryTagRecommendsByIds(tagList, "friends_moments_moment_tag:%d")
+					tagRecommendSet := utils.SetInt64{}
+					for _,tagRecommend :=range tagRecommends{
+						tagRecommendSet.AppendArray(tagRecommend.GetMomentIds())
 					}
-					tagIdList = tagIdSet.ToList()
+					tagRecommendIdList = tagRecommendSet.ToList()
 				}
-				return len(tagIdList)
+				return len(tagRecommendIdList)
 			}
 			return realtimeErr
 		},
 	})
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds,tagIdList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds,tagRecommendIdList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
