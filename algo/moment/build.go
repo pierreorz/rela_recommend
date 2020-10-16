@@ -11,7 +11,6 @@ import (
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
-	"rela_recommend/log"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -116,9 +115,7 @@ func DoBuildData(ctx algo.IContext) error {
 							tagList = append(tagList, key)
 						}
 					}
-					log.Debugf("tagList:%s\n",tagList)
 					tagLists, err := momentCache.GetInt64ListByIds(tagList, "friends_moments_moment_tag:%d")
-					log.Debugf("tagLists:%s\n",tagLists)
 					tagIdSet := utils.SetInt64{}
 					if err == nil {
 						for _, tagList := range tagLists {
