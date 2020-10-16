@@ -181,7 +181,7 @@ func (self *UserTagProfileModule) GetUserTagListDefault(ids []int64,momentType s
 	}else{
 		keyFormatter="friends_moments_theme_tag:%d"
 	}
-	ress, err := self.MGetStructsMap(&map[string]*TagList{}, ids, keyFormatter, 24*60*60, 1*60*60)
+	ress, err := self.MGetStructsMap(&TagList{}, ids, keyFormatter, 24*60*60, 1*60*60)
 	objs := ress.Interface().(map[string]*TagList)
 	return objs, err
 }
