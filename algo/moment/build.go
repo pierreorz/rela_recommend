@@ -104,23 +104,25 @@ func DoBuildData(ctx algo.IContext) error {
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
 			if realtimeErr == nil&&abtest.GetInt("rich_strategy:user_behavior_interact:weight",1)==1 {
 				userBehavior = realtimes[params.UserId]
-				userInteract := userBehavior.GetMomentListInteract()
-				if userInteract.Count > 0 {
-					//获取用户实时互动日志的各个标签的实时热门数据
-					tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
-					tagList := make([]int64, 0)
-					for key, _ := range tagMap {
-						//去掉情感恋爱
-						if key != 23 {
-							tagList = append(tagList, key)
+				if userBehavior!=nil{
+					userInteract := userBehavior.GetMomentListInteract()
+					if userInteract.Count > 0 {
+						//获取用户实时互动日志的各个标签的实时热门数据
+						tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
+						tagList := make([]int64, 0)
+						for key, _ := range tagMap {
+							//去掉情感恋爱
+							if key != 23 {
+								tagList = append(tagList, key)
+							}
 						}
+						tagRecommends, _ := momentCache.QueryTagRecommendsByIds(tagList, "friends_moments_moment_tag:%d")
+						tagRecommendSet := utils.SetInt64{}
+						for _,tagRecommend :=range tagRecommends{
+							tagRecommendSet.AppendArray(tagRecommend.GetMomentIds())
+						}
+						tagRecommendIdList = tagRecommendSet.ToList()
 					}
-					tagRecommends, _ := momentCache.QueryTagRecommendsByIds(tagList, "friends_moments_moment_tag:%d")
-					tagRecommendSet := utils.SetInt64{}
-					for _,tagRecommend :=range tagRecommends{
-						tagRecommendSet.AppendArray(tagRecommend.GetMomentIds())
-					}
-					tagRecommendIdList = tagRecommendSet.ToList()
 				}
 				return len(tagRecommendIdList)
 			}
