@@ -51,12 +51,14 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
 			if realtimeErr == nil {
 				userBehavior = realtimes[params.UserId]
-				userInteract := userBehavior.GetThemeDetailInteract()
-				if userInteract.Count > 0{
-					tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
-					for key, _ := range tagMap {
-						if key != 23 {
-							tagList=append(tagList,key)
+				if userBehavior!=nil {
+					userInteract := userBehavior.GetThemeDetailInteract()
+					if userInteract.Count > 0 {
+						tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
+						for key, _ := range tagMap {
+							if key != 23 {
+								tagList = append(tagList, key)
+							}
 						}
 					}
 				}
