@@ -76,7 +76,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			momentList:=tagLine.MomentDict
 			for _,themeDict := range momentList{
 				replyIdList=append(replyIdList,themeDict.ThemeId)
-				themeIdList=append(themeIdList,themeDict.ThemeRelpyId)
+				themeIdList=append(themeIdList,themeDict.ThemeReplyId)
 				themeTagList=append(themeTagList,themeDict.ThemeId)
 				}
 			}

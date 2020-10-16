@@ -171,7 +171,7 @@ type TagList struct {
 }
 type ThemeList struct {
 	ThemeId int64 `json:"theme_id"`
-	ThemeRelpyId int64 `json:"theme_relpy_id"`
+	ThemeReplyId int64 `json:"theme_reply_id"`
 }
 
 func (self *UserTagProfileModule) GetUserTagListDefault(ids []int64,momentType string) (map[string]*TagList, error) {
