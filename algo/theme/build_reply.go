@@ -70,6 +70,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	themeTagList := []int64{}
+	log.Infof("============================:%s",tagList)
 	tagLineList,listErr:= tagListCache.GetUserTagListDefault(tagList,"theme")
 	if listErr == nil {
 		for _, tagLine := range tagLineList {
