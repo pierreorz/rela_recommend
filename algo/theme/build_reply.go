@@ -27,24 +27,23 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	tagListCache := redis.UserTagListCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
 	var tagList []int64
-	userInfo := ctx.GetUserInfo().(*UserInfo)
-	if userInfo.UserBehavior != nil {
-		userInteract := userInfo.UserBehavior.GetThemeDetailInteract()
-		if userInteract.Count > 0 {
-			tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
-			for index := 0; index < ctx.GetDataLength(); index++ {
-				dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-				if dataInfo.MomentProfile != nil {
-					for _, tag := range dataInfo.MomentProfile.Tags {
-						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil && tag.Id != 23 {
-							tagList = append(tagList, userTag.Id)
-							log.Infof("tagid", tag.Id)
-						}
-					}
-				}
+	var nums int
+	log.Infof("+++++++++++++",ctx.GetDataLength())
+	if ctx.GetDataLength()>5{
+		nums = 5
+	}else{
+		nums = ctx.GetDataLength()
+	}
+	for index := 0; index < nums; index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		if dataInfo.MomentProfile != nil {
+			for _, tag := range dataInfo.MomentProfile.Tags{
+				tagList=append(tagList, tag.Id)
+				log.Infof("tagid",tag.Id)
 			}
 		}
 	}
+
 
 	replyIdList := []int64{}           // 话题参与 ids
 	themeIdList := []int64{}           // 主话题Ids
@@ -74,7 +73,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	themeTagList := []int64{}
-	tagLineList,listErr:= tagListCache.GetUserTagListDefault(tagList,"theme")
+	tagListTest :=[]int64{2,3,4}
+	log.Infof("============================:%s",tagList)
+	tagLineList,listErr:= tagListCache.GetUserTagListDefault(tagListTest,"theme")
 	if listErr == nil {
 		for _, tagLine := range tagLineList {
 			momentList:=tagLine.MomentDict
