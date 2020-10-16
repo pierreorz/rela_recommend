@@ -174,15 +174,15 @@ type ThemeList struct {
 	ThemeRelpyId int64 `json:"theme_relpy_id"`
 }
 
-func (self *UserTagProfileModule) GetUserTagListDefault(ids []int64,momentType string) ([]TagList, error) {
+func (self *UserTagProfileModule) GetUserTagListDefault(ids []int64,momentType string) (map[int64]*TagList, error) {
 	var keyFormatter string
 	if momentType =="moment"{
 		keyFormatter = "friends_moments_moments_tag:%d"
 	}else{
 		keyFormatter="friends_moments_theme_tag:%d"
 	}
-	ress, err := self.MGetStructsMap(&[]TagList{}, ids, keyFormatter, 24*60*60, 1*60*60)
-	objs := ress.Interface().([]TagList)
+	ress, err := self.MGetStructsMap(&map[int64]*TagList{}, ids, keyFormatter, 24*60*60, 1*60*60)
+	objs := ress.Interface().(map[int64]*TagList)
 	return objs, err
 }
 func UserTagListCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *UserTagProfileModule {
