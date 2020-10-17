@@ -2,7 +2,6 @@ package abtest
 
 import (
 	"encoding/json"
-	"hash/fnv"
 	"rela_recommend/log"
 	"rela_recommend/utils"
 	"strconv"
@@ -85,9 +84,11 @@ func (self *AbTest) generateInt(preString string, dailyChange int) int {
 	if dailyChange == 1 {
 		idString = self.CurrentTime.Format("2006-01-02") + idString
 	}
-	hash32 := fnv.New32a()
-	hash32.Write([]byte(idString))
-	res := hash32.Sum32()
+	// hash32 := fnv.New32a()
+	// hash32.Write([]byte(idString))
+	// res := hash32.Sum32()
+
+	res := utils.Md5Uint32([]byte(idString))
 
 	return int(res % 100)
 }
