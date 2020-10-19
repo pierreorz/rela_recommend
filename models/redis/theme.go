@@ -40,27 +40,12 @@ type ThemeUserProfile struct {
 	UserEmbedding   []float32          `json:"user_embedding"`
 	UserWordProfile map[string]float32 `json:"word_profile"`
 	UserCateg       []float32          `json:"user_categ_embedding"`
-	AiTag			 UserTag `json:"ai_tags"`
 }
 type ThemeProfile struct {
 	ThemeID        int64     `json:"theme_id"`
 	ThemeEmbedding []float32 `json:"theme_embedding"`
 	ThemeCateg     []float32 `json:"theme_categ_embedding"`
-	AiTag          []ThemeTag `json:"ai_tags"`
-}
-type ThemeTag struct {
-	TagId   string `json:"id"`
-	TaName string `json:"name"`
-}
-type UserTag struct { // 用户长短期偏好
-	UserLongTag  []DadaTagScore `json:"long"`
-	UserShortTag []DadaTagScore `json:"short"`
-}
-type DadaTagScore struct {
-	TagId	int `json:"id"`
-	TagName string `json:"name"`
-	TagScore float32 `json:"score"`
-	
+
 }
 // 获取总列表曝光
 func (self *ThemeUserBehavior) GetTotalListExposure() *Behavior {
@@ -84,9 +69,7 @@ func (self *ThemeUserBehavior) GetTotalInteract() *Behavior {
 type ThemeBehaviorCacheModule struct {
 	CachePikaModule
 }
-type ThemeHotCacheModule struct {
-	CachePikaModule
-}
+
 func NewThemeBehaviorCacheModule(ctx algo.IContext, cache *cache.Cache) *ThemeBehaviorCacheModule {
 	return &ThemeBehaviorCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
 }
@@ -114,9 +97,7 @@ func (self *ThemeBehaviorCacheModule) QueryBehaviorMap(ids []int64) (map[int64]*
 	objs := ress.Interface().(map[int64]*ThemeUserBehavior)
 	return objs, err
 }
-func HotThemeCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *ThemeHotCacheModule{
-	return &ThemeHotCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
-}
+
 // 读取用户als特征
 func (self *ThemeUserProfileModule) QueryThemeUserProfileMap(ids []int64) (map[int64]*ThemeUserProfile, error) {
 	keyFormatter := "theme_user_profile:%d"
@@ -144,31 +125,4 @@ func (self *MomentCacheModule) GetThemeRelpyListOrDefault(id int64, defaultId in
 		err = self.GetSetStruct(fmt.Sprintf(keyFormatter, defaultId), &resList, 6*60*60, 1*60*60)
 	}
 	return resList, err
-}
-//获取tagList数据
-
-type UserTagProfileModule struct {
-	CachePikaModule
-}
-type TagList struct {
-	MomentDict []ThemeList `json:"moments"`
-}
-type ThemeList struct {
-	ThemeId int64 `json:"theme_id"`
-	ThemeReplyId int64 `json:"theme_reply_id"`
-}
-
-func (self *UserTagProfileModule) GetUserTagListDefault(ids []int64,momentType string) (map[int64]*TagList, error) {
-	var keyFormatter string
-	if momentType =="moment"{
-		keyFormatter = "friends_moments_moments_tag:%d"
-	}else{
-		keyFormatter="friends_moments_theme_tag:%d"
-	}
-	ress, err := self.MGetStructsMap(&TagList{}, ids, keyFormatter, 24*60*60, 1*60*60)
-	objs := ress.Interface().(map[int64]*TagList)
-	return objs, err
-}
-func UserTagListCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *UserTagProfileModule {
-	return &UserTagProfileModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }

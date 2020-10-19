@@ -5,10 +5,8 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
-	"rela_recommend/factory"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
-	"strings"
 	"unicode/utf8"
 )
 
@@ -103,77 +101,6 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	}
 	return err
 }
-//运营tag提权策略
-func ThemeTagWeight(ctx algo.IContext,index int) error {
-	data := ctx.GetDataByIndex(index).(*DataInfo)
-	abtest := ctx.GetAbTest()
-	rankInfo := data.GetRankInfo()
-	editTag := abtest.GetString("edit_tags", "")
-	if data.ThemeProfile != nil {
-		tags := data.ThemeProfile.AiTag
-		if len(tags) > 0 && len(editTag) > 1 {
-			for _, nameMap := range tags {
-				if strings.Contains(editTag, nameMap.TagId) {
-					rankInfo.AddRecommend("EditTagWeight", 1.1)
-					}
-				}
-			}
-		}
-	return nil
-}
-
-//根据历史用户关键词偏好策略提权
-func UserThemeProfile(ctx algo.IContext,index int) error {
-	data := ctx.GetDataByIndex(index).(*DataInfo)
-	userData := ctx.GetUserInfo().(*UserInfo)
-	rankInfo := data.GetRankInfo()
-	mem := data.MomentCache
-	wordsCount := len(mem.MomentsText)
-	if (userData.ThemeUser != nil) && wordsCount>0{
-		words := factory.Segmenter.Cut(mem.MomentsText)
-		UserAls := userData.ThemeUser
-		userCateg_map := UserAls.UserWordProfile
-		if len(userCateg_map)>0{
-			for i := 0; i < len(words); i++ {
-				if _, ok := userCateg_map[words[i]]; ok {
-					rankInfo.AddRecommend("UserWordProfile", 1.2)
-					}
-
-				}
-			}
-		}
-	return nil
-}
-
-//根据历史用户行为短期偏好提权
-func UserShortTagWegiht(ctx algo.IContext,index int) error {
-	userData := ctx.GetUserInfo().(*UserInfo)
-	data := ctx.GetDataByIndex(index).(*DataInfo)
-	rankInfo := data.GetRankInfo()
-	tagMapLine :=userData.ThemeUser
-	themeTagLine := data.ThemeProfile
-	if themeTagLine!=nil && tagMapLine!=nil{
-		shortTagList := tagMapLine.AiTag.UserShortTag
-		ThemetagList := themeTagLine.AiTag
-		if len(shortTagList) > 0 && len(ThemetagList) > 0 {
-			for i := 0; i < len(shortTagList); i++ {
-				userTag := shortTagList[i].TagId
-				for j := 0; j < len(ThemetagList); j++ {
-					themeTagLine := ThemetagList[j]
-					themeTag := themeTagLine.TagId
-					themeName := themeTagLine.TaName
-					userTagStr :=utils.GetString(userTag)
-					if userTagStr == themeTag && themeName != "情感恋爱" && themeName != "宠物" {
-						rankInfo.AddRecommend("UserShortTagProfile", 1.3)
-					}
-
-				}
-			}
-		}
-	}
-	return nil
-}
-
 
 // 内容较短，包含关键词的内容沉底
 func TextDownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
