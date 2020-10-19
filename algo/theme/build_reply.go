@@ -4,7 +4,6 @@ import (
 	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	// "rela_recommend/models/pika"
@@ -66,7 +65,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return realtimeErr
 		},
 	})
-	log.Infof("tagList",tagList)
 	preforms.Run("tag_recommend", func(*performs.Performs) interface{} {
 		//根据实时行为数据召回池数据
 		if userBehavior!=nil {
@@ -77,7 +75,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					for _, themeDict := range momentList {
 						replyIdList = append(replyIdList, themeDict.ReplyId)
 						themeIdList = append(themeIdList, themeDict.MomentId)
-						log.Infof("theme & themereply",themeIdList,replyIdList)
 					}
 				}
 				return len(momentList)
