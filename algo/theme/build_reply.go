@@ -31,9 +31,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	themeIdList := []int64{}           // 主话题Ids
 	themeReplyMap := map[int64]int64{} // 话题与参与话题对应关系
 	var userBehavior *behavior.UserBehavior // 用户实时行为
+	var tagList []int64 //用户操作行为tag集合
 
-	var tagList []int64
-	log.Infof("activeTagList",len(tagList))
 	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
 		"list": func(*performs.Performs) interface{} { // 获取推荐列表
 			recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_reply_recommend_list:%d")
@@ -51,6 +50,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
 			if realtimeErr == nil {
 				userBehavior = realtimes[params.UserId]
+				//根据实时行为获取用户操作偏好
 				if userBehavior!=nil {
 					userInteract := userBehavior.GetThemeDetailInteract()
 					if userInteract.Count > 0 {
@@ -62,26 +62,23 @@ func DoBuildReplyData(ctx algo.IContext) error {
 						}
 					}
 				}
+				//根据实时行为数据召回池数据
+				tagLineList,listErr:= tagListCache.GetUserTagListDefault(tagList,"theme")
+				if listErr == nil {
+					for _, tagLine := range tagLineList {
+						momentList:=tagLine.MomentDict
+						for _,themeDict := range momentList{
+							replyIdList=append(replyIdList,themeDict.ThemeReplyId)
+							themeIdList=append(themeIdList,themeDict.ThemeId)
+							log.Infof("theme & themereply",themeDict.ThemeId,themeDict.ThemeReplyId)
+						}
+					}
+				}
 				return len(realtimes)
 			}
 			return realtimeErr
 		},
 	})
-	log.Infof("activeTagList",len(tagList))
-	//根据实时行为获取偏好池数据
-	themeTagList := []int64{}
-	tagLineList,listErr:= tagListCache.GetUserTagListDefault(tagList,"theme")
-	if listErr == nil {
-		for _, tagLine := range tagLineList {
-			momentList:=tagLine.MomentDict
-			for _,themeDict := range momentList{
-				replyIdList=append(replyIdList,themeDict.ThemeId)
-				themeIdList=append(themeIdList,themeDict.ThemeReplyId)
-				themeTagList=append(themeTagList,themeDict.ThemeId)
-				}
-			}
-		}
-	log.Infof("Taglist+++++++++++++++++:%s",len(themeTagList))
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	preforms.Run("search", func(*performs.Performs) interface{} {     // 搜索过状态 和 返回置顶推荐内容

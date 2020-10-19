@@ -1,7 +1,6 @@
 package theme
 
 import (
-	"fmt"
 	"math"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
@@ -104,7 +103,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	}
 	return err
 }
-//tag提权策略
+//运营tag提权策略
 func ThemeTagWeight(ctx algo.IContext,index int) error {
 	data := ctx.GetDataByIndex(index).(*DataInfo)
 	abtest := ctx.GetAbTest()
@@ -114,8 +113,7 @@ func ThemeTagWeight(ctx algo.IContext,index int) error {
 		tags := data.ThemeProfile.AiTag
 		if len(tags) > 0 && len(editTag) > 1 {
 			for _, nameMap := range tags {
-				idStr := fmt.Sprintf("%s",nameMap.TagId)
-				if strings.Contains(editTag, idStr) {
+				if strings.Contains(editTag, nameMap.TagId) {
 					rankInfo.AddRecommend("EditTagWeight", 1.1)
 					}
 				}
@@ -124,7 +122,7 @@ func ThemeTagWeight(ctx algo.IContext,index int) error {
 	return nil
 }
 
-// 用户关键词偏好策略提权
+//根据历史用户关键词偏好策略提权
 func UserThemeProfile(ctx algo.IContext,index int) error {
 	data := ctx.GetDataByIndex(index).(*DataInfo)
 	userData := ctx.GetUserInfo().(*UserInfo)
@@ -147,7 +145,7 @@ func UserThemeProfile(ctx algo.IContext,index int) error {
 	return nil
 }
 
-//用户短期偏好提权
+//根据历史用户行为短期偏好提权
 func UserShortTagWegiht(ctx algo.IContext,index int) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
 	data := ctx.GetDataByIndex(index).(*DataInfo)
