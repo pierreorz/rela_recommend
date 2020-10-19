@@ -4,7 +4,6 @@ import (
 	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	// "rela_recommend/models/pika"
@@ -70,7 +69,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 						for _,themeDict := range momentList{
 							replyIdList=append(replyIdList,themeDict.ThemeReplyId)
 							themeIdList=append(themeIdList,themeDict.ThemeId)
-							log.Infof("theme & themereply",themeDict.ThemeId,themeDict.ThemeReplyId)
+							//log.Infof("theme & themereply",themeDict.ThemeId,themeDict.ThemeReplyId)
 						}
 					}
 				}
