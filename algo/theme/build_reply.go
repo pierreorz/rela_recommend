@@ -4,6 +4,7 @@ import (
 	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	// "rela_recommend/models/pika"
@@ -68,19 +69,23 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	preforms.Run("tag_recommend", func(*performs.Performs) interface{} {
 		//根据实时行为数据召回池数据
 		if userBehavior!=nil {
-			tagRecommends, _ := momentCache.QueryTagRecommendsByIds(tagList, "friends_moments_theme_tag:%d")
-			for _,tagRecommend :=range tagRecommends {
-				momentList := tagRecommend.Moments
-				if len(momentList) > 0{
-					for _, themeDict := range momentList {
-						replyIdList = append(replyIdList, themeDict.ReplyId)
-						themeIdList = append(themeIdList, themeDict.MomentId)
+			tagRecommends, tagErr := momentCache.QueryTagRecommendsByIds(tagList, "friends_moments_theme_tag:%d")
+			if tagErr == nil {
+				for _, tagRecommend := range tagRecommends {
+					momentList := tagRecommend.Moments
+					if len(momentList) > 0 {
+						for _, themeDict := range momentList {
+							replyIdList = append(replyIdList, themeDict.ReplyId)
+							themeIdList = append(themeIdList, themeDict.MomentId)
+							log.Infof("themeId & replyId",themeDict.MomentId,themeDict.ReplyId)
+						}
 					}
+					return len(momentList)
 				}
-				return len(momentList)
 			}
+			return tagErr
 		}
-		return nil
+		return userBehavior
 	})
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
