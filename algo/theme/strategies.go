@@ -5,7 +5,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"unicode/utf8"
@@ -120,7 +119,6 @@ func UserShortTagWegiht(ctx algo.IContext,index int) error {
 					themeTag := themeTagLine.TagId
 					themeName := themeTagLine.TaName
 					userTagStr :=utils.GetString(userTag)
-					log.Infof("userTagStr & themeTag",userTagStr,themeTag)
 					if userTagStr == themeTag && themeName != "情感恋爱" && themeName != "宠物" {
 						rankInfo.AddRecommend("UserShortTagProfile", 1.3)
 					}
