@@ -66,6 +66,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return realtimeErr
 		},
 	})
+	log.Infof("tagList",tagList)
 	preforms.Run("tag_recommend", func(*performs.Performs) interface{} {
 		//根据实时行为数据召回池数据
 		if userBehavior!=nil {
