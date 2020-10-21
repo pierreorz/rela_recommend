@@ -65,7 +65,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return realtimeErr
 		},
 	})
-	//log.Infof("tagList",tagList)
 	preforms.Run("tag_recommend", func(*performs.Performs) interface{} {
 		//根据实时行为数据召回池数据
 		if userBehavior!=nil {
@@ -77,7 +76,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 						for _, themeDict := range momentList {
 							replyIdList = append(replyIdList, themeDict.ReplyId)
 							themeIdList = append(themeIdList, themeDict.MomentId)
-							//log.Infof("themeId & replyId",themeDict.MomentId,themeDict.ReplyId)
 						}
 					}
 					return len(momentList)
