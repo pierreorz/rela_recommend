@@ -61,7 +61,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 						}
 					}
 				}
-				log.Infof("tagList",tagList)
 				return len(realtimes)
 			}
 			return realtimeErr
