@@ -1,9 +1,62 @@
-package algo
+package sort
 
-import "sort"
+import (
+	"rela_recommend/algo"
+	"sort"
+)
 
-/*
-在每个分组中，按照推荐理由进行排序间隔打散
+type SorterBase struct {
+	Context algo.IContext
+}
+
+func (self SorterBase) Swap(i, j int) {
+	list := self.Context.GetDataList()
+	list[i], list[j] = list[j], list[i]
+}
+func (self SorterBase) Len() int {
+	return self.Context.GetDataLength()
+}
+
+// 以此按照：打分，最后登陆时间
+func (self SorterBase) Less(i, j int) bool {
+	listi, listj := self.Context.GetDataByIndex(i), self.Context.GetDataByIndex(j)
+	ranki, rankj := listi.GetRankInfo(), listj.GetRankInfo()
+
+	if ranki.IsTop != rankj.IsTop {
+		return ranki.IsTop > rankj.IsTop // IsTop ： 倒序， 是否置顶
+	} else {
+		if ranki.PagedIndex != rankj.PagedIndex { // PagedIndex: 已经被分页展示过的index, 升序排列
+			return ranki.PagedIndex < rankj.PagedIndex
+		} else {
+			if ranki.Level != rankj.Level {
+				return ranki.Level > rankj.Level // Level : 倒序， 推荐星数
+			} else {
+				if ranki.Score != rankj.Score {
+					return ranki.Score > rankj.Score // Score : 倒序， 推荐分数
+				} else {
+					return listi.GetDataId() < listj.GetDataId() // UserId : 正序
+				}
+			}
+		}
+	}
+}
+
+func (self *SorterBase) Do(ctx algo.IContext) error {
+	sorter := &SorterBase{Context: ctx}
+	sort.Sort(sorter)
+	return nil
+}
+
+//************************************************* 返回，不做排序
+type SorterOrigin struct {
+	Context algo.IContext
+}
+
+func (self *SorterOrigin) Do(ctx algo.IContext) error {
+	return nil
+}
+
+/************************************************* 在每个分组中，按照推荐理由进行排序间隔打散
 复杂度：快排 + 分区 + 混排： n*log2(n) + n + n * group
 每个分组指：top, paged, level 等绝对隔离组
 推荐理由指：recommendItem中的reason
@@ -14,7 +67,7 @@ type SorterWithInterval struct {
 	SorterBase
 }
 
-func (self *SorterWithInterval) Do(ctx IContext) error {
+func (self *SorterWithInterval) Do(ctx algo.IContext) error {
 	sorter := &SorterWithInterval{SorterBase{Context: ctx}}
 	sort.Sort(sorter)
 	abtest := ctx.GetAbTest()
@@ -39,17 +92,17 @@ func (self *SorterWithInterval) Do(ctx IContext) error {
 }
 
 // 按照istop, paged, level分区隔离
-func (self *SorterWithInterval) partitions() ([][]IDataInfo, error) {
-	res := [][]IDataInfo{}
+func (self *SorterWithInterval) partitions() ([][]algo.IDataInfo, error) {
+	res := [][]algo.IDataInfo{}
 	list := self.Context.GetDataList()
-	var currIsTop, currPagedIndex, currLevel, currList = 0, 0, 0, []IDataInfo{}
+	var currIsTop, currPagedIndex, currLevel, currList = 0, 0, 0, []algo.IDataInfo{}
 	for i, item := range list {
 		rank := item.GetRankInfo()
 		if rank.IsTop == currIsTop && rank.PagedIndex == currPagedIndex && rank.Level == currLevel {
 			currList = append(currList, list[i])
 		} else {
 			res = append(res, currList)
-			currIsTop, currPagedIndex, currLevel, currList = rank.IsTop, rank.PagedIndex, rank.Level, []IDataInfo{list[i]}
+			currIsTop, currPagedIndex, currLevel, currList = rank.IsTop, rank.PagedIndex, rank.Level, []algo.IDataInfo{list[i]}
 		}
 	}
 	if len(currList) > 0 {
@@ -66,7 +119,7 @@ type groupItem struct {
 }
 
 // 获取每个内容的排序group
-func (self *SorterWithInterval) getDataInfoGroupName(data *RankInfo, recommends []string) (string, error) {
+func (self *SorterWithInterval) getDataInfoGroupName(data *algo.RankInfo, recommends []string) (string, error) {
 	if len(data.Recommends) > 0 && len(recommends) > 0 {
 		for _, recommend := range recommends {
 			for _, rItem := range data.Recommends {
@@ -84,7 +137,7 @@ func (self *SorterWithInterval) getDataInfoGroupName(data *RankInfo, recommends 
 // interval: 两个推荐理由间的初始间隔，如果不满足会缩小
 // floatRange: 从大于当前索引的偏移范围进行计算间隔填充
 // recommends: 根据哪些推荐理由进行打散，优先级即顺序
-func (self *SorterWithInterval) sortWithInterval(list []IDataInfo, interval int, floatRange int, recommends []string) ([]int, error) {
+func (self *SorterWithInterval) sortWithInterval(list []algo.IDataInfo, interval int, floatRange int, recommends []string) ([]int, error) {
 	groups := append(recommends, "")
 	var groupMap = map[string]*groupItem{}
 	for _, group := range groups {
@@ -135,7 +188,7 @@ func (self *SorterWithInterval) sortWithInterval(list []IDataInfo, interval int,
 func (self *SorterWithInterval) sortByIndex(indexs []int) error {
 	// 最终排序
 	list := self.Context.GetDataList()
-	var itemMap = map[int]IDataInfo{}
+	var itemMap = map[int]algo.IDataInfo{}
 	for i, _ := range list {
 		itemMap[i] = list[i]
 	}

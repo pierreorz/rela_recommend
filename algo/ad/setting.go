@@ -2,6 +2,7 @@ package ad
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/algo/base/sort"
 	"rela_recommend/algo/base/strategy"
 )
 
@@ -10,11 +11,9 @@ var workDir = algo.GetWorkDir("/algo_files/ad/")
 var builderMap = map[string]algo.IBuilder{
 	"base": &algo.BuilderBase{DoBuild: DoBuildData},
 }
-var strategyMap = map[string]algo.IStrategy{
-
-}
+var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
-	"base": &algo.SorterBase{},
+	"base": &sort.SorterBase{},
 }
 var pagerMap = map[string]algo.IPager{
 	"base": &algo.PagerBase{},
@@ -24,14 +23,12 @@ var loggerMap = map[string]algo.ILogger{
 	"performs": &algo.LoggerPerforms{},
 }
 
-var richStrategyMap = map[string]algo.IRichStrategy {
-	"base": &strategy.BaseRichStrategy{ DefaultWeight:1, StrategyItemFunc: BaseScoreStrategyItem },
-	"test_user_top": &strategy.BaseRichStrategy{ DefaultWeight:2, StrategyItemFunc: TestUserTopStrategyItem },
+var richStrategyMap = map[string]algo.IRichStrategy{
+	"base":          &strategy.BaseRichStrategy{DefaultWeight: 1, StrategyItemFunc: BaseScoreStrategyItem},
+	"test_user_top": &strategy.BaseRichStrategy{DefaultWeight: 2, StrategyItemFunc: TestUserTopStrategyItem},
 }
 
-var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
-	
-})
+var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{})
 
 // 开屏广告
 var _ = algo.AddAppInfo(&algo.AppInfo{
@@ -41,7 +38,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
-	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
 
 // 用户详情广告
@@ -52,7 +49,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
-	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
 
 // 谁看过我广告
@@ -63,5 +60,5 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
-	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap, 
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})

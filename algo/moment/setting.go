@@ -2,6 +2,7 @@ package moment
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/algo/base/sort"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
 )
@@ -26,7 +27,8 @@ var strategyMap = map[string]algo.IStrategy{
 	"short_pref":       &algo.StrategyBase{DoSingle: ShortPrefAddWeight},
 }
 var sorterMap = map[string]algo.ISorter{
-	"base": &algo.SorterBase{},
+	"base":     &sort.SorterBase{},
+	"interval": &sort.SorterWithInterval{},
 }
 var pagerMap = map[string]algo.IPager{
 	"base": &algo.PagerBase{},
