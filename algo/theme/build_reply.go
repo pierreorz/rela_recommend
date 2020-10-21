@@ -77,8 +77,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							replyIdList = append(replyIdList, themeDict.ReplyId)
 							themeIdList = append(themeIdList, themeDict.MomentId)
 						}
+						return len(momentList)
 					}
-					return len(momentList)
 				}
 			}
 			return tagErr
