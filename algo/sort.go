@@ -4,6 +4,7 @@ import "sort"
 
 /*
 在每个分组中，按照推荐理由进行排序间隔打散
+复杂度：快排 + 分区 + 混排： n*log2(n) + n + n * group
 每个分组指：top, paged, level 等绝对隔离组
 推荐理由指：recommendItem中的reason
 排序间隔打散： 保持大致位置不变。同样的推荐理由尽可能间隔interval个内容，中间填充的内容为 无相关推荐理由 和 小于i + floatRange 中的内容
@@ -22,14 +23,14 @@ func (self *SorterWithInterval) Do(ctx IContext) error {
 	var recommends = abtest.GetStrings("sort_with_interval_recommends", "") // 根据哪些推荐理由进行打散
 	if len(recommends) > 0 && interval > 1 {
 		allIndexs := make([]int, self.Len())
-		groups, _ := self.groups() // 分组隔离排序
-		groupStartIndex := 0
-		for _, group := range groups {
-			indexs, _ := self.sortWithInterval(group, interval, floatRange, recommends) // 每组内进行间隔打散
+		partitions, _ := self.partitions() // 分组隔离排序
+		partitionStartIndex := 0
+		for _, partition := range partitions {
+			indexs, _ := self.sortWithInterval(partition, interval, floatRange, recommends) // 每组内进行间隔打散
 			for i, index := range indexs {
-				allIndexs[i+groupStartIndex] = index + groupStartIndex
+				allIndexs[i+partitionStartIndex] = index + partitionStartIndex
 			}
-			groupStartIndex += len(group)
+			partitionStartIndex += len(partition)
 		}
 		self.sortByIndex(allIndexs) // 按照最终index排序
 	}
@@ -37,8 +38,8 @@ func (self *SorterWithInterval) Do(ctx IContext) error {
 	return nil
 }
 
-// 按照istop, paged, level分组隔离
-func (self *SorterWithInterval) groups() ([][]IDataInfo, error) {
+// 按照istop, paged, level分区隔离
+func (self *SorterWithInterval) partitions() ([][]IDataInfo, error) {
 	res := [][]IDataInfo{}
 	list := self.Context.GetDataList()
 	var currIsTop, currPagedIndex, currLevel, currList = 0, 0, 0, []IDataInfo{}
