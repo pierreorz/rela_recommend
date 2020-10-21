@@ -17,7 +17,11 @@ var builderMap = map[string]algo.IBuilder{
 	"reply":        &algo.BuilderBase{DoBuild: DoBuildReplyData},
 	"detail_reply": &algo.BuilderBase{DoBuild: DoBuildDetailReplyData},
 }
-var strategyMap = map[string]algo.IStrategy{}
+var strategyMap = map[string]algo.IStrategy{
+	//"edit_tags":&algo.StrategyBase{ DoSingle: ThemeTagWeight },
+	//"user_tags":&algo.StrategyBase{ DoSingle: UserThemeProfile },
+	//"user_short_tags":&algo.StrategyBase{ DoSingle: UserShortTagWegiht },
+}
 var sorterMap = map[string]algo.ISorter{
 	"base": &algo.SorterBase{}}
 var pagerMap = map[string]algo.IPager{

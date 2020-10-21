@@ -45,8 +45,8 @@ type ThemeProfile struct {
 	ThemeID        int64     `json:"theme_id"`
 	ThemeEmbedding []float32 `json:"theme_embedding"`
 	ThemeCateg     []float32 `json:"theme_categ_embedding"`
-}
 
+}
 // 获取总列表曝光
 func (self *ThemeUserBehavior) GetTotalListExposure() *Behavior {
 	return MergeBehaviors(self.ListExposure, self.ListRecommendExposure)

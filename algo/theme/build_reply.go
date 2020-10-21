@@ -6,7 +6,6 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
-
 	// "rela_recommend/models/pika"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
@@ -24,10 +23,13 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 
+
+
 	replyIdList := []int64{}           // 话题参与 ids
 	themeIdList := []int64{}           // 主话题Ids
 	themeReplyMap := map[int64]int64{} // 话题与参与话题对应关系
-	var userBehavior *behavior.UserBehavior
+	var userBehavior *behavior.UserBehavior // 用户实时行为
+	var tagList []int64 //用户操作行为tag集合
 
 	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
 		"list": func(*performs.Performs) interface{} { // 获取推荐列表
@@ -46,10 +48,42 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
 			if realtimeErr == nil {
 				userBehavior = realtimes[params.UserId]
+				//根据实时行为获取用户操作偏好
+				if userBehavior!=nil {
+					userInteract := userBehavior.GetThemeDetailInteract()
+					if userInteract.Count > 0 {
+						tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
+						for key, _ := range tagMap {
+							if key != 23 {
+								tagList = append(tagList, key)
+							}
+						}
+					}
+				}
 				return len(realtimes)
 			}
 			return realtimeErr
 		},
+	})
+	preforms.Run("tag_recommend", func(*performs.Performs) interface{} {
+		//根据实时行为数据召回池数据
+		if userBehavior!=nil {
+			tagRecommends, tagErr := momentCache.QueryTagRecommendsByIds(tagList, "friends_moments_theme_tag:%d")
+			if tagErr == nil {
+				for _, tagRecommend := range tagRecommends {
+					momentList := tagRecommend.Moments
+					if len(momentList) > 0 {
+						for _, themeDict := range momentList {
+							replyIdList = append(replyIdList, themeDict.ReplyId)
+							themeIdList = append(themeIdList, themeDict.MomentId)
+						}
+					}
+				}
+				return len(tagRecommends)
+			}
+			return tagErr
+		}
+		return nil
 	})
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
