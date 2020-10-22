@@ -15,8 +15,10 @@ var builderMap = map[string]algo.IBuilder{
 }
 var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
-	"base":   &sort.SorterBase{},
-	"origin": &sort.SorterOrigin{}}
+	"base":     &sort.SorterBase{},
+	"origin":   &sort.SorterOrigin{},
+	"interval": &sort.SorterWithInterval{},
+}
 var pagerMap = map[string]algo.IPager{
 	"base":   &algo.PagerBase{},
 	"origin": &algo.PagerOrigin{}}

@@ -24,7 +24,9 @@ var strategyMap = map[string]algo.IStrategy{
 	"user_short_tags":&algo.StrategyBase{ DoSingle: UserShortTagWegiht },
 }
 var sorterMap = map[string]algo.ISorter{
-	"base": &sort.SorterBase{}}
+	"base":     &sort.SorterBase{},
+	"interval": &sort.SorterWithInterval{},
+}
 var pagerMap = map[string]algo.IPager{
 	"base": &algo.PagerBase{}}
 var loggerMap = map[string]algo.ILogger{
