@@ -102,9 +102,9 @@ func DoBuildData(ctx algo.IContext) error {
 			return errBackend
 		}, "user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
-			if realtimeErr == nil&&abtest.GetInt("rich_strategy:user_behavior_interact:weight",1)==1 {
+			if realtimeErr == nil && abtest.GetInt("rich_strategy:user_behavior_interact:weight", 1) == 1 {
 				userBehavior = realtimes[params.UserId]
-				if userBehavior!=nil{
+				if userBehavior != nil {
 					userInteract := userBehavior.GetMomentListInteract()
 					if userInteract.Count > 0 {
 						//获取用户实时互动日志的各个标签的实时热门数据
@@ -118,7 +118,7 @@ func DoBuildData(ctx algo.IContext) error {
 						}
 						tagRecommends, _ := momentCache.QueryTagRecommendsByIds(tagList, "friends_moments_moment_tag:%d")
 						tagRecommendSet := utils.SetInt64{}
-						for _,tagRecommend :=range tagRecommends{
+						for _, tagRecommend := range tagRecommends {
 							tagRecommendSet.AppendArray(tagRecommend.GetMomentIds())
 						}
 						tagRecommendIdList = tagRecommendSet.ToList()
