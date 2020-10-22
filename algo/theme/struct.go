@@ -30,7 +30,6 @@ type DataInfo struct {
 	Features          *utils.Features
 	ThemeProfile      *redis.ThemeProfile
 
-
 	ThemeReplyCache       *redis.Moments
 	ThemeReplyExtendCache *redis.MomentsExtend
 }

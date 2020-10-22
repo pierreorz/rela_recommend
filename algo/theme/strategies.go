@@ -7,7 +7,6 @@ import (
 	autils "rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
-	"strings"
 	"unicode/utf8"
 )
 
@@ -108,18 +107,18 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 	dataInfo:=ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	tagMapLine :=userData.ThemeUser
-	tagList := ""
 	if tagMapLine!=nil && dataInfo.MomentProfile!=nil{
 		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentProfile.Tags
 		if len(ThemetagList) > 0 && len(shortTagList) > 0 {
 			for _, tag := range ThemetagList {
-				tagList += tag.Name
-			}
-			for _, shortPref := range shortTagList {
-				//对情感恋爱以及宠物的短期偏好不提权
-				if strings.Contains(tagList, shortPref.TagName)&&shortPref.TagName!="情感恋爱"&&shortPref.TagName!="宠物" {
-					rankInfo.AddRecommend("shortPrefWeight",1.3)
+				themeTagStr :=utils.GetString(tag.Id)
+				if _,ok :=shortTagList[themeTagStr];ok{
+					if tag.Id!=23 && tag.Id!=7 {
+						score:=shortTagList[themeTagStr].TagScore
+						rankInfo.AddRecommend("UserShortTagProfile", 1.3+score)
+					}
+
 				}
 			}
 
