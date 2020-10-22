@@ -29,7 +29,6 @@ type DataInfo struct {
 	RankInfo          *algo.RankInfo
 	Features          *utils.Features
 	ThemeProfile      *redis.ThemeProfile
-	MomentOfflineProfile *redis.MomentOfflineProfile
 
 
 	ThemeReplyCache       *redis.Moments
