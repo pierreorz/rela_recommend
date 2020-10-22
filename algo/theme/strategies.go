@@ -110,7 +110,7 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 	rankInfo := dataInfo.GetRankInfo()
 	tagMapLine :=userData.ThemeUser
 	tagList := ""
-	log.Infof("tagMapLine & dataInfo.MomentOfflineProfile",tagMapLine,dataInfo.MomentOfflineProfile)
+	log.Infof("tag",dataInfo.MomentProfile)
 	if tagMapLine!=nil && dataInfo.MomentOfflineProfile!=nil{
 		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentOfflineProfile.AiTag
