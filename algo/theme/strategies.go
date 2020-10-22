@@ -5,9 +5,9 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -105,28 +105,26 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 //根据历史用户行为短期偏好提权
 func UserShortTagWegiht(ctx algo.IContext, index int) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
-	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-	data := ctx.GetDataByIndex(index).(*DataInfo)
-	rankInfo := data.GetRankInfo()
+	dataInfo:=ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
 	tagMapLine :=userData.ThemeUser
-	if tagMapLine!=nil && dataInfo.MomentProfile.Tags!=nil{
+	tagList := ""
+	if tagMapLine!=nil && dataInfo.MomentOfflineProfile!=nil{
 		shortTagList := tagMapLine.AiTag.UserShortTag
-		ThemetagList := dataInfo.MomentProfile.Tags
-		if len(shortTagList) > 0 && len(ThemetagList) > 0 {
-			for i := 0; i < len(shortTagList); i++ {
-				userTag := shortTagList[i].TagId
-				for j := 0; j < len(ThemetagList); j++ {
-					themeTagLine := ThemetagList[j]
-					themeTag := themeTagLine.Id
-					themeName := themeTagLine.Name
-					log.Infof("userTag & themeTag",userTag,themeTag)
-					if userTag == themeTag && themeName != "情感恋爱" && themeName != "宠物" {
-						rankInfo.AddRecommend("UserShortTagProfile", 1.3)
-					}
-
+		ThemetagList := dataInfo.MomentOfflineProfile.AiTag
+		if len(ThemetagList) > 0 && len(shortTagList) > 0 {
+			for _, tag := range ThemetagList {
+				tagList += tag.Name
+			}
+			for _, shortPref := range shortTagList {
+				//对情感恋爱以及宠物的短期偏好不提权
+				if strings.Contains(tagList, shortPref.TagName)&&shortPref.TagName!="情感恋爱"&&shortPref.TagName!="宠物" {
+					rankInfo.AddRecommend("shortPrefWeight",1.3)
 				}
 			}
+
 		}
+
 	}
 	return nil
 }
