@@ -58,7 +58,7 @@ type UserTag struct { // 用户长短期偏好
 	UserShortTag []DataTagScore `json:"short"`
 }
 type DataTagScore struct {
-	TagId	int `json:"id"`
+	TagId	int64 `json:"id"`
 	TagName string `json:"name"`
 	TagScore float32 `json:"score"`
 
