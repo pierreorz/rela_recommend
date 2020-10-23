@@ -101,6 +101,38 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	}
 	return err
 }
+//根据历史用户行为短期偏好提权
+func UserShortTagWegiht(ctx algo.IContext, index int) error {
+	userData := ctx.GetUserInfo().(*UserInfo)
+	dataInfo:=ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	tagMapLine :=userData.ThemeUser
+	if tagMapLine!=nil && dataInfo.MomentProfile!=nil{
+		shortTagList := tagMapLine.AiTag.UserShortTag
+		ThemetagList := dataInfo.MomentProfile.Tags
+		if shortTagList!=nil && ThemetagList!=nil && len(ThemetagList) > 0 && len(shortTagList) > 0  {
+			var score float64 = 0.0
+			var count float64 = 0.0
+			for _, tag := range ThemetagList {
+				//对情感话题和宠物不提权
+				if tag.Id!=23 && tag.Id!=7 {
+					if tagIdDict,ok :=shortTagList[tag.Id];ok{
+						rate :=tagIdDict.TagScore
+						score += rate
+						count += 1.0
+					}
+
+				}
+			}
+			if count > 0.0 && score > 0.0 {
+				avg:=float32(1.0+(score/count))
+				rankInfo.AddRecommend("UserShortTagProfile", avg)
+			}
+		}
+
+	}
+	return nil
+}
 
 // 内容较短，包含关键词的内容沉底
 func TextDownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
