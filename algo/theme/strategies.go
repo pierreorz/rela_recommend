@@ -110,12 +110,11 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 	if tagMapLine!=nil && dataInfo.MomentProfile!=nil{
 		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentProfile.Tags
-		if len(ThemetagList) > 0 && len(shortTagList) > 0 {
+		if len(ThemetagList) > 0 && len(shortTagList) > 0 && shortTagList!=nil && ThemetagList!=nil{
 			for _, tag := range ThemetagList {
-				themeTagStr :=utils.GetString(tag.Id)
-				if _,ok :=shortTagList[themeTagStr];ok{
+				if tagIdDict,ok :=shortTagList[tag.Id];ok{
 					if tag.Id!=23 && tag.Id!=7 {
-						score:=shortTagList[themeTagStr].TagScore
+						score:=tagIdDict.TagScore
 						rankInfo.AddRecommend("UserShortTagProfile", 1.3+score)
 					}
 

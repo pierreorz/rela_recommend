@@ -50,8 +50,8 @@ type ThemeProfile struct {
 }
 
 type UserTag struct { // 用户长短期偏好
-	UserLongTag  map[string]DataTagScore `json:"long"`
-	UserShortTag map[string]DataTagScore `json:"short"`
+	UserLongTag  map[int64]DataTagScore `json:"long"`
+	UserShortTag map[int64]DataTagScore `json:"short"`
 }
 type DataTagScore struct {
 	TagId	int64 `json:"id"`
