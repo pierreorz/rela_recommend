@@ -125,6 +125,7 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 
 				}
 			}
+			log.Infof("score &&  count",score,count)
 			if count > 0.0 && score > 0.0 {
 				avg:=float32(1.0+(score/count))
 				log.Infof("avg score",avg)
