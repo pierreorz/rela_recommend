@@ -5,6 +5,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"unicode/utf8"
@@ -116,6 +117,7 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 				if _,ok :=shortTagList[themeTagStr];ok{
 					if tag.Id!=23 && tag.Id!=7 {
 						score:=shortTagList[themeTagStr].TagScore
+						log.Infof("tagId && score",tag.Id,score)
 						rankInfo.AddRecommend("UserShortTagProfile", 1.3+score)
 					}
 
