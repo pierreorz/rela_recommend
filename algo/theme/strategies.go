@@ -110,10 +110,11 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 	if tagMapLine!=nil && dataInfo.MomentProfile!=nil{
 		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentProfile.Tags
-		if len(ThemetagList) > 0 && len(shortTagList) > 0 && shortTagList!=nil && ThemetagList!=nil{
+		if shortTagList!=nil && ThemetagList!=nil && len(ThemetagList) > 0 && len(shortTagList) > 0  {
 			for _, tag := range ThemetagList {
-				if tagIdDict,ok :=shortTagList[tag.Id];ok{
-					if tag.Id!=23 && tag.Id!=7 {
+				//对情感话题和宠物不提权
+				if tag.Id!=23 && tag.Id!=7 {
+					if tagIdDict,ok :=shortTagList[tag.Id];ok{
 						score:=tagIdDict.TagScore
 						rankInfo.AddRecommend("UserShortTagProfile", 1.3+score)
 					}
