@@ -5,6 +5,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"unicode/utf8"
@@ -111,17 +112,24 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentProfile.Tags
 		if shortTagList!=nil && ThemetagList!=nil && len(ThemetagList) > 0 && len(shortTagList) > 0  {
+			var score float64 = 0.0
+			var count float64 = 0.0
 			for _, tag := range ThemetagList {
 				//对情感话题和宠物不提权
 				if tag.Id!=23 && tag.Id!=7 {
 					if tagIdDict,ok :=shortTagList[tag.Id];ok{
-						score:=tagIdDict.TagScore
-						rankInfo.AddRecommend("UserShortTagProfile", 1.3+score)
+						rate :=tagIdDict.TagScore
+						score += rate
+						count += 1.0
 					}
 
 				}
 			}
-
+			if count > 0.0 && score > 0.0 {
+				avg:=float32(1.0+(score/count))
+				log.Infof("avg score",avg)
+				rankInfo.AddRecommend("UserShortTagProfile", avg)
+			}
 		}
 
 	}

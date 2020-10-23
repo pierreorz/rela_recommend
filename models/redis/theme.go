@@ -56,7 +56,7 @@ type UserTag struct { // 用户长短期偏好
 type DataTagScore struct {
 	TagId	int64 `json:"id"`
 	TagName string `json:"name"`
-	TagScore float32 `json:"score"`
+	TagScore float64 `json:"score"`
 
 }
 // 获取总列表曝光
