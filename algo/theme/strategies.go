@@ -5,7 +5,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"unicode/utf8"
@@ -121,14 +120,12 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 						rate :=tagIdDict.TagScore
 						score += rate
 						count += 1.0
-						log.Infof("score &&  count",score,count)
 					}
 
 				}
 			}
 			if count > 0.0 && score > 0.0 {
 				avg:=float32(1.0+(score/count))
-				log.Infof("avg score",avg)
 				rankInfo.AddRecommend("UserShortTagProfile", avg)
 			}
 		}
