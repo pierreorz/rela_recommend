@@ -5,6 +5,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
+	"rela_recommend/factory"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"unicode/utf8"
@@ -100,6 +101,36 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 		}
 	}
 	return err
+}
+//根据历史用户关键词偏好策略提权
+func UserThemeProfile(ctx algo.IContext,index int) error {
+	data := ctx.GetDataByIndex(index).(*DataInfo)
+	userData := ctx.GetUserInfo().(*UserInfo)
+	rankInfo := data.GetRankInfo()
+	mem := data.MomentCache
+	wordsCount := len(mem.MomentsText)
+	if (userData.ThemeUser != nil) && wordsCount>0{
+		words := factory.Segmenter.Cut(mem.MomentsText)
+		UserAls := userData.ThemeUser
+		userCateg_map := UserAls.UserWordProfile
+		if len(userCateg_map)>0{
+			var score float64 = 0.0
+			var count float64 = 0.0
+			for i := 0; i < len(words); i++ {
+				if wordScore, ok := userCateg_map[words[i]]; ok {
+					score+=float64(wordScore)
+					count+=1.0
+				}
+
+			}
+			if count > 0.0 && score > 0.0 {
+				avg:=float32(1.1+(score/count))
+				rankInfo.AddRecommend("UserWordProfile", avg)
+			}
+
+		}
+	}
+	return nil
 }
 //根据历史用户行为短期偏好提权
 func UserShortTagWegiht(ctx algo.IContext, index int) error {
