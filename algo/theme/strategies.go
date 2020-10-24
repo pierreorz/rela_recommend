@@ -6,7 +6,6 @@ import (
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"unicode/utf8"
@@ -124,10 +123,8 @@ func UserThemeProfile(ctx algo.IContext,index int) error {
 				}
 
 			}
-			log.Infof("wordScore,simCount",score,count)
 			if count > 0.0 && score > 0.0 {
 				avg:=float32(1.1+(score/count))
-				log.Infof("wordScore avg",avg)
 				rankInfo.AddRecommend("UserWordProfile", avg)
 			}
 
