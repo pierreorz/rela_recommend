@@ -140,7 +140,7 @@ func DoBuildData(ctx algo.IContext) error {
 		preforms.Run("search", func(*performs.Performs) interface{} {
 			var searchMomentMapErr error
 			searchMomentMap, searchMomentMapErr = search.CallMomentTopMap(params.UserId,
-				searchScenery, momentTypes)
+				searchScenery)
 			if searchMomentMapErr == nil {
 				momentIdSet := utils.SetInt64{}
 				for _, searchRes := range searchMomentMap {
