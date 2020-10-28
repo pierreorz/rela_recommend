@@ -2,6 +2,7 @@ package match
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/algo/base/sort"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
 )
@@ -12,7 +13,9 @@ var workDir = algo.GetWorkDir("/algo_files/match/")
 var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildData}}
 var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
-	"base": &algo.SorterBase{}}
+	"base":     &sort.SorterBase{},
+	"interval": &sort.SorterWithInterval{},
+}
 var pagerMap = map[string]algo.IPager{
 	"base": &algo.PagerBase{}}
 var loggerMap = map[string]algo.ILogger{

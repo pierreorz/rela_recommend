@@ -2,17 +2,18 @@ package coarse
 
 import (
 	"rela_recommend/algo"
-	"rela_recommend/algo/utils"
+	"rela_recommend/algo/base/sort"
 	"rela_recommend/algo/moment"
+	"rela_recommend/algo/utils"
 )
 
 var appName = "moment_coarse"
 var workDir = algo.GetWorkDir("/algo_files/moment/coarse/")
 
 var builderMap = map[string]algo.IBuilder{"base": &algo.BuilderBase{DoBuild: DoBuildCoarseData}}
-var strategyMap = map[string]algo.IStrategy{ }
+var strategyMap = map[string]algo.IStrategy{}
 var sorterMap = map[string]algo.ISorter{
-	"base": &algo.SorterBase{},
+	"base": &sort.SorterBase{},
 }
 var pagerMap = map[string]algo.IPager{
 	"base": &algo.PagerBase{},
@@ -25,9 +26,8 @@ var loggerMap = map[string]algo.ILogger{
 // 精排算法
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	&algo.AlgoBase{AlgoName: "model_base", FilePath: workDir + "moment_coarse_xg_v1.0.model",
-				   Model: &utils.XgboostClassifier{}, FeaturesFunc: moment.GetMomentFeatures },
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: moment.GetMomentFeatures},
 })
-
 
 var appInfo = &algo.AppInfo{
 	Name: appName, Path: workDir,

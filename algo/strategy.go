@@ -4,7 +4,6 @@ import (
 	"math"
 	"rela_recommend/log"
 	rutils "rela_recommend/utils"
-	"sort"
 )
 
 // 策略组件
@@ -60,57 +59,6 @@ func StrategyScoreFunc(ctx IContext, index int) error {
 // 排序组件
 type ISorter interface {
 	Do(ctx IContext) error
-}
-
-type SorterBase struct {
-	Context IContext
-}
-
-func (self SorterBase) Swap(i, j int) {
-	list := self.Context.GetDataList()
-	list[i], list[j] = list[j], list[i]
-}
-func (self SorterBase) Len() int {
-	return self.Context.GetDataLength()
-}
-
-// 以此按照：打分，最后登陆时间
-func (self SorterBase) Less(i, j int) bool {
-	listi, listj := self.Context.GetDataByIndex(i), self.Context.GetDataByIndex(j)
-	ranki, rankj := listi.GetRankInfo(), listj.GetRankInfo()
-
-	if ranki.IsTop != rankj.IsTop {
-		return ranki.IsTop > rankj.IsTop // IsTop ： 倒序， 是否置顶
-	} else {
-		if ranki.PagedIndex != rankj.PagedIndex { // PagedIndex: 已经被分页展示过的index, 升序排列
-			return ranki.PagedIndex < rankj.PagedIndex
-		} else {
-			if ranki.Level != rankj.Level {
-				return ranki.Level > rankj.Level // Level : 倒序， 推荐星数
-			} else {
-				if ranki.Score != rankj.Score {
-					return ranki.Score > rankj.Score // Score : 倒序， 推荐分数
-				} else {
-					return listi.GetDataId() < listj.GetDataId() // UserId : 正序
-				}
-			}
-		}
-	}
-}
-
-func (self *SorterBase) Do(ctx IContext) error {
-	sorter := &SorterBase{Context: ctx}
-	sort.Sort(sorter)
-	return nil
-}
-
-// 返回，不做排序
-type SorterOrigin struct {
-	Context IContext
-}
-
-func (self *SorterOrigin) Do(ctx IContext) error {
-	return nil
 }
 
 // 分页组件

@@ -2,6 +2,7 @@ package theme
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/algo/base/sort"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
 )
@@ -23,7 +24,9 @@ var strategyMap = map[string]algo.IStrategy{
 	"user_short_tags":&algo.StrategyBase{ DoSingle: UserShortTagWegiht },
 }
 var sorterMap = map[string]algo.ISorter{
-	"base": &algo.SorterBase{}}
+	"base":     &sort.SorterBase{},
+	"interval": &sort.SorterWithInterval{},
+}
 var pagerMap = map[string]algo.IPager{
 	"base": &algo.PagerBase{}}
 var loggerMap = map[string]algo.ILogger{
