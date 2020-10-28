@@ -64,11 +64,11 @@ func (self *SorterOrigin) Do(ctx algo.IContext) error {
 如： a,a,b,b,c 在间隔为2的时候返回 a, b, a, b, c
 */
 type SorterWithInterval struct {
-	SorterBase
+	*SorterBase
 }
 
 func (self *SorterWithInterval) Do(ctx algo.IContext) error {
-	sorter := &SorterWithInterval{SorterBase{Context: ctx}}
+	sorter := &SorterWithInterval{&SorterBase{Context: ctx}}
 	sort.Sort(sorter)
 	abtest := ctx.GetAbTest()
 	var interval = abtest.GetInt("sort_with_interval_interval", 3)          // 优先间隔，如果没有会逐步缩小
