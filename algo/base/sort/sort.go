@@ -71,9 +71,9 @@ func (self *SorterWithInterval) Do(ctx algo.IContext) error {
 	sorter := &SorterWithInterval{&SorterBase{Context: ctx}}
 	sort.Sort(sorter)
 	abtest := ctx.GetAbTest()
-	var interval = abtest.GetInt("sort_with_interval_interval", 3)          // 优先间隔，如果没有会逐步缩小
-	var floatRange = abtest.GetInt("sort_with_interval_float", interval)    // 允许将当前向下的多少范围来填充
-	var recommends = abtest.GetStrings("sort_with_interval_recommends", "") // 根据哪些推荐理由进行打散
+	var interval = abtest.GetInt("sort_with_interval_interval", 3)                   // 优先间隔，如果没有会逐步缩小
+	var floatRange = abtest.GetInt("sort_with_interval_float", interval)             // 允许将当前向下的多少范围来填充
+	var recommends = abtest.GetStrings("sort_with_interval_recommends", "RECOMMEND") // 根据哪些推荐理由进行打散
 	if len(recommends) > 0 && interval > 1 {
 		allIndexs := make([]int, sorter.Len())
 		partitions, _ := sorter.partitions() // 分组隔离排序
