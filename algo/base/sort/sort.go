@@ -75,17 +75,17 @@ func (self *SorterWithInterval) Do(ctx algo.IContext) error {
 	var floatRange = abtest.GetInt("sort_with_interval_float", interval)    // 允许将当前向下的多少范围来填充
 	var recommends = abtest.GetStrings("sort_with_interval_recommends", "") // 根据哪些推荐理由进行打散
 	if len(recommends) > 0 && interval > 1 {
-		allIndexs := make([]int, self.Len())
-		partitions, _ := self.partitions() // 分组隔离排序
+		allIndexs := make([]int, sorter.Len())
+		partitions, _ := sorter.partitions() // 分组隔离排序
 		partitionStartIndex := 0
 		for _, partition := range partitions {
-			indexs, _ := self.sortWithInterval(partition, interval, floatRange, recommends) // 每组内进行间隔打散
+			indexs, _ := sorter.sortWithInterval(partition, interval, floatRange, recommends) // 每组内进行间隔打散
 			for i, index := range indexs {
 				allIndexs[i+partitionStartIndex] = index + partitionStartIndex
 			}
 			partitionStartIndex += len(partition)
 		}
-		self.sortByIndex(allIndexs) // 按照最终index排序
+		sorter.sortByIndex(allIndexs) // 按照最终index排序
 	}
 	// 间隔处理
 	return nil
