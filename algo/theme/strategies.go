@@ -8,6 +8,7 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -103,23 +104,24 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	return err
 }
 //运营tag提权策略
-//func ThemeTagWeight(ctx algo.IContext,index int) error {
-//	data := ctx.GetDataByIndex(index).(*DataInfo)
-//	abtest := ctx.GetAbTest()
-//	rankInfo := data.GetRankInfo()
-//	editTag := abtest.GetString("edit_tags", "")
-//	if data.ThemeProfile != nil {
-//		tags := data.ThemeProfile.AiTag
-//		if len(tags) > 0 && len(editTag) > 1 {
-//			for _, nameMap := range tags {
-//				if strings.Contains(editTag, nameMap.TagId) {
-//					rankInfo.AddRecommend("EditTagWeight", 1.1)
-//				}
-//			}
-//		}
-//	}
-//	return nil
-//}
+func ThemeTagWeight(ctx algo.IContext,index int) error {
+	data := ctx.GetDataByIndex(index).(*DataInfo)
+	abtest := ctx.GetAbTest()
+	rankInfo := data.GetRankInfo()
+	editTag := abtest.GetString("edit_tags", "")
+	if data.ThemeProfile != nil {
+		tags := data.MomentProfile.Tags
+		if len(tags) > 0 && len(editTag) > 1 {
+			for _, nameMap := range tags {
+				strNameId := utils.GetString(nameMap.Id)
+				if strings.Contains(editTag,strNameId) {
+					rankInfo.AddRecommend("EditTagWeight", 1.1)
+				}
+			}
+		}
+	}
+	return nil
+}
 
 //根据历史用户关键词偏好策略提权
 func UserThemeProfile(ctx algo.IContext,index int) error {
