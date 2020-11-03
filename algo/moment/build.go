@@ -102,7 +102,7 @@ func DoBuildData(ctx algo.IContext) error {
 			return errBackend
 		}, "user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
-			if realtimeErr == nil && abtest.GetInt("rich_strategy:user_behavior_interact:weight", 1) == 1 {
+			if realtimeErr == nil && abtest.GetInt("rich_strategy:user_behavior_interact:weight", 0) == 1 {
 				userBehavior = realtimes[params.UserId]
 				if userBehavior != nil {
 					userInteract := userBehavior.GetMomentListInteract()
@@ -140,7 +140,7 @@ func DoBuildData(ctx algo.IContext) error {
 		preforms.Run("search", func(*performs.Performs) interface{} {
 			var searchMomentMapErr error
 			searchMomentMap, searchMomentMapErr = search.CallMomentTopMap(params.UserId,
-				searchScenery, momentTypes)
+				searchScenery)
 			if searchMomentMapErr == nil {
 				momentIdSet := utils.SetInt64{}
 				for _, searchRes := range searchMomentMap {
