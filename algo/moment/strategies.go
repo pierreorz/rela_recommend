@@ -33,6 +33,16 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error {
 	return nil
 }
 
+//优质用户推荐策略
+func BetterUserMomAddWeight(ctx algo.IContext, index int) error{
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	if dataInfo.UserCache!=nil{
+		rankInfo.AddRecommend("betterUserWeight", 1+float32(math.Sqrt(dataInfo.UserCache.Grade))*0.02)
+	}
+	return nil
+}
+
 //用户短期偏好提取
 func ShortPrefAddWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)

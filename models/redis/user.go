@@ -35,6 +35,9 @@ type UserProfile struct {
 	Ratio          int      `json:"ratio"`
 	CreateTime     JsonTime `json:"createTime"`
 	Horoscope      string   `json:"horoscope"`
+	Reason     string `json:"reason"`
+	Grade      float64   `json:"grade"`
+
 
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
