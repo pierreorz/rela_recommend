@@ -37,8 +37,8 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error {
 func BetterUserMomAddWeight(ctx algo.IContext, index int) error{
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	if dataInfo.UserCache!=nil{
-		rankInfo.AddRecommend("betterUserWeight", 1+float32(math.Sqrt(dataInfo.UserCache.Grade))*0.02)
+	if dataInfo.UserCache!=nil&&dataInfo.UserCache.Grade>0{
+		rankInfo.AddRecommend("betterUserWeight", 1+float32(dataInfo.UserCache.Grade)/100*0.2)
 	}
 	return nil
 }
