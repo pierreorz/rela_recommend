@@ -93,7 +93,7 @@ func ExposureIncreaseFunc(ctx algo.IContext) error {
 			dataInfo := ctx.GetDataByIndex(index)
 			rankInfo := dataInfo.GetRankInfo()
 
-			if itemBehavior := dataInfo.GetItemBehavior(); itemBehavior != nil {
+			if itemBehavior := dataInfo.GetBehavior(); itemBehavior != nil {
 				exposures := itemBehavior.Gets(increaseExposures...)
 				if exposures.Count < increaseThreshold { // 曝光不足提权
 					score := float32((increaseThreshold - exposures.Count) / increaseThreshold * increaseMax)

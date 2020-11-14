@@ -39,6 +39,10 @@ func (self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {
 	self.RankInfo = rankInfo
 }
 
-func (self *DataInfo) GetItemBehavior() *behavior.UserBehavior {
+func (self *DataInfo) GetBehavior() *behavior.UserBehavior {
+	return nil
+}
+
+func (self *DataInfo) GetUserBehavior() *behavior.UserBehavior {
 	return nil
 }
