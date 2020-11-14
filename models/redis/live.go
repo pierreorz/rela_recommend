@@ -2,8 +2,8 @@ package redis
 
 import (
 	"fmt"
-	"rela_recommend/algo"
 	"rela_recommend/cache"
+	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
 )
 
@@ -19,7 +19,7 @@ type LiveCacheModule struct {
 	CachePikaModule
 }
 
-func NewLiveCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *LiveCacheModule {
+func NewLiveCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cache.Cache) *LiveCacheModule {
 	return &LiveCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
 

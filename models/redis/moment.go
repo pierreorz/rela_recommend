@@ -5,8 +5,8 @@ import (
 	"rela_recommend/utils"
 	"time"
 
-	"rela_recommend/algo"
 	"rela_recommend/cache"
+	"rela_recommend/service/abtest"
 
 	"github.com/gansidui/geohash"
 )
@@ -119,11 +119,11 @@ type MomentsAndExtend struct {
 }
 
 type MomentUserProfile struct {
-	UserID        int64                  `json:"user_id"`
-	UserEmbedding []float32              `json:"user_embedding"`
-	FollowEmbedding []float32             `json:"follow_embedding"`
-	UserPref      []string               `json:"user_pref,omitempty"`
-	AiTag         map[string][]*TagScore `json:"ai_tags,omitempty"`
+	UserID          int64                  `json:"user_id"`
+	UserEmbedding   []float32              `json:"user_embedding"`
+	FollowEmbedding []float32              `json:"follow_embedding"`
+	UserPref        []string               `json:"user_pref,omitempty"`
+	AiTag           map[string][]*TagScore `json:"ai_tags,omitempty"`
 }
 
 type TagScore struct {
@@ -135,15 +135,15 @@ type TagRecommend struct {
 	Moments []*TagRecommendMoment `json:"moments,omitempty"`
 }
 
-type TagRecommendMoment struct{
-	MomentId  int64 `json:"moment_id,omitempty"`
-	ReplyId    int64 `json:"reply_id,omitempty"`
+type TagRecommendMoment struct {
+	MomentId int64 `json:"moment_id,omitempty"`
+	ReplyId  int64 `json:"reply_id,omitempty"`
 }
 
-func(self *TagRecommend) GetMomentIds() []int64 {
+func (self *TagRecommend) GetMomentIds() []int64 {
 	res := make([]int64, 0)
-	for _,value := range self.Moments{
-		res=append(res,value.MomentId)
+	for _, value := range self.Moments {
+		res = append(res, value.MomentId)
 	}
 	return res
 }
@@ -152,10 +152,9 @@ type MomentCacheModule struct {
 	CachePikaModule
 }
 
-func NewMomentCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *MomentCacheModule {
+func NewMomentCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cache.Cache) *MomentCacheModule {
 	return &MomentCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
-
 
 // 从缓存中获取以逗号分割的字符串，并转化成int64. 如 keys11  1,2,3,4,5
 func (self *MomentCacheModule) GetInt64ListFromGeohash(lat float32, lng float32, len int, keyFormatter string) ([]int64, error) {
@@ -250,7 +249,7 @@ func (self *MomentCacheModule) GetInt64ListOrDefault(id int64, defaultId int64, 
 }
 
 func (self *MomentCacheModule) QueryTagRecommendsByIds(ids []int64, keyFormatter string) ([]TagRecommend, error) {
-	res, err := self.MGetStructs(TagRecommend{},ids, keyFormatter, 6*60*60, 1*60*60)
+	res, err := self.MGetStructs(TagRecommend{}, ids, keyFormatter, 6*60*60, 1*60*60)
 	objs := res.Interface().([]TagRecommend)
 	return objs, err
 }

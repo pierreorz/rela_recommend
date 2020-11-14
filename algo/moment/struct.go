@@ -18,6 +18,10 @@ type UserInfo struct {
 	UserBehavior      *behavior.UserBehavior
 }
 
+func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
+	return self.UserBehavior
+}
+
 // 日志发布者
 type DataInfo struct {
 	DataId               int64
@@ -46,4 +50,8 @@ func (self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {
 
 func (self *DataInfo) GetRankInfo() *algo.RankInfo {
 	return self.RankInfo
+}
+
+func (self *DataInfo) GetItemBehavior() *behavior.UserBehavior {
+	return self.ItemBehavior
 }

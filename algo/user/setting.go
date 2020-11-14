@@ -29,10 +29,11 @@ var loggerMap = map[string]algo.ILogger{
 var richStrategyMap = map[string]algo.IRichStrategy{
 	"paged": &strategy.PagedRichStrategy{},
 	// 根据距离排序
-	"distance_sort":   &strategy.BaseRichStrategy{StrategyItemFunc: SortWithDistanceItem},
-	"wilson_behavior": &strategy.BaseRichStrategy{StrategyItemFunc: ItemBehaviorWilsonItemFunc},
-	"clicked_down":    &strategy.BaseRichStrategy{StrategyItemFunc: UserBehaviorClickedDownItemFunc},
-	"simple_upper":    &strategy.BaseRichStrategy{StrategyItemFunc: SimpleUpperItemFunc, DefaultWeight: 2},
+	"distance_sort":     &strategy.BaseRichStrategy{StrategyItemFunc: SortWithDistanceItem},
+	"wilson_behavior":   &strategy.BaseRichStrategy{StrategyItemFunc: ItemBehaviorWilsonItemFunc},
+	"clicked_down":      &strategy.BaseRichStrategy{StrategyItemFunc: UserBehaviorClickedDownItemFunc},
+	"simple_upper":      &strategy.BaseRichStrategy{StrategyItemFunc: SimpleUpperItemFunc, DefaultWeight: 2},
+	"exposure_increase": &strategy.BaseRichStrategy{StrategyFunc: strategy.ExposureIncreaseFunc, DefaultWeight: 3},
 }
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{

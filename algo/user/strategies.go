@@ -85,14 +85,6 @@ func SimpleUpperItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *
 	if dataInfo.LiveInfo != nil && liveUpper != 1.0 {
 		rankInfo.AddRecommend("LiveUpper", liveUpper)
 	}
-	// 曝光不足提权
-	threshold := abtest.GetFloat64("exposure_upper_threshold", 0.0)
-	if threshold > 0 && dataInfo.ItemBehavior != nil {
-		if dataInfo.ItemBehavior.Count < threshold {
-			score := float32((threshold - dataInfo.ItemBehavior.Count) / threshold)
-			rankInfo.AddRecommend("ExposureUpper", 1+score*0.2)
-		}
-	}
 	// 其他提权
 
 	return nil
