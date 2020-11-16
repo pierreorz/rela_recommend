@@ -28,8 +28,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	replyIdList := []int64{}           // 话题参与 ids
 	themeIdList := []int64{}           // 主话题Ids
 	themeReplyMap := map[int64]int64{} // 话题与参与话题对应关系
-	hotIdList := make([]int64, 0) //热门话题
-	allTemeRelMap := map[int64]int64{} // 候选集话题与参与话题对应关系
+	//hotIdList := make([]int64, 0) //热门话题
+	//allTemeRelMap := map[int64]int64{} // 候选集话题与参与话题对应关系
 
 	var userBehavior *behavior.UserBehavior // 用户实时行为
 	var tagList []int64 //用户操作行为tag集合
@@ -66,31 +66,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				return len(realtimes)
 			}
 			return realtimeErr
-		},"hot": func(*performs.Performs) interface{} { // 热门列表
-			//获取候选集话题与话题参与关系
-			themeRelList, listErr := momentCache.HoTThemeToReplyMap("theme_themereply_all")
-			if listErr==nil{
-				for _, themerel := range themeRelList {
-					allTemeRelMap[themerel.ThemeID]=themerel.ThemeReplyID
-				}
-			}
-			//获取热门话题
-			if abtest.GetBool("real_recommend_switched", false) {
-				if top, topErr := behaviorCache.QueryDataBehaviorTop(); topErr == nil {
-					hotIdList = top.GetTopIds(100)
-					for _,hotId := range hotIdList {
-						if  hotId,ok := allTemeRelMap[hotId];ok{
-							replyIdList = append(replyIdList,allTemeRelMap[hotId])
-							themeIdList = append(replyIdList,hotId)
-						}
-					}
-					return len(hotIdList)
-				} else {
-					return topErr
-				}
-			}
-
-			return nil
 		},
 	})
 	preforms.Run("tag_recommend", func(*performs.Performs) interface{} {

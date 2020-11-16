@@ -139,14 +139,3 @@ func (self *MomentCacheModule) GetThemeRelpyListOrDefault(id int64, defaultId in
 	return resList, err
 }
 
-type ThemeRel struct{
-	ThemeID      int64 `json:"theme_id"`
-	ThemeReplyID int64 `json:"theme_reply_id"`
-}
-
-// 获取热门话题对应的话题参与
-func (self *MomentCacheModule) HoTThemeToReplyMap(keyFormatter string) ([]ThemeRel, error) {
-	var resList = make([]ThemeRel, 0)
-	err := self.GetSetStruct(keyFormatter,&resList,6*60*60,1*60*60)
-	return resList, err
-}
