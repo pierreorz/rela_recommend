@@ -110,6 +110,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		}
 		return searchReplyMapErr
 	})
+	log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
 
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
@@ -179,7 +180,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return themeProfileCacheErr
 		},
 	})
-	log.Debugf("theme_reply_map:%+v\n", themeReplyMap)
+
 	themeIds := make([]int64, 0)
 	preforms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
