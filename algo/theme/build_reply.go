@@ -85,6 +85,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		}
 		return nil
 	})
+	log.Debugf("reply_ids:%+v\n", replyIdList)
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	searchThemeMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
