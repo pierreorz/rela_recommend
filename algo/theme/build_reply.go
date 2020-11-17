@@ -4,7 +4,6 @@ import (
 	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 
@@ -86,7 +85,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		}
 		return nil
 	})
-	log.Debugf("reply_ids:%+v, theme_reply_map:%+v\n", replyIdList, themeReplyMap)
+	// log.Debugf("reply_ids:%+v, theme_reply_map:%+v\n", replyIdList, themeReplyMap)
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	searchThemeMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
@@ -112,7 +111,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		}
 		return searchReplyMapErr
 	})
-	log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
+	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
 
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
