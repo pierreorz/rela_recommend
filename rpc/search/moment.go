@@ -183,9 +183,11 @@ func CallMomentAuditMap(userId int64, moments []int64, scenery string, momentTyp
 				if element.Id > 0 {
 					resMap[element.Id] = searchRes.Data[i]
 				}
-				_, themeInfoOK := themeMap[element.ParentId] // 如果话题在返回结果出现两条，优先使用有日志推荐标志的
-				if (!themeInfoOK) || (themeInfoOK && element.GetCurrentTopType(scenery) != "") {
-					themeMap[element.ParentId] = searchRes.Data[i]
+				if element.ParentId > 0 {
+					_, themeInfoOK := themeMap[element.ParentId] // 如果话题在返回结果出现两条，优先使用有日志推荐标志的
+					if (!themeInfoOK) || (themeInfoOK && element.GetCurrentTopType(scenery) != "") {
+						themeMap[element.ParentId] = searchRes.Data[i]
+					}
 				}
 			}
 			return resMap, themeMap, err

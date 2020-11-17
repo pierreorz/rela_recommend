@@ -4,6 +4,7 @@ import (
 	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 
@@ -178,7 +179,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return themeProfileCacheErr
 		},
 	})
-
+	log.Debug("theme_reply_map:%+v\n", themeReplyMap)
 	themeIds := make([]int64, 0)
 	preforms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
