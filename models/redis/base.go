@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"rela_recommend/algo"
 	"rela_recommend/cache"
 	"rela_recommend/log"
+	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
 	"strings"
 	"sync"
@@ -24,10 +24,10 @@ var compressMap = map[string]utils.ICompress{
 type CachePikaModule struct {
 	cache cache.Cache
 	store cache.Cache
-	ctx   algo.IContext
+	ctx   abtest.IAbTestAble
 }
 
-func NewCachePikaModule(ctx algo.IContext, cache cache.Cache) *CachePikaModule {
+func NewCachePikaModule(ctx abtest.IAbTestAble, cache cache.Cache) *CachePikaModule {
 	return &CachePikaModule{ctx: ctx, cache: cache}
 }
 

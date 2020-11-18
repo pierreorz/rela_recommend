@@ -16,6 +16,10 @@ type UserInfo struct {
 	UserProfile *redis.NearbyProfile
 }
 
+func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
+	return nil
+}
+
 // 被推荐用户信息
 type DataInfo struct {
 	DataId      int64
@@ -55,4 +59,12 @@ func (self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {
 
 func (self *DataInfo) GetRankInfo() *algo.RankInfo {
 	return self.RankInfo
+}
+
+func (self *DataInfo) GetBehavior() *behavior.UserBehavior {
+	return self.ItemBehavior
+}
+
+func (self *DataInfo) GetUserBehavior() *behavior.UserBehavior {
+	return self.UserBehavior
 }

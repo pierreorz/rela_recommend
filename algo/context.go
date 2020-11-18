@@ -1,6 +1,7 @@
 package algo
 
 import (
+	"rela_recommend/models/behavior"
 	"rela_recommend/service/abtest"
 	"rela_recommend/service/performs"
 	"time"
@@ -8,13 +9,16 @@ import (
 
 // ************************************************** 上下文
 type IUserInfo interface {
+	GetBehavior() *behavior.UserBehavior // 获取当前用户行为
 }
 
 type IDataInfo interface {
-	GetDataId() int64
-	GetResponseData(IContext) interface{}
-	GetRankInfo() *RankInfo
-	SetRankInfo(*RankInfo)
+	GetDataId() int64                        // 获取数据的ID
+	GetResponseData(IContext) interface{}    // 获取数据返回的定制化数据
+	GetRankInfo() *RankInfo                  // 获取推荐排名信息
+	SetRankInfo(*RankInfo)                   // 设置推荐排名信息
+	GetBehavior() *behavior.UserBehavior     // 获取数据的用户行为
+	GetUserBehavior() *behavior.UserBehavior // 获取当前用户对此数据的行为
 }
 
 type IContext interface {

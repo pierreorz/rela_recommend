@@ -81,3 +81,26 @@ func (self *BaseBehaviorRichStrategy) Strategy() error {
 func (self *BaseBehaviorRichStrategy) Logger() error {
 	return nil
 }
+
+// 对于曝光不足的内容进行加权曝光
+func ExposureIncreaseFunc(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	increaseThreshold := abtest.GetFloat64("exposure_increase_threshold", 0.0) // 需要提升的曝光阈值，曝光小于该值才会增加曝光
+	increaseMax := abtest.GetFloat64("exposure_increase_max", 0.2)             // 最多增加的分数
+	increaseExposures := abtest.GetStrings("exposure_increase_exposures", "around.list:exposure")
+	if increaseThreshold > 0.0 && increaseMax > 0.0 && len(increaseExposures) > 0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index)
+			rankInfo := dataInfo.GetRankInfo()
+
+			if itemBehavior := dataInfo.GetBehavior(); itemBehavior != nil {
+				exposures := itemBehavior.Gets(increaseExposures...)
+				if exposures.Count < increaseThreshold { // 曝光不足提权
+					score := float32((increaseThreshold - exposures.Count) / increaseThreshold * increaseMax)
+					rankInfo.AddRecommend("ExposureIncrease", 1+score)
+				}
+			}
+		}
+	}
+	return nil
+}
