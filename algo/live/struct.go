@@ -21,12 +21,17 @@ func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
 	return nil
 }
 
+type LiveData struct {
+	PreHourRank int // 小时榜排名，1开始
+}
+
 // 主播信息
 type LiveInfo struct {
 	UserId      int64
 	UserCache   *redis.UserProfile
 	LiveProfile *redis.LiveProfile
 	LiveCache   *pika.LiveCache
+	LiveData    *LiveData
 	RankInfo    *algo.RankInfo
 	Features    *utils.Features
 }

@@ -13,6 +13,7 @@ const (
 	DefaultNsqAddr         = "127.0.0.1:80"
 	DefaultMemoryCacheSize = 1024 * 1024 * 128
 	DefaultLogLevel        = "debug"
+	DefaultLiveRpcAddr     = "http://live:3500"
 )
 
 var (
@@ -49,6 +50,7 @@ type rpcConfig struct {
 	SearchRpcAddr   string `toml:"search_rpc_addr"`
 	ApiRpcAddr      string `toml:"api_rpc_addr"`
 	ChatRoomRpcAddr string `toml:"chatroom_rpc_addr"`
+	LiveRpcAddr     string `toml:"live_rpc_addr"`
 	AiSearchRpcAddr string `toml:"ai_search_rpc_addr"`
 }
 
@@ -127,5 +129,8 @@ func NewConfigDefault() *Config {
 
 	cfg.MatchAddr = DefaultMatchAddr
 	cfg.NsqAddr = DefaultNsqAddr
+
+	// rpc
+	cfg.Rpc.LiveRpcAddr = DefaultLiveRpcAddr
 	return cfg
 }

@@ -55,6 +55,7 @@ var MatchClusterMon *mgo.Session
 var SearchRpcClient *rpc.HttpClient
 var ApiRpcClient *rpc.HttpClient
 var ChatRoomRpcClient *rpc.HttpClient
+var LiveRpcClient *rpc.HttpClient
 var AiSearchRpcClient *rpc.HttpClient
 
 // influxdb
