@@ -73,8 +73,8 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 		index := rand.Intn(len(indexs))
 		liveInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 		rankInfo := liveInfo.GetRankInfo()
-		rankInfo.Level = 20
-		rankInfo.AddRecommend("per_hour_rank_top", 1.01)
+		rankInfo.IsTop = 1
+		rankInfo.Level = -1
 	}
 	return nil
 }
