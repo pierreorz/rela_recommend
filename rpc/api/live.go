@@ -17,13 +17,14 @@ type AnchorHourRankRes struct {
 }
 
 type AnchorHourRankItem struct {
-	Id         string `json:"id"`
-	IdInt      int64  `json:"idInt"`
-	Score      string `json:"score"`
-	NickName   string `json:"nickName"`
-	Avatar     string `json:"avatar"`
-	LiveStatus int    `json:"liveStatus"`
-	IsFollow   bool   `json:"isFollow"`
+	Id         string  `json:"id"`
+	IdInt      int64   `json:"idInt"`
+	Score      string  `json:"score"`
+	ScoreFloat float64 `json:"scoreFloat"`
+	NickName   string  `json:"nickName"`
+	Avatar     string  `json:"avatar"`
+	LiveStatus int     `json:"liveStatus"`
+	IsFollow   bool    `json:"isFollow"`
 }
 
 type AnchorHourRankUserDetail struct {
@@ -39,17 +40,28 @@ type AnchorHourRankData struct {
 	Data    AnchorHourRankRes `json:"data"`
 }
 
-// 获取主播在上个小时列表中的排名, {userId: rankId}，rankId从1开始
-func CallLiveHourRankMap(userId int64) (map[int64]int, error) {
+type AnchorHourRankInfo struct {
+	Index int
+	Rank  int
+}
+
+// 获取主播在上个小时列表中的排名, {userId: {index, rank}}，rankId从1开始
+func CallLiveHourRankMap(userId int64) (map[int64]AnchorHourRankInfo, error) {
 	params := fmt.Sprintf("userId=%d&dataVersion=pre", userId)
 	res := &AnchorHourRankData{}
 	err := factory.LiveRpcClient.SendGETForm(internalLiveHourRankListUrl, params, res)
 	if err == nil {
 		if res != nil && res.Code == 0 {
-			resMap := map[int64]int{}
-			if res.Data.List != nil { // 获取每个id的排名
+			resMap := map[int64]AnchorHourRankInfo{}
+			if res.Data.List != nil { // 获取每个id的排名，可以并列排名
+				var lastScore float64 = 0.0
+				var currRank int = 1
 				for i, item := range res.Data.List {
-					resMap[item.IdInt] = i + 1
+					resMap[item.IdInt] = AnchorHourRankInfo{Index: i, Rank: currRank}
+					if item.ScoreFloat != lastScore {
+						currRank += 1
+					}
+					lastScore = item.ScoreFloat
 				}
 			}
 			return resMap, nil
