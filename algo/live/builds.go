@@ -37,7 +37,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var user2 *redis.LiveProfile
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
-	var hourRankMap = map[int64]int{}
+	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} { // 获取基础用户画像
 			var userErr error
@@ -83,7 +83,8 @@ func DoBuildData(ctx algo.IContext) error {
 				UserCache:   usersMap[liveId],
 				LiveProfile: usersMap2[liveId],
 				LiveData: &LiveData{
-					PreHourRank: hourRankMap[liveId],
+					PreHourIndex: hourRankMap[liveId].Index,
+					PreHourRank:  hourRankMap[liveId].Rank,
 				},
 				RankInfo: &algo.RankInfo{}}
 			livesInfo = append(livesInfo, &liveInfo)

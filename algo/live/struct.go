@@ -22,7 +22,8 @@ func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
 }
 
 type LiveData struct {
-	PreHourRank int // 小时榜排名，1开始
+	PreHourIndex int // 小时榜排名，1开始
+	PreHourRank  int // 小时榜排名，1开始, 相同分数有并列名次
 }
 
 // 主播信息

@@ -61,7 +61,7 @@ func (self *OldScoreStrategy) oldScore(live *LiveInfo) float32 {
 // 对于上个小时榜前3名进行随机制前
 func HourRankRecommendFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
-	topN := abtest.GetInt("per_hour_rank_top_n", 3) // 前n名随机
+	topN := abtest.GetInt("per_hour_rank_top_n", 3) // 前n名随机， 分数相同的并列，有可能返回1,2,2,3
 	indexs := []int{}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
