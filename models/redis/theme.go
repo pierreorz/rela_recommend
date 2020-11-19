@@ -4,8 +4,8 @@ import (
 	"fmt"
 	// "encoding/json"
 	// "rela_recommend/log"
-	"rela_recommend/algo"
 	"rela_recommend/cache"
+	"rela_recommend/service/abtest"
 )
 
 // 话题用户行为缓存
@@ -40,13 +40,12 @@ type ThemeUserProfile struct {
 	UserEmbedding   []float32          `json:"user_embedding"`
 	UserWordProfile map[string]float32 `json:"word_profile"`
 	UserCateg       []float32          `json:"user_categ_embedding"`
-	AiTag			 UserTag `json:"ai_tags"`
+	AiTag           UserTag            `json:"ai_tags"`
 }
 type ThemeProfile struct {
 	ThemeID        int64     `json:"theme_id"`
 	ThemeEmbedding []float32 `json:"theme_embedding"`
 	ThemeCateg     []float32 `json:"theme_categ_embedding"`
-
 }
 
 type UserTag struct { // 用户长短期偏好
@@ -54,11 +53,11 @@ type UserTag struct { // 用户长短期偏好
 	UserShortTag map[int64]DataTagScore `json:"short"`
 }
 type DataTagScore struct {
-	TagId	int64 `json:"id"`
-	TagName string `json:"name"`
+	TagId    int64   `json:"id"`
+	TagName  string  `json:"name"`
 	TagScore float64 `json:"score"`
-
 }
+
 // 获取总列表曝光
 func (self *ThemeUserBehavior) GetTotalListExposure() *Behavior {
 	return MergeBehaviors(self.ListExposure, self.ListRecommendExposure)
@@ -82,7 +81,7 @@ type ThemeBehaviorCacheModule struct {
 	CachePikaModule
 }
 
-func NewThemeBehaviorCacheModule(ctx algo.IContext, cache *cache.Cache) *ThemeBehaviorCacheModule {
+func NewThemeBehaviorCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache) *ThemeBehaviorCacheModule {
 	return &ThemeBehaviorCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: nil}}
 }
 
@@ -90,7 +89,7 @@ type ThemeUserProfileModule struct {
 	CachePikaModule
 }
 
-func NewThemeCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *ThemeUserProfileModule {
+func NewThemeCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cache.Cache) *ThemeUserProfileModule {
 	return &ThemeUserProfileModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
 

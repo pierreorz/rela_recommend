@@ -6,8 +6,8 @@ import (
 
 	// "encoding/json"
 	// "rela_recommend/log"
-	"rela_recommend/algo"
 	"rela_recommend/cache"
+	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
 )
 
@@ -35,6 +35,8 @@ type UserProfile struct {
 	Ratio          int      `json:"ratio"`
 	CreateTime     JsonTime `json:"createTime"`
 	Horoscope      string   `json:"horoscope"`
+	Reason         string   `json:"reason"` //优质用户推荐理由
+	Grade          float64  `json:"grade"`  //优质用户推荐等级 1-100
 
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
@@ -58,7 +60,7 @@ type UserCacheModule struct {
 	CachePikaModule
 }
 
-func NewUserCacheModule(ctx algo.IContext, cache *cache.Cache, store *cache.Cache) *UserCacheModule {
+func NewUserCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cache.Cache) *UserCacheModule {
 	return &UserCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
 

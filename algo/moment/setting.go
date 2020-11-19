@@ -25,6 +25,7 @@ var strategyMap = map[string]algo.IStrategy{
 	"edit_tags":        &algo.StrategyBase{DoSingle: EditTagWeight},
 	"assignTag_weight": &algo.StrategyBase{DoSingle: AssignTagAddWeight},
 	"short_pref":       &algo.StrategyBase{DoSingle: ShortPrefAddWeight},
+	"better_user":     &algo.StrategyBase{DoSingle: BetterUserMomAddWeight},
 }
 var sorterMap = map[string]algo.ISorter{
 	"base":     &sort.SorterBase{},

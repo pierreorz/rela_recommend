@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"rela_recommend/algo"
 	"rela_recommend/cache"
 	"rela_recommend/models/redis"
+	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
 	"sort"
 )
@@ -159,7 +159,7 @@ func (self *UserBehavior) Gets(names ...string) *Behavior {
 
 type BehaviorCacheModule struct {
 	redis.CachePikaModule
-	ctx algo.IContext
+	ctx abtest.IAbTestAble
 }
 
 // 读取user item相关行为
@@ -186,7 +186,7 @@ func (self *BehaviorCacheModule) QueryUserBehaviorMap(module string, ids []int64
 	return objs, err
 }
 
-func NewBehaviorCacheModule(ctx algo.IContext, cache *cache.Cache) *BehaviorCacheModule {
+func NewBehaviorCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache) *BehaviorCacheModule {
 	cachePika := redis.NewCachePikaModule(ctx, *cache)
 	return &BehaviorCacheModule{CachePikaModule: *cachePika, ctx: ctx}
 }
@@ -212,11 +212,10 @@ func (self *DataBehaviorTopList) GetTopIds(n int) []int64 {
 	return res
 }
 
-func (self *BehaviorCacheModule) QueryDataBehaviorTop() (*DataBehaviorTopList, error) {
+func (self *BehaviorCacheModule) QueryDataBehaviorTop(module string) (*DataBehaviorTopList, error) {
 	if self.ctx != nil {
-		app := self.ctx.GetAppInfo()
 		topDataKey := self.ctx.GetAbTest().GetString("behavior_data_top_key", "behavior:item:%s:top")
-		keyFormatter := fmt.Sprintf(topDataKey, app.Module)
+		keyFormatter := fmt.Sprintf(topDataKey, module)
 		topList := &DataBehaviorTopList{}
 		err := self.GetStruct(keyFormatter, topList)
 		return topList, err

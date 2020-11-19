@@ -3,6 +3,7 @@ package live
 import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
+	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	rutils "rela_recommend/utils"
@@ -14,6 +15,10 @@ type UserInfo struct {
 	UserCache    *redis.UserProfile
 	LiveProfile  *redis.LiveProfile
 	UserConcerns *rutils.SetInt64
+}
+
+func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
+	return nil
 }
 
 // 主播信息
@@ -44,4 +49,12 @@ func (self *LiveInfo) SetRankInfo(rankInfo *algo.RankInfo) {
 
 func (self *LiveInfo) GetRankInfo() *algo.RankInfo {
 	return self.RankInfo
+}
+
+func (self *LiveInfo) GetBehavior() *behavior.UserBehavior {
+	return nil
+}
+
+func (self *LiveInfo) GetUserBehavior() *behavior.UserBehavior {
+	return nil
 }

@@ -83,7 +83,7 @@ func DoBuildData(ctx algo.IContext) error {
 			return nil
 		}, "hot": func(*performs.Performs) interface{} { // 热门列表
 			if abtest.GetBool("real_recommend_switched", false) {
-				if top, topErr := behaviorCache.QueryDataBehaviorTop(); topErr == nil {
+				if top, topErr := behaviorCache.QueryDataBehaviorTop(app.Module); topErr == nil {
 					hotIdList = top.GetTopIds(100)
 					return len(hotIdList)
 				} else {
@@ -102,7 +102,7 @@ func DoBuildData(ctx algo.IContext) error {
 			return errBackend
 		}, "user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
-			if realtimeErr == nil && abtest.GetInt("rich_strategy:user_behavior_interact:weight", 1) == 1 {
+			if realtimeErr == nil && abtest.GetInt("rich_strategy:user_behavior_interact:weight", 0) == 1 {
 				userBehavior = realtimes[params.UserId]
 				if userBehavior != nil {
 					userInteract := userBehavior.GetMomentListInteract()
@@ -131,16 +131,16 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds,tagRecommendIdList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
 	searchScenery := "moment"
-	if abtest.GetBool("search_returned_recommend", false){
+	if abtest.GetBool("search_returned_recommend", false) {
 		preforms.Run("search", func(*performs.Performs) interface{} {
 			var searchMomentMapErr error
 			searchMomentMap, searchMomentMapErr = search.CallMomentTopMap(params.UserId,
-				searchScenery, momentTypes)
+				searchScenery)
 			if searchMomentMapErr == nil {
 				momentIdSet := utils.SetInt64{}
 				for _, searchRes := range searchMomentMap {
@@ -230,9 +230,9 @@ func DoBuildData(ctx algo.IContext) error {
 				continue
 			}
 			//搜索过滤开关(运营推荐不管审核状态)
-			if _,ok :=searchMomentMap[mom.Moments.Id];!ok{
+			if _, ok := searchMomentMap[mom.Moments.Id]; !ok {
 				if filteredAudit {
-					if (mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 0)||(mom.MomentsProfile==nil) {
+					if (mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 0) || (mom.MomentsProfile == nil) {
 						continue
 					}
 				}

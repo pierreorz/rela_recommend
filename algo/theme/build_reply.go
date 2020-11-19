@@ -6,6 +6,7 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
+
 	// "rela_recommend/models/pika"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
@@ -24,15 +25,11 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 
 
-
-	replyIdList := []int64{}           // 话题参与 ids
-	themeIdList := []int64{}           // 主话题Ids
-	themeReplyMap := map[int64]int64{} // 话题与参与话题对应关系
-	//hotIdList := make([]int64, 0) //热门话题
-	//allTemeRelMap := map[int64]int64{} // 候选集话题与参与话题对应关系
-
+	replyIdList := []int64{}                // 话题参与 ids
+	themeIdList := []int64{}                // 主话题Ids
+	themeReplyMap := map[int64]int64{}      // 话题与参与话题对应关系
 	var userBehavior *behavior.UserBehavior // 用户实时行为
-	var tagList []int64 //用户操作行为tag集合
+	var tagList []int64                     //用户操作行为tag集合
 
 	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
 		"list": func(*performs.Performs) interface{} { // 获取推荐列表
@@ -52,7 +49,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if realtimeErr == nil {
 				userBehavior = realtimes[params.UserId]
 				//根据实时行为获取用户操作偏好
-				if userBehavior!=nil {
+				if userBehavior != nil {
 					userInteract := userBehavior.GetThemeDetailInteract()
 					if userInteract.Count > 0 {
 						tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
@@ -70,7 +67,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	})
 	preforms.Run("tag_recommend", func(*performs.Performs) interface{} {
 		//根据实时行为数据召回池数据
-		if userBehavior!=nil {
+		if userBehavior != nil {
 			tagRecommends, tagErr := momentCache.QueryTagRecommendsByIds(tagList, "friends_moments_theme_tag:%d")
 			if tagErr == nil {
 				for _, tagRecommend := range tagRecommends {
@@ -79,6 +76,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 						for _, themeDict := range momentList {
 							replyIdList = append(replyIdList, themeDict.ReplyId)
 							themeIdList = append(themeIdList, themeDict.MomentId)
+							themeReplyMap[themeDict.MomentId] = themeDict.ReplyId
 						}
 					}
 				}
@@ -88,20 +86,24 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		}
 		return nil
 	})
+	// log.Debugf("reply_ids:%+v, theme_reply_map:%+v\n", replyIdList, themeReplyMap)
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
+	searchThemeMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	preforms.Run("search", func(*performs.Performs) interface{} {     // 搜索过状态 和 返回置顶推荐内容
 		returnedRecommend := abtest.GetBool("search_returned_recommend", true)
 		filtedAudit := abtest.GetBool("search_filted_audit", false)
 		var searchReplyMapErr error
-		searchReplyMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
+		searchReplyMap, searchThemeMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
 			searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
 		if searchReplyMapErr == nil {
 			replyIdSet := utils.SetInt64{}
 			themeIdSet := utils.NewSetInt64FromArray(themeIdList)
 			for _, searchRes := range searchReplyMap {
 				replyIdSet.Append(searchRes.Id)
-				themeIdSet.Append(searchRes.ParentId)
+			}
+			for themeId, _ := range searchThemeMap {
+				themeIdSet.Append(themeId)
 			}
 			replyIdList = replyIdSet.ToList()
 			themeIdList = themeIdSet.ToList()
@@ -110,6 +112,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		}
 		return searchReplyMapErr
 	})
+	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
 
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
@@ -194,37 +197,36 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if theme.Moments != nil && theme.Moments.Id > 0 {
 				themeId := theme.Moments.Id
 				replyId, replyIdOk := themeReplyMap[themeId]
-				reply, replyOK := replysMap[replyId]
-				if replyIdOk && replyOK {
-					// 计算推荐类型
-					var isTop int = 0
-					var recommends = []algo.RecommendItem{}
-					if topType, topTypeOK := searchReplyMap[reply.Moments.Id]; topTypeOK {
-						topTypeRes := topType.GetCurrentTopType(searchScenery)
-						isTop = utils.GetInt(topTypeRes == "TOP")
-						if topTypeRes == "RECOMMEND" {
-							recommends = append(recommends, algo.RecommendItem{
-								Reason:     "RECOMMEND",
-								Score:      backendRecommendScore,
-								NeedReturn: true})
-						}
+				reply, replyInfoOK := replysMap[replyId]
+				// 计算推荐类型
+				var isTop int = 0
+				var recommends = []algo.RecommendItem{}
+				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
+					topTypeRes := topType.GetCurrentTopType(searchScenery)
+					isTop = utils.GetInt(topTypeRes == "TOP")
+					if topTypeRes == "RECOMMEND" {
+						recommends = append(recommends, algo.RecommendItem{
+							Reason:     "RECOMMEND",
+							Score:      backendRecommendScore,
+							NeedReturn: true})
 					}
-
-					info := &DataInfo{
-						DataId:            themeId,
-						UserCache:         usersMap[theme.Moments.UserId],
-						MomentCache:       theme.Moments,
-						MomentExtendCache: theme.MomentsExtend,
-						MomentProfile:     theme.MomentsProfile,
-						ThemeProfile:      themeProfileMap[themeId],
-
-						ThemeReplyCache:       reply.Moments,
-						ThemeReplyExtendCache: reply.MomentsExtend,
-						RankInfo:              &algo.RankInfo{IsTop: isTop, Recommends: recommends},
-					}
-					themeIds = append(themeIds, themeId)
-					dataList = append(dataList, info)
 				}
+				info := &DataInfo{
+					DataId:            themeId,
+					UserCache:         usersMap[theme.Moments.UserId],
+					MomentCache:       theme.Moments,
+					MomentExtendCache: theme.MomentsExtend,
+					MomentProfile:     theme.MomentsProfile,
+					ThemeProfile:      themeProfileMap[themeId],
+
+					RankInfo: &algo.RankInfo{IsTop: isTop, Recommends: recommends},
+				}
+				if replyId > 0 && replyIdOk && replyInfoOK {
+					info.ThemeReplyCache = reply.Moments
+					info.ThemeReplyExtendCache = reply.MomentsExtend
+				}
+				themeIds = append(themeIds, themeId)
+				dataList = append(dataList, info)
 			}
 		}
 		ctx.SetUserInfo(userInfo)
@@ -262,7 +264,7 @@ func DoBuildDetailReplyData(ctx algo.IContext) error {
 	pf.Run("search", func(*performs.Performs) interface{} { // 搜索过状态 和 返回置顶推荐内容
 		returnedRecommend := abtest.GetBool("search_returned_recommend", true)
 		filtedAudit := abtest.GetBool("search_filted_audit", false)
-		searchReplyMap, searchReplyMapErr := search.CallMomentAuditMap(params.UserId, []int64{},
+		searchReplyMap, _, searchReplyMapErr := search.CallMomentAuditMap(params.UserId, []int64{},
 			searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
 		if searchReplyMapErr == nil {
 			themeReplyMap = themeReplayReplaction(searchReplyMap, themeReplyMap, searchScenery)

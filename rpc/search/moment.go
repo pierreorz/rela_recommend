@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/utils"
 	"strings"
 	"time"
-	"rela_recommend/log"
 )
 
 const internalSearchNearMomentListUrlV1 = "/search/friend_moments"
-const internalSearchLiveMomentListUrl="/search/on_live"
+const internalSearchLiveMomentListUrl = "/search/on_live"
 
 type SearchMomentResDataItem struct {
 	Id int64 `json:"id"`
@@ -35,21 +35,22 @@ type searchMomentRequest struct {
 }
 
 type searchLiveMomentRequest struct {
-	Filter   string  `json:"filter" form:"filter" `
+	Filter string `json:"filter" form:"filter" `
 }
+
 //通过useridList获取正在直播的日志列表
-func CallLiveMomentList(userIdList []int64)([]int64,error){
-	idlist:=make([]int64 ,0)
-	userIdListstr:=make([]string ,0)
-	for _,userid :=range userIdList{
-		userIdListstr=append(userIdListstr,fmt.Sprintf("%d",userid))
+func CallLiveMomentList(userIdList []int64) ([]int64, error) {
+	idlist := make([]int64, 0)
+	userIdListstr := make([]string, 0)
+	for _, userid := range userIdList {
+		userIdListstr = append(userIdListstr, fmt.Sprintf("%d", userid))
 	}
-	log.Warnf("useridlist %s\n",userIdListstr )
-	filters:=[] string{
-		fmt.Sprintf("user_id:%s", strings.Join(userIdListstr,",")),
+	log.Warnf("useridlist %s\n", userIdListstr)
+	filters := []string{
+		fmt.Sprintf("user_id:%s", strings.Join(userIdListstr, ",")),
 	}
 	params := searchLiveMomentRequest{
-		Filter:   strings.Join(filters, "*"),
+		Filter: strings.Join(filters, "*"),
 	}
 
 	if paramsData, err := json.Marshal(params); err == nil {
@@ -146,7 +147,7 @@ type searchMomentAuditRequest struct {
 
 // 获取附近日志列表, filtedAudit 是否筛选推荐合规
 func CallMomentAuditMap(userId int64, moments []int64, scenery string, momentTypes string,
-	returnedRecommend bool, filtedAudit bool) (map[int64]SearchMomentAuditResDataItem, error) {
+	returnedRecommend bool, filtedAudit bool) (map[int64]SearchMomentAuditResDataItem, map[int64]SearchMomentAuditResDataItem, error) {
 
 	filters := []string{
 		fmt.Sprintf("moments_type:%s", momentTypes),
@@ -173,38 +174,47 @@ func CallMomentAuditMap(userId int64, moments []int64, scenery string, momentTyp
 	}
 
 	resMap := map[int64]SearchMomentAuditResDataItem{}
+	themeMap := map[int64]SearchMomentAuditResDataItem{}
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchMomentAuditRes{}
 		internalSearchAuditUrl := fmt.Sprintf(internalSearchAuditUrlFormatter, scenery)
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchAuditUrl, paramsData, searchRes); err == nil {
 			for i, element := range searchRes.Data {
-				resMap[element.Id] = searchRes.Data[i]
+				if element.Id > 0 {
+					resMap[element.Id] = searchRes.Data[i]
+				}
+				if element.ParentId > 0 {
+					_, themeInfoOK := themeMap[element.ParentId] // 如果话题在返回结果出现两条，优先使用有日志推荐标志的
+					if (!themeInfoOK) || (themeInfoOK && element.GetCurrentTopType(scenery) != "") {
+						themeMap[element.ParentId] = searchRes.Data[i]
+					}
+				}
 			}
-			return resMap, err
+			return resMap, themeMap, err
 		} else {
-			return resMap, err
+			return resMap, themeMap, err
 		}
 	} else {
-		return resMap, err
+		return resMap, themeMap, err
 	}
 }
-
 
 /////////////////////// 日志置顶以及推荐接口
 
 const internalSearchTopUrlFormatter = "/search/top_moment"
 
+func CallMomentTopMap(userId int64, scenery string) (map[int64]SearchMomentAuditResDataItem, error) {
 
-func CallMomentTopMap(userId int64,  scenery string, momentTypes string) (map[int64]SearchMomentAuditResDataItem, error) {
+	//filters := []string{
+	//	fmt.Sprintf("moments_type:%s", momentTypes),
+	//}
 
 	filters := []string{
-		fmt.Sprintf("moments_type:%s", momentTypes),
+		fmt.Sprintf("{top_info.scenery:%s*top_info.top_type:top,recommend*top_info.start_time:(,now/m]*top_info.end_time:[now/m,)}", scenery),
 	}
-
 	// 返回运营推荐数据，未审或过审的都可以通过
-	recommendFilter := fmt.Sprintf("{top_info.scenery:%s*top_info.top_type:top,recommend*top_info.start_time:(,now/m]*top_info.end_time:[now/m,)}", scenery)
-	filters = append(filters, fmt.Sprintf("%s", recommendFilter))
-
+	//recommendFilter := fmt.Sprintf("{top_info.scenery:%s*top_info.top_type:top,recommend*top_info.start_time:(,now/m]*top_info.end_time:[now/m,)}", scenery)
+	//filters = append(filters, fmt.Sprintf("%s", recommendFilter))
 
 	params := searchMomentAuditRequest{
 		UserID:       userId,
