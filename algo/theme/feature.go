@@ -6,8 +6,8 @@ import (
 	"rela_recommend/algo/utils"
 	"rela_recommend/factory"
 	rutils "rela_recommend/utils"
-
 )
+
 func GetThemeFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)*utils.Features {
 	fs := &utils.Features{}
 
