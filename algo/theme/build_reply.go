@@ -24,6 +24,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 
+
 	replyIdList := []int64{}                // 话题参与 ids
 	themeIdList := []int64{}                // 主话题Ids
 	themeReplyMap := map[int64]int64{}      // 话题与参与话题对应关系

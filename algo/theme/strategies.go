@@ -101,6 +101,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	}
 	return err
 }
+
 //根据历史用户行为短期偏好提权
 func UserShortTagWegiht(ctx algo.IContext, index int) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
@@ -133,7 +134,6 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 	}
 	return nil
 }
-
 // 内容较短，包含关键词的内容沉底
 func TextDownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	var abTest = ctx.GetAbTest()
