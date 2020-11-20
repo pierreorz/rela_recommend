@@ -28,7 +28,6 @@ func GetThemeFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo)
 	}
 
 	fs.AddCategory(525, 5, 0, ctx.GetPlatform(), 0) //用户操作系统
-
 	//词向量 600-856
 	wordsCount := len(mem.MomentsText)
 

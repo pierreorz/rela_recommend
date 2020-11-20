@@ -79,6 +79,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.GradientBoostingLRClassifier{}, FeaturesFunc: GetMomentFeatures},
 	&algo.AlgoBase{AlgoName: "model_rec_v3", FilePath: workDir + "mods_xg_6.1.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures},
+	&algo.AlgoBase{AlgoName: "model_rec_v4", FilePath: workDir + "mods_rec_1.1.dumps.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures},
 })
 
 // 推荐日志
