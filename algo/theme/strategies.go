@@ -134,23 +134,6 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 	}
 	return nil
 }
-// 根据标签提权
-func themeCategItem(ctx algo.IContext, index int ) error {
-	data:=ctx.GetDataByIndex(index).(*DataInfo)
-	rankInfo := data.GetRankInfo()
-	if data.MomentProfile!=nil {
-		ThemetagList := data.MomentProfile.Tags
-		if ThemetagList!=nil && len(ThemetagList) > 0 {
-			for _, tag := range ThemetagList {
-				if tag.Id!=23 && tag.Id!=7 && tag.Id!=2 && tag.Id!=8 && tag.Id!=9 && tag.Id!=22 && tag.Id!=24 {
-					rankInfo.AddRecommend("themeCateg", 1.5)
-				}
-			}
-		}
-	}
-	return nil
-}
-
 // 内容较短，包含关键词的内容沉底
 func TextDownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	var abTest = ctx.GetAbTest()
