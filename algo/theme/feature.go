@@ -65,7 +65,7 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	wordVec := model.GetWords()
 	memu := data.UserCache
 	memex := data.MomentExtendCache
-	if (memu != nil) {
+	if (memu != nil && memex !=nil) {
 		fs.Add(1, float32(memu.Age))
 		fs.Add(2, float32(memu.Height))
 		fs.Add(3, float32(memu.Weight))
@@ -117,11 +117,13 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 		ThemeAls := data.ThemeProfile
 		themeAls_line := ThemeAls.ThemeEmbedding
 		themecateg_line := ThemeAls.ThemeCateg
-		if len(themeAls_line) > 0 {
-			fs.AddArray(400, 100, themeAls_line)
-		}
-		if len(themecateg_line)>0{
-			fs.AddArray(70,14,themecateg_line)
+		if (themeAls_line != nil && themecateg_line !=nil) {
+			if len(themeAls_line) > 0 {
+				fs.AddArray(400, 100, themeAls_line)
+			}
+			if len(themecateg_line) > 0 {
+				fs.AddArray(70, 14, themecateg_line)
+			}
 		}
 	}
 
