@@ -147,7 +147,7 @@ func GetThemeQuickFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IData
 	wordVec := model.GetWords()
 	memu := data.UserCache
 	memex := data.MomentExtendCache
-	if (memu != nil) {
+	if (memu != nil && memex!= nil) {
 		fs.Add(1, float32(memu.Age))
 		fs.Add(2, float32(memu.Height))
 		fs.Add(3, float32(memu.Weight))
