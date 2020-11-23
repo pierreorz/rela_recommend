@@ -103,7 +103,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 }
 
 //根据历史用户行为短期偏好提权
-func UserShortTagWegiht(ctx algo.IContext, index int) error {
+func UserShortTagWeight(ctx algo.IContext, index int) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
 	dataInfo:=ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
@@ -131,6 +131,22 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 			}
 		}
 
+	}
+	return nil
+}
+// 根据话题categ提权
+func ThemeCategWeight(ctx algo.IContext, index int) error {
+	dataInfo:=ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	if dataInfo.MomentProfile!=nil {
+		ThemetagList := dataInfo.MomentProfile.Tags
+		if len(ThemetagList) > 0{
+			for _, tag := range ThemetagList {
+				if tag.Id!=23 && tag.Id!=7 && tag.Id!=2 && tag.Id!=8 && tag.Id!=9 && tag.Id!=22 && tag.Id!=24 {
+					rankInfo.AddRecommend("ThemeCateg", 1.5)
+				}
+			}
+		}
 	}
 	return nil
 }
