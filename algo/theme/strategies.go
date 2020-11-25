@@ -5,7 +5,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"strings"
@@ -148,13 +147,11 @@ func ThemeCategWeight(ctx algo.IContext, index int) error {
 	if dataInfo.MomentProfile!=nil && tagMapLine!=nil{
 		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentProfile.Tags
-		log.Infof("edit+++++++++++++++++",editTag)
 		if len(ThemetagList) > 0 && len(editTag) > 1{
 			var score float64 = 0.0
 			var count float64 = 0.0
 			for _, tag := range ThemetagList {
 				strTagid:=utils.GetString(tag.Id)
-				log.Infof("theme_Tagid",strTagid)
 				if strings.Contains(editTag,strTagid) {
 					if shortTagList!=nil {
 						if tagIdDict, ok := shortTagList[tag.Id]; ok {
@@ -162,16 +159,14 @@ func ThemeCategWeight(ctx algo.IContext, index int) error {
 							score += rate
 						}
 					}else {
-						rate := 0.5
+						rate := 0.2
 						score+=rate
 					}
 					count+=1.0
 				}
 			}
-			log.Infof("count,score",count,score)
 			if count >0.0 && score > 0.0{
-				avg:=float32(1.0+score/count)
-				log.Infof("ThemeCategAvg",avg)
+				avg:=float32(1.0+(score/count))
 				rankInfo.AddRecommend("ThemeCateg",avg)
 			}
 		}
