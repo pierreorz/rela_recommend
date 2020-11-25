@@ -159,7 +159,7 @@ func ThemeCategWeight(ctx algo.IContext, index int) error {
 							score += rate
 						}
 					}else {
-						rate := 0.2
+						rate := 0.1
 						score+=rate
 					}
 					count+=1.0
