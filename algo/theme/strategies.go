@@ -148,11 +148,13 @@ func ThemeCategWeight(ctx algo.IContext, index int) error {
 	if dataInfo.MomentProfile!=nil && tagMapLine!=nil{
 		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentProfile.Tags
+		log.Infof("edit+++++++++++++++++",editTag)
 		if len(ThemetagList) > 0 && len(editTag) > 1{
 			var score float64 = 0.0
 			var count float64 = 0.0
 			for _, tag := range ThemetagList {
 				strTagid:=utils.GetString(tag.Id)
+				log.Infof("theme_Tagid",strTagid)
 				if strings.Contains(editTag,strTagid) {
 					if shortTagList!=nil {
 						if tagIdDict, ok := shortTagList[tag.Id]; ok {
