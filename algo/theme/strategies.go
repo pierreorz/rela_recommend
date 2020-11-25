@@ -7,7 +7,6 @@ import (
 	autils "rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
-	"strings"
 	"unicode/utf8"
 )
 
@@ -144,25 +143,27 @@ func ThemeCategWeight(ctx algo.IContext, index int) error {
 	tagMapLine :=userData.ThemeUser
 	//后台配置增加曝光内容类型
 	editTag := abtest.GetString("edit_tags_weight", "21,3,17,4,12,11,20,15,16,19,6,10,1,13,14,18,25,5")
-	if dataInfo.MomentProfile!=nil && tagMapLine!=nil{
+	editTagMap := make(map[int64]float64)
+	for _,backtag := range editTag {
+		backtag64 :=int64(backtag)
+		editTagMap[backtag64]=1.0
+	}
+	if dataInfo.MomentProfile!=nil && tagMapLine!=nil {
 		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentProfile.Tags
-		if len(ThemetagList) > 0 && len(editTag) > 1{
+		if len(ThemetagList) > 0 && len(editTag) > 1 && len(shortTagList) > 0{
 			var score float64 = 0.0
 			var count float64 = 0.0
 			for _, tag := range ThemetagList {
-				strTagid:=utils.GetString(tag.Id)
-				if strings.Contains(editTag,strTagid) {
-					if shortTagList!=nil {
-						if tagIdDict, ok := shortTagList[tag.Id]; ok {
+				if themeTagDict,ok := editTagMap[tag.Id];ok{
+					if tagIdDict, ok := shortTagList[tag.Id]; ok {
 							rate := tagIdDict.TagScore
 							score += rate
-						}
-					}else {
+							} else {
 						rate := 0.1
 						score+=rate
 					}
-					count+=1.0
+					count += themeTagDict
 				}
 			}
 			if count >0.0 && score > 0.0{
