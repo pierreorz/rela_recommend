@@ -5,8 +5,10 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -134,17 +136,40 @@ func UserShortTagWeight(ctx algo.IContext, index int) error {
 	}
 	return nil
 }
-// 根据话题categ提权
+// 针对指定categ提权
 func ThemeCategWeight(ctx algo.IContext, index int) error {
 	dataInfo:=ctx.GetDataByIndex(index).(*DataInfo)
+	userData := ctx.GetUserInfo().(*UserInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	if dataInfo.MomentProfile!=nil {
+	abtest := ctx.GetAbTest()
+	tagMapLine :=userData.ThemeUser
+	//后台配置增加曝光内容类型
+	editTag := abtest.GetString("edit_tags_weight", "")
+	if dataInfo.MomentProfile!=nil && tagMapLine!=nil{
+		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentProfile.Tags
-		if len(ThemetagList) > 0{
+		if len(ThemetagList) > 0 && len(editTag) > 1{
+			var score float64 = 0.0
+			var count float64 = 0.0
 			for _, tag := range ThemetagList {
-				if tag.Id!=23 && tag.Id!=7 && tag.Id!=2 && tag.Id!=8 && tag.Id!=9 && tag.Id!=22 && tag.Id!=24 {
-					rankInfo.AddRecommend("ThemeCateg", 1.5)
+				strTagid:=utils.GetString(tag.Id)
+				if strings.Contains(editTag,strTagid) {
+					if shortTagList!=nil {
+						if tagIdDict, ok := shortTagList[tag.Id]; ok {
+							rate := tagIdDict.TagScore
+							score += rate
+						}
+					}else {
+						rate := 0.5
+						score+=rate
+					}
+					count+=1.0
 				}
+			}
+			if count >0.0 && score > 0.0{
+				avg:=float32(1.0+score/count)
+				log.Infof("ThemeCategAvg",avg)
+				rankInfo.AddRecommend("ThemeCateg",avg)
 			}
 		}
 	}
