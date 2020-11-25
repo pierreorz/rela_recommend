@@ -7,7 +7,6 @@ import (
 	autils "rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
-	"strings"
 	"unicode/utf8"
 )
 
@@ -136,40 +135,43 @@ func UserShortTagWeight(ctx algo.IContext, index int) error {
 	return nil
 }
 // 针对指定categ提权
-func ThemeCategWeight(ctx algo.IContext, index int) error {
-	dataInfo:=ctx.GetDataByIndex(index).(*DataInfo)
+func ThemeCategWeight(ctx algo.IContext) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
-	rankInfo := dataInfo.GetRankInfo()
 	abtest := ctx.GetAbTest()
 	tagMapLine :=userData.ThemeUser
 	//后台配置增加曝光内容类型
-	editTag := abtest.GetString("edit_tags_weight", "21,3,17,4,12,11,20,15,16,19,6,10,1,13,14,18,25,5")
+	editTag := abtest.GetStrings("edit_tags_weight", "21,3,17,4,12,11,20,15,16,19,6,10,1,13,14,18,25,5")
 	editTagMap := make(map[int64]float64)
-	for _,backtag := range strings.Split(editTag,",") {
+	for _,backtag := range editTag {
 		backtag64 := int64(utils.GetInt(backtag))
 		editTagMap[backtag64]=1.0
 	}
-	if dataInfo.MomentProfile!=nil && tagMapLine!=nil {
-		shortTagList := tagMapLine.AiTag.UserShortTag
-		ThemetagList := dataInfo.MomentProfile.Tags
-		if len(ThemetagList) > 0 && len(editTag) > 1 && len(shortTagList) > 0{
-			var score float64 = 0.0
-			var count float64 = 0.0
-			for _, tag := range ThemetagList {
-				if themeTagDict,ok := editTagMap[tag.Id];ok{
-					if tagIdDict, ok := shortTagList[tag.Id]; ok {
-							rate := tagIdDict.TagScore
-							score += rate
-							} else {
-						rate := 0.1
-						score+=rate
+	for index :=1;index <ctx.GetDataLength();index++{
+		dataInfo:=ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		dataInfo.GetDataId()
+		if dataInfo.MomentProfile!=nil && tagMapLine!=nil {
+			shortTagList := tagMapLine.AiTag.UserShortTag
+			ThemetagList := dataInfo.MomentProfile.Tags
+			if len(ThemetagList) > 0 && len(editTag) > 1 && len(shortTagList) > 0{
+				var score float64 = 0.0
+				var count float64 = 0.0
+				for _, tag := range ThemetagList {
+					if themeTagDict,ok := editTagMap[tag.Id];ok{
+						if tagIdDict, ok := shortTagList[tag.Id]; ok {
+								rate := tagIdDict.TagScore
+								score += rate
+								} else {
+							rate := 0.1
+							score+=rate
+						}
+						count += themeTagDict
 					}
-					count += themeTagDict
 				}
-			}
-			if count >0.0 && score > 0.0{
-				avg:=float32(1.0+(score/count))
-				rankInfo.AddRecommend("ThemeCateg",avg)
+				if count >0.0 && score > 0.0{
+					avg:=float32(1.0+(score/count))
+					rankInfo.AddRecommend("ThemeCateg",avg)
+				}
 			}
 		}
 	}
