@@ -5,6 +5,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"unicode/utf8"
@@ -146,31 +147,34 @@ func ThemeCategWeight(ctx algo.IContext) error {
 		backtag64 := int64(utils.GetInt(backtag))
 		editTagMap[backtag64]=1.0
 	}
-	for index :=1;index <ctx.GetDataLength();index++{
-		dataInfo:=ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo := dataInfo.GetRankInfo()
-		dataInfo.GetDataId()
-		if dataInfo.MomentProfile!=nil && tagMapLine!=nil {
-			shortTagList := tagMapLine.AiTag.UserShortTag
-			ThemetagList := dataInfo.MomentProfile.Tags
-			if len(ThemetagList) > 0 && len(editTag) > 1 && len(shortTagList) > 0{
-				var score float64 = 0.0
-				var count float64 = 0.0
-				for _, tag := range ThemetagList {
-					if themeTagDict,ok := editTagMap[tag.Id];ok{
-						if tagIdDict, ok := shortTagList[tag.Id]; ok {
+	log.Infof("editTagMap+++++",editTagMap)
+	if tagMapLine !=nil && len(editTag) > 1 && len(editTagMap)>0 {
+		for index := 1; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			dataInfo.GetDataId()
+			if dataInfo.MomentProfile != nil {
+				shortTagList := tagMapLine.AiTag.UserShortTag
+				ThemetagList := dataInfo.MomentProfile.Tags
+				if len(ThemetagList) > 0  && len(shortTagList) > 0 {
+					var score float64 = 0.0
+					var count float64 = 0.0
+					for _, tag := range ThemetagList {
+						if themeTagDict, ok := editTagMap[tag.Id]; ok {
+							if tagIdDict, ok := shortTagList[tag.Id]; ok {
 								rate := tagIdDict.TagScore
 								score += rate
-								} else {
-							rate := 0.1
-							score+=rate
+							} else {
+								rate := 0.1
+								score += rate
+							}
+							count += themeTagDict
 						}
-						count += themeTagDict
 					}
-				}
-				if count >0.0 && score > 0.0{
-					avg:=float32(1.0+(score/count))
-					rankInfo.AddRecommend("ThemeCateg",avg)
+					if count > 0.0 && score > 0.0 {
+						avg := float32(1.0 + (score / count))
+						rankInfo.AddRecommend("ThemeCateg", avg)
+					}
 				}
 			}
 		}
