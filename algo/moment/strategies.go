@@ -43,6 +43,17 @@ func BetterUserMomAddWeight(ctx algo.IContext, index int) error{
 	return nil
 }
 
+//类型类日志提权策略
+func ContentAddWeight(ctx algo.IContext, index int) error{
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	abtest := ctx.GetAbTest()
+	contentType :=abtest.GetString("content_type","theme,themereply")
+	if dataInfo.MomentCache!=nil&&strings.Contains(contentType,dataInfo.MomentCache.MomentsType){
+		rankInfo.AddRecommend("contentWeight", 1.1)
+	}
+	return nil
+}
 //用户短期偏好提取
 func ShortPrefAddWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
