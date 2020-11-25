@@ -144,7 +144,7 @@ func ThemeCategWeight(ctx algo.IContext, index int) error {
 	abtest := ctx.GetAbTest()
 	tagMapLine :=userData.ThemeUser
 	//后台配置增加曝光内容类型
-	editTag := abtest.GetString("edit_tags_weight", "")
+	editTag := abtest.GetString("edit_tags_weight", "21,3,17,4,12,11,20,15,16,19,6,10,1,13,14,18,25,5")
 	if dataInfo.MomentProfile!=nil && tagMapLine!=nil{
 		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentProfile.Tags
