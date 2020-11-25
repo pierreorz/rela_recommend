@@ -5,7 +5,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"strings"
@@ -151,7 +150,6 @@ func ThemeCategWeight(ctx algo.IContext, index int) error {
 		if len(ThemetagList) > 0 && len(editTag) > 1{
 			var score float64 = 0.0
 			var count float64 = 0.0
-			log.Infof("editTag+++++++++++",editTag)
 			for _, tag := range ThemetagList {
 				strTagid:=utils.GetString(tag.Id)
 				if strings.Contains(editTag,strTagid) {
