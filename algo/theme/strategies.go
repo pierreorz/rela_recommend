@@ -5,7 +5,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"strings"
@@ -150,7 +149,6 @@ func ThemeCategWeight(ctx algo.IContext, index int) error {
 		backtag64 := int64(utils.GetInt(backtag))
 		editTagMap[backtag64]=1.0
 	}
-	log.Infof("backTagMap",editTagMap)
 	if dataInfo.MomentProfile!=nil && tagMapLine!=nil {
 		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentProfile.Tags
@@ -158,7 +156,6 @@ func ThemeCategWeight(ctx algo.IContext, index int) error {
 			var score float64 = 0.0
 			var count float64 = 0.0
 			for _, tag := range ThemetagList {
-				log.Infof("Themetag++++++++",tag.Id)
 				if themeTagDict,ok := editTagMap[tag.Id];ok{
 					if tagIdDict, ok := shortTagList[tag.Id]; ok {
 							rate := tagIdDict.TagScore
