@@ -24,7 +24,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 
-
 	replyIdList := []int64{}                // 话题参与 ids
 	themeIdList := []int64{}                // 主话题Ids
 	themeReplyMap := map[int64]int64{}      // 话题与参与话题对应关系
@@ -90,30 +89,46 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	searchThemeMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
-	preforms.Run("search", func(*performs.Performs) interface{} {     // 搜索过状态 和 返回置顶推荐内容
-		returnedRecommend := abtest.GetBool("search_returned_recommend", true)
-		filtedAudit := abtest.GetBool("search_filted_audit", false)
-		var searchReplyMapErr error
-		searchReplyMap, searchThemeMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
-			searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
-		if searchReplyMapErr == nil {
-			replyIdSet := utils.SetInt64{}
-			themeIdSet := utils.NewSetInt64FromArray(themeIdList)
-			for _, searchRes := range searchReplyMap {
-				replyIdSet.Append(searchRes.Id)
+
+	filtedAudit := abtest.GetBool("search_filted_audit", false)
+	var searchReplyThemeIds = []int64{}
+	var searchThemeNoReturnIds = []int64{}
+	preforms.RunsGo("search", map[string]func(*performs.Performs) interface{}{
+		"reply": func(*performs.Performs) interface{} { // 搜索过状态 和 返回置顶推荐内容
+			returnedRecommend := abtest.GetBool("search_returned_recommend", true)
+			var searchReplyMapErr error
+			searchReplyMap, searchThemeMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
+				searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
+			if searchReplyMapErr == nil {
+				replyIdSet := utils.SetInt64{}
+				for _, searchRes := range searchReplyMap {
+					replyIdSet.Append(searchRes.Id)
+				}
+				for themeId, _ := range searchThemeMap {
+					searchReplyThemeIds = append(searchReplyThemeIds, themeId)
+				}
+				replyIdList = replyIdSet.ToList()
+				themeReplyMap = themeReplayReplaction(searchReplyMap, themeReplyMap, searchScenery) // 运营配置和算法推荐去重复，以运营配置优先
+				return len(searchReplyMap)
 			}
-			for themeId, _ := range searchThemeMap {
-				themeIdSet.Append(themeId)
+			return searchReplyMapErr
+		},
+		"theme": func(*performs.Performs) interface{} { // 计算不符合条件的theme
+			searchThemeResMap, _, searchThemeResMapErr := search.CallMomentAuditMap(params.UserId, themeIdList,
+				searchScenery, "theme", false, filtedAudit)
+			if searchThemeResMapErr == nil {
+				for _, themeId := range themeIdList {
+					if _, ok := searchThemeResMap[themeId]; !ok {
+						searchThemeNoReturnIds = append(searchThemeNoReturnIds, themeId)
+					}
+				}
+				return len(searchThemeNoReturnIds)
 			}
-			replyIdList = replyIdSet.ToList()
-			themeIdList = themeIdSet.ToList()
-			themeReplyMap = themeReplayReplaction(searchReplyMap, themeReplyMap, searchScenery) // 运营配置和算法推荐去重复，以运营配置优先
-			return len(searchReplyMap)
-		}
-		return searchReplyMapErr
+			return searchThemeResMapErr
+		},
 	})
 	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
-
+	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
 	var replysMap = map[int64]redis.MomentsAndExtend{}
@@ -137,7 +152,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 		"theme": func(*performs.Performs) interface{} { // 获取内容缓存
 			var themesMapErr error
-			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIdList)
+			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
 			if themesMapErr == nil {
 				for _, mom := range themes {
 					if mom.Moments != nil {
@@ -175,7 +190,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 		"theme_profile": func(*performs.Performs) interface{} {
 			var themeProfileCacheErr error
-			themeProfileMap, themeProfileCacheErr = themeUserCache.QueryThemeProfileMap(themeIdList)
+			themeProfileMap, themeProfileCacheErr = themeUserCache.QueryThemeProfileMap(themeIds)
 			if themeProfileCacheErr == nil {
 				return len(themeProfileMap)
 			}
@@ -183,8 +198,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 
-	themeIds := make([]int64, 0)
 	preforms.Run("build", func(*performs.Performs) interface{} {
+		dataIds := make([]int64, 0)
 		userInfo := &UserInfo{
 			UserId:       params.UserId,
 			UserCache:    user,
@@ -225,12 +240,12 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					info.ThemeReplyCache = reply.Moments
 					info.ThemeReplyExtendCache = reply.MomentsExtend
 				}
-				themeIds = append(themeIds, themeId)
+				dataIds = append(dataIds, themeId)
 				dataList = append(dataList, info)
 			}
 		}
 		ctx.SetUserInfo(userInfo)
-		ctx.SetDataIds(themeIds)
+		ctx.SetDataIds(dataIds)
 		ctx.SetDataList(dataList)
 		return len(dataList)
 	})

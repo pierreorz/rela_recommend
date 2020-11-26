@@ -436,6 +436,18 @@ func (self *SetInt64) Contains(val int64) bool {
 	return ok
 }
 
+func (self *SetInt64) Remove(val int64) *SetInt64 {
+	delete(self.intMap, val)
+	return self
+}
+
+func (self *SetInt64) RemoveArray(vals []int64) *SetInt64 {
+	for _, val := range vals {
+		delete(self.intMap, val)
+	}
+	return self
+}
+
 func (self *SetInt64) ToList() []int64 {
 	res := make([]int64, 0)
 	for k, _ := range self.intMap {
