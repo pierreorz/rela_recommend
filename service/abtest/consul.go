@@ -2,28 +2,29 @@ package abtest
 
 import (
 	// "sync"
-	"errors"
 	"encoding/json"
+	"errors"
 	"rela_recommend/log"
+
 	"github.com/hashicorp/consul/api"
 	"github.com/hashicorp/consul/watch"
 )
 
 type appInfo struct {
-	Name string 				`json:"name"`
+	Name string `json:"name"`
 
-	configPrefix	string
-	testPrefix		string
-	whitePrefix		string
+	configPrefix string
+	testPrefix   string
+	whitePrefix  string
 
-	configPlan	*watch.Plan
-	testPlan	*watch.Plan
-	whitePlan	*watch.Plan
+	configPlan *watch.Plan
+	testPlan   *watch.Plan
+	whitePlan  *watch.Plan
 }
 
 func watch_func(host string, app string, prefix string, handler func(string, string, api.KVPairs) error) *watch.Plan {
 	var params = map[string]interface{}{
-		"type": "keyprefix",
+		"type":   "keyprefix",
 		"prefix": prefix,
 	}
 	plan, err := watch.Parse(params)
@@ -42,13 +43,14 @@ func watch_func(host string, app string, prefix string, handler func(string, str
 		}
 		// 更新涉及的key
 		if len(app) > 0 {
-			formulaKeys := GetFormulaKeys(defaultFactorMap[app], testingMap[app], whiteListMap[app])
+			// formulaKeys := GetFormulaKeys(defaultFactorMap[app], testingMap[app], whiteListMap[app])
+			formulaKeys := GetFormulaKeys(getDefaultFactorMap(app), getTestingMap(app), getWhiteListMap(app))
 			log.Infof("%s app:%s keys:%+v\n", prefix, app, formulaKeys)
 			setFormulaListMap(app, formulaKeys)
 		}
 		// log.Infof("%s changed: %+v\n", prefix, result)
 	}
-	go func(){
+	go func() {
 		if err = plan.Run(host); err != nil {
 			panic(err)
 		}
@@ -56,20 +58,20 @@ func watch_func(host string, app string, prefix string, handler func(string, str
 	return plan
 }
 
-func updateConfig(app string, prefix string, kvs api.KVPairs) error{
+func updateConfig(app string, prefix string, kvs api.KVPairs) error {
 	var configMap = map[string]Factor{}
 	var keyPrefixLen = len(prefix)
 	for _, kv := range kvs {
-		configKey := kv.Key[keyPrefixLen: ]
+		configKey := kv.Key[keyPrefixLen:]
 		configMap[configKey] = NewFactor(kv.Value)
 	}
 	// defaultFactorMap[app] = configMap
 	setDefaultFactorMap(app, configMap)
-	log.Infof("%s changed: %+v\n", prefix, defaultFactorMap[app])
+	log.Infof("%s changed: %+v\n", prefix, getDefaultFactorMap(app))
 	return nil
 }
 
-func updateTest(app string, prefix string, kvs api.KVPairs) error{
+func updateTest(app string, prefix string, kvs api.KVPairs) error {
 	var testList = []Testing{}
 	for _, kv := range kvs {
 		var test = Testing{}
@@ -81,11 +83,11 @@ func updateTest(app string, prefix string, kvs api.KVPairs) error{
 	}
 	// testingMap[app] = testList
 	setTestingMap(app, testList)
-	log.Infof("%s changed: %+v\n", prefix, testingMap[app])
+	log.Infof("%s changed: %+v\n", prefix, getTestingMap(app))
 	return nil
 }
 
-func updateWhite(app string, prefix string, kvs api.KVPairs) error{
+func updateWhite(app string, prefix string, kvs api.KVPairs) error {
 	var whiteList = []WhiteName{}
 	for _, kv := range kvs {
 		var white = WhiteName{}
@@ -97,11 +99,11 @@ func updateWhite(app string, prefix string, kvs api.KVPairs) error{
 	}
 	// whiteListMap[app] = whiteList
 	setWhiteListMap(app, whiteList)
-	log.Infof("%s changed: %+v\n", prefix, whiteListMap[app])
+	log.Infof("%s changed: %+v\n", prefix, getWhiteListMap(app))
 	return nil
 }
 
-func(self *appInfo) Watch(hosts string) *appInfo {
+func (self *appInfo) Watch(hosts string) *appInfo {
 	self.configPrefix = "ai/abtest/config/" + self.Name + "/"
 	self.testPrefix = "ai/abtest/test/" + self.Name + "/"
 	self.whitePrefix = "ai/abtest/white/" + self.Name + "/"
@@ -115,7 +117,7 @@ var watchAppMap = map[string]*appInfo{}
 
 func BeginWatching(hosts string) *watch.Plan {
 	// hosts := "127.0.0.1:8500"
-	return watch_func(hosts, "", "ai/abtest/app/", func(appName string, prefix string, kvs api.KVPairs) error{
+	return watch_func(hosts, "", "ai/abtest/app/", func(appName string, prefix string, kvs api.KVPairs) error {
 		for _, kv := range kvs {
 			var app = &appInfo{}
 			if err := json.Unmarshal(kv.Value, app); err != nil {
