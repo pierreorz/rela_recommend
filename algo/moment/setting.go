@@ -26,7 +26,6 @@ var strategyMap = map[string]algo.IStrategy{
 	"assignTag_weight": &algo.StrategyBase{DoSingle: AssignTagAddWeight},
 	"short_pref":       &algo.StrategyBase{DoSingle: ShortPrefAddWeight},
 	"better_user":     &algo.StrategyBase{DoSingle: BetterUserMomAddWeight},
-	"content_weight":     &algo.StrategyBase{DoSingle: ContentAddWeight},
 
 }
 var sorterMap = map[string]algo.ISorter{
@@ -51,6 +50,8 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"user_behavior_interact": &strategy.BaseRichStrategy{
 		StrategyFunc: UserBehaviorInteractStrategyFunc,
 	},
+	"content_weight": &strategy.BaseRichStrategy{
+		StrategyFunc: ContentAddWeight},
 }
 
 // 精排算法
