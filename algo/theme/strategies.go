@@ -147,10 +147,9 @@ func ThemeCategWeight(ctx algo.IContext) error {
 		editTagMap[backtag64]=1.0
 	}
 	if tagMapLine !=nil && len(editTag) > 1 && len(editTagMap)>0 {
-		for index := 1; index < ctx.GetDataLength(); index++ {
+		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
-			dataInfo.GetDataId()
 			if dataInfo.MomentProfile != nil {
 				shortTagList := tagMapLine.AiTag.UserShortTag
 				ThemetagList := dataInfo.MomentProfile.Tags
@@ -160,11 +159,9 @@ func ThemeCategWeight(ctx algo.IContext) error {
 					for _, tag := range ThemetagList {
 						if themeTagDict, ok := editTagMap[tag.Id]; ok {
 							if tagIdDict, ok := shortTagList[tag.Id]; ok {
-								rate := tagIdDict.TagScore
-								score += rate
+								score += tagIdDict.TagScore
 							} else {
-								rate := 0.1
-								score += rate
+								score += 0.1
 							}
 							count += themeTagDict
 						}
