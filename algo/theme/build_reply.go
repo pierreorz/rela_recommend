@@ -24,7 +24,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 
-
 	replyIdList := []int64{}                // 话题参与 ids
 	themeIdList := []int64{}                // 主话题Ids
 	themeReplyMap := map[int64]int64{}      // 话题与参与话题对应关系
@@ -94,7 +93,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	filtedAudit := abtest.GetBool("search_filted_audit", false)
 	var searchReplyThemeIds = []int64{}
 	var searchThemeNoReturnIds = []int64{}
-	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
+	preforms.RunsGo("search", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 搜索过状态 和 返回置顶推荐内容
 			returnedRecommend := abtest.GetBool("search_returned_recommend", true)
 			var searchReplyMapErr error
