@@ -1,9 +1,9 @@
 package abtest
 
 import (
-	"sync"
-	"rela_recommend/log"
 	"encoding/json"
+	"rela_recommend/log"
+	"sync"
 )
 
 var defaultFactorMap map[string]map[string]Factor = map[string]map[string]Factor{}
@@ -16,30 +16,49 @@ var testLocker = &sync.RWMutex{}
 var whiteLocker = &sync.RWMutex{}
 var formulaLocker = &sync.RWMutex{}
 
+func getDefaultFactorMap(key string) map[string]Factor {
+	configLocker.RLock()
+	defer configLocker.RUnlock()
+	return defaultFactorMap[key]
+}
 func setDefaultFactorMap(key string, val map[string]Factor) {
 	configLocker.Lock()
 	defer configLocker.Unlock()
 	defaultFactorMap[key] = val
 }
 
+func getTestingMap(key string) []Testing {
+	testLocker.RLock()
+	defer testLocker.RUnlock()
+	return testingMap[key]
+}
 func setTestingMap(key string, val []Testing) {
 	testLocker.Lock()
 	defer testLocker.Unlock()
 	testingMap[key] = val
 }
 
+func getWhiteListMap(key string) []WhiteName {
+	whiteLocker.RLock()
+	defer whiteLocker.RUnlock()
+	return whiteListMap[key]
+}
 func setWhiteListMap(key string, val []WhiteName) {
 	whiteLocker.Lock()
 	defer whiteLocker.Unlock()
 	whiteListMap[key] = val
 }
 
+func getFormulaListMap(key string) []string {
+	formulaLocker.RLock()
+	defer formulaLocker.RUnlock()
+	return formulaListMap[key]
+}
 func setFormulaListMap(key string, val []string) {
 	formulaLocker.Lock()
 	defer formulaLocker.Unlock()
 	formulaListMap[key] = val
 }
-
 
 func init() {
 	// 因子默认值
@@ -151,4 +170,3 @@ func init() {
 		panic(err.Error())
 	}
 }
-

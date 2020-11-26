@@ -219,6 +219,12 @@ func (self *AbTest) GetStrings(key string, defVals string) []string {
 	return res
 }
 
+// 返回字符串集合
+func (self *AbTest) GetStringSet(key string, defVals string) *utils.SetString {
+	strs := self.GetStrings(key, defVals)
+	return utils.NewSetStringFromArray(strs)
+}
+
 func (self *AbTest) GetBool(key string, defVal bool) bool {
 	if val, ok := self.FactorMap[key]; ok {
 		val = strings.ToLower(val)
@@ -237,6 +243,23 @@ func (self *AbTest) GetInt64(key string, defVal int64) int64 {
 	}
 	return defVal
 }
+
+func (self *AbTest) GetInt64s(key string, defVals string) []int64 {
+	strs := self.GetStrings(key, defVals)
+	res := []int64{}
+	for _, str := range strs {
+		if vali, err := strconv.ParseInt(str, 10, 64); err == nil {
+			res = append(res, vali)
+		}
+	}
+	return res
+}
+
+func (self *AbTest) GetInt64Set(key string, defVals string) *utils.SetInt64 {
+	int64s := self.GetInt64s(key, defVals)
+	return utils.NewSetInt64FromArray(int64s)
+}
+
 func (self *AbTest) GetInt(key string, defVal int) int {
 	return int(self.GetInt64(key, int64(defVal)))
 }

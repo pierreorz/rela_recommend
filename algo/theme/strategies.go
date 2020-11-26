@@ -103,7 +103,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 }
 
 //根据历史用户行为短期偏好提权
-func UserShortTagWegiht(ctx algo.IContext, index int) error {
+func UserShortTagWeight(ctx algo.IContext, index int) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
 	dataInfo:=ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
@@ -131,6 +131,48 @@ func UserShortTagWegiht(ctx algo.IContext, index int) error {
 			}
 		}
 
+	}
+	return nil
+}
+// 针对指定categ提权
+func ThemeCategWeight(ctx algo.IContext) error {
+	userData := ctx.GetUserInfo().(*UserInfo)
+	abtest := ctx.GetAbTest()
+	tagMapLine :=userData.ThemeUser
+	//后台配置增加曝光内容类型
+	editTag := abtest.GetStrings("edit_tags_weight", "21,3,17,4,12,11,20,15,16,19,6,10,1,13,14,18,25,5")
+	editTagMap := make(map[int64]float64)
+	for _,backtag := range editTag {
+		backtag64 := int64(utils.GetInt(backtag))
+		editTagMap[backtag64]=1.0
+	}
+	if tagMapLine !=nil && len(editTag) > 1 && len(editTagMap)>0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if dataInfo.MomentProfile != nil {
+				shortTagList := tagMapLine.AiTag.UserShortTag
+				ThemetagList := dataInfo.MomentProfile.Tags
+				if len(ThemetagList) > 0  && len(shortTagList) > 0 {
+					var score float64 = 0.0
+					var count float64 = 0.0
+					for _, tag := range ThemetagList {
+						if themeTagDict, ok := editTagMap[tag.Id]; ok {
+							if tagIdDict, ok := shortTagList[tag.Id]; ok {
+								score += tagIdDict.TagScore
+							} else {
+								score += 0.1
+							}
+							count += themeTagDict
+						}
+					}
+					if count > 0.0 && score > 0.0 {
+						avg := float32(1.0 + (score / count))
+						rankInfo.AddRecommend("ThemeCateg", avg)
+					}
+				}
+			}
+		}
 	}
 	return nil
 }
