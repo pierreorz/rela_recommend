@@ -151,8 +151,7 @@ func GetFormulaKeys(defMap map[string]Factor, testings []Testing, whiteLists []W
 }
 
 // 初始化内容
-func (self *AbTest) Init(defMap map[string]map[string]Factor, testingMap map[string][]Testing,
-	whiteListMap map[string][]WhiteName, settingMap map[string]string) {
+func (self *AbTest) init(settingMap map[string]string) {
 	self.CurrentTime = time.Now()
 	self.RankId = utils.UniqueId()
 	self.SettingMap = settingMap
@@ -160,22 +159,18 @@ func (self *AbTest) Init(defMap map[string]map[string]Factor, testingMap map[str
 	self.HitTestingMap = map[string]TestingVersion{}
 	self.HitWriteMap = map[string]WhiteName{}
 	self.DataAttr = map[string]interface{}{}
-	// 获取APP配置
-	defVal, defOk := defMap[self.App]
-	testList, testOk := testingMap[self.App]
-	whiteList, whiteOk := whiteListMap[self.App]
-	keyList, keyOk := formulaListMap[self.App]
+
 	// 初始化用户信息
-	if keyOk && len(keyList) > 0 {
+	if keyList := getFormulaListMap(self.App); len(keyList) > 0 {
 		self.DataAttr = self.GetUserAttr(keyList)
 	}
 
 	// 初始化因子
-	if defOk {
+	if defVal := getDefaultFactorMap(self.App); len(defVal) > 0 {
 		self.updateFactor(defVal)
 	}
 	// 选择测试组, status状态： （-1: 已取消 0: 已删除 1: 待执行 2：运行中 3：已结束 ）
-	if testOk {
+	if testList := getTestingMap(self.App); len(testList) > 0 {
 		for _, test := range testList {
 			if test.App == self.App && test.Status == 2 && test.BeginTime.Before(self.CurrentTime) && test.EndTime.After(self.CurrentTime) {
 				self.updateTesting(test)
@@ -183,7 +178,7 @@ func (self *AbTest) Init(defMap map[string]map[string]Factor, testingMap map[str
 		}
 	}
 	// 增加白名单
-	if whiteOk {
+	if whiteList := getWhiteListMap(self.App); len(whiteList) > 0 {
 		for _, white := range whiteList {
 			if white.App == self.App {
 				self.updateWhite(white)
@@ -191,7 +186,7 @@ func (self *AbTest) Init(defMap map[string]map[string]Factor, testingMap map[str
 		}
 	}
 	// 配置设置值
-	if settingMap != nil && len(settingMap) > 0 {
+	if len(settingMap) > 0 {
 		self.update(settingMap)
 	}
 
@@ -307,12 +302,12 @@ func GetAbTest(app string, dataId int64) *AbTest {
 
 func GetAbTestWithSetting(app string, dataId int64, settingMap map[string]string) *AbTest {
 	abtest := AbTest{App: app, DataId: dataId}
-	abtest.Init(defaultFactorMap, testingMap, whiteListMap, settingMap)
+	abtest.init(settingMap)
 	return &abtest
 }
 
 func GetAbTestWithUaLocSetting(app string, dataId int64, ua string, lat float32, lng float32, settingMap map[string]string) *AbTest {
 	abtest := AbTest{App: app, DataId: dataId, Ua: ua, Lat: lat, Lng: lng}
-	abtest.Init(defaultFactorMap, testingMap, whiteListMap, settingMap)
+	abtest.init(settingMap)
 	return &abtest
 }
