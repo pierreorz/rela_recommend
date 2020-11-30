@@ -192,6 +192,7 @@ func initRpc(cfg *conf.Config) {
 	ApiRpcClient = rpc.NewHttpClient(cfg.Rpc.ApiRpcAddr, time.Millisecond*100)
 	ChatRoomRpcClient = rpc.NewHttpClient(cfg.Rpc.ChatRoomRpcAddr, time.Millisecond*1000)
 	AiSearchRpcClient = rpc.NewHttpClient(cfg.Rpc.AiSearchRpcAddr, time.Millisecond*1000)
+	LiveRpcClient = rpc.NewHttpClient(cfg.Rpc.LiveRpcAddr, time.Millisecond*1000)
 }
 
 func initSegmenter(cfg *conf.Config) {
