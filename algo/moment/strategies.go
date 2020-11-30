@@ -43,6 +43,7 @@ func BetterUserMomAddWeight(ctx algo.IContext, index int) error{
 	return nil
 }
 
+
 //用户短期偏好提取
 func ShortPrefAddWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -251,7 +252,22 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	}
 	return err
 }
-
+//根据日志的类别来进行相应的提权
+func ContentAddWeight(ctx algo.IContext) error {
+	var err error
+	var abtest =ctx.GetAbTest()
+	contentType :=abtest.GetStringSet("content_type","theme,themereply")
+	for index :=0;index < ctx.GetDataLength() ;index++{
+		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+		if dataInfo.MomentCache!=nil {
+			rankInfo := dataInfo.GetRankInfo()
+			if contentType.Contains(dataInfo.MomentCache.MomentsType){
+				rankInfo.AddRecommend("contentTypeWeight", 1.1)
+			}
+		}
+	}
+	return err
+}
 // 根据用户实时行为偏好，进行的策略
 func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
