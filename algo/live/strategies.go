@@ -70,7 +70,8 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 		}
 	}
 	if len(indexs) > 0 {
-		index := rand.Intn(len(indexs))
+		i := rand.Intn(len(indexs))
+		index := indexs[i]
 		liveInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 		rankInfo := liveInfo.GetRankInfo()
 		rankInfo.Level = 99

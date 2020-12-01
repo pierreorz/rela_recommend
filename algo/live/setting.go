@@ -3,6 +3,7 @@ package live
 import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/sort"
+	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
 )
 
@@ -15,6 +16,10 @@ var strategyMap = map[string]algo.IStrategy{
 	"top_recommend_level": &algo.StrategyBase{DoSingle: LiveTopRecommandStrategyFunc},
 	"old_score":           &OldScoreStrategy{},
 }
+var richStrategyMap = map[string]algo.IRichStrategy{
+	"per_hour_top": &strategy.BaseRichStrategy{StrategyFunc: HourRankRecommendFunc, DefaultWeight: 1},
+}
+
 var sorterMap = map[string]algo.ISorter{
 	"base":     &sort.SorterBase{},
 	"interval": &sort.SorterWithInterval{},
@@ -43,4 +48,6 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
-	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap})
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap,
+})
