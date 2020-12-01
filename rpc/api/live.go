@@ -47,7 +47,7 @@ type AnchorHourRankInfo struct {
 
 // 获取主播在上个小时列表中的排名, {userId: {index, rank}}，rankId从1开始
 func CallLiveHourRankMap(userId int64) (map[int64]AnchorHourRankInfo, error) {
-	params := fmt.Sprintf("userId=%d&dataVersion=pre", userId)
+	params := fmt.Sprintf("userId=%d&dataVersion=last", userId)
 	res := &AnchorHourRankData{}
 	err := factory.LiveRpcClient.SendGETForm(internalLiveHourRankListUrl, params, res)
 	if err == nil {
