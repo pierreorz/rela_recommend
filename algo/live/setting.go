@@ -17,7 +17,7 @@ var strategyMap = map[string]algo.IStrategy{
 	"old_score":           &OldScoreStrategy{},
 }
 var richStrategyMap = map[string]algo.IRichStrategy{
-	"per_hour_top": &strategy.BaseRichStrategy{StrategyFunc: HourRankRecommendFunc, DefaultWeight: 99},
+	"per_hour_top": &strategy.BaseRichStrategy{StrategyFunc: HourRankRecommendFunc, DefaultWeight: 999},
 }
 
 var sorterMap = map[string]algo.ISorter{
