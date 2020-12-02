@@ -16,7 +16,7 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 		if live.LiveCache.RecommandLevel > 10 { // 15: 置顶
 			rankInfo.IsTop = 1
 		}
-		rankInfo.Level = live.LiveCache.RecommandLevel // 推荐等级
+		rankInfo.Level = rankInfo.Level + live.LiveCache.RecommandLevel // 推荐等级
 	} else if live.LiveCache.Recommand == -1 { // -1: 不推荐
 		if live.LiveCache.RecommandLevel == -1 { // -1: 置底
 			rankInfo.IsTop = -1
@@ -74,7 +74,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 		index := indexs[i]
 		liveInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 		rankInfo := liveInfo.GetRankInfo()
-		rankInfo.Level = 99
+		rankInfo.Level = rankInfo.Level + 99
 		rankInfo.AddRecommendNeedReturn("PER_HOUR_TOP3", 2.0)
 	}
 	return nil
