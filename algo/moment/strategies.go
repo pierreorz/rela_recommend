@@ -5,6 +5,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	autils "rela_recommend/utils"
 	"strings"
@@ -304,6 +305,7 @@ func MomentCategWeight(ctx algo.IContext) error {
 							count += themeTagDict
 						}
 					}
+					log.Infof("score======",score,count)
 					if count > 0.0 && score > 0.0 {
 						avg := float32(1.0 + (score / count))
 						rankInfo.AddRecommend("MomentCategWeight", avg)
