@@ -289,7 +289,7 @@ func MomentCategWeight(ctx algo.IContext) error {
 			if dataInfo.MomentProfile != nil {
 				shortPrefs := userData.MomentUserProfile.AiTag["short"]
 				for _, shortPref := range shortPrefs {
-					userTagMap[shortPref.Name]=0.5
+					userTagMap[shortPref.Name]=0.75
 				}
 				ThemetagList := dataInfo.MomentProfile.Tags
 				if len(ThemetagList) > 0  && len(shortPrefs) > 0 {
@@ -300,7 +300,7 @@ func MomentCategWeight(ctx algo.IContext) error {
 							if tagScore, ok := userTagMap[tag.Name];ok{
 								score += tagScore
 							} else {
-								score += 0.3
+								score += 0.6
 							}
 							count += themeTagDict
 						}
