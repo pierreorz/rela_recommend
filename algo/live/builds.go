@@ -5,6 +5,7 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
+	"rela_recommend/rpc/api"
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
 )
@@ -36,6 +37,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var user2 *redis.LiveProfile
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
+	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} { // 获取基础用户画像
 			var userErr error
@@ -61,6 +63,14 @@ func DoBuildData(ctx algo.IContext) error {
 				return conErr
 			}
 		},
+		"hour_rank": func(*performs.Performs) interface{} { // 获取小时榜排名
+			rankMap, hourRankErr := api.CallLiveHourRankMap(params.UserId)
+			if hourRankErr == nil {
+				hourRankMap = rankMap
+				return len(hourRankMap)
+			}
+			return hourRankErr
+		},
 	})
 
 	pfms.Run("build", func(*performs.Performs) interface{} {
@@ -72,7 +82,11 @@ func DoBuildData(ctx algo.IContext) error {
 				LiveCache:   &lives[i],
 				UserCache:   usersMap[liveId],
 				LiveProfile: usersMap2[liveId],
-				RankInfo:    &algo.RankInfo{}}
+				LiveData: &LiveData{
+					PreHourIndex: hourRankMap[liveId].Index,
+					PreHourRank:  hourRankMap[liveId].Rank,
+				},
+				RankInfo: &algo.RankInfo{}}
 			livesInfo = append(livesInfo, &liveInfo)
 		}
 
