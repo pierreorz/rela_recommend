@@ -5,6 +5,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	autils "rela_recommend/utils"
 	"strings"
@@ -290,6 +291,7 @@ func MomentCategWeight(ctx algo.IContext) error {
 				for _, shortPref := range shortPrefs {
 					userTagMap[shortPref.Name]=0.75
 				}
+				log.Infof("userProfileMap",userTagMap)
 				ThemetagList := dataInfo.MomentProfile.Tags
 				if len(ThemetagList) > 0  && len(shortPrefs) > 0 {
 					var score float64 = 0.0
