@@ -6,6 +6,7 @@ import (
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
+	autils "rela_recommend/utils"
 	"strings"
 )
 
@@ -267,6 +268,51 @@ func ContentAddWeight(ctx algo.IContext) error {
 		}
 	}
 	return err
+}
+// 针对指定categ提权
+func MomentCategWeight(ctx algo.IContext) error {
+	userData := ctx.GetUserInfo().(*UserInfo)
+	abtest := ctx.GetAbTest()
+	//后台配置增加曝光内容类型
+	editTag := abtest.GetStrings("edit_tags_weight", "1,5,6,8,11,12,13,14,15,17,18,19,20,21,22,24,25")
+	editTagMap := make(map[int64]float64)
+	userTagMap := make(map[string]float64)
+	for _,backtag := range editTag {
+		backtag64 := int64(autils.GetInt(backtag))
+		editTagMap[backtag64]=0.5
+	}
+	if len(editTag) > 1 && len(editTagMap)>0 && userData.MomentUserProfile != nil {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if dataInfo.MomentProfile != nil {
+				shortPrefs := userData.MomentUserProfile.AiTag["short"]
+				for _, shortPref := range shortPrefs {
+					userTagMap[shortPref.Name]=1.0
+				}
+				ThemetagList := dataInfo.MomentProfile.Tags
+				if len(ThemetagList) > 0  && len(shortPrefs) > 0 {
+					var score float64 = 0.0
+					var count float64 = 0.0
+					for _, tag := range ThemetagList {
+						if themeTagDict, ok := editTagMap[tag.Id]; ok {
+							if tagScore, ok := userTagMap[tag.Name];ok{
+								score += tagScore
+							} else {
+								score += 0.3
+							}
+							count += themeTagDict
+						}
+					}
+					if count > 0.0 && score > 0.0 {
+						avg := float32(1.0 + (score / count))
+						rankInfo.AddRecommend("ThemeCateg", avg)
+					}
+				}
+			}
+		}
+	}
+	return nil
 }
 // 根据用户实时行为偏好，进行的策略
 func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
