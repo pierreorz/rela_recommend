@@ -33,5 +33,6 @@ addresses="172.31.42.3,172.31.40.149,172.31.38.171"
 [rpc]
 search_rpc_addr = "http://172.16.13.247/v2"
 chatroom_rpc_addr = "http://chatroom:7420"
+live_rpc_addr = "http://live:3500"
 api_rpc_addr = "http://matchinterface:3100"
 ai_search_rpc_addr = "http://relasearch:3100"

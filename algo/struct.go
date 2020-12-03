@@ -131,7 +131,12 @@ func (self *RankInfo) GetFeaturesString() string {
 }
 
 func (self *RankInfo) AddRecommend(reason string, score float32) {
-	item := RecommendItem{Reason: reason, Score: score}
+	item := RecommendItem{Reason: reason, Score: score, NeedReturn: false}
+	self.Recommends = append(self.Recommends, item)
+}
+
+func (self *RankInfo) AddRecommendNeedReturn(reason string, score float32) {
+	item := RecommendItem{Reason: reason, Score: score, NeedReturn: true}
 	self.Recommends = append(self.Recommends, item)
 }
 
