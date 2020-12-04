@@ -16,6 +16,7 @@ type UserInfo struct {
 	//MomentOfflineProfile *redis.MomentOfflineProfile
 	MomentUserProfile *redis.MomentUserProfile
 	UserBehavior      *behavior.UserBehavior
+	ThemeUser    *redis.ThemeUserProfile
 }
 
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {

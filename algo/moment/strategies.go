@@ -282,10 +282,14 @@ func MomentCategWeight(ctx algo.IContext) error {
 		backtag64 := int64(autils.GetInt(backtag))
 		editTagMap[backtag64]=1.0
 	}
-	shortPrefs := userData.MomentUserProfile.AiTag["short"]
-	for _, shortPref := range shortPrefs {
+	//获取用户日志偏好名和话题偏好明
+	momShortPrefs := userData.MomentUserProfile.AiTag["short"]
+	themeShortPrefs:=userData.ThemeUser.AiTag.UserShortTag
+	for _, themeDict := range themeShortPrefs{
+		userTagMap[themeDict.TagName]=0.75
+	}
+	for _, shortPref := range momShortPrefs {
 		userTagMap[shortPref.Name]=0.75
-		log.Infof("shortProfile_Name",shortPref.Name)
 	}
 	log.Infof("userProfileMap",userTagMap)
 	if len(editTag) > 1 && len(editTagMap)>0 && userData.MomentUserProfile != nil {
@@ -294,7 +298,7 @@ func MomentCategWeight(ctx algo.IContext) error {
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.MomentProfile != nil {
 				ThemetagList := dataInfo.MomentProfile.Tags
-				if len(ThemetagList) > 0  && len(shortPrefs) > 0 {
+				if len(ThemetagList) > 0  && len(userTagMap) > 0 {
 					var score float64 = 0.0
 					var count float64 = 0.0
 					for _, tag := range ThemetagList {
