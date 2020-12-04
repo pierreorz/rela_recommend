@@ -289,12 +289,6 @@ func MomentCategWeight(ctx algo.IContext) error {
 			userTagMap[shortPref.Name] = 0.75
 		}
 	}
-	if userData.ThemeUser != nil {
-		themeShortPrefs := userData.ThemeUser.AiTag.UserShortTag
-		for _, themeDict := range themeShortPrefs {
-			userTagMap[themeDict.TagName] = 0.75
-		}
-	}
 	log.Infof("userProfileMap",userTagMap)
 	if len(editTag) > 1 && len(editTagMap)>0 && userData.MomentUserProfile != nil {
 		for index := 0; index < ctx.GetDataLength(); index++ {
