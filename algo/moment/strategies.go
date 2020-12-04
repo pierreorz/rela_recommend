@@ -290,7 +290,7 @@ func MomentCategWeight(ctx algo.IContext) error {
 		}
 	}
 	log.Infof("userProfileMap",userTagMap)
-	if len(editTag) > 1 && len(editTagMap)>0 && userData.MomentUserProfile != nil {
+	if len(editTag) > 0 && len(editTagMap)>0 {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
