@@ -6,7 +6,6 @@ import (
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
-	autils "rela_recommend/utils"
 	"strings"
 )
 
@@ -274,13 +273,8 @@ func MomentCategWeight(ctx algo.IContext) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
 	abtest := ctx.GetAbTest()
 	//后台配置增加曝光内容类型
-	editTag := abtest.GetStrings("edit_tags_weight", "1,5,6,8,11,12,13,14,15,17,18,19,20,21,22,24,25")
-	editTagMap := make(map[int64]float64)
+	editTags := abtest.GetInt64Set("edit_tags_weight", "1,5,6,8,11,12,13,14,15,17,18,19,20,21,22,24,25")
 	userTagMap := make(map[string]float64)
-	for _, backtag := range editTag {
-		backtag64 := int64(autils.GetInt(backtag))
-		editTagMap[backtag64] = 1.0
-	}
 	//获取用户日志偏好名和话题偏好名
 	if userData.MomentUserProfile != nil {
 		momShortPrefs := userData.MomentUserProfile.AiTag["short"]
@@ -288,7 +282,7 @@ func MomentCategWeight(ctx algo.IContext) error {
 			userTagMap[shortPref.Name] = 0.75
 		}
 	}
-	if len(editTag) > 0 && len(editTagMap)>0 {
+	if editTags !=nil {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
@@ -298,13 +292,13 @@ func MomentCategWeight(ctx algo.IContext) error {
 					var score float64 = 0.0
 					var count float64 = 0.0
 					for _, tag := range ThemetagList {
-						if themeTagDict, ok := editTagMap[tag.Id]; ok {
+						if editTags.Contains(tag.Id) {
 							if tagScore, ok := userTagMap[tag.Name];ok{
 								score += tagScore
 							} else {
 								score += 0.6
 							}
-							count += themeTagDict
+							count += 1.0
 						}
 					}
 					if count > 0.0 && score > 0.0 {
