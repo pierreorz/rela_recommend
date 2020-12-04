@@ -278,18 +278,22 @@ func MomentCategWeight(ctx algo.IContext) error {
 	editTag := abtest.GetStrings("edit_tags_weight", "1,5,6,8,11,12,13,14,15,17,18,19,20,21,22,24,25")
 	editTagMap := make(map[int64]float64)
 	userTagMap := make(map[string]float64)
-	for _,backtag := range editTag {
+	for _, backtag := range editTag {
 		backtag64 := int64(autils.GetInt(backtag))
-		editTagMap[backtag64]=1.0
+		editTagMap[backtag64] = 1.0
 	}
-	//获取用户日志偏好名和话题偏好明
-	momShortPrefs := userData.MomentUserProfile.AiTag["short"]
-	themeShortPrefs:=userData.ThemeUser.AiTag.UserShortTag
-	for _, themeDict := range themeShortPrefs{
-		userTagMap[themeDict.TagName]=0.75
+	//获取用户日志偏好名和话题偏好名
+	if userData.MomentUserProfile != nil {
+		momShortPrefs := userData.MomentUserProfile.AiTag["short"]
+		for _, shortPref := range momShortPrefs {
+			userTagMap[shortPref.Name] = 0.75
+		}
 	}
-	for _, shortPref := range momShortPrefs {
-		userTagMap[shortPref.Name]=0.75
+	if userData.ThemeUser != nil {
+		themeShortPrefs := userData.ThemeUser.AiTag.UserShortTag
+		for _, themeDict := range themeShortPrefs {
+			userTagMap[themeDict.TagName] = 0.75
+		}
 	}
 	log.Infof("userProfileMap",userTagMap)
 	if len(editTag) > 1 && len(editTagMap)>0 && userData.MomentUserProfile != nil {
