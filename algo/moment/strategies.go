@@ -5,7 +5,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	autils "rela_recommend/utils"
 	"strings"
@@ -289,7 +288,6 @@ func MomentCategWeight(ctx algo.IContext) error {
 			userTagMap[shortPref.Name] = 0.75
 		}
 	}
-	log.Infof("userProfileMap",userTagMap)
 	if len(editTag) > 0 && len(editTagMap)>0 {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
