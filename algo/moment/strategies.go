@@ -282,16 +282,17 @@ func MomentCategWeight(ctx algo.IContext) error {
 		backtag64 := int64(autils.GetInt(backtag))
 		editTagMap[backtag64]=1.0
 	}
+	shortPrefs := userData.MomentUserProfile.AiTag["short"]
+	for _, shortPref := range shortPrefs {
+		userTagMap[shortPref.Name]=0.75
+		log.Infof("shortProfile_Name",shortPref.Name)
+	}
+	log.Infof("userProfileMap",userTagMap)
 	if len(editTag) > 1 && len(editTagMap)>0 && userData.MomentUserProfile != nil {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.MomentProfile != nil {
-				shortPrefs := userData.MomentUserProfile.AiTag["short"]
-				for _, shortPref := range shortPrefs {
-					userTagMap[shortPref.Name]=0.75
-				}
-				log.Infof("userProfileMap",userTagMap)
 				ThemetagList := dataInfo.MomentProfile.Tags
 				if len(ThemetagList) > 0  && len(shortPrefs) > 0 {
 					var score float64 = 0.0
