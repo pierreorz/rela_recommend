@@ -85,6 +85,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures},
 	&algo.AlgoBase{AlgoName: "model_rec_v4", FilePath: workDir + "mods_rec_1.1.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures},
+	&algo.AlgoBase{AlgoName: "model_rec_v5", FilePath: workDir + "mods_rec_2.1.dumps.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures},
 })
 
 // 推荐日志
