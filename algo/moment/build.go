@@ -33,7 +33,7 @@ func DoBuildData(ctx algo.IContext) error {
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 
 	if abtest.GetBool("rec_liveMoments_switch", false) {
-		liveMomentIds = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
+		liveMomentIds = getMapKey(live.GetCachedLiveMomentListByTypeClassify(-1, -1))
 	}
 
 	var userBehavior *behavior.UserBehavior // 用户实时行为
@@ -295,4 +295,15 @@ func DoBuildData(ctx algo.IContext) error {
 		return len(dataList)
 	})
 	return nil
+}
+
+func getMapKey(scoreMap map[int64]float64 ) []int64{
+	res :=make([]int64 ,0)
+	if scoreMap!=nil&&len(scoreMap)>0{
+		for key,_ :=range scoreMap{
+			res=append(res,key)
+		}
+	}
+	return res
+
 }

@@ -48,6 +48,21 @@ type LiveCache struct {
 	DayIncoming    float32     `json:"dayIncoming"`
 	MonthIncoming  float32     `json:"monthIncoming"`
 	Data4Api       interface{} `json:"data"` // 20200305专门为api接口新增的透传参数
+	BussinessScore  float32     `json:"-"`
+}
+
+func (self *LiveCache) GetBusinessScore(){
+	var score float32 = 0
+	score += self.scoreFx(self.DayIncoming) * 0.2
+	score += self.scoreFx(self.MonthIncoming) * 0.05
+	score += self.scoreFx(self.Score) * 0.55
+	score += self.scoreFx(float32(self.FansCount)) * 0.10
+	score += self.scoreFx(float32(self.Live.ShareCount)) * 0.10
+	self.BussinessScore=score
+}
+
+func (self *LiveCache) scoreFx(score float32) float32 {
+	return (score / 200) / (1 + score / 200)
 }
 
 func (self *LiveCache) CheckDataType() {
