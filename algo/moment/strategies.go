@@ -348,3 +348,18 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	}
 	return err
 }
+
+// 对于曝光不足的内容进行加权曝光
+func ExposureIncreaseFunc(ctx algo.IContext) error {
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index)
+		rankInfo := dataInfo.GetRankInfo()
+		if itemBehavior := dataInfo.GetBehavior(); itemBehavior != nil {
+			exposures := itemBehavior.Gets("moment.recommend:exposure")
+			if exposures.Count == 0 { // 曝光不足提
+				rankInfo.AddRecommend("NotExposureIncrease", 1.2)
+			}
+		}
+	}
+	return nil
+}
