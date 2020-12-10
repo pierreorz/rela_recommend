@@ -53,7 +53,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 		StrategyFunc: ContentAddWeight},
 	"categ_weight": &strategy.BaseRichStrategy{
 		StrategyFunc: MomentCategWeight},
-	"exposure_increase": &strategy.BaseRichStrategy{StrategyFunc: ExposureIncreaseFunc},
+	"exposure_increase": &strategy.BaseRichStrategy{StrategyFunc: strategy.ExposureIncreaseFunc, DefaultWeight: 3},
 
 }
 
