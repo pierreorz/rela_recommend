@@ -348,3 +348,4 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	}
 	return err
 }
+
