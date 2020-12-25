@@ -25,7 +25,6 @@ func DoBuildData(ctx algo.IContext) error {
 	// search list
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
-	recNewIdList :=make([]int64,0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
 	tagRecommendIdList := make([]int64, 0)
@@ -48,50 +47,37 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 			return nil
-		},"recnew": func(*performs.Performs) interface{} {
-			momentLen :=abtest.GetInt("rec_new_moment_len", 100)
-			recnewMomentOffserSecond :=abtest.GetFloat("rec_new_moment_offset_second",60*60*3)
-			radius :=abtest.GetString("radius","50km")
-			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - recnewMomentOffserSecond
-			if abtest.GetBool("realtime_mom_switch", false) {
-				recNewIdList, err = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(momentLen),
-					momentTypes, newMomentStartTime, radius, true)
-				if err==nil{
-					return len(recNewIdList)
-				}
-			}
-			return nil
 		}, "new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
 			newMomentLen := abtest.GetInt("new_moment_len", 1000)
 			if newMomentLen > 0 {
 				radiusArray := abtest.GetStrings("radius_range", "50km")
 				newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
 				newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
+				recommended :=abtest.GetBool("realtime_mom_switch",false)
 				if abtest.GetBool("near_liveMoments_switch", false) {
 					var lives []pika.LiveCache
-
 					lives = live.GetCachedLiveListByTypeClassify(-1, -1)
 					liveMomentIds = ReturnAroundLiveMom(lives, params.Lng, params.Lat)
 				}
 				//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 				var errSearch error
-				for _, radius := range radiusArray {
-					if abtest.GetBool("use_ai_search", false) {
-						newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
-							momentTypes, newMomentStartTime, radius,false)
-					} else {
-						newIdList, errSearch = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
-							momentTypes, newMomentStartTime, radius)
+					for _, radius := range radiusArray {
+						if abtest.GetBool("use_ai_search", false) {
+							newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
+								momentTypes, newMomentStartTime, radius, recommended)
+						} else {
+							newIdList, errSearch = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
+								momentTypes, newMomentStartTime, radius)
+						}
+						//附近日志数量大于10即停止寻找
+						if len(newIdList) > 10 {
+							break
+						}
 					}
-					//附近日志数量大于10即停止寻找
-					if len(newIdList) > 10 {
-						break
-					}
-				}
 
-				if errSearch != nil {
-					return err
-				}
+					if errSearch != nil {
+						return err
+					}
 				return len(newIdList)
 			}
 			return nil
@@ -145,7 +131,7 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList,recNewIdList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
