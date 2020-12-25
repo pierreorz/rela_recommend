@@ -74,7 +74,7 @@ func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, m
 	filters := []string{
 		fmt.Sprintf("{moments_type:%s}", momentTypes),     //  moments Type
 		fmt.Sprintf("insert_time:[%f,)", insertTimestamp), // time
-		fmt.Sprintf("recommend:%s",recommend),
+		fmt.Sprintf("recommended:%s",recommend),
 	}
 	params := searchMomentRequest{
 		UserID:   userId,
