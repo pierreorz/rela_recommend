@@ -56,6 +56,9 @@ func DoBuildData(ctx algo.IContext) error {
 			if abtest.GetBool("realtime_mom_switch", false) {
 				recNewIdList, err = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(momentLen),
 					momentTypes, newMomentStartTime, radius, "true")
+				if err==nil{
+					return len(recNewIdList)
+				}
 			}
 			return nil
 		}, "new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
@@ -142,7 +145,7 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList,recNewIdList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
