@@ -55,7 +55,7 @@ func DoBuildData(ctx algo.IContext) error {
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - recnewMomentOffserSecond
 			if abtest.GetBool("realtime_mom_switch", false) {
 				recNewIdList, err = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(momentLen),
-					momentTypes, newMomentStartTime, radius, "true")
+					momentTypes, newMomentStartTime, radius, true)
 				if err==nil{
 					return len(recNewIdList)
 				}
@@ -78,7 +78,7 @@ func DoBuildData(ctx algo.IContext) error {
 				for _, radius := range radiusArray {
 					if abtest.GetBool("use_ai_search", false) {
 						newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
-							momentTypes, newMomentStartTime, radius,"false")
+							momentTypes, newMomentStartTime, radius,false)
 					} else {
 						newIdList, errSearch = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
 							momentTypes, newMomentStartTime, radius)
