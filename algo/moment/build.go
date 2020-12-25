@@ -25,6 +25,7 @@ func DoBuildData(ctx algo.IContext) error {
 	// search list
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
+	recNewIdList :=make([]int64,0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
 	tagRecommendIdList := make([]int64, 0)
@@ -47,6 +48,16 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 			return nil
+		},"recnew": func(*performs.Performs) interface{} {
+			momentLen :=abtest.GetInt("rec_new_moment_len", 100)
+			recnewMomentOffserSecond :=abtest.GetFloat("rec_new_moment_offset_second",60*60*3)
+			radius :=abtest.GetString("radius","50km")
+			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - recnewMomentOffserSecond
+			if abtest.GetBool("realtime_mom_switch", false) {
+				recNewIdList, err = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(momentLen),
+					momentTypes, newMomentStartTime, radius, "true")
+			}
+			return nil
 		}, "new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
 			newMomentLen := abtest.GetInt("new_moment_len", 1000)
 			if newMomentLen > 0 {
@@ -64,7 +75,7 @@ func DoBuildData(ctx algo.IContext) error {
 				for _, radius := range radiusArray {
 					if abtest.GetBool("use_ai_search", false) {
 						newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
-							momentTypes, newMomentStartTime, radius)
+							momentTypes, newMomentStartTime, radius,"false")
 					} else {
 						newIdList, errSearch = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
 							momentTypes, newMomentStartTime, radius)

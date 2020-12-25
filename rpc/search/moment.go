@@ -69,11 +69,12 @@ func CallLiveMomentList(userIdList []int64) ([]int64, error) {
 }
 
 // 获取附近日志列表
-func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, momentTypes string, insertTimestamp float32, distance string) ([]int64, error) {
+func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, momentTypes string, insertTimestamp float32, distance string,recommend string) ([]int64, error) {
 	idlist := make([]int64, 0)
 	filters := []string{
 		fmt.Sprintf("{moments_type:%s}", momentTypes),     //  moments Type
 		fmt.Sprintf("insert_time:[%f,)", insertTimestamp), // time
+		fmt.Sprintf("recommend:%s",recommend),
 	}
 	params := searchMomentRequest{
 		UserID:   userId,
