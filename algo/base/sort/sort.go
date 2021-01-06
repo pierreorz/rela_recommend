@@ -58,9 +58,11 @@ func (self *SorterOrigin) Do(ctx algo.IContext) error {
 }
 
 /************************************************* 按照指定的index排序: 将指定位置的内容插到该位置，之后的向后移动
-如：1，2，3，4，5
-	希望将第4->2，则1,2,5,4,3
-	希望将第1->4，则1,3,4,5,2
+如：2, 1, 4, 3, 5, 7, 6  执行 {5, 1}, {3, 6}, {1, 3}
+	排序为：{5, 1}, {1, 3}, {3, 6}
+	5->1，则2 7 1 4 3 5 6  更新后续为 {1, 3} -> {2, 3}; {3, 6} -> {4, 6}
+	将 2->3 ，则 2 7 4 1 3 5 6  更新后续为 {4, 6} 不变
+	将 4->6，则 2 7 4 1 5 6 3  完成
 */
 type SorterHope struct {
 	Context algo.IContext
@@ -72,23 +74,27 @@ func (self *SorterHope) Do(ctx algo.IContext) error {
 	return nil
 }
 
-// 交换位置，先取出当前值，其他值依次前移或后移，然后插入相应位置
-func (self *SorterHope) swapByIndex(arr []int, currIndex, hopeIndex int) {
+// 交换位置，先取出当前值，其他值依次前移或后移，然后插入相应位置; 返回 map{老index, 新index}
+func (self *SorterHope) swapByIndex(arr []int, currIndex, hopeIndex int) map[int]int {
+	var changedIndex = map[int]int{}
 	if currIndex < hopeIndex { // 向后移动
 		currValue := arr[currIndex]
 		for i := currIndex; i < hopeIndex; i++ {
 			arr[i] = arr[i+1]
+			changedIndex[i+1] = i
 		}
 		arr[hopeIndex] = currValue
+		changedIndex[currIndex] = hopeIndex
 	} else if currIndex > hopeIndex { // 向前移动
 		currValue := arr[currIndex]
 		for i := currIndex; i > hopeIndex; i-- {
 			arr[i] = arr[i-1]
+			changedIndex[i-1] = i
 		}
 		arr[hopeIndex] = currValue
-	} else {
-
+		changedIndex[currIndex] = hopeIndex
 	}
+	return changedIndex
 }
 
 func (self *SorterHope) sortByIndexWithHope() error {
@@ -107,10 +113,14 @@ func (self *SorterHope) sortByIndexWithHope() error {
 		sort.SliceStable(hopeList, func(i, j int) bool { // 从小到大排序
 			return hopeList[i][1] < hopeList[j][1]
 		})
-		log.Debugf("hope list: %+v \n", hopeList)
-		for _, hope := range hopeList {
-			currI, hopeI := hope[0], hope[1]
-			self.swapByIndex(indexs, currI, hopeI)
+		log.Debugf("SorterHope hope list: %+v \n", hopeList)
+		for i, hope := range hopeList {
+			changedIndex := self.swapByIndex(indexs, hope[0], hope[1])
+			for _, nhope := range hopeList[i+1:] { // 因为index变化，更新后续需要调整位置的index做相应变化
+				if val, ok := changedIndex[nhope[0]]; ok {
+					nhope[0] = val
+				}
+			}
 		}
 
 		// 最终调整数据
