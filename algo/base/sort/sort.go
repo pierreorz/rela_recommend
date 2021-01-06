@@ -2,6 +2,7 @@ package sort
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"sort"
 )
 
@@ -106,6 +107,7 @@ func (self *SorterHope) sortByIndexWithHope() error {
 		sort.SliceStable(hopeList, func(i, j int) bool { // 从小到大排序
 			return hopeList[i][1] < hopeList[j][1]
 		})
+		log.Debugf("hope list: %+v \n", hopeList)
 		for _, hope := range hopeList {
 			currI, hopeI := hope[0], hope[1]
 			self.swapByIndex(indexs, currI, hopeI)

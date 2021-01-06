@@ -353,10 +353,12 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 
 func TestHopIndexStrategyFunc(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
-		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		dataInfo := ctx.GetDataByIndex(index)
 		rankInfo := dataInfo.GetRankInfo()
 		if index == 5 {
 			rankInfo.HopeIndex = 2
+		} else if index == 7 {
+			rankInfo.HopeIndex = 10
 		} else if index == 10 {
 			rankInfo.HopeIndex = 15
 		}
