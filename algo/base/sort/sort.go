@@ -56,6 +56,73 @@ func (self *SorterOrigin) Do(ctx algo.IContext) error {
 	return nil
 }
 
+/************************************************* 按照指定的index排序: 将指定位置的内容插到该位置，之后的向后移动
+如：1，2，3，4，5
+	希望将第4->2，则1,2,5,4,3
+	希望将第1->4，则1,3,4,5,2
+*/
+type SorterHope struct {
+	Context algo.IContext
+}
+
+func (self *SorterHope) Do(ctx algo.IContext) error {
+	sorter := &SorterHope{Context: ctx}
+	sorter.sortByIndexWithHope()
+	return nil
+}
+
+// 交换位置，先取出当前值，其他值依次前移或后移，然后插入相应位置
+func (self *SorterHope) swapByIndex(arr []int, currIndex, hopeIndex int) {
+	if currIndex < hopeIndex { // 向后移动
+		currValue := arr[currIndex]
+		for i := currIndex; i < hopeIndex; i++ {
+			arr[i] = arr[i+1]
+		}
+		arr[hopeIndex] = currValue
+	} else if currIndex > hopeIndex { // 向前移动
+		currValue := arr[currIndex]
+		for i := currIndex; i > hopeIndex; i-- {
+			arr[i] = arr[i-1]
+		}
+		arr[hopeIndex] = currValue
+	} else {
+
+	}
+}
+
+func (self *SorterHope) sortByIndexWithHope() error {
+	// 最终排序
+	var listLen = self.Context.GetDataLength()
+	var list = self.Context.GetDataList()
+	var indexs = make([]int, listLen)
+	var hopeList = [][]int{} // 期望index []{当前index, 期望index}
+	for i, data := range list {
+		indexs[i] = i
+		if rank := data.GetRankInfo(); 0 < rank.HopeIndex && rank.HopeIndex < listLen {
+			hopeList = append(hopeList, []int{i, rank.HopeIndex})
+		}
+	}
+	if len(hopeList) > 0 {
+		sort.SliceStable(hopeList, func(i, j int) bool { // 从小到大排序
+			return hopeList[i][1] < hopeList[j][1]
+		})
+		for _, hope := range hopeList {
+			currI, hopeI := hope[0], hope[1]
+			self.swapByIndex(indexs, currI, hopeI)
+		}
+
+		// 最终调整数据
+		var itemMap = map[int]algo.IDataInfo{}
+		for i, _ := range list {
+			itemMap[i] = list[i]
+		}
+		for i, ni := range indexs {
+			list[i] = itemMap[ni]
+		}
+	}
+	return nil
+}
+
 /************************************************* 在每个分组中，按照推荐理由进行排序间隔打散
 复杂度：快排 + 分区 + 混排： n*log2(n) + n + n * group
 每个分组指：top, paged, level 等绝对隔离组
@@ -87,7 +154,12 @@ func (self *SorterWithInterval) Do(ctx algo.IContext) error {
 		}
 		sorter.sortByIndex(allIndexs) // 按照最终index排序
 	}
-	// 间隔处理
+
+	// 期望位置处理，将HopeIndex指定大于1的内容进行移动
+	if abtest.GetBool("sort_with_interval_hope_switch", true) { // 打开开关
+		hopeSorter := &SorterHope{Context: ctx}
+		hopeSorter.sortByIndexWithHope()
+	}
 	return nil
 }
 
