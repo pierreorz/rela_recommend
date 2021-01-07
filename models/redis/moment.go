@@ -41,6 +41,8 @@ type Moments struct {
 	//Version int `gorm:"column:version" json:"version,omitempty"`
 	/** 额外信息  **/
 	Ext string `gorm:"column:-" json:"-,omitempty"`
+	/**是否是直播top日志**/
+	Top  int8  `gorm:"default:0;column:-" json:"-,omitempty"`
 	/** 额外信息  **/
 	MomentsExt MomentsExt `gorm:"column:ext" json:"ext,omitempty"`
 }
