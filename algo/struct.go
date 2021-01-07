@@ -43,20 +43,65 @@ type AppInfo struct {
 }
 
 // 请求参数
+// swagger:model order
 type RecommendRequest struct {
-	App           string            `json:"app" form:"app"`
-	Type          string            `json:"type" form:"type"` // 是推荐/热门/
-	Limit         int64             `json:"limit" form:"limit"`
-	Offset        int64             `json:"offset" form:"offset"`
-	Ua            string            `json:"ua" form:"ua"`
-	MobileOS      string            `json:"mobileOS" form:"mobileOS"`
-	ClientVersion int               `json:"clientVersion" form:"clientVersion"`
-	Lat           float32           `json:"lat" form:"lat"`
-	Lng           float32           `json:"lng" form:"lng"`
-	UserId        int64             `json:"userId" form:"userId"`
-	DataIds       []int64           `json:"dataIds" form:"dataIds"`
-	AbMap         map[string]string `json:"abMap" form:"abMap"`
-	Params        map[string]string `json:"params" form:"params"`
+	// 功能场景名
+	//
+	// required: true
+	// enum: moment,theme,user,live,match
+	App string `json:"app" form:"app"`
+	// 子功能名
+	//
+	// required: false
+	// enum: nearby,reply,detail_reply
+	Type string `json:"type" form:"type"` // 是推荐/热门/
+	// 分页每页数量
+	//
+	// required: false
+	// example: 10
+	Limit int64 `json:"limit" form:"limit"`
+	// 分页起始位置
+	//
+	// required: false
+	// example: 0
+	Offset int64 `json:"offset" form:"offset"`
+	// 浏览器UA
+	//
+	// required: false
+	Ua string `json:"ua" form:"ua"`
+	// 手机系统
+	//
+	// required: false
+	MobileOS string `json:"mobileOS" form:"mobileOS"`
+	// 客户端版本
+	//
+	// required: false
+	// example: 050303
+	ClientVersion int `json:"clientVersion" form:"clientVersion"`
+	// 经度
+	//
+	// required: false
+	// example: 33.0
+	Lat float32 `json:"lat" form:"lat"`
+	// 纬度
+	//
+	// required: false
+	// example: 121.0
+	Lng float32 `json:"lng" form:"lng"`
+	// 用户ID
+	//
+	// required: false
+	// example: 3567
+	UserId  int64   `json:"userId" form:"userId"`
+	DataIds []int64 `json:"dataIds" form:"dataIds"`
+	// AB配置信息
+	//
+	// required: false
+	AbMap map[string]string `json:"abMap" form:"abMap"`
+	// 其他参数，比如搜索筛选项
+	//
+	// required: false
+	Params map[string]string `json:"params" form:"params"`
 
 	// 内部缓存变量
 	osName  string
@@ -94,6 +139,7 @@ type RecommendResponseItem struct {
 }
 
 // 返回参数
+// swagger:model recommendResponseInner
 type RecommendResponse struct {
 	Status   string                  `json:"status" form:"status"`
 	Message  string                  `json:"message" form:"message"`

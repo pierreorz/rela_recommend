@@ -1,20 +1,20 @@
 package routes
 
 import (
-	"rela_recommend/utils/routers"
+	"net/http"
 	"rela_recommend/controllers"
-	"rela_recommend/controllers/match"
-	"rela_recommend/controllers/live"
-	"rela_recommend/controllers/theme"
-	"rela_recommend/controllers/moment"
 	"rela_recommend/controllers/config"
+	"rela_recommend/controllers/live"
+	"rela_recommend/controllers/match"
+	"rela_recommend/controllers/moment"
 	"rela_recommend/controllers/segment"
+	"rela_recommend/controllers/theme"
+	"rela_recommend/utils/routers"
 )
 
 func RegisterRouters(router *routers.Routers) {
 	router.POST("/config/abtest", config.AbTestHTTP)
 	router.POST("/segment", segment.SegmentHTTP)
-
 
 	router.POST("/recommend", controllers.IndexHTTP)
 	router.GET("/recommend/test", controllers.TestHTTP)
@@ -28,6 +28,9 @@ func RegisterRouters(router *routers.Routers) {
 	router.POST("/rank/:app", controllers.IndexHTTP)
 	router.POST("/rank/:app/*type", controllers.IndexHTTP)
 	router.NotFound = NotFound
+
+	// 代理静态文件，swagger.json 之类的
+	router.ServeFiles("/relarecommend/*filepath", http.Dir("static"))
 }
 
 func NotFound(c *routers.Context) {
