@@ -351,6 +351,23 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	return err
 }
 
+//晚上9-12点热门直播日志前2名会被放置去指定位置，看过后沉底
+func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
+	abtest := ctx.GetAbTest()
+	lower :=abtest.GetInt("top_mom_lower",21)
+	upper :=abtest.GetInt("top_mom_upper",24)
+	maxShowLive :=abtest.GetInt("max_show_live",2)
+	if ctx.GetCreateTime().Hour()>=lower && ctx.GetCreateTime().Hour()<=upper{
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index)
+			rankInfo := dataInfo.GetRankInfo()
+			if rankInfo.LiveIndex>0 &&rankInfo.LiveIndex<=maxShowLive{
+				rankInfo.HopeIndex=2*rankInfo.LiveIndex-1
+			}
+		}
+	}
+	return nil
+}
 func TestHopIndexStrategyFunc(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index)

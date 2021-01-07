@@ -30,10 +30,12 @@ func DoBuildData(ctx algo.IContext) error {
 	tagRecommendIdList := make([]int64, 0)
 	liveMomentIds := make([]int64, 0)
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
+	var liveMap =map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 
 	if abtest.GetBool("rec_liveMoments_switch", false) {
-		liveMomentIds = getMapKey(live.GetCachedLiveMomentListByTypeClassify(-1, -1))
+		liveMap =live.GetCachedLiveMomentListByTypeClassify(-1, -1)
+		liveMomentIds = getMapKey(liveMap)
 	}
 
 	var userBehavior *behavior.UserBehavior // 用户实时行为
@@ -257,6 +259,12 @@ func DoBuildData(ctx algo.IContext) error {
 						isTop = 1
 					}
 				}
+				var liveIndex = 0
+				if liveMap!=nil{
+					if rank,isOk :=liveMap[mom.Moments.Id]; isOk{
+						liveIndex=rank
+					}
+				}
 				// 处理推荐
 				var recommends = []algo.RecommendItem{}
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
@@ -283,7 +291,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentExtendCache:    mom.MomentsExtend,
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,LiveIndex:liveIndex},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 				}
@@ -298,7 +306,7 @@ func DoBuildData(ctx algo.IContext) error {
 	return nil
 }
 
-func getMapKey(scoreMap map[int64]float64 ) []int64{
+func getMapKey(scoreMap map[int64]int ) []int64{
 	res :=make([]int64 ,0)
 	if scoreMap!=nil&&len(scoreMap)>0{
 		for key,_ :=range scoreMap{
