@@ -26,7 +26,6 @@ var strategyMap = map[string]algo.IStrategy{
 	"assignTag_weight": &algo.StrategyBase{DoSingle: AssignTagAddWeight},
 	"short_pref":       &algo.StrategyBase{DoSingle: ShortPrefAddWeight},
 	"better_user":     &algo.StrategyBase{DoSingle: BetterUserMomAddWeight},
-
 }
 var sorterMap = map[string]algo.ISorter{
 	"base":     &sort.SorterBase{},
@@ -52,6 +51,10 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	},
 	"content_weight": &strategy.BaseRichStrategy{
 		StrategyFunc: ContentAddWeight},
+	"categ_weight": &strategy.BaseRichStrategy{
+		StrategyFunc: MomentCategWeight},
+	"exposure_increase": &strategy.BaseRichStrategy{StrategyFunc: strategy.ExposureIncreaseFunc, DefaultWeight: 3},
+
 }
 
 // 精排算法
@@ -83,6 +86,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	&algo.AlgoBase{AlgoName: "model_rec_v3", FilePath: workDir + "mods_xg_6.1.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures},
 	&algo.AlgoBase{AlgoName: "model_rec_v4", FilePath: workDir + "mods_rec_1.1.dumps.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures},
+	&algo.AlgoBase{AlgoName: "model_rec_v5", FilePath: workDir + "mods_rec_2.1.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetMomentFeatures},
 })
 

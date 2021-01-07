@@ -12,6 +12,7 @@ import (
 func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *utils.Features {
 	fs := &utils.Features{}
 	shareToList := map[string]int{"all": 0, "friends": 1, "self": 2}
+	momsTypeList :=map[string]int{"text":0,"text_image":1,"image":2,"live":3,"theme":4,"themereply":5,"video":6,"voice_live":7,"ad":8,"recommend":9}
 	currTime := ctx.GetCreateTime().Unix()
 	data := idata.(*DataInfo)
 	// 发布内容
@@ -38,6 +39,10 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 		fs.Add(52, float32(len(mem.MomentsText)))
 		fs.Add(53, float32(ctx.GetCreateTime().Sub(mem.InsertTime).Minutes()))
 		fs.Add(55, float32(time.Now().Hour()))
+		//日志类型
+		if momsType, ok := momsTypeList[mem.MomentsType]; ok {
+			fs.AddCategory(70, 10, 0, momsType, 0)
+		}
 
 
 		//日志离线画像

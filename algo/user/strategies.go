@@ -51,6 +51,9 @@ func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 		if sortWeightType == "weight" { // weight:按照权重，10公里为基准
 			weight := float32(0.5 * math.Exp(-distance/10000.0))
 			rankInfo.AddRecommend("DistanceWeight", 1.0+weight)
+		} else if sortWeightType == "weight01" { // weight:按照权重，10公里和100公里为基准，解决远距离权重消失问题
+			weight := float32(0.25 * (math.Exp(-distance/10000.0) + math.Exp(-distance/100000.0)))
+			rankInfo.AddRecommend("DistanceWeight01", 1.0+weight)
 		} else { // 按照阶段
 			if distance < 1000 {
 				rankInfo.Level = 7

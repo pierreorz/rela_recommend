@@ -268,6 +268,49 @@ func ContentAddWeight(ctx algo.IContext) error {
 	}
 	return err
 }
+// 针对指定categ提权
+func MomentCategWeight(ctx algo.IContext) error {
+	userData := ctx.GetUserInfo().(*UserInfo)
+	abtest := ctx.GetAbTest()
+	//后台配置增加曝光内容类型
+	editTags := abtest.GetInt64Set("edit_tags_weight", "1,5,6,8,11,12,13,14,15,17,18,19,20,21,22,24,25")
+	userTagMap := make(map[string]float64)
+	//获取用户日志偏好名和话题偏好名
+	if userData.MomentUserProfile != nil {
+		momShortPrefs := userData.MomentUserProfile.AiTag["short"]
+		for _, shortPref := range momShortPrefs {
+			userTagMap[shortPref.Name] = 0.75
+		}
+	}
+	if editTags !=nil {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if dataInfo.MomentProfile != nil {
+				ThemetagList := dataInfo.MomentProfile.Tags
+				if len(ThemetagList) > 0  && len(userTagMap) > 0 {
+					var score float64 = 0.0
+					var count float64 = 0.0
+					for _, tag := range ThemetagList {
+						if editTags.Contains(tag.Id) {
+							if tagScore, ok := userTagMap[tag.Name];ok{
+								score += tagScore
+							} else {
+								score += 0.6
+							}
+							count += 1.0
+						}
+					}
+					if count > 0.0 && score > 0.0 {
+						avg := float32(1.0 + (score / count))
+						rankInfo.AddRecommend("MomentCategWeight", avg)
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
 // 根据用户实时行为偏好，进行的策略
 func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
@@ -305,3 +348,4 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	}
 	return err
 }
+

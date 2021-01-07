@@ -90,41 +90,47 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	searchThemeMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 
-	filtedAudit := abtest.GetBool("search_filted_audit", false)
 	var searchReplyThemeIds = []int64{}
 	var searchThemeNoReturnIds = []int64{}
+	filtedAudit := abtest.GetBool("search_filted_audit", false)
 	preforms.RunsGo("search", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 搜索过状态 和 返回置顶推荐内容
-			returnedRecommend := abtest.GetBool("search_returned_recommend", true)
-			var searchReplyMapErr error
-			searchReplyMap, searchThemeMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
-				searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
-			if searchReplyMapErr == nil {
-				replyIdSet := utils.SetInt64{}
-				for _, searchRes := range searchReplyMap {
-					replyIdSet.Append(searchRes.Id)
+			if abtest.GetBool("used_ai_search_reply", true) {
+				var searchReplyMapErr error
+				returnedRecommend := abtest.GetBool("search_returned_recommend", true)
+				searchReplyMap, searchThemeMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
+					searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
+				if searchReplyMapErr == nil {
+					replyIdSet := utils.SetInt64{}
+					for _, searchRes := range searchReplyMap {
+						replyIdSet.Append(searchRes.Id)
+					}
+					for themeId, _ := range searchThemeMap {
+						searchReplyThemeIds = append(searchReplyThemeIds, themeId)
+					}
+					replyIdList = replyIdSet.ToList()
+					themeReplyMap = themeReplayReplaction(searchReplyMap, themeReplyMap, searchScenery) // 运营配置和算法推荐去重复，以运营配置优先
+					return len(searchReplyMap)
 				}
-				for themeId, _ := range searchThemeMap {
-					searchReplyThemeIds = append(searchReplyThemeIds, themeId)
-				}
-				replyIdList = replyIdSet.ToList()
-				themeReplyMap = themeReplayReplaction(searchReplyMap, themeReplyMap, searchScenery) // 运营配置和算法推荐去重复，以运营配置优先
-				return len(searchReplyMap)
+				return searchReplyMapErr
 			}
-			return searchReplyMapErr
+			return nil
 		},
 		"theme": func(*performs.Performs) interface{} { // 计算不符合条件的theme
-			searchThemeResMap, _, searchThemeResMapErr := search.CallMomentAuditMap(params.UserId, themeIdList,
-				searchScenery, "theme", false, filtedAudit)
-			if searchThemeResMapErr == nil {
-				for _, themeId := range themeIdList {
-					if _, ok := searchThemeResMap[themeId]; !ok {
-						searchThemeNoReturnIds = append(searchThemeNoReturnIds, themeId)
+			if abtest.GetBool("used_ai_search_theme", true) {
+				searchThemeResMap, _, searchThemeResMapErr := search.CallMomentAuditMap(params.UserId, themeIdList,
+					searchScenery, "theme", false, filtedAudit)
+				if searchThemeResMapErr == nil {
+					for _, themeId := range themeIdList {
+						if _, ok := searchThemeResMap[themeId]; !ok {
+							searchThemeNoReturnIds = append(searchThemeNoReturnIds, themeId)
+						}
 					}
+					return len(searchThemeNoReturnIds)
 				}
-				return len(searchThemeNoReturnIds)
+				return searchThemeResMapErr
 			}
-			return searchThemeResMapErr
+			return nil
 		},
 	})
 	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
