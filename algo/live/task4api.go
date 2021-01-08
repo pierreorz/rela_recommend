@@ -53,8 +53,7 @@ func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) map[int64]i
 	lives := GetCachedLiveListByTypeClassify(typeId, classify)
 	MomScoreMap := make(map[int64]float64, 0)
 	for _, live := range lives {
-		live.GetBusinessScore()
-		MomScoreMap[live.Live.MomentsID] = float64(live.BussinessScore)
+		MomScoreMap[live.Live.MomentsID] = float64(live.GetBusinessScore())
 	}
 	MomRankMap := make(map[int64]int, 0)
 	Moms := utils.SortMapByValue(MomScoreMap)
