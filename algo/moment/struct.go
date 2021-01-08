@@ -34,6 +34,7 @@ type DataInfo struct {
 	RankInfo             *algo.RankInfo
 	Features             *utils.Features
 	ItemBehavior         *behavior.UserBehavior
+	UserItemBehavior      *behavior.UserBehavior   //用户对该发布日志的行为数据
 }
 
 func (self *DataInfo) GetDataId() int64 {
@@ -58,4 +59,8 @@ func (self *DataInfo) GetBehavior() *behavior.UserBehavior {
 
 func (self *DataInfo) GetUserBehavior() *behavior.UserBehavior {
 	return nil
+}
+
+func (self *DataInfo) GetUserItemBehavior() *behavior.UserBehavior {
+	return self.UserItemBehavior
 }

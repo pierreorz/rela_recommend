@@ -157,6 +157,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 
 	var itemBehaviorMap = map[int64]*behavior.UserBehavior{} // 获取日志行为
+	var userItemBehaviorMap =map[int64]*behavior.UserBehavior{}//获取用户日志行为
 	var moms = []redis.MomentsAndExtend{}                    // 获取日志缓存
 	var userIds = make([]int64, 0)
 	var momOfflineProfileMap = map[int64]*redis.MomentOfflineProfile{} // 获取日志离线画像
@@ -170,6 +171,13 @@ func DoBuildData(ctx algo.IContext) error {
 				return len(itemBehaviorMap)
 			}
 			return itemBehaviorErr
+		},"useritem_behavior": func(*performs.Performs) interface{} {
+			var userItemBehaviorErr error
+			userItemBehaviorMap,userItemBehaviorErr =behaviorCache.QueryUserItemBehaviorMap(behaviorModuleName, params.UserId,dataIds)
+			if userItemBehaviorErr == nil{
+				return len(userItemBehaviorMap)
+			}
+			return userItemBehaviorErr
 		},
 		"moment": func(*performs.Performs) interface{} { // 获取日志缓存
 			var momsErr error
@@ -294,6 +302,7 @@ func DoBuildData(ctx algo.IContext) error {
 					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,LiveIndex:liveIndex},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
+					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],
 				}
 				dataList = append(dataList, info)
 			}

@@ -49,17 +49,17 @@ func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache 
 }
 
 // 通过直播分类获取直播开播日志列表
-func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) map[int64]int{
+func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) map[int64]int {
 	lives := GetCachedLiveListByTypeClassify(typeId, classify)
 	MomScoreMap := make(map[int64]float64, 0)
 	for _, live := range lives {
 		live.GetBusinessScore()
 		MomScoreMap[live.Live.MomentsID] = float64(live.BussinessScore)
 	}
-	MomRankMap :=make(map[int64]int,0)
-	Moms :=utils.SortMapByValue(MomScoreMap)
-	for rank,id :=range(Moms){
-		MomRankMap[id]=rank
+	MomRankMap := make(map[int64]int, 0)
+	Moms := utils.SortMapByValue(MomScoreMap)
+	for rank, id := range (Moms) {
+		MomRankMap[id] = rank + 1
 	}
 	return MomRankMap
 }

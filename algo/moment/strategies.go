@@ -355,14 +355,18 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
 	lower :=abtest.GetInt("top_mom_lower",21)
+	interval := abtest.GetInt("live_interval",2)
 	upper :=abtest.GetInt("top_mom_upper",24)
 	maxShowLive :=abtest.GetInt("max_show_live",2)
+	maxSeeTime :=abtest.GetFloat64("max_see_time",1.0)
 	if ctx.GetCreateTime().Hour()>=lower && ctx.GetCreateTime().Hour()<=upper{
 		for index := 0; index < ctx.GetDataLength(); index++ {
-			dataInfo := ctx.GetDataByIndex(index)
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
-			if rankInfo.LiveIndex>0 &&rankInfo.LiveIndex<=maxShowLive{
-				rankInfo.HopeIndex=2*rankInfo.LiveIndex-1
+			if dataInfo.UserItemBehavior==nil || dataInfo.UserItemBehavior.Count<=maxSeeTime{
+				if rankInfo.LiveIndex>0 &&rankInfo.LiveIndex<=maxShowLive{
+					rankInfo.HopeIndex=interval*(rankInfo.LiveIndex-1)
+				}
 			}
 		}
 	}
