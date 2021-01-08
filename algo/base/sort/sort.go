@@ -98,6 +98,7 @@ func (self *SorterHope) swapByIndex(arr []int, currIndex, hopeIndex int) map[int
 }
 
 func (self *SorterHope) sortByIndexWithHope() error {
+	abtest := self.Context.GetAbTest()
 	// 最终排序
 	var listLen = self.Context.GetDataLength()
 	var list = self.Context.GetDataList()
@@ -113,7 +114,11 @@ func (self *SorterHope) sortByIndexWithHope() error {
 		sort.SliceStable(hopeList, func(i, j int) bool { // 从小到大排序
 			return hopeList[i][1] < hopeList[j][1]
 		})
-		log.Debugf("SorterHope hope list: %+v \n", hopeList)
+		maxLen := abtest.GetInt("sort_with_interval_hope_max_len", 20)
+		log.Debugf("SorterHope maxLen %d HOPE list: %+v \n", maxLen, hopeList)
+		if len(hopeList) > maxLen { // 限制最多允许多少个希望位置调整
+			hopeList = hopeList[:maxLen]
+		}
 		for i, hope := range hopeList {
 			changedIndex := self.swapByIndex(indexs, hope[0], hope[1])
 			for _, nhope := range hopeList[i+1:] { // 因为index变化，更新后续需要调整位置的index做相应变化
