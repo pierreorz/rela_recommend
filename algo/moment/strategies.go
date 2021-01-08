@@ -355,17 +355,17 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
 	lower :=abtest.GetInt("top_mom_lower",21)
-	interval := abtest.GetInt("live_interval",2)
+	interval := abtest.GetInt("live_interval",2)//指定位置间隔
 	upper :=abtest.GetInt("top_mom_upper",24)
-	maxShowLive :=abtest.GetInt("max_show_live",2)
-	maxSeeTime :=abtest.GetFloat64("max_see_time",1.0)
+	maxShowLive :=abtest.GetInt("max_show_live",2)//最多显示top的直播日志条数
+	maxSeeTime :=abtest.GetFloat64("max_see_time",1.0)//最大看过次数
 	if ctx.GetCreateTime().Hour()>=lower && ctx.GetCreateTime().Hour()<=upper{
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.UserItemBehavior==nil || dataInfo.UserItemBehavior.Count<=maxSeeTime{
 				if rankInfo.LiveIndex>0 &&rankInfo.LiveIndex<=maxShowLive{
-					rankInfo.HopeIndex=interval*(rankInfo.LiveIndex-1)
+					rankInfo.HopeIndex=1+interval*(rankInfo.LiveIndex-1)
 				}
 			}
 		}
