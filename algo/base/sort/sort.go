@@ -2,6 +2,7 @@ package sort
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"sort"
 )
 
@@ -56,6 +57,89 @@ func (self *SorterOrigin) Do(ctx algo.IContext) error {
 	return nil
 }
 
+/************************************************* 按照指定的index排序: 将指定位置的内容插到该位置，之后的向后移动
+如：2, 1, 4, 3, 5, 7, 6  执行 {5, 1}, {3, 6}, {1, 3}
+	排序为：{5, 1}, {1, 3}, {3, 6}
+	5->1，则2 7 1 4 3 5 6  更新后续为 {1, 3} -> {2, 3}; {3, 6} -> {4, 6}
+	将 2->3 ，则 2 7 4 1 3 5 6  更新后续为 {4, 6} 不变
+	将 4->6，则 2 7 4 1 5 6 3  完成
+*/
+type SorterHope struct {
+	Context algo.IContext
+}
+
+func (self *SorterHope) Do(ctx algo.IContext) error {
+	sorter := &SorterHope{Context: ctx}
+	sorter.sortByIndexWithHope()
+	return nil
+}
+
+// 交换位置，先取出当前值，其他值依次前移或后移，然后插入相应位置; 返回 map{老index, 新index}
+func (self *SorterHope) swapByIndex(arr []int, currIndex, hopeIndex int) map[int]int {
+	var changedIndex = map[int]int{}
+	if currIndex < hopeIndex { // 向后移动
+		currValue := arr[currIndex]
+		for i := currIndex; i < hopeIndex; i++ {
+			arr[i] = arr[i+1]
+			changedIndex[i+1] = i
+		}
+		arr[hopeIndex] = currValue
+		changedIndex[currIndex] = hopeIndex
+	} else if currIndex > hopeIndex { // 向前移动
+		currValue := arr[currIndex]
+		for i := currIndex; i > hopeIndex; i-- {
+			arr[i] = arr[i-1]
+			changedIndex[i-1] = i
+		}
+		arr[hopeIndex] = currValue
+		changedIndex[currIndex] = hopeIndex
+	}
+	return changedIndex
+}
+
+func (self *SorterHope) sortByIndexWithHope() error {
+	abtest := self.Context.GetAbTest()
+	// 最终排序
+	var listLen = self.Context.GetDataLength()
+	var list = self.Context.GetDataList()
+	var indexs = make([]int, listLen)
+	var hopeList = [][]int{} // 期望index []{当前index, 期望index}
+	for i, data := range list {
+		indexs[i] = i
+		if rank := data.GetRankInfo(); 0 < rank.HopeIndex && rank.HopeIndex < listLen {
+			hopeList = append(hopeList, []int{i, rank.HopeIndex})
+		}
+	}
+	if len(hopeList) > 0 {
+		sort.SliceStable(hopeList, func(i, j int) bool { // 从小到大排序
+			return hopeList[i][1] < hopeList[j][1]
+		})
+		maxLen := abtest.GetInt("sort_with_interval_hope_max_len", 20)
+		log.Debugf("SorterHope maxLen %d HOPE list: %+v \n", maxLen, hopeList)
+		if len(hopeList) > maxLen { // 限制最多允许多少个希望位置调整
+			hopeList = hopeList[:maxLen]
+		}
+		for i, hope := range hopeList {
+			changedIndex := self.swapByIndex(indexs, hope[0], hope[1])
+			for _, nhope := range hopeList[i+1:] { // 因为index变化，更新后续需要调整位置的index做相应变化
+				if val, ok := changedIndex[nhope[0]]; ok {
+					nhope[0] = val
+				}
+			}
+		}
+
+		// 最终调整数据
+		var itemMap = map[int]algo.IDataInfo{}
+		for i, _ := range list {
+			itemMap[i] = list[i]
+		}
+		for i, ni := range indexs {
+			list[i] = itemMap[ni]
+		}
+	}
+	return nil
+}
+
 /************************************************* 在每个分组中，按照推荐理由进行排序间隔打散
 复杂度：快排 + 分区 + 混排： n*log2(n) + n + n * group
 每个分组指：top, paged, level 等绝对隔离组
@@ -87,7 +171,12 @@ func (self *SorterWithInterval) Do(ctx algo.IContext) error {
 		}
 		sorter.sortByIndex(allIndexs) // 按照最终index排序
 	}
-	// 间隔处理
+
+	// 期望位置处理，将HopeIndex指定大于1的内容进行移动
+	if abtest.GetBool("sort_with_interval_hope_switch", true) { // 打开开关
+		hopeSorter := &SorterHope{Context: ctx}
+		hopeSorter.sortByIndexWithHope()
+	}
 	return nil
 }
 

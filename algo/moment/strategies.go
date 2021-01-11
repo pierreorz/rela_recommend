@@ -34,15 +34,14 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error {
 }
 
 //优质用户推荐策略
-func BetterUserMomAddWeight(ctx algo.IContext, index int) error{
+func BetterUserMomAddWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	if dataInfo.UserCache!=nil&&dataInfo.UserCache.Grade>0{
+	if dataInfo.UserCache != nil && dataInfo.UserCache.Grade > 0 {
 		rankInfo.AddRecommend("betterUserWeight", 1+float32(dataInfo.UserCache.Grade)/100*0.2)
 	}
 	return nil
 }
-
 
 //用户短期偏好提取
 func ShortPrefAddWeight(ctx algo.IContext, index int) error {
@@ -59,7 +58,7 @@ func ShortPrefAddWeight(ctx algo.IContext, index int) error {
 			}
 			for _, shortPref := range shortPrefs {
 				//对情感恋爱以及宠物的短期偏好不提权
-				if strings.Contains(tagList, shortPref.Name)&&shortPref.Name!="情感恋爱"&&shortPref.Name!="宠物" {
+				if strings.Contains(tagList, shortPref.Name) && shortPref.Name != "情感恋爱" && shortPref.Name != "宠物" {
 					rankInfo.AddRecommend("shortPrefWeight", 1+shortPref.Score)
 				}
 			}
@@ -252,22 +251,24 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 	}
 	return err
 }
+
 //根据日志的类别来进行相应的提权
 func ContentAddWeight(ctx algo.IContext) error {
 	var err error
-	var abtest =ctx.GetAbTest()
-	contentType :=abtest.GetStringSet("content_type","theme,themereply")
-	for index :=0;index < ctx.GetDataLength() ;index++{
-		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
-		if dataInfo.MomentCache!=nil {
+	var abtest = ctx.GetAbTest()
+	contentType := abtest.GetStringSet("content_type", "theme,themereply")
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		if dataInfo.MomentCache != nil {
 			rankInfo := dataInfo.GetRankInfo()
-			if contentType.Contains(dataInfo.MomentCache.MomentsType){
+			if contentType.Contains(dataInfo.MomentCache.MomentsType) {
 				rankInfo.AddRecommend("contentTypeWeight", 1.1)
 			}
 		}
 	}
 	return err
 }
+
 // 针对指定categ提权
 func MomentCategWeight(ctx algo.IContext) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
@@ -282,18 +283,18 @@ func MomentCategWeight(ctx algo.IContext) error {
 			userTagMap[shortPref.Name] = 0.75
 		}
 	}
-	if editTags !=nil {
+	if editTags != nil {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.MomentProfile != nil {
 				ThemetagList := dataInfo.MomentProfile.Tags
-				if len(ThemetagList) > 0  && len(userTagMap) > 0 {
+				if len(ThemetagList) > 0 && len(userTagMap) > 0 {
 					var score float64 = 0.0
 					var count float64 = 0.0
 					for _, tag := range ThemetagList {
 						if editTags.Contains(tag.Id) {
-							if tagScore, ok := userTagMap[tag.Name];ok{
+							if tagScore, ok := userTagMap[tag.Name]; ok {
 								score += tagScore
 							} else {
 								score += 0.6
@@ -311,6 +312,7 @@ func MomentCategWeight(ctx algo.IContext) error {
 	}
 	return nil
 }
+
 // 根据用户实时行为偏好，进行的策略
 func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
@@ -330,7 +332,7 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 					var score float64 = 0.0
 					var count float64 = 0.0
 					for _, tag := range dataInfo.MomentProfile.Tags {
-						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil &&tag.Id!=23 {
+						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil && tag.Id != 23 {
 							rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
 							hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
 							score += utils.ExpLogit(rate) * math.Exp(-hour)
@@ -349,3 +351,38 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	return err
 }
 
+//晚上9-12点热门直播日志前2名会被放置去指定位置，看过后沉底
+func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
+	abtest := ctx.GetAbTest()
+	lower :=abtest.GetInt("top_mom_lower",21)
+	interval := abtest.GetInt("live_interval",2)//指定位置间隔
+	upper :=abtest.GetInt("top_mom_upper",24)
+	maxShowLive :=abtest.GetInt("max_show_live",2)//最多显示top的直播日志条数
+	maxSeeTime :=abtest.GetFloat64("max_see_time",1.0)//最大看过次数
+	if ctx.GetCreateTime().Hour()>=lower && ctx.GetCreateTime().Hour()<=upper{
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if dataInfo.UserItemBehavior==nil || dataInfo.UserItemBehavior.Count<=maxSeeTime{
+				if rankInfo.LiveIndex>0 &&rankInfo.LiveIndex<=maxShowLive{
+					rankInfo.HopeIndex=1+interval*(rankInfo.LiveIndex-1)//位置从1开始，间隔interval
+				}
+			}
+		}
+	}
+	return nil
+}
+func TestHopIndexStrategyFunc(ctx algo.IContext) error {
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index)
+		rankInfo := dataInfo.GetRankInfo()
+		if index == 5 {
+			rankInfo.HopeIndex = 2
+		} else if index == 7 {
+			rankInfo.HopeIndex = 10
+		} else if index == 10 {
+			rankInfo.HopeIndex = 15
+		}
+	}
+	return nil
+}

@@ -165,6 +165,8 @@ type RankInfo struct {
 	AlgoScore  float32         // 算法得分
 	Score      float32         // 最终得分
 	Index      int             // 排在第几
+	LiveIndex     int             //热门直播日志的排序
+	HopeIndex  int             // 期望排在第几，排序结束后调整
 }
 
 // 获取Features的字符串形式：1:1.0,1000:1.0,99:1.0
@@ -207,6 +209,10 @@ func (self *RankInfo) getRecommendsString(returnAll bool, f func(string, float32
 		buffer.WriteString(f("TOP", 1))
 	} else if self.IsTop < 0 {
 		buffer.WriteString(f("BOTTOM", 1))
+	}
+
+	if self.HopeIndex > 0 {
+		buffer.WriteString(f("HOPE", float32(self.HopeIndex)))
 	}
 
 	if self.Level > 0 {

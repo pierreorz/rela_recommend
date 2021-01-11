@@ -10,6 +10,7 @@ import (
 	"rela_recommend/service/performs"
 	"sync"
 	"time"
+	"rela_recommend/utils"
 )
 
 var cachedLiveListMap map[int][]pika.LiveCache = map[int][]pika.LiveCache{}
@@ -48,13 +49,18 @@ func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache 
 }
 
 // 通过直播分类获取直播开播日志列表
-func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) []int64 {
+func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) map[int64]int {
 	lives := GetCachedLiveListByTypeClassify(typeId, classify)
-	momentsIds := []int64{}
+	MomScoreMap := make(map[int64]float64, 0)
 	for _, live := range lives {
-		momentsIds = append(momentsIds, live.Live.MomentsID)
+		MomScoreMap[live.Live.MomentsID] = float64(live.GetBusinessScore())
 	}
-	return momentsIds
+	MomRankMap := make(map[int64]int, 0)
+	Moms := utils.SortMapByValue(MomScoreMap)
+	for rank, id := range (Moms) {
+		MomRankMap[id] = rank + 1
+	}
+	return MomRankMap
 }
 
 func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {

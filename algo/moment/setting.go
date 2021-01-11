@@ -25,7 +25,7 @@ var strategyMap = map[string]algo.IStrategy{
 	"edit_tags":        &algo.StrategyBase{DoSingle: EditTagWeight},
 	"assignTag_weight": &algo.StrategyBase{DoSingle: AssignTagAddWeight},
 	"short_pref":       &algo.StrategyBase{DoSingle: ShortPrefAddWeight},
-	"better_user":     &algo.StrategyBase{DoSingle: BetterUserMomAddWeight},
+	"better_user":      &algo.StrategyBase{DoSingle: BetterUserMomAddWeight},
 }
 var sorterMap = map[string]algo.ISorter{
 	"base":     &sort.SorterBase{},
@@ -54,7 +54,8 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"categ_weight": &strategy.BaseRichStrategy{
 		StrategyFunc: MomentCategWeight},
 	"exposure_increase": &strategy.BaseRichStrategy{StrategyFunc: strategy.ExposureIncreaseFunc, DefaultWeight: 3},
-
+	"test_hope_index":   &strategy.BaseRichStrategy{StrategyFunc: TestHopIndexStrategyFunc},
+	"live_hope_index":   &strategy.BaseRichStrategy{StrategyFunc: hotLiveHopeIndexStrategyFunc},
 }
 
 // 精排算法

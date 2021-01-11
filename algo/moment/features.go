@@ -44,6 +44,7 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 			fs.AddCategory(70, 10, 0, momsType, 0)
 		}
 
+
 		//日志离线画像
 		momOfflineProfile := data.MomentOfflineProfile
 		if (momOfflineProfile != nil) {
