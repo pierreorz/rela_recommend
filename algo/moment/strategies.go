@@ -365,7 +365,7 @@ func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.UserItemBehavior==nil || dataInfo.UserItemBehavior.Count<=maxSeeTime{
 				if rankInfo.LiveIndex>0 &&rankInfo.LiveIndex<=maxShowLive{
-					rankInfo.HopeIndex=1+interval*(rankInfo.LiveIndex-1)
+					rankInfo.HopeIndex=1+interval*(rankInfo.LiveIndex-1)//位置从1开始，间隔interval
 				}
 			}
 		}
