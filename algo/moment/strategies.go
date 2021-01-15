@@ -351,6 +351,19 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	return err
 }
 
+//附近日志未看过的提权
+func NeverSeeStrategyFunc(ctx algo.IContext) error{
+	abtest :=ctx.GetAbTest()
+	exposureNum :=abtest.GetFloat64("exposure_num",1.0)
+	weight :=abtest.GetFloat("never_see_weight",0.2)
+	for index :=0;index < ctx.GetDataLength();index ++{
+		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo :=dataInfo.GetRankInfo()
+		if dataInfo.UserItemBehavior==nil||dataInfo.UserItemBehavior.Count<exposureNum{
+			rankInfo.AddRecommend("NeverSeeWeight",1+weight)
+		}
+	}
+}
 //晚上9-12点热门直播日志前2名会被放置去指定位置，看过后沉底
 func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
