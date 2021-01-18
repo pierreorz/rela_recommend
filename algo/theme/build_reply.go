@@ -29,7 +29,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	themeReplyMap := map[int64]int64{}      // 话题与参与话题对应关系
 	var userBehavior *behavior.UserBehavior // 用户实时行为
 	var tagList []int64                     //用户操作行为tag集合
-
+	newThemeIdList :=[]int64{}
 	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
 		"list": func(*performs.Performs) interface{} { // 获取推荐列表
 			recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_reply_recommend_list:%d")
@@ -43,7 +43,22 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				return len(recommendList)
 			}
 			return listErr
-		}, "user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
+		}, "new":func(*performs.Performs) interface{} {
+			newThemeLen :=abtest.GetInt("search_theme_line",100)
+			recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
+			if newThemeLen >0 {
+				momentTypes := abtest.GetString("new_moment_types", "theme")
+				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, momentTypes, recommended)
+				if err == nil && len(newThemeIdList)!=0{
+					for _, newTheme := range newThemeIdList {
+						themeIdList = append(themeIdList,newTheme)
+					}
+				}
+				return len(newThemeIdList)
+			}
+			return nil
+		},
+		"user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
 			if realtimeErr == nil {
 				userBehavior = realtimes[params.UserId]
