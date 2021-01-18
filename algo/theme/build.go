@@ -28,6 +28,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var startSearchTime = time.Now()
 	dataIdList := params.DataIds
 	newIdList := []int64{}
+	newThemeIdList :=[]int64{}
 	if  (dataIdList == nil || len(dataIdList) == 0) {
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_recommend_list:%d")//theme_recommend_list:%d
 		if len(recListKeyFormatter) > 5 {
@@ -53,6 +54,15 @@ func DoBuildData(ctx algo.IContext) error {
 				log.Warnf("theme new list error %s\n", err)
 			}
 		}
+		newThemeLen :=abtest.GetInt("search_theme_line",100)
+		recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
+		if newThemeLen >0{
+		 momentTypes := abtest.GetString("new_moment_types", "theme")
+		 newThemeIdList,err = search.CallNewThemeuserId(params.UserId,momentTypes,recommended)
+		 if err != nil{
+		     log.Warnf("serch theme new list error %s\n", err)
+		 }
+		}
 	}
 	//backend recommend list
 	var startBackEndTime = time.Now()
@@ -65,7 +75,8 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	// 获取日志内容
 	var startMomentTime = time.Now()
-	var dataIds = utils.NewSetInt64FromArray(dataIdList).AppendArray(newIdList).AppendArray(recIds).ToList()
+	//var dataIds = utils.NewSetInt64FromArray(dataIdList).AppendArray(newIdList).AppendArray(recIds).ToList()
+	var dataIds = utils.NewSetInt64FromArray(dataIdList).AppendArray(newIdList).AppendArray(newThemeIdList).AppendArray(recIds).ToList()
 	moms, err := momentCache.QueryMomentsByIds(dataIds)
 	userIds := make([]int64, 0)
 	if err != nil {
@@ -148,12 +159,12 @@ func DoBuildData(ctx algo.IContext) error {
 	ctx.SetDataIds(dataIds)
 	ctx.SetDataList(dataList)
 	var endTime = time.Now()
-	log.Infof("rankid %s,totallen:%d,oldlen:%d,searchlen:%d;backendlen:%d;total:%.3f,old:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,build:%.3f\n",
-			  ctx.GetRankId(), len(dataIds), len(dataIdList), len(newIdList), len(recIds),
-			  endTime.Sub(startTime).Seconds(), startSearchTime.Sub(startTime).Seconds(), 
-			  startBackEndTime.Sub(startSearchTime).Seconds(), startMomentTime.Sub(startBackEndTime).Seconds(),
-			  startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(),
-			  endTime.Sub(startBuildTime).Seconds() )
+	log.Infof("rankid %s,totallen:%d,oldlen:%d,searchlen:%d;searchThemelen:%s;backendlen:%d;total:%.3f,old:%.3f,search:%.3f,backend:%.3f,moment:%.3f,user:%.3f,build:%.3f\n",
+		ctx.GetRankId(), len(dataIds), len(dataIdList), len(newIdList),len(newThemeIdList),len(recIds),
+		endTime.Sub(startTime).Seconds(), startSearchTime.Sub(startTime).Seconds(),
+		startBackEndTime.Sub(startSearchTime).Seconds(), startMomentTime.Sub(startBackEndTime).Seconds(),
+		startUserTime.Sub(startMomentTime).Seconds(), startBuildTime.Sub(startUserTime).Seconds(),
+		endTime.Sub(startBuildTime).Seconds() )
 	return nil
 }
 
