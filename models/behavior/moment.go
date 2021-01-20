@@ -52,6 +52,13 @@ func (self *UserBehavior) GetMomentListInteract() *Behavior {
 		"moment.detail_recommend:like", "moment.detail_recommend:comment", "moment.detail_recommend:share", "moment.detail_recommend:follow",
 	)
 }
+
+//获取总点击行为
+func (self *UserBehavior) GetMomentListClick() *Behavior{
+	return self.Gets(
+		"moment.friend:click","moment.around:click","moment.recommend:click","moment.detail:click","moment.detail_recommend:click",
+	)
+}
 func (self *UserBehavior) GetMomentListRate() float64 {
 	exposure := self.GetMomentListExposure()
 	interact := self.GetMomentListInteract()

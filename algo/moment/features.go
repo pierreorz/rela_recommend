@@ -101,8 +101,11 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 
 		} // 该内容实时行为特征
 		if data.ItemBehavior != nil {
-			// 点击互动
+			// 互动
 			listInteract := data.ItemBehavior.GetMomentListInteract()
+			//点击
+			listClick :=data.ItemBehavior.GetMomentListClick()
+			fs.Add(8999,float32(listClick.Count))
 			fs.Add(9000, float32(listInteract.Count))
 			if listInteract.LastTime > 0 {
 				fs.Add(9001, float32(float64(currTime)-listInteract.LastTime))
@@ -115,6 +118,7 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 				fs.Add(9004, float32(listInteract.Count/listExposure.Count)) // 互动率
 			}
 		}
+
 
 		// 分词结果
 		if wordsCount > 0 {
