@@ -363,6 +363,7 @@ func NeverSeeStrategyFunc(ctx algo.IContext) error{
 			rankInfo.AddRecommend("NeverSeeWeight",1+weight)
 		}
 	}
+	return nil
 }
 //晚上9-12点热门直播日志前2名会被放置去指定位置，看过后沉底
 func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
