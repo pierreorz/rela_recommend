@@ -49,7 +49,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
 			if newThemeLen >0 {
 				momentTypes := abtest.GetString("new_moment_types", "theme")
-				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, momentTypes, recommended)
+				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen),momentTypes, recommended)
 				log.Infof("newThemeIdList",len(newThemeIdList))
 				if err == nil && len(newThemeIdList)!=0{
 					for _, newTheme := range newThemeIdList {
