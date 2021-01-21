@@ -23,9 +23,10 @@ type searchThemeRes struct {
 
 type searchThemeRequest struct {
 	UserID   int64   `json:"userId" form:"userId"`
+	Limit int64   `json:"limit" form:"limit"`
 	Filter   string  `json:"filter" form:"filter" `
 }
-func CallNewThemeuserId(userId int64, momentTypes string,recommend bool)([]int64, error){
+func CallNewThemeuserId(userId int64, limit int64,momentTypes string,recommend bool)([]int64, error){
 	idlist := make([]int64, 0)
 	filters := []string{
 		fmt.Sprintf("{moments_type:%s}", momentTypes),
@@ -35,6 +36,7 @@ func CallNewThemeuserId(userId int64, momentTypes string,recommend bool)([]int64
 	}
 	params := searchThemeRequest{
 		UserID:   userId,
+		Limit:    limit,
 		Filter:   strings.Join(filters, "*"),
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
