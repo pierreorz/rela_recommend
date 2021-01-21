@@ -49,11 +49,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if newThemeLen >0 {
 				momentTypes := abtest.GetString("new_moment_types", "theme")
 				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen),momentTypes, recommended)
-				if err == nil && len(newThemeIdList)!=0{
-					for _, newTheme := range newThemeIdList {
-						themeIdList = append(themeIdList,newTheme)
-					}
-				}
+				themeIdList=append(themeIdList,newThemeIdList...)
 				return len(newThemeIdList)
 			}
 			return nil
