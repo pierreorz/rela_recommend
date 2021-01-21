@@ -2,6 +2,7 @@ package redis
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	// "encoding/json"
@@ -69,7 +70,7 @@ func (self *UserCacheModule) QueryUserById(id int64) (*UserProfile, error) {
 	if users, err := self.QueryUsersByIds(ids); err == nil && len(users) > 0 {
 		return &users[0], nil
 	}
-	return nil, errors.New("not found user")
+	return nil, errors.New(fmt.Sprintf("not found user[%d]", id))
 }
 
 // 读取用户信息
