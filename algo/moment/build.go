@@ -11,6 +11,7 @@ import (
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
+	"rela_recommend/log"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -236,6 +237,9 @@ func DoBuildData(ctx algo.IContext) error {
 		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
+			if mom.Moments.Id==161165113663510070{
+				log.Infof("moms profile%s",mom)
+			}
 			// 后期搜索完善此条件去除
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
