@@ -317,6 +317,22 @@ func MomentCategWeight(ctx algo.IContext) error {
 	return nil
 }
 
+//热门日志打压策略
+func HotMomentSuppressStrategyFunc(ctx algo.IContext) error{
+	for index :=0;index < ctx.GetDataLength();index ++{
+		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo :=dataInfo.GetRankInfo()
+		if dataInfo.ItemBehavior!=nil{
+			itemBehavior :=dataInfo.ItemBehavior
+			if itemBehavior!=nil{
+				willSonScore := strategy.WilsonScore(itemBehavior.GetMomentListExposure(), itemBehavior.GetMomentListInteract(), 3)
+				rankInfo.AddRecommend("willSonSuppressWeight",1-float32(willSonScore))
+			}
+		}
+	}
+	return nil
+}
+
 // 根据用户实时行为偏好，进行的策略
 func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
