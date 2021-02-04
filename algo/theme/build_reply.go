@@ -4,6 +4,7 @@ import (
 	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 
@@ -40,6 +41,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					themeIdList = append(themeIdList, recommend.ThemeID)
 					themeReplyMap[recommend.ThemeID] = recommend.ThemeReplyID
 				}
+				log.Infof("themeList======",themeIdList)
+				log.Infof("replyList======",replyIdList)
+				log.Infof("themeMap=======",themeReplyMap)
 				return len(recommendList)
 			}
 			return listErr
@@ -50,6 +54,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				momentTypes := abtest.GetString("new_moment_types", "theme")
 				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen),momentTypes, recommended)
 				themeIdList=append(themeIdList,newThemeIdList...)
+				log.Infof("themeNew========",newThemeIdList)
 				return len(newThemeIdList)
 			}
 			return nil
@@ -88,6 +93,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							themeIdList = append(themeIdList, themeDict.MomentId)
 							themeReplyMap[themeDict.MomentId] = themeDict.ReplyId
 						}
+						log.Infof("themeList======tag",themeIdList)
+						log.Infof("replyList======tag",replyIdList)
+						log.Infof("themeMap=======tag",themeReplyMap)
 					}
 				}
 				return len(tagRecommends)
