@@ -167,7 +167,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 				}
 				replysUserIds = utils.NewSetInt64FromArray(replysUserIds).ToList()
-				log.Infof("replysUserIds========",replysUserIds)
 				return len(replysMap)
 			}
 			return replyErr
@@ -182,7 +181,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 				}
 				themesUserIds = utils.NewSetInt64FromArray(themesUserIds).ToList()
-				log.Infof("themesUserIds==========",themesUserIds)
 				return len(themes)
 			}
 			return themesMapErr
@@ -265,6 +263,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				}
 				dataIds = append(dataIds, themeId)
 				dataList = append(dataList, info)
+				log.Infof("dataIds=========",dataIds)
+				log.Infof("dataList======",dataList)
 			}
 		}
 		ctx.SetUserInfo(userInfo)
