@@ -149,7 +149,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
-	log.Infof("Map==============",searchReplyMap,themeReplyMap)
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
@@ -168,6 +167,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 				}
 				replysUserIds = utils.NewSetInt64FromArray(replysUserIds).ToList()
+				log.Infof("replysUserIds========",replysUserIds)
 				return len(replysMap)
 			}
 			return replyErr
@@ -182,6 +182,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 				}
 				themesUserIds = utils.NewSetInt64FromArray(themesUserIds).ToList()
+				log.Infof("themesUserIds==========",themesUserIds)
 				return len(themes)
 			}
 			return themesMapErr
