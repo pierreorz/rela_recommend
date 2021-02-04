@@ -101,6 +101,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		return nil
 	})
 	// log.Debugf("reply_ids:%+v, theme_reply_map:%+v\n", replyIdList, themeReplyMap)
+	log.Infof("replyIdList++++++++++++",replyIdList)
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	searchThemeMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
@@ -115,6 +116,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				returnedRecommend := abtest.GetBool("search_returned_recommend", true)
 				searchReplyMap, searchThemeMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
 					searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
+				log.Infof("searchReplyMap---------",searchReplyMap)
+				log.Infof("searchThemeMap----------",searchThemeMap)
 				if searchReplyMapErr == nil {
 					replyIdSet := utils.SetInt64{}
 					for _, searchRes := range searchReplyMap {
