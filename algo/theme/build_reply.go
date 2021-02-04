@@ -54,7 +54,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				momentTypes := abtest.GetString("new_moment_types", "theme")
 				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen),momentTypes, recommended)
 				themeIdList=append(themeIdList,newThemeIdList...)
-				log.Infof("themeNew========",newThemeIdList)
 				return len(newThemeIdList)
 			}
 			return nil
@@ -93,9 +92,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							themeIdList = append(themeIdList, themeDict.MomentId)
 							themeReplyMap[themeDict.MomentId] = themeDict.ReplyId
 						}
-						log.Infof("themeList======tag",themeIdList)
-						log.Infof("replyList======tag",replyIdList)
-						log.Infof("themeMap=======tag",themeReplyMap)
 					}
 				}
 				return len(tagRecommends)
@@ -153,6 +149,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
+	log.Infof("Map==============",searchReplyMap,themeReplyMap)
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
