@@ -149,6 +149,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
+	log.Infof("themeReplyMap===========",themeReplyMap,replyIdList)
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
@@ -207,6 +208,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if themeUserCacheErr == nil {
 				return len(usersProfileMap)
 			}
+			log.Infof("user_profile========",usersProfileMap)
 			return themeUserCacheErr
 		},
 		"theme_profile": func(*performs.Performs) interface{} {
@@ -215,6 +217,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if themeProfileCacheErr == nil {
 				return len(themeProfileMap)
 			}
+			log.Infof("themeProfileMap========",themeProfileMap)
 			return themeProfileCacheErr
 		},
 	})
