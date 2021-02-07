@@ -4,7 +4,6 @@ import (
 	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 
@@ -41,9 +40,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					themeIdList = append(themeIdList, recommend.ThemeID)
 					themeReplyMap[recommend.ThemeID] = recommend.ThemeReplyID
 				}
-				log.Infof("themeList======, %+v",themeIdList)
-				log.Infof("replyList======, %+v",replyIdList)
-				log.Infof("themeMap=======, %+v",themeReplyMap)
 				return len(recommendList)
 			}
 			return listErr
@@ -101,7 +97,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		return nil
 	})
 	// log.Debugf("reply_ids:%+v, theme_reply_map:%+v\n", replyIdList, themeReplyMap)
-	log.Infof("replyIdList++++++++++++",replyIdList)
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	searchThemeMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
@@ -116,8 +111,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				returnedRecommend := abtest.GetBool("search_returned_recommend", true)
 				searchReplyMap, searchThemeMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
 					searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
-				log.Infof("searchReplyMap---------, %+v",searchReplyMap)
-				log.Infof("searchThemeMap----------, %+v",searchThemeMap)
 				if searchReplyMapErr == nil {
 					replyIdSet := utils.SetInt64{}
 					for _, searchRes := range searchReplyMap {
@@ -152,10 +145,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
-	log.Infof("themeReplyMap===========, %+v",themeReplyMap)
-	log.Infof("replyIdList===========, %+v",replyIdList)
-	log.Infof("searchReplyThemeIds===========, %+v",searchReplyThemeIds)
-	log.Infof("searchThemeNoReturnIds==========, %+v",searchThemeNoReturnIds)
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
@@ -272,11 +261,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				dataList = append(dataList, info)
 
 			}
-		}
-		log.Infof("dataIds=========, %+v",dataIds)
-		for _, item := range dataList {
-
-			log.Infof("dataList======, %+v",item.GetDataId())
 		}
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(dataIds)
