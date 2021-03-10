@@ -63,3 +63,14 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
 	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+// feed流广告
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "ad.feed", Module: "ad", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "base", AlgoMap: nil,
+	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
