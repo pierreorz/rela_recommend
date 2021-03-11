@@ -178,9 +178,11 @@ func AroundNewUserAddWeightFunc(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	if newUserDefine := abtest.GetInt("new_user_define", 0); newUserDefine > 0 {
-		hourInterval := int(ctx.GetCreateTime().Sub(dataInfo.UserCache.CreateTime.Time).Hours()) / 24
-		if hourInterval < newUserDefine {
-			rankInfo.AddRecommend("newUserWeight", 1.2)
+		if dataInfo.UserCache!=nil{
+			hourInterval := int(ctx.GetCreateTime().Sub(dataInfo.UserCache.CreateTime.Time).Hours()) / 24
+			if hourInterval < newUserDefine {
+				rankInfo.AddRecommend("newUserWeight", 1.2)
+			}
 		}
 	}
 	return nil
