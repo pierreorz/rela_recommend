@@ -41,6 +41,7 @@ type UserProfile struct {
 
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
+
 }
 
 func (self *UserProfile) GetRoleNameInt() int {
