@@ -53,11 +53,13 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 		StrategyFunc: ContentAddWeight},
 	"categ_weight": &strategy.BaseRichStrategy{
 		StrategyFunc: MomentCategWeight},
+	"recall_new": &strategy.BaseRichStrategy{
+		StrategyFunc: RecallUserAddWeight},
 	"exposure_increase": &strategy.BaseRichStrategy{StrategyFunc: strategy.ExposureIncreaseFunc, DefaultWeight: 3},
 	"test_hope_index":   &strategy.BaseRichStrategy{StrategyFunc: TestHopIndexStrategyFunc},
 	"live_hope_index":   &strategy.BaseRichStrategy{StrategyFunc: hotLiveHopeIndexStrategyFunc},
-	"never_see":   &strategy.BaseRichStrategy{StrategyFunc: NeverSeeStrategyFunc},
-	"willson_suppress":&strategy.BaseRichStrategy{StrategyFunc: HotMomentSuppressStrategyFunc},
+	"never_see":         &strategy.BaseRichStrategy{StrategyFunc: NeverSeeStrategyFunc},
+	"willson_suppress":  &strategy.BaseRichStrategy{StrategyFunc: HotMomentSuppressStrategyFunc},
 }
 
 // 精排算法
