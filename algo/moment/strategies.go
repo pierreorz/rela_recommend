@@ -275,6 +275,21 @@ func ContentAddWeight(ctx algo.IContext) error {
 	return err
 }
 
+//回流用户日志提权策略
+func RecallUserAddWeight(ctx algo.IContext) error{
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserCache !=nil{
+			newRecall :=dataInfo.UserCache.Recall
+			if newRecall==1{
+				rankInfo.AddRecommend("RecallUserWeight", 1.2)
+			}
+		}
+	}
+	return nil
+}
+
 // 针对指定categ提权
 func MomentCategWeight(ctx algo.IContext) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
