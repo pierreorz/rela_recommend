@@ -3,18 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"path": "-b",
-			"revision": ""
-		},
-		{
-			"path": "clone",
-			"revision": ""
-		},
-		{
-			"path": "git",
-			"revision": ""
-		},
-		{
 			"checksumSHA1": "hqDDDpue/5363luidNMBS8z8eJU=",
 			"path": "github.com/BurntSushi/toml",
 			"revision": "99064174e013895bbd9b025c31100bd1d9b590ca",
@@ -271,14 +259,6 @@
 			"path": "gopkg.in/yaml.v2",
 			"revision": "0b1645d91e851e735d3e23330303ce81f70adbe3",
 			"revisionTime": "2020-05-06T23:08:38Z"
-		},
-		{
-			"path": "https://github.com/tensorflow/serving.git",
-			"revision": ""
-		},
-		{
-			"path": "r1.7",
-			"revision": ""
 		}
 	],
 	"rootPath": "rela_recommend"
