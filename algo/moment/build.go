@@ -56,7 +56,7 @@ func DoBuildData(ctx algo.IContext) error {
 				newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
 				newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
 				recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
-				if abtest.GetBool("near_liveMoments_switch", false) {
+				if abtest.GetBool("near_liveMoments_switch", false)&& abtest.GetBool("search_switched_around",true){
 					var lives []pika.LiveCache
 					lives = live.GetCachedLiveListByTypeClassify(-1, -1)
 					liveMomentIds = ReturnAroundLiveMom(lives, params.Lng, params.Lat)
