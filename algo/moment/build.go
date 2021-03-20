@@ -63,6 +63,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 				var errSearch error
+				if abtest.GetBool("search_switched_around",true){//附近日志搜索开关，关闭则走兜底数据
 					for _, radius := range radiusArray {
 						//if abtest.GetBool("use_ai_search", false) {
 						//
@@ -77,10 +78,13 @@ func DoBuildData(ctx algo.IContext) error {
 							break
 						}
 					}
-
-					if errSearch != nil {
-						return err
-					}
+				} else{
+					recListKeyFormatter := abtest.GetString("around_list_key", "moment.around_list_data:%s")
+					newIdList, errSearch = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
+				}
+				if errSearch != nil {
+					return err
+				}
 				return len(newIdList)
 			}
 			return nil
