@@ -244,7 +244,7 @@ func DoBuildData(ctx algo.IContext) error {
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
 			}
-			if mom.Moments.Secret==1 && abtest.GetBool("close_secret",false){//匿名日志且后台开关开启即关闭
+			if mom.Moments!=nil&&mom.Moments.Secret==1 && abtest.GetBool("close_secret",false){//匿名日志且后台开关开启即关闭
 				continue
 			}
 			//搜索过滤开关(运营推荐不管审核状态)
