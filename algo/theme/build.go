@@ -39,20 +39,32 @@ func DoBuildData(ctx algo.IContext) error {
 				dataIdList, _ = rdsPikaCache.GetInt64List(-999999999, recListKeyFormatter)
 			}
 		}
-	
-		newMomentLen := abtest.GetInt("new_moment_len", 100)
-		if newMomentLen > 0 {
+
+		newMomentLen :=abtest.GetInt("search_theme_line",100)
+		recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
+		if newMomentLen >0 {
 			momentTypes := abtest.GetString("new_moment_types", "theme")
-			radiusRange := abtest.GetString("new_moment_radius_range", "1000km")
-			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60 * 60 * 24)
-			
-			startNewTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
-			newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
-													   momentTypes, startNewTime , radiusRange)
+			newIdList, err = search.CallNewThemeuserId(params.UserId, int64(newMomentLen),momentTypes, recommended)
+			log.Infof("newIdList=======================================",newIdList)
+			newIdList=append(newIdList,newIdList...)
 			if err != nil {
-				log.Warnf("theme new list error %s\n", err)
+					log.Warnf("theme new list error %s\n", err)
 			}
 		}
+
+		//newMomentLen := abtest.GetInt("new_moment_len", 100)
+		//if newMomentLen > 0 {
+		//	momentTypes := abtest.GetString("new_moment_types", "theme")
+		//	radiusRange := abtest.GetString("new_moment_radius_range", "1000km")
+		//	newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60 * 60 * 24)
+		//
+		//	startNewTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
+		//	newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
+		//											   momentTypes, startNewTime , radiusRange)
+		//	if err != nil {
+		//		log.Warnf("theme new list error %s\n", err)
+		//	}
+		//}
 	}
 	//backend recommend list
 	var startBackEndTime = time.Now()
