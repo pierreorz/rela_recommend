@@ -178,9 +178,11 @@ func AroundNewUserAddWeightFunc(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	if newUserDefine := abtest.GetInt("new_user_define", 0); newUserDefine > 0 {
-		hourInterval := int(ctx.GetCreateTime().Sub(dataInfo.UserCache.CreateTime.Time).Hours()) / 24
-		if hourInterval < newUserDefine {
-			rankInfo.AddRecommend("newUserWeight", 1.2)
+		if dataInfo.UserCache!=nil{
+			hourInterval := int(ctx.GetCreateTime().Sub(dataInfo.UserCache.CreateTime.Time).Hours()) / 24
+			if hourInterval < newUserDefine {
+				rankInfo.AddRecommend("newUserWeight", 1.2)
+			}
 		}
 	}
 	return nil
@@ -271,6 +273,21 @@ func ContentAddWeight(ctx algo.IContext) error {
 		}
 	}
 	return err
+}
+
+//回流用户日志提权策略
+func RecallUserAddWeight(ctx algo.IContext) error{
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserCache !=nil{
+			newRecall :=dataInfo.UserCache.Recall
+			if newRecall==1{
+				rankInfo.AddRecommend("RecallUserWeight", 1.2)
+			}
+		}
+	}
+	return nil
 }
 
 // 针对指定categ提权

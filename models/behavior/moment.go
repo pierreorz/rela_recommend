@@ -38,7 +38,7 @@ package behavior
 
 // 获取总列表曝光
 func (self *UserBehavior) GetMomentListExposure() *Behavior {
-	return self.Gets("moment.friend:exposure", "moment.around:exposure", "moment.recommend:exposure","moment.detail_recommend:exposure")
+	return self.Gets("moment.friend:exposure", "moment.around:exposure", "moment.recommend:exposure","moment.detail_recommend:exposure","moment.detail:exposure")
 }
 
 
