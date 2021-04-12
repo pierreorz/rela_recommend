@@ -6,6 +6,7 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/rpc/api"
+	"rela_recommend/rpc/search"
 	"time"
 	// "rela_recommend/models/pika"
 	"rela_recommend/models/redis"
@@ -39,17 +40,17 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		}
 
-		//newMomentLen :=abtest.GetInt("search_theme_line",100)
-		//recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
-		//if newMomentLen >0 {
-		//	momentTypes := abtest.GetString("new_moment_types", "theme")
-		//	newIdList, err = search.CallNewThemeuserId(params.UserId, int64(newMomentLen),momentTypes, recommended)
-		//	log.Infof("newIdList=======================================",newIdList)
-		//	newIdList=append(newIdList,newIdList...)
-		//	if err != nil {
-		//			log.Warnf("theme new list error %s\n", err)
-		//	}
-		//}
+		newMomentLen :=abtest.GetInt("search_theme_line",100)
+		recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
+		if newMomentLen >0 {
+			momentTypes := abtest.GetString("new_moment_types", "theme")
+			newIdList, err = search.CallNewThemeuserId(params.UserId, int64(newMomentLen),momentTypes, recommended)
+			log.Infof("newIdList=======================================",newIdList)
+			newIdList=append(newIdList,newIdList...)
+			if err != nil {
+					log.Warnf("theme new list error %s\n", err)
+			}
+		}
 
 		//newMomentLen := abtest.GetInt("new_moment_len", 100)
 		//if newMomentLen > 0 {
