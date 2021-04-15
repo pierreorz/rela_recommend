@@ -126,7 +126,7 @@ func UserShortTagWeight(ctx algo.IContext, index int) error {
 				}
 			}
 			if count > 0.0 && score > 0.0 {
-				avg:=float32(1.0+(score/count))
+				avg:=float32(1.0+(score/count)*0.3)
 				rankInfo.AddRecommend("UserShortTagProfile", avg)
 			}
 		}
