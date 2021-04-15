@@ -223,7 +223,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			ThemeUser:    usersProfileMap[params.UserId],
 			UserBehavior: userBehavior}
 
-		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 2)
+		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 3)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
 			if theme.Moments != nil && theme.Moments.Id > 0 {
