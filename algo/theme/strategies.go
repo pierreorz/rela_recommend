@@ -167,7 +167,7 @@ func ThemeCategWeight(ctx algo.IContext) error {
 						}
 					}
 					if count > 0.0 && score > 0.0 {
-						avg := float32(1.0 + (score / count)*0.3)
+						avg := float32(1.0 + (score / count))
 						rankInfo.AddRecommend("ThemeCateg", avg)
 					}
 				}
