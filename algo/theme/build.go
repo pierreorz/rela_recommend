@@ -45,26 +45,12 @@ func DoBuildData(ctx algo.IContext) error {
 		if newMomentLen >0 {
 			momentTypes := abtest.GetString("new_moment_types", "theme")
 			newIdList, err = search.CallNewThemeuserId(params.UserId, int64(newMomentLen),momentTypes, recommended)
-			log.Infof("newIdList=======================================",newIdList)
 			newIdList=append(newIdList,newIdList...)
 			if err != nil {
 					log.Warnf("theme new list error %s\n", err)
 			}
 		}
-
-		//newMomentLen := abtest.GetInt("new_moment_len", 100)
-		//if newMomentLen > 0 {
-		//	momentTypes := abtest.GetString("new_moment_types", "theme")
-		//	radiusRange := abtest.GetString("new_moment_radius_range", "1000km")
-		//	newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60 * 60 * 24)
-		//
-		//	startNewTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
-		//	newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
-		//											   momentTypes, startNewTime , radiusRange)
-		//	if err != nil {
-		//		log.Warnf("theme new list error %s\n", err)
-		//	}
-		//}
+		
 	}
 	//backend recommend list
 	var startBackEndTime = time.Now()
