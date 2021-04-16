@@ -50,7 +50,7 @@ func DoBuildData(ctx algo.IContext) error {
 					log.Warnf("theme new list error %s\n", err)
 			}
 		}
-		
+
 	}
 	//backend recommend list
 	var startBackEndTime = time.Now()
