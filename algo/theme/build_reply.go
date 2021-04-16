@@ -259,6 +259,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				}
 				dataIds = append(dataIds, themeId)
 				dataList = append(dataList, info)
+
 			}
 		}
 		ctx.SetUserInfo(userInfo)

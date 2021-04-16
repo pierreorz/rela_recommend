@@ -1,13 +1,13 @@
 package theme
 
 import (
-	"time"
 	"errors"
 	"rela_recommend/algo"
-	"rela_recommend/log"
 	"rela_recommend/factory"
-	"rela_recommend/rpc/search"
+	"rela_recommend/log"
 	"rela_recommend/rpc/api"
+	"rela_recommend/rpc/search"
+	"time"
 	// "rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	"rela_recommend/utils"
@@ -28,6 +28,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var startSearchTime = time.Now()
 	dataIdList := params.DataIds
 	newIdList := []int64{}
+	newThemeIdList :=[]int64{}
 	if  (dataIdList == nil || len(dataIdList) == 0) {
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_recommend_list:%d")//theme_recommend_list:%d
 		if len(recListKeyFormatter) > 5 {
@@ -39,20 +40,18 @@ func DoBuildData(ctx algo.IContext) error {
 				dataIdList, _ = rdsPikaCache.GetInt64List(-999999999, recListKeyFormatter)
 			}
 		}
-	
-		newMomentLen := abtest.GetInt("new_moment_len", 100)
-		if newMomentLen > 0 {
+
+		newMomentLen :=abtest.GetInt("search_theme_line",100)
+		recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
+		if newMomentLen >0 {
 			momentTypes := abtest.GetString("new_moment_types", "theme")
-			radiusRange := abtest.GetString("new_moment_radius_range", "1000km")
-			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60 * 60 * 24)
-			
-			startNewTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
-			newIdList, err = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
-													   momentTypes, startNewTime , radiusRange)
+			newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newMomentLen),momentTypes, recommended)
+			newIdList=append(newIdList,newThemeIdList...)
 			if err != nil {
-				log.Warnf("theme new list error %s\n", err)
+					log.Warnf("theme new list error %s\n", err)
 			}
 		}
+
 	}
 	//backend recommend list
 	var startBackEndTime = time.Now()
