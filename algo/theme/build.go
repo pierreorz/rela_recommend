@@ -28,6 +28,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var startSearchTime = time.Now()
 	dataIdList := params.DataIds
 	newIdList := []int64{}
+	newThemeIdList :=[]int64{}
 	if  (dataIdList == nil || len(dataIdList) == 0) {
 		recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_recommend_list:%d")//theme_recommend_list:%d
 		if len(recListKeyFormatter) > 5 {
@@ -44,8 +45,8 @@ func DoBuildData(ctx algo.IContext) error {
 		recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
 		if newMomentLen >0 {
 			momentTypes := abtest.GetString("new_moment_types", "theme")
-			newIdList, err = search.CallNewThemeuserId(params.UserId, int64(newMomentLen),momentTypes, recommended)
-			newIdList=append(newIdList,newIdList...)
+			newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newMomentLen),momentTypes, recommended)
+			newIdList=append(newIdList,newThemeIdList...)
 			if err != nil {
 					log.Warnf("theme new list error %s\n", err)
 			}
