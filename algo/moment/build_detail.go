@@ -232,7 +232,7 @@ func SetData(dataIdList []int64, ctx algo.IContext,momsId int64,filter bool) err
 	return err
 }
 
-func ReturnAroundLiveMom(lives []pika.LiveCache, userLng float32, userLat float32) []int64 {
+func ReturnAroundLiveMom(lives []pika.LiveCache, userLng float32, userLat float32,distance float64) []int64 {
 	res := make([]int64, 0)
 	if len(lives) > 0 {
 		for i, _ := range lives {
@@ -240,7 +240,7 @@ func ReturnAroundLiveMom(lives []pika.LiveCache, userLng float32, userLat float3
 			//liveIds[i] = lives[i].Live.MomentsID
 			momLat := lives[i].Live.Lat
 			momLng := lives[i].Live.Lng
-			if utils.EarthDistance(float64(momLng), float64(momLat), float64(userLng), float64(userLat))/1000.0 < 50 {
+			if utils.EarthDistance(float64(momLng), float64(momLat), float64(userLng), float64(userLat))/1000.0 < distance {
 				res = append(res, lives[i].Live.MomentsID)
 			}
 		}
