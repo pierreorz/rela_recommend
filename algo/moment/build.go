@@ -59,7 +59,8 @@ func DoBuildData(ctx algo.IContext) error {
 				if abtest.GetBool("near_liveMoments_switch", false)&& abtest.GetBool("search_switched_around",true){
 					var lives []pika.LiveCache
 					lives = live.GetCachedLiveListByTypeClassify(-1, -1)
-					liveMomentIds = ReturnAroundLiveMom(lives, params.Lng, params.Lat)
+					distance :=abtest.GetFloat64("live_distance",50.0)
+					liveMomentIds = ReturnAroundLiveMom(lives, params.Lng, params.Lat,distance)
 				}
 				//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 				var errSearch error
