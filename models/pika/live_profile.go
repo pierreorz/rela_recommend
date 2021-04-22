@@ -146,7 +146,7 @@ func (lcm *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
 		endTime.Sub(startTime).Seconds(), len(lives),
 		startJsonTime.Sub(startTime).Seconds(),
 		endTime.Sub(startJsonTime).Seconds(),
-		startTime.Sub(initialTime))
+		startTime.Sub(initialTime).Seconds())
 	return lives, err
 }
 
