@@ -3,6 +3,7 @@ package pika
 import (
 	"encoding/json"
 	"rela_recommend/cache"
+	"rela_recommend/help"
 	"rela_recommend/log"
 	"rela_recommend/utils"
 	"time"
@@ -32,6 +33,7 @@ type LiveProfile struct {
 	IsMulti          int      `json:"isMulti"`
 	Classify         int      `json:"classify"`
 	MomentsID        int64    `json:"momentsId"`
+	IsWeekStar       bool     `json:"-"`
 }
 
 type LiveCache struct {
@@ -50,7 +52,7 @@ type LiveCache struct {
 	Data4Api       interface{} `json:"data"` // 20200305专门为api接口新增的透传参数
 }
 
-func (self *LiveCache) GetBusinessScore() float32{
+func (self *LiveCache) GetBusinessScore() float32 {
 	var score float32 = 0
 	score += self.scoreFx(self.DayIncoming) * 0.2
 	score += self.scoreFx(self.MonthIncoming) * 0.05
@@ -61,7 +63,7 @@ func (self *LiveCache) GetBusinessScore() float32{
 }
 
 func (self *LiveCache) scoreFx(score float32) float32 {
-	return (score / 200) / (1 + score / 200)
+	return (score / 200) / (1 + score/200)
 }
 
 func (self *LiveCache) CheckDataType() {
@@ -75,17 +77,17 @@ type LiveCacheModule struct {
 }
 
 // 根据liveids 获取直播间信息，如果liveids为空 返回所有直播间
-func (self *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error) {
+func (lcm *LiveCacheModule) QueryByLiveIds(liveIds []int64) ([]LiveCache, error) {
 	lives := make([]LiveCache, 0)
-	allList, err := self.QueryLiveList()
+	allList, err := lcm.QueryLiveList()
 	if err == nil {
-		lives = self.MgetByLiveIds(allList, liveIds)
+		lives = lcm.MgetByLiveIds(allList, liveIds)
 	}
 	return lives, err
 }
 
 // 根据liveids 获取直播间信息，如果liveids为空 返回所有直播间
-func (self *LiveCacheModule) MgetByLiveIds(allList []LiveCache, liveIds []int64) []LiveCache {
+func (lcm *LiveCacheModule) MgetByLiveIds(allList []LiveCache, liveIds []int64) []LiveCache {
 	live_ids_map := make(map[int64]int)
 	if liveIds != nil && len(liveIds) > 0 {
 		for _, liveId := range liveIds {
@@ -111,10 +113,15 @@ func (self *LiveCacheModule) MgetByLiveIds(allList []LiveCache, liveIds []int64)
 }
 
 // 获取所有直播列表
-func (self *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
+func (lcm *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
+	var initialTime = time.Now()
+	weekStarUID, err := lcm.GetWeekStar()
+	if err != nil {
+		log.Errorf("get week star error: %s", err)
+	}
 	var startTime = time.Now()
 	list_key := "{cluster1}hotlives_with_recommend_v2"
-	live_bytes, err := self.cacheLive.LRange(list_key, 0, -1)
+	live_bytes, err := lcm.cacheLive.LRange(list_key, 0, -1)
 	var startJsonTime = time.Now()
 	lives := make([]LiveCache, 0)
 	for i := 0; i < len(live_bytes); i++ {
@@ -126,17 +133,28 @@ func (self *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
 			} else {
 				live.CheckDataType()
 				if live.Live.UserId > 0 {
+					if live.Live.UserId == weekStarUID {
+						live.Live.IsWeekStar = true
+					}
 					lives = append(lives, live)
 				}
 			}
 		}
 	}
 	var endTime = time.Now()
-	log.Debugf("QueryLiveList,all:%.3f,len:%d,cache:%.3f,json:%.3f",
+	log.Debugf("QueryLiveList,all:%.3f,len:%d,cache:%.3f,json:%.3f,week_star:%.3f",
 		endTime.Sub(startTime).Seconds(), len(lives),
 		startJsonTime.Sub(startTime).Seconds(),
-		endTime.Sub(startJsonTime).Seconds())
+		endTime.Sub(startJsonTime).Seconds(),
+		startTime.Sub(initialTime))
 	return lives, err
+}
+
+func (lcm *LiveCacheModule) GetWeekStar() (int64, error) {
+	key := "live_week_star_recommend"
+	var uid int64
+	err := help.GetStructByCache(lcm.cacheLive, key, &uid)
+	return uid, err
 }
 
 func NewLiveCacheModule(cache *cache.Cache) *LiveCacheModule {
