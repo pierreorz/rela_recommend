@@ -8,9 +8,9 @@ import (
 	"rela_recommend/models/pika"
 	"rela_recommend/rpc/api"
 	"rela_recommend/service/performs"
+	"rela_recommend/utils"
 	"sync"
 	"time"
-	"rela_recommend/utils"
 )
 
 var cachedLiveListMap map[int][]pika.LiveCache = map[int][]pika.LiveCache{}
@@ -57,13 +57,18 @@ func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) map[int64]i
 	}
 	MomRankMap := make(map[int64]int, 0)
 	Moms := utils.SortMapByValue(MomScoreMap)
-	for rank, id := range (Moms) {
+	for rank, id := range Moms {
 		MomRankMap[id] = rank + 1
 	}
 	return MomRankMap
 }
 
 func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
+	liveCacheClient := pika.NewLiveCacheModule(&factory.CacheLiveRds)
+	weekStarUID, err := liveCacheClient.GetWeekStar()
+	if err != nil {
+		log.Errorf("get week star error: %s", err)
+	}
 	liveCacheList := make([]pika.LiveCache, len(lives))
 	for i, live := range lives {
 		liveCache := &liveCacheList[i]
@@ -91,6 +96,9 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 		liveCache.Live.IsMulti = live.IsMulti
 		liveCache.Live.Classify = live.Classify
 		liveCache.Live.MomentsID = live.MomentsID
+		if liveCache.Live.UserId == weekStarUID {
+			liveCache.Live.IsWeekStar = true
+		}
 
 		// liveCache.ScoreStr			= live.Score
 		liveCache.Score = live.Score
