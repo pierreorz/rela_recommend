@@ -87,6 +87,9 @@ func DoBuildData(ctx algo.IContext) error {
 					PreHourRank:  hourRankMap[liveId].Rank,
 				},
 				RankInfo: &algo.RankInfo{}}
+			if lives[i].Live.IsWeekStar {
+				liveInfo.GetRankInfo().AddRecommendNeedReturn("WEEK_STAR", 1.0)
+			}
 			livesInfo = append(livesInfo, &liveInfo)
 		}
 
