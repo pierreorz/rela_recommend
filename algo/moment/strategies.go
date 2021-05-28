@@ -41,7 +41,7 @@ func BetterUserMomAddWeight(ctx algo.IContext, index int) error {
 		if dataInfo.UserCache.Grade<50{
 			rankInfo.AddRecommend("betterUserWeight", 1+float32(dataInfo.UserCache.Grade)/50*0.5)
 		} else{
-			rankInfo.AddRecommend("betterUserWeight", 1.5)
+			rankInfo.AddRecommend("betterUserWeight", 1.2)
 		}
 	}
 	return nil
