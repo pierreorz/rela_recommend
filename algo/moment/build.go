@@ -13,6 +13,7 @@ import (
 	"rela_recommend/utils"
 	"math/rand"
 	"time"
+	"fmt"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -117,6 +118,7 @@ func DoBuildData(ctx algo.IContext) error {
 			if abtest.GetBool("auto_recommend_switch",false){
 				autoRecList, errBetterUser = momentCache.GetInt64ListOrDefault(-999999999, -999999999, autoKeyFormatter)
 				if abtest.GetInt("auto_recommend_random_num",0)>0{//随机挑选num个优质用户日志
+					fmt.Printf("better user :%s",autoRecList)
 					num :=abtest.GetInt("auto_recommend_random_num",0)
 					rand.Seed(time.Now().UnixNano())
 					rand.Shuffle(len(autoRecList),func(i,j int){autoRecList[i],autoRecList[j]=autoRecList[j],autoRecList[i]})
