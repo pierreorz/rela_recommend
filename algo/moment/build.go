@@ -13,7 +13,6 @@ import (
 	"rela_recommend/utils"
 	"math/rand"
 	"time"
-	"fmt"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -160,7 +159,6 @@ func DoBuildData(ctx algo.IContext) error {
 			return realtimeErr
 		},
 	})
-	fmt.Printf("better user :%s",autoRecList)
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList,autoRecList).ToList()
 	// 过滤审核
