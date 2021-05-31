@@ -11,6 +11,8 @@ import (
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
+	"math/rand"
+	"time"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -25,6 +27,7 @@ func DoBuildData(ctx algo.IContext) error {
 	// search list
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
+	autoRecList :=make([]int64 ,0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
 	tagRecommendIdList := make([]int64, 0)
@@ -108,6 +111,25 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 			return errBackend
+		},"better_user":func(*performs.Performs) interface{}{
+			var errBetterUser error
+			autoKeyFormatter :="better_user_mom_yesterday:%d"
+			if abtest.GetBool("auto_recommend_switch",false){
+				autoRecList, errBetterUser = momentCache.GetInt64ListOrDefault(-999999999, -999999999, autoKeyFormatter)
+				if abtest.GetInt("auto_recommend_random_num",0)>0{//随机挑选num个优质用户日志
+					num :=abtest.GetInt("auto_recommend_random_num",0)
+					rand.Seed(time.Now().UnixNano())
+					rand.Shuffle(len(autoRecList),func(i,j int){autoRecList[i],autoRecList[j]=autoRecList[j],autoRecList[i]})
+					if len(autoRecList)<num{
+						num=len(autoRecList)
+					}
+					autoRecList=autoRecList[:num-1]
+				}
+				if errBetterUser==nil{
+					return len(autoRecList)
+				}
+			}
+			return errBetterUser
 		}, "user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
 			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
 			if realtimeErr == nil && abtest.GetInt("rich_strategy:user_behavior_interact:weight", 0) == 1 {
@@ -137,9 +159,8 @@ func DoBuildData(ctx algo.IContext) error {
 			return realtimeErr
 		},
 	})
-
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList,autoRecList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
