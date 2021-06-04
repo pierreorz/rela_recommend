@@ -116,8 +116,7 @@ func DoBuildData(ctx algo.IContext) error {
 			autoKeyFormatter :="better_user_mom_yesterday:%d"
 			if abtest.GetBool("auto_recommend_switch",false){
 				autoRecList, errBetterUser = momentCache.GetInt64ListOrDefault(-999999999, -999999999, autoKeyFormatter)
-				if abtest.GetInt("auto_recommend_random_num",0)>0&&len(autoRecList)>0{//随机挑选num个优质用户日志
-					num :=abtest.GetInt("auto_recommend_random_num",0)
+				if num :=abtest.GetInt("auto_recommend_random_num",0);num>0&&errBetterUser==nil&&len(autoRecList)>0{//随机挑选num个优质用户日志
 					rand.Seed(time.Now().UnixNano())
 					rand.Shuffle(len(autoRecList),func(i,j int){autoRecList[i],autoRecList[j]=autoRecList[j],autoRecList[i]})
 					if len(autoRecList)<num{
