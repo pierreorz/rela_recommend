@@ -13,7 +13,6 @@ import (
 	"rela_recommend/utils"
 	"math/rand"
 	"time"
-	"fmt"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -117,7 +116,6 @@ func DoBuildData(ctx algo.IContext) error {
 			autoKeyFormatter :="better_user_mom_yesterday:%d"
 			if abtest.GetBool("auto_recommend_switch",false){
 				autoRecList, errBetterUser = momentCache.GetInt64ListOrDefault(-999999999, -999999999, autoKeyFormatter)
-				fmt.Printf("autoRecList %s",autoRecList)
 				if abtest.GetInt("auto_recommend_random_num",0)>0&&len(autoRecList)>0{//随机挑选num个优质用户日志
 					num :=abtest.GetInt("auto_recommend_random_num",0)
 					rand.Seed(time.Now().UnixNano())
@@ -274,7 +272,7 @@ func DoBuildData(ctx algo.IContext) error {
 			//搜索过滤开关(运营推荐不管审核状态)
 			if _, ok := searchMomentMap[mom.Moments.Id]; !ok {
 				if filteredAudit {
-					if (mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 0) || (mom.MomentsProfile == nil) {
+					if (mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 1) || (mom.MomentsProfile == nil) {
 						continue
 					}
 				}
