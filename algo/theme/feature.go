@@ -5,7 +5,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 )
 
@@ -64,9 +63,6 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 	data := idata.(*DataInfo)
 	mem := data.MomentCache
 	wordVec := model.GetWords()
-	for k,v := range wordVec{
-		log.Infof("words======================",k,v)
-	}
 	memu := data.UserCache
 	memex := data.MomentExtendCache
 	if (memu != nil ) {
