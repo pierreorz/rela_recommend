@@ -4,6 +4,7 @@ import (
 	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	"time"
@@ -176,12 +177,15 @@ func DoBuildReplyData(ctx algo.IContext) error {
 						if mom.MomentsProfile.IsActivity==true{
 							if mom.MomentsProfile.ActivityInfo.DateType==1{
 								themeid:=mom.Moments.Id
+								log.Infof("log_envet===================",themeid)
 								themeDateList=append(themeDateList, themeid)
 							}else{
 								endDate:=mom.MomentsProfile.ActivityInfo.ActivityEndTime
 								timeNow:=time.Now().Unix()
+								log.Infof("datetime====================",endDate,timeNow)
 								if endDate>timeNow{
 									themeid:=mom.Moments.Id
+									log.Infof("envet===================",themeid)
 									themeDateList=append(themeDateList, themeid)
 								}
 							}
