@@ -174,24 +174,26 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
 			if themesMapErr == nil {
 				for _, mom := range themes {
-						if mom.MomentsProfile.IsActivity==true{
-							if mom.MomentsProfile.ActivityInfo.DateType==1{
-								themeid:=mom.Moments.Id
-								log.Infof("log_envet===================",themeid)
-								themeDateList=append(themeDateList, themeid)
-							}else{
-								endDate:=mom.MomentsProfile.ActivityInfo.ActivityEndTime
-								timeNow:=time.Now().Unix()
-								log.Infof("datetime====================",endDate,timeNow)
-								if endDate>timeNow{
-									themeid:=mom.Moments.Id
-									log.Infof("envet===================",themeid)
-									themeDateList=append(themeDateList, themeid)
+						if mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity {
+							if mom.MomentsProfile.ActivityInfo != nil {
+								if mom.MomentsProfile.ActivityInfo.DateType == 1 {
+									themeid := mom.Moments.Id
+									log.Infof("log_envet===================", themeid)
+									themeDateList = append(themeDateList, themeid)
+								} else {
+									endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
+									timeNow := time.Now().Unix()
+									log.Infof("datetime====================", endDate, timeNow)
+									if endDate > timeNow {
+										themeid := mom.Moments.Id
+										log.Infof("envet===================", themeid)
+										themeDateList = append(themeDateList, themeid)
+									}
 								}
+							} else {
+								themeid := mom.Moments.Id
+								themeDateList = append(themeDateList, themeid)
 							}
-						}else{
-							themeid:=mom.Moments.Id
-							themeDateList=append(themeDateList, themeid)
 						}
 					}
 				}
