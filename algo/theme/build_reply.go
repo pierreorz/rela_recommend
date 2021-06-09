@@ -6,6 +6,7 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
+	"time"
 
 	// "rela_recommend/models/pika"
 	"rela_recommend/models/behavior"
@@ -29,7 +30,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	themeReplyMap := map[int64]int64{}      // 话题与参与话题对应关系
 	var userBehavior *behavior.UserBehavior // 用户实时行为
 	var tagList []int64                     //用户操作行为tag集合
-	newThemeIdList :=[]int64{}
+	newThemeIdList := []int64{}
 	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
 		"list": func(*performs.Performs) interface{} { // 获取推荐列表
 			recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_reply_recommend_list:%d")
@@ -43,13 +44,13 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				return len(recommendList)
 			}
 			return listErr
-		}, "new":func(*performs.Performs) interface{} {
-			newThemeLen :=abtest.GetInt("search_theme_line",100)
-			recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
-			if newThemeLen >0 {
+		}, "new": func(*performs.Performs) interface{} {
+			newThemeLen := abtest.GetInt("search_theme_line", 100)
+			recommended := abtest.GetBool("realtime_mom_switch", false) // 是否过滤推荐审核
+			if newThemeLen > 0 {
 				momentTypes := abtest.GetString("new_moment_types", "theme")
-				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen),momentTypes, recommended)
-				themeIdList=append(themeIdList,newThemeIdList...)
+				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen), momentTypes, recommended)
+				themeIdList = append(themeIdList, newThemeIdList...)
 				return len(newThemeIdList)
 			}
 			return nil
@@ -100,9 +101,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	searchThemeMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
-
-	var searchReplyThemeIds = []int64{}
-	var searchThemeNoReturnIds = []int64{}
+	var searchReplyThemeIds= []int64{}
+	var searchThemeNoReturnIds= []int64{}
 	filtedAudit := abtest.GetBool("search_filted_audit", false)
 	preforms.RunsGo("search", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 搜索过状态 和 返回置顶推荐内容
@@ -145,13 +145,14 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
-	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
-	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
+	var themeIds= utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
+	var replyIds= utils.NewSetInt64FromArray(replyIdList).ToList()
 
 	var replysMap = map[int64]redis.MomentsAndExtend{}
 	var replysUserIds = []int64{}
 	var themes = []redis.MomentsAndExtend{}
 	var themesUserIds = []int64{}
+	themeDateList := []int64{}
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 获取内容缓存
 			var replyErr error
@@ -167,9 +168,34 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			}
 			return replyErr
 		},
-		"theme": func(*performs.Performs) interface{} { // 获取内容缓存
+		"theme_fiter":func(*performs.Performs) interface{} { // 过滤活动时间过期
 			var themesMapErr error
 			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
+			if themesMapErr == nil {
+				for _, mom := range themes {
+						if mom.MomentsProfile.IsActivity==true{
+							if mom.MomentsProfile.ActivityInfo.DateType==1{
+								themeid:=mom.Moments.Id
+								themeDateList=append(themeDateList, themeid)
+							}else{
+								endDate:=mom.MomentsProfile.ActivityInfo.ActivityEndTime
+								timeNow:=time.Now().Unix()
+								if endDate>timeNow{
+									themeid:=mom.Moments.Id
+									themeDateList=append(themeDateList, themeid)
+								}
+							}
+						}else{
+							themeid:=mom.Moments.Id
+							themeDateList=append(themeDateList, themeid)
+						}
+					}
+				}
+			return themesMapErr
+		 },
+		"theme": func(*performs.Performs) interface{} { // 获取内容缓存
+			var themesMapErr error
+			themes, themesMapErr = momentCache.QueryMomentsByIds(themeDateList)
 			if themesMapErr == nil {
 				for _, mom := range themes {
 					if mom.Moments != nil {
@@ -207,7 +233,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 		"theme_profile": func(*performs.Performs) interface{} {
 			var themeProfileCacheErr error
-			themeProfileMap, themeProfileCacheErr = themeUserCache.QueryThemeProfileMap(themeIds)
+			themeProfileMap, themeProfileCacheErr = themeUserCache.QueryThemeProfileMap(themeDateList)
 			if themeProfileCacheErr == nil {
 				return len(themeProfileMap)
 			}

@@ -7,6 +7,7 @@ import (
 	autils "rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
+	"time"
 	"unicode/utf8"
 )
 
@@ -176,6 +177,38 @@ func ThemeCategWeight(ctx algo.IContext) error {
 	}
 	return nil
 }
+//根据历史用户行为对活动
+func UserEventThemeWeight(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	vip_weight := abtest.GetFloat64("event_user", 1.5)
+	//获取当前时间，活动开始时间，结束时间，需要ext的结构体
+	if ctx.GetDataLength() != 0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if dataInfo.MomentProfile.IsActivity == true {
+				if dataInfo.MomentProfile.ActivityInfo.DateType == 1 {
+					value := 0.3
+					score := float32(1.0 + (value * vip_weight))
+					rankInfo.AddRecommend("EventTheme", score)
+				} else {
+					endDate := dataInfo.MomentProfile.ActivityInfo.ActivityEndTime
+					timeNow := time.Now().Unix()
+					if endDate > timeNow {
+						day := (float64(endDate) - float64(timeNow)) / 86400
+						value := math.Exp(-day)
+						score := float32(1.0 + (value * vip_weight))
+						rankInfo.AddRecommend("EventTheme", score)
+					}
+				}
+
+			}
+		}
+	}
+	return nil
+}
+
+
 // 内容较短，包含关键词的内容沉底
 func TextDownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	var abTest = ctx.GetAbTest()
