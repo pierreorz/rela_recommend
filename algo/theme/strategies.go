@@ -180,7 +180,7 @@ func ThemeCategWeight(ctx algo.IContext) error {
 //根据历史用户行为对活动
 func UserEventThemeWeight(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
-	vip_weight := abtest.GetFloat64("event_user", 1.5)
+	vip_weight := abtest.GetFloat64("event_user", 1.0)
 	//获取当前时间，活动开始时间，结束时间，需要ext的结构体
 	if ctx.GetDataLength() != 0 {
 		for index := 0; index < ctx.GetDataLength(); index++ {
@@ -189,7 +189,7 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 			if dataInfo.MomentProfile.IsActivity == true {
 				if dataInfo.MomentProfile.ActivityInfo.DateType == 1 {
 					value := 0.3
-					score := float32(1.0 + (value * vip_weight))
+					score := float32(1.0 + (value * vip_weight * 1.5))
 					rankInfo.AddRecommend("EventTheme", score)
 				} else {
 					endDate := dataInfo.MomentProfile.ActivityInfo.ActivityEndTime
@@ -197,7 +197,7 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 					if endDate > timeNow {
 						day := (float64(endDate) - float64(timeNow)) / 86400
 						value := math.Exp(-day)
-						score := float32(1.0 + (value * vip_weight))
+						score := float32(1.0 + (value * vip_weight * 1.5))
 						rankInfo.AddRecommend("EventTheme", score)
 					}
 				}
