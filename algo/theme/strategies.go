@@ -191,7 +191,7 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
-			if dataInfo.MomentProfile != nil && dataInfo.MomentProfile.IsActivity == true {
+			if dataInfo.MomentProfile != nil && dataInfo.MomentProfile.IsActivity && dataInfo.MomentProfile.ActivityInfo != nil {
 				if dataInfo.MomentProfile.ActivityInfo.DateType == 1 {
 					value := 0.3
 					score := float32(1.0 + (value * vip_weight))
