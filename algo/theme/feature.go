@@ -109,6 +109,31 @@ func GetThemeFeaturesv0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInf
 						}
 					}
 				}
+			}else{
+				//增加topword词偏好 800-1100
+				wordsCount := len(mem.MomentsText)
+				if wordsCount > 0 {
+					words := factory.Segmenter.Cut(mem.MomentsText)
+					wordNum := make(map[int]float32)
+					count := 0
+					for i := 0; i < len(words); i++ {
+						if dictValue, ok := wordVec[words[i]]; ok {
+							count += 1
+							for j, num := range dictValue {
+								if _, value := wordNum[j]; value {
+									wordNum[j] += num
+								} else {
+									wordNum[j] = num
+								}
+							}
+						}
+					}
+					if count>0 {
+						for k := 0; k < 300; k++ {
+							fs.Add(k+800, wordNum[k]/float32(count))
+						}
+					}
+				}
 			}
 
 		}
