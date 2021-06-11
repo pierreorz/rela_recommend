@@ -17,6 +17,7 @@ import (
 
 func DoBuildReplyData(ctx algo.IContext) error {
 	var err error
+	log.Debugf("enter theme build")
 	app := ctx.GetAppInfo()
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
@@ -261,6 +262,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
+			if theme.Moments.Id == 162341730006510010 {
+				log.Debugf("exposure: %+v, profile: %+v", canExposeEvent, theme.MomentsProfile)
+			}
 			if theme.Moments != nil && theme.Moments.Id > 0 {
 				themeId := theme.Moments.Id
 				replyId, replyIdOk := themeReplyMap[themeId]
