@@ -262,9 +262,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
-			if theme.Moments.Id == 162341730006510010 {
-				log.Debugf("exposure: %+v, profile: %+v", canExposeEvent, theme.MomentsProfile)
-			}
+			log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
 			if theme.Moments != nil && theme.Moments.Id > 0 {
 				themeId := theme.Moments.Id
 				replyId, replyIdOk := themeReplyMap[themeId]
