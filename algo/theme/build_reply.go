@@ -102,8 +102,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	searchThemeMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
-	var searchReplyThemeIds= []int64{}
-	var searchThemeNoReturnIds= []int64{}
+	var searchReplyThemeIds = []int64{}
+	var searchThemeNoReturnIds = []int64{}
 	filtedAudit := abtest.GetBool("search_filted_audit", false)
 	preforms.RunsGo("search", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 搜索过状态 和 返回置顶推荐内容
@@ -146,8 +146,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
-	var themeIds= utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
-	var replyIds= utils.NewSetInt64FromArray(replyIdList).ToList()
+	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
+	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
 	var replysMap = map[int64]redis.MomentsAndExtend{}
 	var replysUserIds = []int64{}
@@ -169,36 +169,36 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			}
 			return replyErr
 		},
-		"theme_fiter":func(*performs.Performs) interface{} { // 过滤活动时间过期
+		"theme_fiter": func(*performs.Performs) interface{} { // 过滤活动时间过期
 			var themesMapErr error
 			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
 			if themesMapErr == nil {
 				for _, mom := range themes {
-						if mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity {
-							if mom.MomentsProfile.ActivityInfo != nil {
-								if mom.MomentsProfile.ActivityInfo.DateType == 1 {
-									themeid := mom.Moments.Id
-									log.Infof("log_envet===================", themeid)
-									themeDateList = append(themeDateList, themeid)
-								} else {
-									endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
-									timeNow := time.Now().Unix()
-									log.Infof("datetime====================", endDate, timeNow)
-									if endDate > timeNow {
-										themeid := mom.Moments.Id
-										log.Infof("envet===================", themeid)
-										themeDateList = append(themeDateList, themeid)
-									}
-								}
-							} else {
+					if mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity {
+						if mom.MomentsProfile.ActivityInfo != nil {
+							if mom.MomentsProfile.ActivityInfo.DateType == 1 {
 								themeid := mom.Moments.Id
+								log.Infof("log_envet===================", themeid)
 								themeDateList = append(themeDateList, themeid)
+							} else {
+								endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
+								timeNow := time.Now().Unix()
+								log.Infof("datetime====================", endDate, timeNow)
+								if endDate > timeNow {
+									themeid := mom.Moments.Id
+									log.Infof("envet===================", themeid)
+									themeDateList = append(themeDateList, themeid)
+								}
 							}
+						} else {
+							themeid := mom.Moments.Id
+							themeDateList = append(themeDateList, themeid)
 						}
 					}
 				}
+			}
 			return themesMapErr
-		 },
+		},
 		"theme": func(*performs.Performs) interface{} { // 获取内容缓存
 			var themesMapErr error
 			themes, themesMapErr = momentCache.QueryMomentsByIds(themeDateList)
@@ -256,6 +256,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			UserBehavior: userBehavior}
 
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
+		backendRecommendEventScore := abtest.GetFloat("backend_recommend_score", 1.4)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
 			if theme.Moments != nil && theme.Moments.Id > 0 {
@@ -269,6 +270,14 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					if topTypeRes == "RECOMMEND" {
+						if theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
+							log.Infof("theme.MomentsProfile=====================", theme.Moments.Id)
+							recommends = append(recommends, algo.RecommendItem{
+								Reason:     "EVENT",
+								Score:      backendRecommendEventScore,
+								NeedReturn: true})
+						}
+					} else {
 						recommends = append(recommends, algo.RecommendItem{
 							Reason:     "RECOMMEND",
 							Score:      backendRecommendScore,
