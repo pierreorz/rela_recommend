@@ -28,6 +28,7 @@ var strategyMap = map[string]algo.IStrategy{
 }
 var sorterMap = map[string]algo.ISorter{
 	"base":     &sort.SorterBase{},
+	"hope":     &sort.SorterHope{},
 	"interval": &sort.SorterWithInterval{},
 }
 var pagerMap = map[string]algo.IPager{

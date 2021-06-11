@@ -196,6 +196,7 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 					value := 0.3
 					score := float32(1.0 + (value * vip_weight))
 					rankInfo.AddRecommend("EventTheme", score)
+					rankInfo.HopeIndex = 2
 					log.Infof("datetime===========score", value, score)
 					log.Infof("===========rankInfo", rankInfo)
 				} else {
@@ -208,6 +209,7 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 						score := float32(1.0 + (value * vip_weight))
 						log.Infof("datetime===========score", value, score)
 						rankInfo.AddRecommend("EventTheme", score)
+						rankInfo.HopeIndex = 2
 						log.Infof("datetime===========rankInfo", rankInfo)
 					}
 				}
