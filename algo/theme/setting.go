@@ -23,7 +23,7 @@ var strategyMap = map[string]algo.IStrategy{
 	//"user_tags":&algo.StrategyBase{ DoSingle: UserThemeProfile },
 	"user_short_tags":&algo.StrategyBase{ DoSingle: UserShortTagWeight },
 	"edit_tags_weight": &algo.BuilderBase{DoBuild: ThemeCategWeight},
-	"event_user":&algo.BuilderBase{DoBuild: UserEventThemeWeight},
+	"event_theme":&algo.BuilderBase{DoBuild: UserEventThemeWeight},
 
 }
 var sorterMap = map[string]algo.ISorter{
