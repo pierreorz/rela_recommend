@@ -257,6 +257,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 		backendRecommendEventScore := abtest.GetFloat("backend_recommend_score", 1.4)
+		canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
 			if theme.Moments != nil && theme.Moments.Id > 0 {
@@ -265,24 +266,23 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				reply, replyInfoOK := replysMap[replyId]
 				// 计算推荐类型
 				var isTop int = 0
-				var recommends = []algo.RecommendItem{}
+				var recommends []algo.RecommendItem
 				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					if topTypeRes == "RECOMMEND" {
-						if theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
-							log.Infof("theme.MomentsProfile=====================", theme.Moments.Id)
-							recommends = append(recommends, algo.RecommendItem{
-								Reason:     "EVENT",
-								Score:      backendRecommendEventScore,
-								NeedReturn: true})
-						}
-					} else {
 						recommends = append(recommends, algo.RecommendItem{
 							Reason:     "RECOMMEND",
 							Score:      backendRecommendScore,
 							NeedReturn: true})
 					}
+				}
+				if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
+					log.Infof("theme.MomentsProfile=====================", theme.Moments.Id)
+					recommends = append(recommends, algo.RecommendItem{
+						Reason:     "EVENT",
+						Score:      backendRecommendEventScore,
+						NeedReturn: true})
 				}
 				info := &DataInfo{
 					DataId:            themeId,
