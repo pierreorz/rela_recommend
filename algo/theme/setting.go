@@ -38,13 +38,13 @@ var loggerMap = map[string]algo.ILogger{
 
 var richStrategyMap = map[string]algo.IRichStrategy{
 	"paged": &strategy.PagedRichStrategy{},
-	"behavior2": &strategy.BaseBehaviorRichStrategy{
+	"behavior": &strategy.BaseBehaviorRichStrategy{
 		UserStrategyItemFunc: UserBehaviorStrategyFunc,
 		ItemStrategyItemFunc: ItemBehaviorStrategyFunc},
 	"text_down": &strategy.BaseRichStrategy{StrategyItemFunc: TextDownStrategyItem},
 	"user_behavior_interact": &strategy.BaseRichStrategy{
 		StrategyFunc: UserBehaviorInteractStrategyFunc},
-	"event_user": &strategy.BaseRichStrategy{
+	"event_theme": &strategy.BaseRichStrategy{
 		StrategyFunc: UserEventThemeWeight},
 }
 
