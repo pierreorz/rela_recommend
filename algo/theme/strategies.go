@@ -196,6 +196,7 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 					score := float32(1.0 + (value * vip_weight * 1.5))
 					rankInfo.AddRecommend("EventTheme", score)
 					log.Infof("datetime===========score",value,score)
+					log.Infof("===========rankInfo",rankInfo)
 				} else {
 					endDate := dataInfo.MomentProfile.ActivityInfo.ActivityEndTime
 					timeNow := time.Now().Unix()
@@ -206,6 +207,7 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 						score := float32(1.0 + (value * vip_weight * 1.5))
 						log.Infof("datetime===========score",value,score)
 						rankInfo.AddRecommend("EventTheme", score)
+						log.Infof("datetime===========rankInfo",rankInfo)
 					}
 				}
 
