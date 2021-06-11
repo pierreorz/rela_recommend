@@ -190,6 +190,7 @@ func (self *ContextBase) DoStrategies() error {
 
 	// 执行富策略的策略
 	self.richStrategies.Foreach(func(key string, value interface{}) error {
+		log.Infof("richStrategies==================",key,value)
 		if partErr := value.(algo.IRichStrategy).Strategy(); partErr != nil {
 			log.Warnf("%s rich strategy strategy err %s: %s", app.Name, key, partErr)
 		}
