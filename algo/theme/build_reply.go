@@ -155,7 +155,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var replysUserIds = []int64{}
 	var themes = []redis.MomentsAndExtend{}
 	var themesUserIds = []int64{}
-	themeDateList := []int64{}
+
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 获取内容缓存
 			var replyErr error
@@ -171,30 +171,20 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			}
 			return replyErr
 		},
-		"theme_fiter": func(*performs.Performs) interface{} { // 过滤活动时间过期
+		"theme_event_filter": func(*performs.Performs) interface{} { // 过滤活动时间过期
 			var themesMapErr error
 			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
 			if themesMapErr == nil {
 				for _, mom := range themes {
-					if mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity {
-						if mom.MomentsProfile.ActivityInfo != nil {
-							if mom.MomentsProfile.ActivityInfo.DateType == 1 {
-								themeid := mom.Moments.Id
-								log.Infof("log_envet===================", themeid)
-								themeDateList = append(themeDateList, themeid)
-							} else {
-								endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
-								timeNow := time.Now().Unix()
-								log.Infof("datetime====================", endDate, timeNow)
-								if endDate > timeNow {
-									themeid := mom.Moments.Id
-									log.Infof("envet===================", themeid)
-									themeDateList = append(themeDateList, themeid)
-								}
-							}
-						} else {
-							themeid := mom.Moments.Id
-							themeDateList = append(themeDateList, themeid)
+					if mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity &&
+						mom.MomentsProfile.ActivityInfo != nil && mom.MomentsProfile.ActivityInfo.DateType == 0 {
+						endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
+						timeNow := time.Now().Unix()
+						if endDate > timeNow {
+							remove_list := []int64{}
+							remove_list = append(remove_list, mom.Moments.Id)
+							themeIds = utils.NewSetInt64FromArray(themeIds).RemoveArray(remove_list).ToList()
+
 						}
 					}
 				}
@@ -203,7 +193,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 		"theme": func(*performs.Performs) interface{} { // 获取内容缓存
 			var themesMapErr error
-			themes, themesMapErr = momentCache.QueryMomentsByIds(themeDateList)
+			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
 			if themesMapErr == nil {
 				for _, mom := range themes {
 					if mom.Moments != nil {
@@ -241,7 +231,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 		"theme_profile": func(*performs.Performs) interface{} {
 			var themeProfileCacheErr error
-			themeProfileMap, themeProfileCacheErr = themeUserCache.QueryThemeProfileMap(themeDateList)
+			themeProfileMap, themeProfileCacheErr = themeUserCache.QueryThemeProfileMap(themeIds)
 			if themeProfileCacheErr == nil {
 				return len(themeProfileMap)
 			}
@@ -258,11 +248,11 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			UserBehavior: userBehavior}
 
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
-		backendRecommendEventScore := abtest.GetFloat("backend_recommend_score", 1.4)
+		backendRecommendEventScore := abtest.GetFloat("backend_recommend_event_score", 1.4)
 		canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
-			log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
+			//log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
 			if theme.Moments != nil && theme.Moments.Id > 0 {
 				themeId := theme.Moments.Id
 				replyId, replyIdOk := themeReplyMap[themeId]
@@ -281,7 +271,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 				}
 				if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
-					log.Infof("theme.MomentsProfile=====================", theme.Moments.Id)
 					recommends = append(recommends, algo.RecommendItem{
 						Reason:     "EVENT",
 						Score:      backendRecommendEventScore,
