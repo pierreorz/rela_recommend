@@ -7,6 +7,7 @@ import (
 	autils "rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
+	"time"
 	"unicode/utf8"
 )
 
@@ -105,20 +106,20 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 //根据历史用户行为短期偏好提权
 func UserShortTagWeight(ctx algo.IContext, index int) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
-	dataInfo:=ctx.GetDataByIndex(index).(*DataInfo)
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	tagMapLine :=userData.ThemeUser
-	if tagMapLine!=nil && dataInfo.MomentProfile!=nil{
+	tagMapLine := userData.ThemeUser
+	if tagMapLine != nil && dataInfo.MomentProfile != nil {
 		shortTagList := tagMapLine.AiTag.UserShortTag
 		ThemetagList := dataInfo.MomentProfile.Tags
-		if shortTagList!=nil && ThemetagList!=nil && len(ThemetagList) > 0 && len(shortTagList) > 0  {
+		if shortTagList != nil && ThemetagList != nil && len(ThemetagList) > 0 && len(shortTagList) > 0 {
 			var score float64 = 0.0
 			var count float64 = 0.0
 			for _, tag := range ThemetagList {
 				//对情感话题和宠物不提权
-				if tag.Id!=23 && tag.Id!=7 {
-					if tagIdDict,ok :=shortTagList[tag.Id];ok{
-						rate :=tagIdDict.TagScore
+				if tag.Id != 23 && tag.Id != 7 {
+					if tagIdDict, ok := shortTagList[tag.Id]; ok {
+						rate := tagIdDict.TagScore
 						score += rate
 						count += 1.0
 					}
@@ -126,7 +127,7 @@ func UserShortTagWeight(ctx algo.IContext, index int) error {
 				}
 			}
 			if count > 0.0 && score > 0.0 {
-				avg:=float32(1.0+(score/count))
+				avg := float32(1.0 + (score / count))
 				rankInfo.AddRecommend("UserShortTagProfile", avg)
 			}
 		}
@@ -134,26 +135,27 @@ func UserShortTagWeight(ctx algo.IContext, index int) error {
 	}
 	return nil
 }
+
 // 针对指定categ提权
 func ThemeCategWeight(ctx algo.IContext) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
 	abtest := ctx.GetAbTest()
-	tagMapLine :=userData.ThemeUser
+	tagMapLine := userData.ThemeUser
 	//后台配置增加曝光内容类型
 	editTag := abtest.GetStrings("edit_tags_weight", "21,3,17,4,12,11,20,15,16,19,6,10,1,13,14,18,25,5")
 	editTagMap := make(map[int64]float64)
-	for _,backtag := range editTag {
+	for _, backtag := range editTag {
 		backtag64 := int64(utils.GetInt(backtag))
-		editTagMap[backtag64]=1.0
+		editTagMap[backtag64] = 1.0
 	}
-	if tagMapLine !=nil && len(editTag) > 1 && len(editTagMap)>0 {
+	if tagMapLine != nil && len(editTag) > 1 && len(editTagMap) > 0 {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.MomentProfile != nil {
 				shortTagList := tagMapLine.AiTag.UserShortTag
 				ThemetagList := dataInfo.MomentProfile.Tags
-				if len(ThemetagList) > 0  && len(shortTagList) > 0 {
+				if len(ThemetagList) > 0 && len(shortTagList) > 0 {
 					var score float64 = 0.0
 					var count float64 = 0.0
 					for _, tag := range ThemetagList {
@@ -176,6 +178,40 @@ func ThemeCategWeight(ctx algo.IContext) error {
 	}
 	return nil
 }
+
+//根据历史用户行为对活动
+func UserEventThemeWeight(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	vip_weight := abtest.GetFloat64("event_user", 1.5)
+	//获取当前时间，活动开始时间，结束时间，需要ext的结构体
+	if ctx.GetDataLength() != 0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if dataInfo.MomentProfile != nil && dataInfo.MomentProfile.IsActivity && dataInfo.MomentProfile.ActivityInfo != nil {
+				if dataInfo.MomentProfile.ActivityInfo.DateType == 1 {
+					value := 0.3
+					score := float32(1.0 + (value * vip_weight))
+					rankInfo.AddRecommend("EventTheme", score)
+					rankInfo.HopeIndex = 2
+				} else {
+					endDate := dataInfo.MomentProfile.ActivityInfo.ActivityEndTime
+					timeNow := time.Now().Unix()
+					if endDate > timeNow {
+						day := (float64(endDate) - float64(timeNow)) / 86400
+						value := math.Exp(-day)
+						score := float32(1.0 + (value * vip_weight))
+						rankInfo.AddRecommend("EventTheme", score)
+						rankInfo.HopeIndex = 2
+					}
+				}
+
+			}
+		}
+	}
+	return nil
+}
+
 // 内容较短，包含关键词的内容沉底
 func TextDownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	var abTest = ctx.GetAbTest()
@@ -211,7 +247,7 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 					var score float64 = 0.0
 					var count float64 = 0.0
 					for _, tag := range dataInfo.MomentProfile.Tags {
-						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil && tag.Id != 23  {
+						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil && tag.Id != 23 {
 							rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
 							hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
 							score += autils.ExpLogit(rate) * math.Exp(-hour)

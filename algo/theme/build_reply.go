@@ -4,8 +4,10 @@ import (
 	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
+	"time"
 
 	// "rela_recommend/models/pika"
 	"rela_recommend/models/behavior"
@@ -15,6 +17,7 @@ import (
 
 func DoBuildReplyData(ctx algo.IContext) error {
 	var err error
+	log.Debugf("enter theme build")
 	app := ctx.GetAppInfo()
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
@@ -29,7 +32,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	themeReplyMap := map[int64]int64{}      // 话题与参与话题对应关系
 	var userBehavior *behavior.UserBehavior // 用户实时行为
 	var tagList []int64                     //用户操作行为tag集合
-	newThemeIdList :=[]int64{}
+	newThemeIdList := []int64{}
 	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
 		"list": func(*performs.Performs) interface{} { // 获取推荐列表
 			recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_reply_recommend_list:%d")
@@ -43,13 +46,13 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				return len(recommendList)
 			}
 			return listErr
-		}, "new":func(*performs.Performs) interface{} {
-			newThemeLen :=abtest.GetInt("search_theme_line",100)
-			recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
-			if newThemeLen >0 {
+		}, "new": func(*performs.Performs) interface{} {
+			newThemeLen := abtest.GetInt("search_theme_line", 100)
+			recommended := abtest.GetBool("realtime_mom_switch", false) // 是否过滤推荐审核
+			if newThemeLen > 0 {
 				momentTypes := abtest.GetString("new_moment_types", "theme")
-				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen),momentTypes, recommended)
-				themeIdList=append(themeIdList,newThemeIdList...)
+				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen), momentTypes, recommended)
+				themeIdList = append(themeIdList, newThemeIdList...)
 				return len(newThemeIdList)
 			}
 			return nil
@@ -100,7 +103,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	searchScenery := "theme"
 	searchReplyMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
 	searchThemeMap := map[int64]search.SearchMomentAuditResDataItem{} // 话题参与对应的审核与置顶结果
-
 	var searchReplyThemeIds = []int64{}
 	var searchThemeNoReturnIds = []int64{}
 	filtedAudit := abtest.GetBool("search_filted_audit", false)
@@ -146,12 +148,14 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	})
 	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
+	log.Debugf("all themeIds: %+v", themeIds)
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
 	var replysMap = map[int64]redis.MomentsAndExtend{}
 	var replysUserIds = []int64{}
 	var themes = []redis.MomentsAndExtend{}
 	var themesUserIds = []int64{}
+	var remove_list = []int64{}
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 获取内容缓存
 			var replyErr error
@@ -166,6 +170,24 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				return len(replysMap)
 			}
 			return replyErr
+		},
+		"theme_event_filter": func(*performs.Performs) interface{} { // 过滤活动时间过期
+			var themesMapErr error
+			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
+			if themesMapErr == nil {
+				for _, mom := range themes {
+					if mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity &&
+						mom.MomentsProfile.ActivityInfo != nil && mom.MomentsProfile.ActivityInfo.DateType == 0 {
+						endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
+						timeNow := time.Now().Unix()
+						if endDate < timeNow {
+							remove_list = append(remove_list, mom.Moments.Id)
+						}
+					}
+				}
+				themeIds = utils.NewSetInt64FromArray(themeIds).RemoveArray(remove_list).ToList()
+			}
+			return themesMapErr
 		},
 		"theme": func(*performs.Performs) interface{} { // 获取内容缓存
 			var themesMapErr error
@@ -224,15 +246,18 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			UserBehavior: userBehavior}
 
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
+		backendRecommendEventScore := abtest.GetFloat("backend_recommend_event_score", 1.4)
+		canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
+			//log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
 			if theme.Moments != nil && theme.Moments.Id > 0 {
 				themeId := theme.Moments.Id
 				replyId, replyIdOk := themeReplyMap[themeId]
 				reply, replyInfoOK := replysMap[replyId]
 				// 计算推荐类型
 				var isTop int = 0
-				var recommends = []algo.RecommendItem{}
+				var recommends []algo.RecommendItem
 				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
@@ -242,6 +267,12 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							Score:      backendRecommendScore,
 							NeedReturn: true})
 					}
+				}
+				if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
+					recommends = append(recommends, algo.RecommendItem{
+						Reason:     "EVENT",
+						Score:      backendRecommendEventScore,
+						NeedReturn: true})
 				}
 				info := &DataInfo{
 					DataId:            themeId,

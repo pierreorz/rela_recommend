@@ -21,12 +21,14 @@ var builderMap = map[string]algo.IBuilder{
 var strategyMap = map[string]algo.IStrategy{
 	//"edit_tags":&algo.StrategyBase{ DoSingle: ThemeTagWeight },
 	//"user_tags":&algo.StrategyBase{ DoSingle: UserThemeProfile },
-	"user_short_tags":&algo.StrategyBase{ DoSingle: UserShortTagWeight },
+	"user_short_tags":  &algo.StrategyBase{DoSingle: UserShortTagWeight},
 	"edit_tags_weight": &algo.BuilderBase{DoBuild: ThemeCategWeight},
+	//"event_user":&algo.BuilderBase{DoBuild: UserEventThemeWeight},
 
 }
 var sorterMap = map[string]algo.ISorter{
 	"base":     &sort.SorterBase{},
+	"hope":     &sort.SorterHope{},
 	"interval": &sort.SorterWithInterval{},
 }
 var pagerMap = map[string]algo.IPager{
@@ -43,6 +45,8 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"text_down": &strategy.BaseRichStrategy{StrategyItemFunc: TextDownStrategyItem},
 	"user_behavior_interact": &strategy.BaseRichStrategy{
 		StrategyFunc: UserBehaviorInteractStrategyFunc},
+	"event_theme": &strategy.BaseRichStrategy{
+		StrategyFunc: UserEventThemeWeight},
 }
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
