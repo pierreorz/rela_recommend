@@ -155,7 +155,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var replysUserIds = []int64{}
 	var themes = []redis.MomentsAndExtend{}
 	var themesUserIds = []int64{}
-
+	var remove_list = []int64{}
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 获取内容缓存
 			var replyErr error
@@ -180,15 +180,13 @@ func DoBuildReplyData(ctx algo.IContext) error {
 						mom.MomentsProfile.ActivityInfo != nil && mom.MomentsProfile.ActivityInfo.DateType == 0 {
 						endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
 						timeNow := time.Now().Unix()
-						remove_list := []int64{}
 						if endDate < timeNow {
 							remove_list := []int64{}
 							remove_list = append(remove_list, mom.Moments.Id)
 						}
-						themeIds = utils.NewSetInt64FromArray(themeIds).RemoveArray(remove_list).ToList()
-
 					}
 				}
+				themeIds = utils.NewSetInt64FromArray(themeIds).RemoveArray(remove_list).ToList()
 			}
 			return themesMapErr
 		},
