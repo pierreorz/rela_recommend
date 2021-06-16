@@ -246,8 +246,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			ThemeUser:    usersProfileMap[params.UserId],
 			UserBehavior: userBehavior}
 
-		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.8)
-		backendRecommendEventScore := abtest.GetFloat("backend_recommend_event_score", 1.9)
+		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 2.0)
+		backendRecommendEventScore := abtest.GetFloat("backend_recommend_event_score", 2.2)
 		//canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
