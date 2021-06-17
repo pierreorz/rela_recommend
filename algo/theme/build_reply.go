@@ -269,12 +269,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-				var userId int64
-				if ctx.GetUserInfo() != nil {
-					userData := ctx.GetUserInfo().(*UserInfo)
-					userId = userData.UserId
-				}
-				if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity && theme.Moments.UserId == userId {
+
+				if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity && theme.Moments.UserId == params.UserId {
 					recommends = append(recommends, algo.RecommendItem{
 						Reason:     "EVENT",
 						Score:      backendRecommendEventScore,
