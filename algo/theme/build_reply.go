@@ -270,7 +270,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-				if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity && theme.Moments.UserId == userData.UserId {
+				if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity && theme.Moments.UserId == userData.UserCache.UserId {
 					recommends = append(recommends, algo.RecommendItem{
 						Reason:     "EVENT",
 						Score:      backendRecommendEventScore,
