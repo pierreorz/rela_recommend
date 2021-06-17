@@ -157,6 +157,12 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var themesUserIds = []int64{}
 	var remove_list = []int64{}
 	canExposeEvent := abtest.GetBool("expose_event", false)
+	canExposeUser := abtest.GetStrings("can_event_user", "106806610,104208008,108900360")
+	canExposeUserMap := make(map[int64]float64)
+	for _, backuser := range canExposeUser {
+		backuser64 := int64(utils.GetInt(backuser))
+		canExposeUserMap[backuser64] = 1.0
+	}
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 获取内容缓存
 			var replyErr error
@@ -269,12 +275,13 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-
-				if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity && theme.Moments.UserId == params.UserId {
-					recommends = append(recommends, algo.RecommendItem{
-						Reason:     "EVENT",
-						Score:      backendRecommendEventScore,
-						NeedReturn: true})
+				if _, ok := canExposeUserMap[theme.Moments.UserId]; ok {
+					if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
+						recommends = append(recommends, algo.RecommendItem{
+							Reason:     "EVENT",
+							Score:      backendRecommendEventScore,
+							NeedReturn: true})
+					}
 				}
 				info := &DataInfo{
 					DataId:            themeId,
