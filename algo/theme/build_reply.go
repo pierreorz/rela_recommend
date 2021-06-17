@@ -157,6 +157,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var themesUserIds = []int64{}
 	var remove_list = []int64{}
 	canExposeEvent := abtest.GetBool("expose_event", false)
+	userData := ctx.GetUserInfo().(*UserInfo)
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 获取内容缓存
 			var replyErr error
@@ -269,7 +270,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-				if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
+				if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity && theme.Moments.UserId == userData.UserId {
 					recommends = append(recommends, algo.RecommendItem{
 						Reason:     "EVENT",
 						Score:      backendRecommendEventScore,
