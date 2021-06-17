@@ -158,7 +158,18 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var remove_list = []int64{}
 	canExposeEvent := abtest.GetBool("expose_event", false)
 	canExposeUser := abtest.GetStrings("can_event_user", "106806610,104208008,108900360")
+	var userlist = []int64{}
+	userlist = append(userlist, params.UserId)
 	canExposeUserMap := make(map[int64]float64)
+	var profileErr error
+	userProfile, profileErr := userCache.QueryUsersByIds(userlist)
+	if profileErr == nil {
+		for _, userP := range userProfile {
+			if userP.CreateTime.After(time.Now()) {
+				canExposeUserMap[userP.UserId] = 1.0
+			}
+		}
+	}
 	for _, backuser := range canExposeUser {
 		backuser64 := int64(utils.GetInt(backuser))
 		canExposeUserMap[backuser64] = 1.0
