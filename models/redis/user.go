@@ -3,6 +3,7 @@ package redis
 import (
 	"errors"
 	"fmt"
+	"math"
 	"strings"
 
 	// "encoding/json"
@@ -42,19 +43,39 @@ type UserProfile struct {
 
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
-
 }
 
-func (self *UserProfile) GetRoleNameInt() int {
-	return utils.GetInt(self.RoleName)
+func (user *UserProfile) MaybeICPUser() bool {
+	// 特定ICP审核用户
+	if user.UserId == 104208008 {
+		return true
+	}
+
+	// 杭州经纬度的新注册用户(大于 2021-06-21 00:00:00)
+	// 也可能没打开经纬度
+	if user.CreateTime.Unix() > 1624204800 {
+		if user.Location.Lat >= 30.043946 && user.Location.Lat <= 30.466238 &&
+			user.Location.Lon >= 119.892146 && user.Location.Lon <= 120.595841 {
+			return true
+		}
+
+		if math.Abs(user.Location.Lon-0.0) <= 1e-6 || math.Abs(user.Location.Lat-0.0) <= 1e-6 {
+			return true
+		}
+	}
+	return false
 }
 
-func (self *UserProfile) GetWantRoleInts() []int {
+func (user *UserProfile) GetRoleNameInt() int {
+	return utils.GetInt(user.RoleName)
+}
+
+func (user *UserProfile) GetWantRoleInts() []int {
 	var wantRoles []string
-	if strings.Contains(self.WantRole, ",") {
-		wantRoles = strings.Split(self.WantRole, ",")
+	if strings.Contains(user.WantRole, ",") {
+		wantRoles = strings.Split(user.WantRole, ",")
 	} else {
-		wantRoles = strings.Split(self.WantRole, "")
+		wantRoles = strings.Split(user.WantRole, "")
 	}
 	return utils.GetInts(wantRoles)
 }

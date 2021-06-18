@@ -94,27 +94,30 @@ type MomentsExtend struct {
 }
 
 type MomentsProfileTagScore struct {
-	Id    int64   `json:"id", omitempty`
+	Id    int64   `json:"id,omitempty"`
 	Name  string  `json:"tagCn,omitempty"`
 	Score float32 `json:"score,omitempty"`
 }
 type ThemeActivityInfo struct {
 	// 时间类型：0 默认；1 长期
-	DateType          int8  `json:"date_type"`
+	DateType int8 `json:"date_type"`
 	// 秒级时间戳
 	ActivityStartTime int64 `json:"activity_start_time"`
 	// 秒级时间戳
-	ActivityEndTime   int64 `json:"activity_end_time"`
+	ActivityEndTime int64 `json:"activity_end_time"`
 }
 
 type MomentsProfile struct {
-	AuditStatus      int                      `json:"auditStatus,omitempty"`
-	LikeCnt          int                      `json:"likeCnt,omitempty"`
-	IsActivity       bool               `json:"isActivity"`
-	ActivityInfo     *ThemeActivityInfo `json:"activityInfo"`
-	TextCnt          int                      `json:"textCnt,omitempty"`
-	MomentsTextWords []string                 `json:"momentsTextWords,omitempty"`
-	Tags             []MomentsProfileTagScore `json:"tags,omitempty"`
+	// 原推荐审核字段，弃用
+	AuditStatus int `json:"auditStatus,omitempty"`
+	// 不推荐，后台审核默认是推荐，主动不推荐这个字段才会存在，即true是不推荐，false/nil是默认推荐
+	NegativeRecommend bool                     `json:"negative_recommend,omitempty"`
+	LikeCnt           int                      `json:"likeCnt,omitempty"`
+	IsActivity        bool                     `json:"isActivity"`
+	ActivityInfo      *ThemeActivityInfo       `json:"activityInfo"`
+	TextCnt           int                      `json:"textCnt,omitempty"`
+	MomentsTextWords  []string                 `json:"momentsTextWords,omitempty"`
+	Tags              []MomentsProfileTagScore `json:"tags,omitempty"`
 }
 
 type MomentOfflineProfile struct {
@@ -126,6 +129,13 @@ type MomentsAndExtend struct {
 	Moments        *Moments        `gorm:"column:moments" json:"moments,omitempty"`
 	MomentsExtend  *MomentsExtend  `gorm:"column:moments_extend" json:"momentsExtend,omitempty"`
 	MomentsProfile *MomentsProfile `gorm:"column:moments_profile" json:"momentsProfile,omitempty"`
+}
+
+func (mae *MomentsAndExtend) CanRecommend() bool {
+	if mae.MomentsProfile != nil && mae.MomentsProfile.NegativeRecommend {
+		return false
+	}
+	return true
 }
 
 type MomentUserProfile struct {
