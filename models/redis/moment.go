@@ -111,7 +111,7 @@ type MomentsProfile struct {
 	// 原推荐审核字段，弃用
 	AuditStatus int `json:"auditStatus,omitempty"`
 	// 推荐审核，即true是推荐，false/nil是不推荐
-	PositiveRecommend bool                     `json:"negative_recommend,omitempty"`
+	PositiveRecommend bool                     `json:"positive_recommend,omitempty"`
 	LikeCnt           int                      `json:"likeCnt,omitempty"`
 	IsActivity        bool                     `json:"isActivity"`
 	ActivityInfo      *ThemeActivityInfo       `json:"activityInfo"`
