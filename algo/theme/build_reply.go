@@ -44,32 +44,20 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			userlist = append(userlist, params.UserId)
 			for _, backuser := range canExposeUser { //建立白名单用户
 				backuser64 := int64(utils.GetInt(backuser))
-				log.Infof("user_id============", backuser64)
 				canExposeUserMap[backuser64] = 1.0
 			}
 			var profileErr error //判断是否是新用户
 			userProfile, profileErr := userCache.QueryUsersByIds(userlist)
-			log.Infof("user_alll==================ssss", userProfile, userlist, params.UserId)
 			if profileErr == nil {
 				for _, userP := range userProfile {
-					log.Infof("icp_user=================", userP.MaybeICPUser())
-					log.Infof("icp create_time++++++%s, %v", userP.CreateTime.Unix(), userP.Location)
-					log.Infof("icp condition++++++%v, %v", userP.CreateTime.Unix() > 1623945600,
-						userP.Location.Lat >= 30.600137 && userP.Location.Lat <= 31.336124 &&
-							userP.Location.Lon >= 121.135242 && userP.Location.Lon <= 122.081039)
 					if userP.MaybeICPUser() == true {
-						//nTime := time.Now()
-						//yesTime := nTime.AddDate(0, 0, -1)
-						//log.Infof("yesTime=============================", yesTime)
-						//if userP.CreateTime.After(yesTime) {
-						log.Infof("userid=============================", userP.UserId)
 						new_user = append(new_user, userP.UserId)
 					}
 				}
 			}
-			for k, _ := range canExposeUserMap {
-				log.Infof("user_id===============alll", k)
-			}
+			//for k, _ := range canExposeUserMap {//白名单用户ab
+			//	log.Infof("user_id===============alll", k)
+			//}
 			var listErr error
 			if _, ok := canExposeUserMap[params.UserId]; ok || canExposeEvent || len(new_user) != 0 { //审核数据，修改redis的key 以及白名单用户
 				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(-999999998, -999999998, recListKeyFormatter)
@@ -232,7 +220,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 						mom.CanRecommend() == recommend_icp {
 						endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
 						timeNow := time.Now().Unix()
-						log.Infof("Date=============================================", endDate, timeNow)
 						if endDate < timeNow {
 							remove_list = append(remove_list, mom.Moments.Id)
 						}
@@ -323,7 +310,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-				log.Infof("moment_user===================================", theme.Moments.UserId)
 				if theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
 					recommends = append(recommends, algo.RecommendItem{
 						Reason:     "EVENT",

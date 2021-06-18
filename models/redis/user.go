@@ -55,12 +55,12 @@ func (user *UserProfile) MaybeICPUser() bool {
 	// 也可能没打开经纬度
 	// 121.135242,31.336124
 	// 122.081039,30.600137
-	//if user.CreateTime.Unix() > 1624204800 {
-	if user.CreateTime.Unix() > 1623945600 {
-		if user.Location.Lat >= 30.600137 && user.Location.Lat <= 31.336124 &&
-			user.Location.Lon >= 121.135242 && user.Location.Lon <= 122.081039 {
-			return true
-		}
+	if user.CreateTime.Unix() > 1624204800 {
+		//if user.CreateTime.Unix() > 1623945600 {
+		//	if user.Location.Lat >= 30.600137 && user.Location.Lat <= 31.336124 &&
+		//		user.Location.Lon >= 121.135242 && user.Location.Lon <= 122.081039 {
+		//		return true
+		//	}
 
 		if user.Location.Lat >= 30.043946 && user.Location.Lat <= 30.466238 &&
 			user.Location.Lon >= 119.892146 && user.Location.Lon <= 120.595841 {
