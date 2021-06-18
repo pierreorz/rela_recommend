@@ -53,6 +53,10 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if profileErr == nil {
 				for _, userP := range userProfile {
 					log.Infof("icp_user=================", userP.MaybeICPUser())
+					log.Infof("icp create_time++++++%s, %v", userP.CreateTime.Unix(), userP.Location)
+					log.Infof("icp condition++++++%v, %v", userP.CreateTime.Unix() > 1623945600,
+						userP.Location.Lat >= 30.600137 && userP.Location.Lat <= 31.336124 &&
+							userP.Location.Lon >= 121.135242 && userP.Location.Lon <= 122.081039)
 					if userP.MaybeICPUser() == true {
 						//nTime := time.Now()
 						//yesTime := nTime.AddDate(0, 0, -1)
