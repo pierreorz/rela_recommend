@@ -110,8 +110,8 @@ type ThemeActivityInfo struct {
 type MomentsProfile struct {
 	// 原推荐审核字段，弃用
 	AuditStatus int `json:"auditStatus,omitempty"`
-	// 不推荐，后台审核默认是推荐，主动不推荐这个字段才会存在，即true是不推荐，false/nil是默认推荐
-	NegativeRecommend bool                     `json:"negative_recommend,omitempty"`
+	// 推荐审核，即true是推荐，false/nil是不推荐
+	PositiveRecommend bool                     `json:"negative_recommend,omitempty"`
 	LikeCnt           int                      `json:"likeCnt,omitempty"`
 	IsActivity        bool                     `json:"isActivity"`
 	ActivityInfo      *ThemeActivityInfo       `json:"activityInfo"`
@@ -132,10 +132,10 @@ type MomentsAndExtend struct {
 }
 
 func (mae *MomentsAndExtend) CanRecommend() bool {
-	if mae.MomentsProfile != nil && mae.MomentsProfile.NegativeRecommend {
-		return false
+	if mae.MomentsProfile != nil && mae.MomentsProfile.PositiveRecommend {
+		return true
 	}
-	return true
+	return false
 }
 
 type MomentUserProfile struct {
