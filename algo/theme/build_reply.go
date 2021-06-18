@@ -65,7 +65,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			}
 			var listErr error
 			if _, ok := canExposeUserMap[params.UserId]; ok || canExposeEvent || len(new_user) != 0 { //审核数据，修改redis的key 以及白名单用户
-				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(params.UserId, -999999998, recListKeyFormatter)
+				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(-999999998, -999999998, recListKeyFormatter)
 				if listErr == nil {
 					for _, recommend := range recommendList {
 						replyIdList = append(replyIdList, recommend.ThemeReplyID)
