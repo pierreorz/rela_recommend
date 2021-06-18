@@ -56,7 +56,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 						//yesTime := nTime.AddDate(0, 0, -1)
 						//log.Infof("yesTime=============================", yesTime)
 						//if userP.CreateTime.After(yesTime) {
-						//	log.Infof("userid=============================", userP.UserId)
+						log.Infof("userid=============================", userP.UserId)
 						new_user = append(new_user, userP.UserId)
 					}
 				}
