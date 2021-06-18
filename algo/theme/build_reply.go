@@ -206,7 +206,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if replyErr == nil {
 				for _, mom := range replysMap {
 					if mom.Moments != nil {
-						if mom.MomentsProfile.PositiveRecommend == recommend_icp { //是否推荐开关
+						if mom.CanRecommend() == recommend_icp { //是否推荐开关
 							replysUserIds = append(replysUserIds, mom.Moments.UserId)
 						}
 					}
@@ -223,7 +223,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				for _, mom := range themes { //活动反例过滤
 					if canExposeEvent && mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity &&
 						mom.MomentsProfile.ActivityInfo != nil && mom.MomentsProfile.ActivityInfo.DateType == 0 &&
-						mom.MomentsProfile.PositiveRecommend == recommend_icp {
+						mom.CanRecommend() == recommend_icp {
 						endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
 						timeNow := time.Now().Unix()
 						log.Infof("Date=============================================", endDate, timeNow)
@@ -242,7 +242,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if themesMapErr == nil {
 				for _, mom := range themes {
 					if mom.Moments != nil {
-						if mom.MomentsProfile.PositiveRecommend == recommend_icp { //是否推荐开关
+						if mom.CanRecommend() == recommend_icp { //是否推荐开关
 							themesUserIds = append(themesUserIds, mom.Moments.UserId)
 						}
 					}
