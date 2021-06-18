@@ -49,6 +49,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var userBehavior *behavior.UserBehavior // 用户实时行为
 	if userTestErr!=nil{
 		log.Warnf("query user icp white err, %s\n", userTestErr)
+		return userTestErr
 	}
 	if abtest.GetBool("icp_switch",false)&&(userTest.MaybeICPUser()||abtest.GetBool("icp_white",false)){
 		//白名单以及杭州新用户默认数据
@@ -60,6 +61,7 @@ func DoBuildData(ctx algo.IContext) error {
 			momentTypes, newMomentStartTime, "50km", false)
 		if errSearch!=nil{
 			log.Warnf("query user around icp err %s\n", errSearch)
+			return errSearch
 		}
 	}else{
 		//原代码
