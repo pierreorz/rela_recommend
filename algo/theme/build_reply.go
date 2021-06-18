@@ -49,8 +49,10 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			}
 			var profileErr error //判断是否是新用户
 			userProfile, profileErr := userCache.QueryUsersByIds(userlist)
+			log.Infof("user_alll==================ssss", userProfile, profileErr, userlist, params.UserId)
 			if profileErr == nil {
 				for _, userP := range userProfile {
+					log.Infof("icp_user=================", userP.MaybeICPUser())
 					if userP.MaybeICPUser() == true {
 						//nTime := time.Now()
 						//yesTime := nTime.AddDate(0, 0, -1)
