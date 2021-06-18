@@ -50,7 +50,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if userTestErr!=nil{
 		log.Warnf("query user icp white err, %s\n", userTestErr)
 	}
-	if abtest.GetBool("icp_switch",false)&&((userTest!=nil&&userTest.Location.Lat>12)||abtest.GetBool("icp_white",false)){
+	if abtest.GetBool("icp_switch",false)&&(userTest.MaybeICPUser()||abtest.GetBool("icp_white",false)){
 		//白名单以及杭州新用户默认数据
 		recIdList, err = momentCache.GetInt64ListOrDefault(-10000000, -999999999, "moment_recommend_list")
 		var errSearch error
@@ -285,6 +285,11 @@ func DoBuildData(ctx algo.IContext) error {
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
+			if abtest.GetBool("icp_switch",false)&&(userTest.MaybeICPUser()||abtest.GetBool("icp_white",false)){//icp白名单以及杭州新注册用户
+				if !mom.CanRecommend(){
+					continue
+				}
+			}
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
 			}
