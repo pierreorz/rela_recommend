@@ -328,6 +328,12 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 				}
 				log.Infof("moment_user===================================", theme.Moments.UserId)
+				if theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
+					recommends = append(recommends, algo.RecommendItem{
+						Reason:     "EVENT",
+						Score:      backendRecommendEventScore,
+						NeedReturn: true})
+				}
 				if _, ok := canExposeUserMap[theme.Moments.UserId]; ok { //是否是白名单用户日志
 					if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
 						recommends = append(recommends, algo.RecommendItem{
