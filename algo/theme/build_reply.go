@@ -238,6 +238,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 						mom.MomentsProfile.ActivityInfo != nil && mom.MomentsProfile.ActivityInfo.DateType == 0 {
 						endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
 						timeNow := time.Now().Unix()
+						log.Infof("Date=============================================", endDate, timeNow)
 						if endDate < timeNow {
 							remove_list = append(remove_list, mom.Moments.Id)
 						}
