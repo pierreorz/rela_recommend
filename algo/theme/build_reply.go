@@ -51,11 +51,12 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			userProfile, profileErr := userCache.QueryUsersByIds(userlist)
 			if profileErr == nil {
 				for _, userP := range userProfile {
-					nTime := time.Now()
-					yesTime := nTime.AddDate(0, 0, -1)
-					log.Infof("yesTime=============================", yesTime)
-					if userP.CreateTime.After(yesTime) {
-						log.Infof("userid=============================", userP.UserId)
+					if userP.MaybeICPUser() == true {
+						//nTime := time.Now()
+						//yesTime := nTime.AddDate(0, 0, -1)
+						//log.Infof("yesTime=============================", yesTime)
+						//if userP.CreateTime.After(yesTime) {
+						//	log.Infof("userid=============================", userP.UserId)
 						new_user = append(new_user, userP.UserId)
 					}
 				}
@@ -196,24 +197,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var themes = []redis.MomentsAndExtend{}
 	var themesUserIds = []int64{}
 	var remove_list = []int64{}
-	//canExposeEvent := abtest.GetBool("expose_event", false)
-	//canExposeUser := abtest.GetStrings("can_event_user", "106806610,104208008,108900360")
-	//var userlist = []int64{}
-	//userlist = append(userlist, params.UserId)
-	//canExposeUserMap := make(map[int64]float64)
-	//var profileErr error
-	//userProfile, profileErr := userCache.QueryUsersByIds(userlist)
-	//if profileErr == nil {
-	//	for _, userP := range userProfile {
-	//		if userP.CreateTime.After(time.Now()) {
-	//			canExposeUserMap[userP.UserId] = 1.0
-	//		}
-	//	}
-	//}
-	//for _, backuser := range canExposeUser {
-	//	backuser64 := int64(utils.GetInt(backuser))
-	//	canExposeUserMap[backuser64] = 1.0
-	//}
+
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 获取内容缓存
 			var replyErr error
@@ -221,7 +205,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if replyErr == nil {
 				for _, mom := range replysMap {
 					if mom.Moments != nil {
-						replysUserIds = append(replysUserIds, mom.Moments.UserId)
+						if mom.MomentsProfile.PositiveRecommend == true { //是否推荐开关
+							replysUserIds = append(replysUserIds, mom.Moments.UserId)
+						}
 					}
 				}
 				replysUserIds = utils.NewSetInt64FromArray(replysUserIds).ToList()
@@ -233,9 +219,10 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			var themesMapErr error
 			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
 			if themesMapErr == nil {
-				for _, mom := range themes {
+				for _, mom := range themes { //活动反例过滤
 					if canExposeEvent && mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity &&
-						mom.MomentsProfile.ActivityInfo != nil && mom.MomentsProfile.ActivityInfo.DateType == 0 {
+						mom.MomentsProfile.ActivityInfo != nil && mom.MomentsProfile.ActivityInfo.DateType == 0 &&
+						mom.MomentsProfile.PositiveRecommend == false {
 						endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
 						timeNow := time.Now().Unix()
 						log.Infof("Date=============================================", endDate, timeNow)
@@ -254,7 +241,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if themesMapErr == nil {
 				for _, mom := range themes {
 					if mom.Moments != nil {
-						themesUserIds = append(themesUserIds, mom.Moments.UserId)
+						if mom.MomentsProfile.PositiveRecommend == true { //是否推荐开关
+							themesUserIds = append(themesUserIds, mom.Moments.UserId)
+						}
 					}
 				}
 				themesUserIds = utils.NewSetInt64FromArray(themesUserIds).ToList()
