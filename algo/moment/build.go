@@ -13,6 +13,7 @@ import (
 	"rela_recommend/utils"
 	"math/rand"
 	"time"
+	"rela_recommend/log"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -41,123 +42,145 @@ func DoBuildData(ctx algo.IContext) error {
 		liveMomentIds = getMapKey(liveMap)
 	}
 
+	//icp白名单及新注册用户
+	var userTest *redis.UserProfile
+	var userTestErr error
+	userTest,userTestErr =userCache.QueryUserById(params.UserId)
 	var userBehavior *behavior.UserBehavior // 用户实时行为
-	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
-		"recommend": func(*performs.Performs) interface{} { // 获取推荐日志
-			if dataIdList == nil || len(dataIdList) == 0 {
-				recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
-				if len(recListKeyFormatter) > 5 {
-					recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
-					return len(recIdList)
-				}
-			}
-			return nil
-		}, "new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
-			newMomentLen := abtest.GetInt("new_moment_len", 1000)//不为0即推荐添加实时日志
-			if newMomentLen > 0 {
-				radiusArray := abtest.GetStrings("radius_range", "50km")
-				newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
-				newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
-				recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
-				if abtest.GetBool("near_liveMoments_switch", false)&& abtest.GetBool("search_switched_around",true){
-					var lives []pika.LiveCache
-					lives = live.GetCachedLiveListByTypeClassify(-1, -1)
-					distance :=abtest.GetFloat64("live_distance",50.0)
-					liveMomentIds = ReturnAroundLiveMom(lives, params.Lng, params.Lat,distance)
-				}
-				//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
-				var errSearch error
-				if abtest.GetBool("search_switched_around",true){//附近日志搜索开关，关闭则走兜底数据
-					for _, radius := range radiusArray {
-						//if abtest.GetBool("use_ai_search", false) {
-						//
-						//} else {
-						//	newIdList, errSearch = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
-						//		momentTypes, newMomentStartTime, radius)
-						//}
-						newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
-							momentTypes, newMomentStartTime, radius, recommended)
-						//附近日志数量大于10即停止寻找
-						if len(newIdList) > 10 {
-							break
-						}
+	if userTestErr!=nil{
+		log.Warnf("query user icp white err, %s\n", userTestErr)
+	}
+	if abtest.GetBool("icp_switch",false)&&((userTest!=nil&&userTest.Location.Lat>12)||abtest.GetBool("icp_white",false)){
+		//白名单以及杭州新用户默认数据
+		recIdList, err = momentCache.GetInt64ListOrDefault(-10000000, -999999999, "moment_recommend_list")
+		var errSearch error
+		newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24)
+		newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
+		newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, 1000,
+			momentTypes, newMomentStartTime, "50km", false)
+		if errSearch!=nil{
+			log.Warnf("query user around icp err %s\n", errSearch)
+		}
+	}else{
+		//原代码
+		preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
+			"recommend": func(*performs.Performs) interface{} { // 获取推荐日志
+				if dataIdList == nil || len(dataIdList) == 0 {
+					recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
+					if len(recListKeyFormatter) > 5 {
+						recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
+						return len(recIdList)
 					}
-				} else{
-					recListKeyFormatter := abtest.GetString("around_list_key", "moment.around_list_data:%s")
-					newIdList, errSearch = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
 				}
-				if errSearch != nil {
-					return err
-				}
-				return len(newIdList)
-			}
-			return nil
-		}, "hot": func(*performs.Performs) interface{} { // 热门列表
-			if abtest.GetBool("real_recommend_switched", false) {
-				if top, topErr := behaviorCache.QueryDataBehaviorTop(app.Module); topErr == nil {
-					hotIdList = top.GetTopIds(100)
-					return len(hotIdList)
-				} else {
-					return topErr
-				}
-			}
-			return nil
-		}, "backend": func(*performs.Performs) interface{} { // 管理后台配置推荐列表
-			var errBackend error
-			if abtest.GetBool("backend_recommend_switched", false) { // 是否开启后台推荐日志
-				recIds, topMap, recMap, errBackend = api.CallBackendRecommendMomentList(2)
-				if errBackend == nil {
-					return len(recIds)
-				}
-			}
-			return errBackend
-		},"better_user":func(*performs.Performs) interface{}{
-			var errBetterUser error
-			autoKeyFormatter :="better_user_mom_yesterday:%d"
-			if abtest.GetBool("auto_recommend_switch",false){
-				autoRecList, errBetterUser = momentCache.GetInt64ListOrDefault(-999999999, -999999999, autoKeyFormatter)
-				if num :=abtest.GetInt("auto_recommend_random_num",0);num>0&&errBetterUser==nil&&len(autoRecList)>0{//随机挑选num个优质用户日志
-					rand.Seed(time.Now().UnixNano())
-					rand.Shuffle(len(autoRecList),func(i,j int){autoRecList[i],autoRecList[j]=autoRecList[j],autoRecList[i]})
-					if len(autoRecList)<num{
-						num=len(autoRecList)
+				return nil
+			}, "new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
+				newMomentLen := abtest.GetInt("new_moment_len", 1000)//不为0即推荐添加实时日志
+				if newMomentLen > 0 {
+					radiusArray := abtest.GetStrings("radius_range", "50km")
+					newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
+					newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
+					recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
+					if abtest.GetBool("near_liveMoments_switch", false)&& abtest.GetBool("search_switched_around",true){
+						var lives []pika.LiveCache
+						lives = live.GetCachedLiveListByTypeClassify(-1, -1)
+						distance :=abtest.GetFloat64("live_distance",50.0)
+						liveMomentIds = ReturnAroundLiveMom(lives, params.Lng, params.Lat,distance)
 					}
-					autoRecList=autoRecList[:num-1]
-				}
-				if errBetterUser==nil{
-					return len(autoRecList)
-				}
-			}
-			return errBetterUser
-		}, "user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
-			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
-			if realtimeErr == nil && abtest.GetInt("rich_strategy:user_behavior_interact:weight", 0) == 1 {
-				userBehavior = realtimes[params.UserId]
-				if userBehavior != nil {
-					userInteract := userBehavior.GetMomentListInteract()
-					if userInteract.Count > 0 {
-						//获取用户实时互动日志的各个标签的实时热门数据
-						tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
-						tagList := make([]int64, 0)
-						for key, _ := range tagMap {
-							//去掉情感恋爱
-							if key != 23 {
-								tagList = append(tagList, key)
+					//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
+					var errSearch error
+					if abtest.GetBool("search_switched_around",true){//附近日志搜索开关，关闭则走兜底数据
+						for _, radius := range radiusArray {
+							//if abtest.GetBool("use_ai_search", false) {
+							//
+							//} else {
+							//	newIdList, errSearch = search.CallNearMomentList(params.UserId, params.Lat, params.Lng, 0, newMomentLen,
+							//		momentTypes, newMomentStartTime, radius)
+							//}
+							newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
+								momentTypes, newMomentStartTime, radius, recommended)
+							//附近日志数量大于10即停止寻找
+							if len(newIdList) > 10 {
+								break
 							}
 						}
-						tagRecommends, _ := momentCache.QueryTagRecommendsByIds(tagList, "friends_moments_moment_tag:%d")
-						tagRecommendSet := utils.SetInt64{}
-						for _, tagRecommend := range tagRecommends {
-							tagRecommendSet.AppendArray(tagRecommend.GetMomentIds())
-						}
-						tagRecommendIdList = tagRecommendSet.ToList()
+					} else{
+						recListKeyFormatter := abtest.GetString("around_list_key", "moment.around_list_data:%s")
+						newIdList, errSearch = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
+					}
+					if errSearch != nil {
+						return err
+					}
+					return len(newIdList)
+				}
+				return nil
+			}, "hot": func(*performs.Performs) interface{} { // 热门列表
+				if abtest.GetBool("real_recommend_switched", false) {
+					if top, topErr := behaviorCache.QueryDataBehaviorTop(app.Module); topErr == nil {
+						hotIdList = top.GetTopIds(100)
+						return len(hotIdList)
+					} else {
+						return topErr
 					}
 				}
-				return len(tagRecommendIdList)
-			}
-			return realtimeErr
-		},
-	})
+				return nil
+			}, "backend": func(*performs.Performs) interface{} { // 管理后台配置推荐列表
+				var errBackend error
+				if abtest.GetBool("backend_recommend_switched", false) { // 是否开启后台推荐日志
+					recIds, topMap, recMap, errBackend = api.CallBackendRecommendMomentList(2)
+					if errBackend == nil {
+						return len(recIds)
+					}
+				}
+				return errBackend
+			},"better_user":func(*performs.Performs) interface{}{
+				var errBetterUser error
+				autoKeyFormatter :="better_user_mom_yesterday:%d"
+				if abtest.GetBool("auto_recommend_switch",false){
+					autoRecList, errBetterUser = momentCache.GetInt64ListOrDefault(-999999999, -999999999, autoKeyFormatter)
+					if num :=abtest.GetInt("auto_recommend_random_num",0);num>0&&errBetterUser==nil&&len(autoRecList)>0{//随机挑选num个优质用户日志
+						rand.Seed(time.Now().UnixNano())
+						rand.Shuffle(len(autoRecList),func(i,j int){autoRecList[i],autoRecList[j]=autoRecList[j],autoRecList[i]})
+						if len(autoRecList)<num{
+							num=len(autoRecList)
+						}
+						autoRecList=autoRecList[:num-1]
+					}
+					if errBetterUser==nil{
+						return len(autoRecList)
+					}
+				}
+				return errBetterUser
+			}, "user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
+				realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
+				if realtimeErr == nil && abtest.GetInt("rich_strategy:user_behavior_interact:weight", 0) == 1 {
+					userBehavior = realtimes[params.UserId]
+					if userBehavior != nil {
+						userInteract := userBehavior.GetMomentListInteract()
+						if userInteract.Count > 0 {
+							//获取用户实时互动日志的各个标签的实时热门数据
+							tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
+							tagList := make([]int64, 0)
+							for key, _ := range tagMap {
+								//去掉情感恋爱
+								if key != 23 {
+									tagList = append(tagList, key)
+								}
+							}
+							tagRecommends, _ := momentCache.QueryTagRecommendsByIds(tagList, "friends_moments_moment_tag:%d")
+							tagRecommendSet := utils.SetInt64{}
+							for _, tagRecommend := range tagRecommends {
+								tagRecommendSet.AppendArray(tagRecommend.GetMomentIds())
+							}
+							tagRecommendIdList = tagRecommendSet.ToList()
+						}
+					}
+					return len(tagRecommendIdList)
+				}
+				return realtimeErr
+			},
+		})
+	}
+
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList,autoRecList).ToList()
 	// 过滤审核
