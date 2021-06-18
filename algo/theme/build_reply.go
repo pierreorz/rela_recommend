@@ -156,6 +156,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var themes = []redis.MomentsAndExtend{}
 	var themesUserIds = []int64{}
 	var remove_list = []int64{}
+	canExposeEvent := abtest.GetBool("expose_event", false)
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 获取内容缓存
 			var replyErr error
@@ -176,7 +177,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
 			if themesMapErr == nil {
 				for _, mom := range themes {
-					if mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity &&
+					if canExposeEvent && mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity &&
 						mom.MomentsProfile.ActivityInfo != nil && mom.MomentsProfile.ActivityInfo.DateType == 0 {
 						endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
 						timeNow := time.Now().Unix()
@@ -247,7 +248,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 		backendRecommendEventScore := abtest.GetFloat("backend_recommend_event_score", 1.4)
-		canExposeEvent := abtest.GetBool("expose_event", false)
+		//canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
 			//log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
