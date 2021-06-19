@@ -294,9 +294,11 @@ func DoBuildData(ctx algo.IContext) error {
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
 			if icpSwitch && (mayBeIcpUser || icpWhite) { //icp白名单以及杭州新注册用户
-				if !mom.CanRecommend() {
-					continue
+				if !mom.CanRecommend() {//非推荐审核通过
+					if mom.MomentsProfile != nil && !mom.MomentsProfile.IsActivity {//非活动
+						continue
 					}
+				}
 			}
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
