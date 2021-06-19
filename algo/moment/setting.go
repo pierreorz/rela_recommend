@@ -60,6 +60,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"live_hope_index":   &strategy.BaseRichStrategy{StrategyFunc: hotLiveHopeIndexStrategyFunc},
 	"never_see":         &strategy.BaseRichStrategy{StrategyFunc: NeverSeeStrategyFunc},
 	"willson_suppress":  &strategy.BaseRichStrategy{StrategyFunc: HotMomentSuppressStrategyFunc},
+	"icp_activity":&strategy.BaseRichStrategy{StrategyFunc: increaseEventExpose},
 }
 
 // 精排算法
