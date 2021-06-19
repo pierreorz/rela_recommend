@@ -55,7 +55,6 @@ func DoBuildData(ctx algo.IContext) error {
 	mayBeIcpUser :=userTest.MaybeICPUser()
 	icpWhite :=abtest.GetBool("icp_white",false)
 	if icpSwitch&&(mayBeIcpUser||icpWhite){
-
 		recListKeyFormatter := abtest.GetString("icp_recommend_list_key", "icp_recommend_list:%d") // moment_recommend_list:%d
 		//白名单以及杭州新用户默认数据
 		recIdList, err = momentCache.GetInt64ListOrDefault(-10000000, -999999999, recListKeyFormatter)//icp_recommend_list:-10000000
