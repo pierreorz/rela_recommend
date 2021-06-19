@@ -98,6 +98,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 			pf.Run("get_fix_icp", func(*performs.Performs) interface{} {
 				var getICPError error
 				if getICPError = userCache.GetStruct("fix_icp_nearby", &fixUIDs); getICPError == nil {
+					log.Debugf("get fix_icp_nearby %+v", fixUIDs)
 					for _, uid := range fixUIDs {
 						if uid != params.UserId {
 							dataIds = append(dataIds, uid)
@@ -105,6 +106,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 					}
 					return len(fixUIDs)
 				} else {
+					log.Debugf("get fix_icp_nearby error: %s", getICPError)
 					return getICPError
 				}
 			})
