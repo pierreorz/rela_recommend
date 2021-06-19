@@ -296,13 +296,8 @@ func DoBuildData(ctx algo.IContext) error {
 			// 后期搜索完善此条件去除
 			if icpSwitch && (mayBeIcpUser || icpWhite) { //icp白名单以及杭州新注册用户
 				if !mom.CanRecommend() {
-					if recMap != nil {
-						if _, isRecommend := recMap[mom.Moments.Id]; !isRecommend {
-							//非icp审核推荐并且非运营推荐进行过滤
-							continue
-						}
+					continue
 					}
-				}
 			}
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
