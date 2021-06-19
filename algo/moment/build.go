@@ -51,17 +51,24 @@ func DoBuildData(ctx algo.IContext) error {
 		log.Warnf("query user icp white err, %s\n", userTestErr)
 		return userTestErr
 	}
-	if abtest.GetBool("icp_switch",false)&&(userTest.MaybeICPUser()||abtest.GetBool("icp_white",false)){
+	icpSwitch :=abtest.GetBool("icp_switch",false)
+	mayBeIcpUser :=userTest.MaybeICPUser()
+	icpWhite :=abtest.GetBool("icp_white",false)
+	if icpSwitch&&(mayBeIcpUser||icpWhite){
+
+		recListKeyFormatter := abtest.GetString("icp_recommend_list_key", "icp_recommend_list:%d") // moment_recommend_list:%d
 		//白名单以及杭州新用户默认数据
-		recIdList, err = momentCache.GetInt64ListOrDefault(-10000000, -999999999, "moment_recommend_list")
-		var errSearch error
-		newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24)
-		newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
-		newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, 1000,
-			momentTypes, newMomentStartTime, "50km", false)
-		if errSearch!=nil{
-			log.Warnf("query user around icp err %s\n", errSearch)
-			return errSearch
+		recIdList, err = momentCache.GetInt64ListOrDefault(-10000000, -999999999, recListKeyFormatter)//icp_recommend_list:-10000000
+		if abtest.GetBool("icp_around_rec",false){
+			var errSearch error
+			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24)
+			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
+			newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, 1000,
+				momentTypes, newMomentStartTime, "50km", false)
+			if errSearch!=nil{
+				log.Warnf("query user around icp err %s\n", errSearch)
+				return errSearch
+			}
 		}
 	}else{
 		//原代码
@@ -287,7 +294,7 @@ func DoBuildData(ctx algo.IContext) error {
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
-			if abtest.GetBool("icp_switch",false)&&(userTest.MaybeICPUser()||abtest.GetBool("icp_white",false)){//icp白名单以及杭州新注册用户
+			if icpSwitch&&(mayBeIcpUser||icpWhite){//icp白名单以及杭州新注册用户
 				if !mom.CanRecommend(){
 					continue
 				}
