@@ -193,6 +193,10 @@ func DoBuildData(ctx algo.IContext) error {
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList,autoRecList).ToList()
+	log.Warnf("recidlsit%s", recIdList)
+	log.Warnf("newidslist%s\n", newIdList)
+	log.Warnf("recIds", recIds)
+
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
@@ -294,6 +298,9 @@ func DoBuildData(ctx algo.IContext) error {
 		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
+			if mom.Moments.Id==162408288245910080{
+				log.Warnf("162408288245910080%s\n", mom.MomentsProfile)
+			}
 			// 后期搜索完善此条件去除
 			if icpSwitch && (mayBeIcpUser || icpWhite) { //icp白名单以及杭州新注册用户
 				if !mom.CanRecommend() {//非推荐审核通过
