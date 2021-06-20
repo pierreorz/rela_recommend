@@ -83,8 +83,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return listErr
 		}, "new": func(*performs.Performs) interface{} {
 			newThemeLen := abtest.GetInt("search_theme_line", 100)
-			recommended := abtest.GetBool("realtime_mom_switch", false) // 是否过滤推荐审核
-			if newThemeLen > 0 {
+			recommended := abtest.GetBool("realtime_mom_switch", false)        // 是否过滤推荐审核
+			if newThemeLen > 0 && new_user == nil && canExposeUserMap == nil { //过滤白名单用户和新注册用户
 				momentTypes := abtest.GetString("new_moment_types", "theme")
 				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen), momentTypes, recommended)
 				themeIdList = append(themeIdList, newThemeIdList...)
@@ -97,7 +97,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if realtimeErr == nil {
 				userBehavior = realtimes[params.UserId]
 				//根据实时行为获取用户操作偏好
-				if userBehavior != nil {
+				if userBehavior != nil && new_user == nil && canExposeUserMap == nil { //过滤白名单用户和新注册用户
 					userInteract := userBehavior.GetThemeDetailInteract()
 					if userInteract.Count > 0 {
 						tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
