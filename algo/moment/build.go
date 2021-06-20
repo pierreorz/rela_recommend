@@ -57,10 +57,12 @@ func DoBuildData(ctx algo.IContext) error {
 	if icpSwitch&&(mayBeIcpUser||icpWhite){
 		recListKeyFormatter := abtest.GetString("icp_recommend_list_key", "icp_recommend_list:%d") // moment_recommend_list:%d
 		//白名单以及杭州新用户默认数据
-		recIdList, err = momentCache.GetInt64ListOrDefault(-10000000, -999999999, recListKeyFormatter)//icp_recommend_list:-10000000
+		if len(recListKeyFormatter)>5{
+			recIdList, err = momentCache.GetInt64ListOrDefault(-10000000, -999999999, recListKeyFormatter)//icp_recommend_list:-10000000
+		}
 		if abtest.GetBool("icp_around_rec",false){
 			var errSearch error
-			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24)
+			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*2)
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
 			newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, 1000,
 				momentTypes, newMomentStartTime, "50km", false)
