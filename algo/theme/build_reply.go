@@ -83,12 +83,19 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return listErr
 		}, "new": func(*performs.Performs) interface{} {
 			newThemeLen := abtest.GetInt("search_theme_line", 100)
-			recommended := abtest.GetBool("realtime_mom_switch", false)        // 是否过滤推荐审核
-			if newThemeLen > 0 && new_user == nil && canExposeUserMap == nil { //过滤白名单用户和新注册用户
-				momentTypes := abtest.GetString("new_moment_types", "theme")
-				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen), momentTypes, recommended)
-				themeIdList = append(themeIdList, newThemeIdList...)
-				return len(newThemeIdList)
+			recommended := abtest.GetBool("realtime_mom_switch", false) // 是否过滤推荐审核
+			if newThemeLen > 0 {
+				if _, ok := canExposeUserMap[params.UserId]; ok && len(new_user) != 0 { //过滤白名单用户和新注册用户
+					momentTypes := abtest.GetString("new_moment_types", "theme")
+					newThemeIdList, err = search.CallNewThemeuserId(0, int64(newThemeLen), momentTypes, recommended)
+					themeIdList = append(themeIdList, newThemeIdList...)
+					return len(newThemeIdList)
+				} else {
+					momentTypes := abtest.GetString("new_moment_types", "theme")
+					newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen), momentTypes, recommended)
+					themeIdList = append(themeIdList, newThemeIdList...)
+					return len(newThemeIdList)
+				}
 			}
 			return nil
 		},
