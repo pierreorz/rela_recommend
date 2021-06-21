@@ -103,6 +103,39 @@ func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, m
 	}
 }
 
+func CallNearMomentListV2(userId int64, lat, lng float32, offset, limit int64, momentTypes string, insertTimestamp float32, distance string,recommend bool) ([]int64, error) {
+	idlist := make([]int64, 0)
+	filters := []string{
+		fmt.Sprintf("{moments_type:%s}", momentTypes),     //  moments Type
+		fmt.Sprintf("insert_time:[%f,)", insertTimestamp), // time
+	}
+	if recommend{
+		filters=append(filters,fmt.Sprintf("positive_recommend:true"))
+	}
+	params := searchMomentRequest{
+		UserID:   userId,
+		Offset:   offset,
+		Limit:    limit,
+		Distance: distance,
+		Lng:      lng,
+		Lat:      lat,
+		Filter:   strings.Join(filters, "*"),
+	}
+
+	if paramsData, err := json.Marshal(params); err == nil {
+		searchRes := &searchMomentRes{}
+		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchNearMomentListUrlV1, paramsData, searchRes); err == nil {
+			for _, element := range searchRes.Data {
+				idlist = append(idlist, element.Id)
+			}
+			return idlist, err
+		} else {
+			return idlist, err
+		}
+	} else {
+		return idlist, err
+	}
+}
 ///////////////////////////////////////////  话题过滤+审核+推荐置顶
 
 const internalSearchAuditUrlFormatter = "/search/audit_%s"

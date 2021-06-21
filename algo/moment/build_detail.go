@@ -20,6 +20,16 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	livemoms, liveMomerr := momentCache.QueryMomentsByIds(params.DataIds)
+	var userTest *redis.UserProfile
+	var userTestErr error
+	userTest,userTestErr =userCache.QueryUserById(params.UserId)
+	icpSwitch :=abtest.GetBool("icp_switch",false)
+	mayBeIcpUser :=userTest.MaybeICPUser()
+	icpWhite :=abtest.GetBool("icp_white",false)
+	if userTestErr!=nil{
+		log.Warnf("query user icp white err, %s\n", userTestErr)
+		return userTestErr
+	}
 	if liveMomerr != nil {
 		return errors.New("liveMomerr ")
 	}
@@ -37,7 +47,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 			dataIdList, err = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
 		}
 
-		if dataIdList == nil || err != nil {
+		if dataIdList == nil || err != nil||(icpSwitch&&(mayBeIcpUser||icpWhite)) {
 			ctx.SetUserInfo(nil)
 			ctx.SetDataIds(dataIdList)
 			ctx.SetDataList(make([]algo.IDataInfo, 0))
@@ -118,7 +128,6 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 	if len(params.DataIds) == 0 {
 		return errors.New("dataIds length must 1")
 	}
-
 	recListKeyFormatter := abtest.GetString("friend_detail_before_list_key", "moment.friend_before_moment:%d")
 	momIds, err := momentCache.QueryMomentsByIds(params.DataIds)
 	if err != nil {
@@ -149,7 +158,18 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 	if liveMomerr != nil {
 		return errors.New("liveMomerr ")
 	}
-	if len(moms)>0{
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	var userTest *redis.UserProfile
+	var userTestErr error
+	userTest,userTestErr =userCache.QueryUserById(params.UserId)
+	icpSwitch :=abtest.GetBool("icp_switch",false)
+	mayBeIcpUser :=userTest.MaybeICPUser()
+	icpWhite :=abtest.GetBool("icp_white",false)
+	if userTestErr!=nil{
+		log.Warnf("query user icp white err, %s\n", userTestErr)
+		return userTestErr
+	}
+	if len(moms)>0&&(!(icpSwitch&&(mayBeIcpUser||icpWhite))){
 		momsType := moms[0].Moments.MomentsType
 		if momsType == "live" || momsType == "voice_live" {
 			//判断日志类型
@@ -170,6 +190,9 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 				SetData(dataIdList, ctx,params.DataIds[0],false)
 			}
 		}
+	}else{
+		dataIdList := make([]int64, 0)
+		SetData(dataIdList, ctx,params.DataIds[0],false)
 	}
 	return err
 }

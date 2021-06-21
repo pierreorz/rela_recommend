@@ -402,6 +402,28 @@ func NeverSeeStrategyFunc(ctx algo.IContext) error{
 	}
 	return nil
 }
+
+//活动提权策略仅针对白名单
+func increaseEventExpose(ctx algo.IContext) error{
+	abtest := ctx.GetAbTest()
+	icpSwitch :=abtest.GetBool("icp_switch",false)
+	icpWhite :=abtest.GetBool("icp_white",false)
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	if userInfo.UserCache != nil {
+		if icpSwitch&&(userInfo.UserCache.MaybeICPUser()||icpWhite){
+			for index := 0; index < ctx.GetDataLength(); index ++ {
+				dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+				rankInfo := dataInfo.GetRankInfo()
+				if dataInfo.MomentProfile != nil {
+					if dataInfo.MomentProfile.IsActivity{
+						rankInfo.AddRecommend("icpActivityWeight",1.2)
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
 //晚上9-12点热门直播日志前2名会被放置去指定位置，看过后沉底
 func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
