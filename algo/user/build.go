@@ -4,6 +4,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/live"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 
@@ -81,18 +82,45 @@ func DoBuildDataV1(ctx algo.IContext) error {
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 	liveMap := live.GetCachedLiveMap() // 当前的直播列表
 
+	var userCurrent *redis.UserProfile
+	var userCurrentErr error
+	userCurrent, userCurrentErr = userCache.QueryUserById(params.UserId)
+	if userCurrentErr != nil {
+		log.Errorf("failed to get current user cache: %d, %s", params.UserId, userCurrentErr)
+		return userCurrentErr
+	}
+
 	// 确定候选用户
 	dataIds := params.DataIds
 	if dataIds == nil || len(dataIds) == 0 {
-		pf.Run("search", func(*performs.Performs) interface{} {
-			var searchErr error
-			if dataIds, searchErr = search.CallNearUserIdList(params.UserId, params.Lat, params.Lng,
-				0, 2000, params.Params["search"]); searchErr == nil {
-				return len(dataIds)
-			} else {
-				return searchErr
-			}
-		})
+		if abtest.GetBool("is_icp_user", false) || userCurrent.MaybeICPUser() {
+			var fixUIDs []int64
+			pf.Run("get_fix_icp", func(*performs.Performs) interface{} {
+				var getICPError error
+				if getICPError = userCache.GetStruct("fix_icp_nearby", &fixUIDs); getICPError == nil {
+					log.Debugf("get fix_icp_nearby %+v", fixUIDs)
+					for _, uid := range fixUIDs {
+						if uid != params.UserId {
+							dataIds = append(dataIds, uid)
+						}
+					}
+					return len(fixUIDs)
+				} else {
+					log.Debugf("get fix_icp_nearby error: %s", getICPError)
+					return getICPError
+				}
+			})
+		} else {
+			pf.Run("search", func(*performs.Performs) interface{} {
+				var searchErr error
+				if dataIds, searchErr = search.CallNearUserIdList(params.UserId, params.Lat, params.Lng,
+					0, 2000, params.Params["search"]); searchErr == nil {
+					return len(dataIds)
+				} else {
+					return searchErr
+				}
+			})
+		}
 	}
 
 	// 获取用户信息
