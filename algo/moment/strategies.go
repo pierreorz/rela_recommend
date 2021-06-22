@@ -25,10 +25,17 @@ func DoTimeLevel(ctx algo.IContext, index int) error {
 func DoTimeWeightLevelV2(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 3
-	if timeLevel <= 8 {
-		//避免脏数据的影响
-		rankInfo.AddRecommend("momentNearTimeWeightV2", 1.0+float32(0.1/(1.0+math.Max(float64(timeLevel), 0))))
+	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 2
+	if timeLevel <= 12 {
+		if timeLevel>=0&&timeLevel<2{//近4个小时提权权重高1.2
+			rankInfo.AddRecommend("momentNearTimeWeightV2", 1.2)
+		}
+		if timeLevel>=2&&timeLevel<4{//4-8小时1.05
+			rankInfo.AddRecommend("momentNearTimeWeightV2", 1.05)
+		}
+		if timeLevel>=4{
+			rankInfo.AddRecommend("momentNearTimeWeightV2", 1.01)
+		}
 	}
 	return nil
 }
