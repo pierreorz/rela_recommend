@@ -93,7 +93,8 @@ func DoBuildDataV1(ctx algo.IContext) error {
 	// 确定候选用户
 	dataIds := params.DataIds
 	if dataIds == nil || len(dataIds) == 0 {
-		if abtest.GetBool("is_icp_user", false) || userCurrent.MaybeICPUser() {
+		if abtest.GetBool("icp_switch", false) &&
+			abtest.GetBool("is_icp_user", false) || userCurrent.MaybeICPUser() {
 			var fixUIDs []int64
 			pf.Run("get_fix_icp", func(*performs.Performs) interface{} {
 				var getICPError error

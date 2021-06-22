@@ -53,7 +53,7 @@ func (user *UserProfile) MaybeICPUser() bool {
 
 	// 杭州经纬度的新注册用户(大于 2021-03-01 00:00:00)
 	// 也可能没打开经纬度
-	if user.CreateTime.Unix() > 1614528000 {
+	if user.CreateTime.Unix() > 1614528000000 {
 		//if user.CreateTime.Unix() > 1623945600 {
 		//	if user.Location.Lat >= 30.600137 && user.Location.Lat <= 31.336124 &&
 		//		user.Location.Lon >= 121.135242 && user.Location.Lon <= 122.081039 {
