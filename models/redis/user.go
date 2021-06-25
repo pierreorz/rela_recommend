@@ -18,6 +18,11 @@ type Location struct {
 	Lon float64 `json:"lon"`
 }
 
+type liveInfo struct {
+	Status int `json:"status"`
+	ExpireDate int64 `json:"expire_date"`
+}
+
 type UserProfile struct {
 	UserId         int64    `json:"id"`             // 用户ID
 	Location       Location `json:"location"`       //地理位置
@@ -40,10 +45,13 @@ type UserProfile struct {
 	Reason         string   `json:"reason"` //优质用户推荐理由
 	Grade          float64  `json:"grade"`  //优质用户推荐等级 1-100
 	Recall         int      `json:"new_recall,omitempty"`
-	TopLive        int       `json:"top_live,omitempty"`
+
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
+	LiveInfo	   *liveInfo `json:"live_info,omitempty"`
 }
+
+
 
 func (user *UserProfile) MaybeICPUser() bool {
 	// 特定ICP审核用户
