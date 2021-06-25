@@ -459,7 +459,7 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error{
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.UserCache!=nil &&dataInfo.UserCache.TopLive==1&&rankInfo.LiveIndex>0{
+		if dataInfo.UserCache!=nil &&dataInfo.UserCache.TopLive==0&&rankInfo.LiveIndex>0{
 			rankInfo.HopeIndex=1+interval*(rankInfo.LiveIndex-1)
 		}
 	}
