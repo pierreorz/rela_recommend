@@ -452,6 +452,20 @@ func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
 	}
 	return nil
 }
+//头部主播上线即指定位置曝光
+func topLiveIncreaseExposureFunc(ctx algo.IContext) error{
+	abtest := ctx.GetAbTest()
+	interval := abtest.GetInt("top_live_interval",3)//指定位置间隔
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserCache!=nil &&dataInfo.UserCache.TopLive==1&&rankInfo.LiveIndex>0{
+			rankInfo.HopeIndex=1+interval*(rankInfo.LiveIndex-1)
+		}
+	}
+	return nil
+}
+
 func TestHopIndexStrategyFunc(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index)
