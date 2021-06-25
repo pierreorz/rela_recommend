@@ -40,7 +40,7 @@ type UserProfile struct {
 	Reason         string   `json:"reason"` //优质用户推荐理由
 	Grade          float64  `json:"grade"`  //优质用户推荐等级 1-100
 	Recall         int      `json:"new_recall,omitempty"`
-	TopLive        int       `json:"topLive,omitempty"`
+	TopLive        int       `json:"top_live,omitempty"`
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
 }
