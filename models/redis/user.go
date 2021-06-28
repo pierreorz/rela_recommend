@@ -19,7 +19,7 @@ type Location struct {
 }
 
 type liveInfo struct {
-	Status int `json:"status"`
+	Status     int   `json:"status"`
 	ExpireDate int64 `json:"expire_date"`
 }
 
@@ -48,10 +48,8 @@ type UserProfile struct {
 
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
-	LiveInfo	   *liveInfo `json:"live_info,omitempty"`
+	LiveInfo     *liveInfo          `json:"live_info,omitempty"`
 }
-
-
 
 func (user *UserProfile) MaybeICPUser() bool {
 	// 特定ICP审核用户
@@ -61,7 +59,7 @@ func (user *UserProfile) MaybeICPUser() bool {
 
 	// 杭州经纬度的新注册用户(大于 2021-03-01 00:00:00)
 	// 也可能没打开经纬度
-	if user.CreateTime.Unix() > 1614528000000 {
+	if user.CreateTime.Unix() > 1614528000 {
 		//if user.CreateTime.Unix() > 1623945600 {
 		//	if user.Location.Lat >= 30.600137 && user.Location.Lat <= 31.336124 &&
 		//		user.Location.Lon >= 121.135242 && user.Location.Lon <= 122.081039 {
