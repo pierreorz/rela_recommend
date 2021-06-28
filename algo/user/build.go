@@ -95,20 +95,14 @@ func DoBuildDataV1(ctx algo.IContext) error {
 	if dataIds == nil || len(dataIds) == 0 {
 		if abtest.GetBool("icp_switch", false) &&
 			abtest.GetBool("is_icp_user", false) || userCurrent.MaybeICPUser() {
-			var fixUIDs []int64
+
 			pf.Run("get_fix_icp", func(*performs.Performs) interface{} {
-				var getICPError error
-				if getICPError = userCache.GetStruct("fix_icp_nearby", &fixUIDs); getICPError == nil {
-					log.Debugf("get fix_icp_nearby %+v", fixUIDs)
-					for _, uid := range fixUIDs {
-						if uid != params.UserId {
-							dataIds = append(dataIds, uid)
-						}
-					}
-					return len(fixUIDs)
+				var searchErr error
+				if dataIds, searchErr = search.CallNearUserICPIdList(params.UserId, params.Lat, params.Lng,
+					0, 2000, params.Params["search"]); searchErr == nil {
+					return len(dataIds)
 				} else {
-					log.Debugf("get fix_icp_nearby error: %s", getICPError)
-					return getICPError
+					return searchErr
 				}
 			})
 		} else {
