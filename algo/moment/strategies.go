@@ -7,6 +7,7 @@ import (
 	"rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
 	"strings"
+	"rela_recommend/models/redis"
 )
 
 // 按照6小时优先策略
@@ -452,6 +453,30 @@ func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
 	}
 	return nil
 }
+//头部主播上线即指定位置曝光
+func topLiveIncreaseExposureFunc(ctx algo.IContext) error{
+	abtest := ctx.GetAbTest()
+	interval := abtest.GetInt("top_live_interval",3)//指定位置间隔
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserCache!=nil &&MaybeTopLive(ctx,dataInfo.UserCache){
+			if dataInfo.UserItemBehavior==nil || dataInfo.UserItemBehavior.Count<=1{
+				rankInfo.HopeIndex=1+interval*(rankInfo.LiveIndex-1)
+			}
+		}
+	}
+	return nil
+}
+
+func MaybeTopLive(ctx algo.IContext,user *redis.UserProfile) bool{
+	if user.LiveInfo!=nil&&user.LiveInfo.Status==1&&(user.LiveInfo.ExpireDate>ctx.GetCreateTime().Unix()){
+		return true
+	}
+	return false
+}
+
+
 func TestHopIndexStrategyFunc(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index)
