@@ -3,6 +3,7 @@ package ad
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
@@ -31,18 +32,22 @@ func DoBuildData(ctx algo.IContext) error {
 			return userCacheErr
 		}
 	})
-
 	// 获取search的广告列表
 	var searchResList = []search.SearchADResDataItem{}
-	pf.Run("search", func(*performs.Performs) interface{} {
-		clientName := abtest.GetString("backend_app_name", "1") // 1: rela 2: 饭角
-		var searchErr error
-		if searchResList, searchErr = search.CallAdList(clientName, params, user); searchErr == nil {
-			return len(searchResList)
-		} else {
-			return searchErr
-		}
-	})
+	if abtest.GetBool("icp_switch", false) &&
+		abtest.GetBool("is_icp_user", false) || user.MaybeICPUser(params.Lat, params.Lng) {
+		log.Infof("ad user<%s> is_icp_user", params.UserId)
+	} else {
+		pf.Run("search", func(*performs.Performs) interface{} {
+			clientName := abtest.GetString("backend_app_name", "1") // 1: rela 2: 饭角
+			var searchErr error
+			if searchResList, searchErr = search.CallAdList(clientName, params, user); searchErr == nil {
+				return len(searchResList)
+			} else {
+				return searchErr
+			}
+		})
+	}
 
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{

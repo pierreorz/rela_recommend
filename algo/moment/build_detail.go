@@ -22,18 +22,18 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 	livemoms, liveMomerr := momentCache.QueryMomentsByIds(params.DataIds)
 	var userTest *redis.UserProfile
 	var userTestErr error
-	userTest,userTestErr =userCache.QueryUserById(params.UserId)
-	icpSwitch :=abtest.GetBool("icp_switch",false)
-	mayBeIcpUser :=userTest.MaybeICPUser()
-	icpWhite :=abtest.GetBool("icp_white",false)
-	if userTestErr!=nil{
+	userTest, userTestErr = userCache.QueryUserById(params.UserId)
+	if userTestErr != nil {
 		log.Warnf("query user icp white err, %s\n", userTestErr)
 		return userTestErr
 	}
+	icpSwitch := abtest.GetBool("icp_switch", false)
+	mayBeIcpUser := userTest.MaybeICPUser(params.Lat, params.Lng)
+	icpWhite := abtest.GetBool("icp_white", false)
 	if liveMomerr != nil {
 		return errors.New("liveMomerr ")
 	}
-	if len(livemoms)>0{
+	if len(livemoms) > 0 {
 		momsType := livemoms[0].Moments.MomentsType
 
 		if momsType == "live" || momsType == "voice_live" {
@@ -47,7 +47,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 			dataIdList, err = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
 		}
 
-		if dataIdList == nil || err != nil||(icpSwitch&&(mayBeIcpUser||icpWhite)) {
+		if dataIdList == nil || err != nil || (icpSwitch && (mayBeIcpUser || icpWhite)) {
 			ctx.SetUserInfo(nil)
 			ctx.SetDataIds(dataIdList)
 			ctx.SetDataList(make([]algo.IDataInfo, 0))
@@ -83,7 +83,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 				if mom.Moments.ShareTo != "all" {
 					continue
 				}
-				if mom.Moments.Id==params.DataIds[0]{
+				if mom.Moments.Id == params.DataIds[0] {
 					continue
 				}
 				momUser, _ := usersMap[mom.Moments.UserId]
@@ -115,7 +115,6 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 		}
 	}
 
-
 	return err
 }
 
@@ -140,7 +139,7 @@ func DoBuildMomentFriendDetailSimData(ctx algo.IContext) error {
 			return errors.New("follow detail query redis err")
 		}
 	}
-	SetData(dataIdList, ctx,params.DataIds[0],true)
+	SetData(dataIdList, ctx, params.DataIds[0], true)
 
 	return err
 }
@@ -161,15 +160,16 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	var userTest *redis.UserProfile
 	var userTestErr error
-	userTest,userTestErr =userCache.QueryUserById(params.UserId)
-	icpSwitch :=abtest.GetBool("icp_switch",false)
-	mayBeIcpUser :=userTest.MaybeICPUser()
-	icpWhite :=abtest.GetBool("icp_white",false)
-	if userTestErr!=nil{
+	userTest, userTestErr = userCache.QueryUserById(params.UserId)
+	if userTestErr != nil {
 		log.Warnf("query user icp white err, %s\n", userTestErr)
 		return userTestErr
 	}
-	if len(moms)>0&&(!(icpSwitch&&(mayBeIcpUser||icpWhite))){
+	icpSwitch := abtest.GetBool("icp_switch", false)
+	mayBeIcpUser := userTest.MaybeICPUser(params.Lat, params.Lng)
+	icpWhite := abtest.GetBool("icp_white", false)
+
+	if len(moms) > 0 && (!(icpSwitch && (mayBeIcpUser || icpWhite))) {
 		momsType := moms[0].Moments.MomentsType
 		if momsType == "live" || momsType == "voice_live" {
 			//判断日志类型
@@ -177,7 +177,7 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 			liveLen := abtest.GetInt("live_moment_len", 3)
 			lives = live.GetCachedLiveListByTypeClassify(-1, -1)
 			liveIds := ReturnTopnScoreLiveMom(lives, liveLen, moms[0].Moments.UserId)
-			SetData(liveIds, ctx,params.DataIds[0],false)
+			SetData(liveIds, ctx, params.DataIds[0], false)
 
 		} else {
 			recListKeyFormatter := abtest.GetString("recommend_detail_sim_list_key", "moment.recommend_sim_momentList:%d")
@@ -187,17 +187,17 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 			}
 			dataIdList, err := momentCache.GetInt64ListOrDefault(params.DataIds[0], int64(defaultId), recListKeyFormatter)
 			if err == nil {
-				SetData(dataIdList, ctx,params.DataIds[0],false)
+				SetData(dataIdList, ctx, params.DataIds[0], false)
 			}
 		}
-	}else{
+	} else {
 		dataIdList := make([]int64, 0)
-		SetData(dataIdList, ctx,params.DataIds[0],false)
+		SetData(dataIdList, ctx, params.DataIds[0], false)
 	}
 	return err
 }
 
-func SetData(dataIdList []int64, ctx algo.IContext,momsId int64,filter bool) error {
+func SetData(dataIdList []int64, ctx algo.IContext, momsId int64, filter bool) error {
 	var err error
 	params := ctx.GetRequest()
 	userInfo := &UserInfo{UserId: params.UserId}
@@ -221,11 +221,11 @@ func SetData(dataIdList []int64, ctx algo.IContext,momsId int64,filter bool) err
 			if mom.Moments.ShareTo != "all" {
 				continue
 			}
-			if mom.Moments.Id==momsId{
+			if mom.Moments.Id == momsId {
 				continue
 			}
 			//关注日志去掉匿名日志
-			if filter&&mom.Moments.Secret==1{
+			if filter && mom.Moments.Secret == 1 {
 				continue
 			}
 			momUser, _ := usersMap[mom.Moments.UserId]
@@ -255,7 +255,7 @@ func SetData(dataIdList []int64, ctx algo.IContext,momsId int64,filter bool) err
 	return err
 }
 
-func ReturnAroundLiveMom(lives []pika.LiveCache, userLng float32, userLat float32,distance float64) []int64 {
+func ReturnAroundLiveMom(lives []pika.LiveCache, userLng float32, userLat float32, distance float64) []int64 {
 	res := make([]int64, 0)
 	if len(lives) > 0 {
 		for i, _ := range lives {

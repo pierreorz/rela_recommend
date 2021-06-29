@@ -51,7 +51,7 @@ type UserProfile struct {
 	LiveInfo     *liveInfo          `json:"live_info,omitempty"`
 }
 
-func (user *UserProfile) MaybeICPUser() bool {
+func (user *UserProfile) MaybeICPUser(lat, lng float32) bool {
 	// 特定ICP审核用户
 	if user.UserId == 104208008 {
 		return true
@@ -66,8 +66,8 @@ func (user *UserProfile) MaybeICPUser() bool {
 		//		return true
 		//	}
 
-		if user.Location.Lat >= 30.043946 && user.Location.Lat <= 30.466238 &&
-			user.Location.Lon >= 119.892146 && user.Location.Lon <= 120.595841 {
+		if lat >= 30.043946 && lat <= 30.466238 &&
+			lng >= 119.892146 && lng <= 120.595841 {
 			return true
 		}
 
