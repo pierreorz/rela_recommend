@@ -129,6 +129,18 @@ func VideoMomWeight(ctx algo.IContext, index int) error {
 	return nil
 }
 
+//文本日志打上标签进行打散
+func TextMomInterval(ctx algo.IContext,index int) error {
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	if dataInfo.MomentCache != nil {
+		if dataInfo.MomentCache.MomentsType == "text" || dataInfo.MomentCache.MomentsType=="themereply"{
+			rankInfo.AddRecommend("textmom", 1.0)
+		}
+	}
+	return nil
+}
+
 //推荐日志偏好提权策略
 func DoPrefWeightLevel(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -456,13 +468,17 @@ func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
 //头部主播上线即指定位置曝光
 func topLiveIncreaseExposureFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
-	interval := abtest.GetInt("top_live_interval",3)//指定位置间隔
+	interval := abtest.GetInt("top_live_interval",2)//指定位置间隔
+	var liveIndex =0
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserCache!=nil &&MaybeTopLive(ctx,dataInfo.UserCache){
-			if dataInfo.UserItemBehavior==nil || dataInfo.UserItemBehavior.Count<=1{
-				rankInfo.HopeIndex=1+interval*(rankInfo.LiveIndex-1)
+			if dataInfo.UserItemBehavior==nil || dataInfo.UserItemBehavior.Count<1{
+				if rankInfo.TopLive==1{
+					rankInfo.HopeIndex=1+interval*liveIndex//位置从1开始，间隔interval
+					liveIndex+=1
+				}
 			}
 		}
 	}
