@@ -336,7 +336,7 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				var liveIndex = 0
-				var isTopLiveMom = 0
+				var isTopLiveMom = -1
 				if liveMap!=nil{
 					if rank,isOk :=liveMap[mom.Moments.Id]; isOk{
 						liveIndex=rank
@@ -344,6 +344,8 @@ func DoBuildData(ctx algo.IContext) error {
 						if momUser !=nil {
 							if isTopLive(ctx,momUser) {
 								isTopLiveMom=1
+							}else{
+								isTopLiveMom=0
 							}
 						}
 					}
