@@ -474,7 +474,7 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.UserItemBehavior==nil || dataInfo.UserItemBehavior.Count<=1{
-				if rankInfo.TopLive==0{
+				if rankInfo.TopLive==1{
 					rankInfo.HopeIndex=1+interval*liveIndex//位置从1开始，间隔interval
 					liveIndex+=1
 			}
