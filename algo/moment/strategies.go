@@ -6,8 +6,8 @@ import (
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
-	"strings"
 	"rela_recommend/models/redis"
+	"strings"
 )
 
 // 按照6小时优先策略
@@ -28,13 +28,13 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error {
 	rankInfo := dataInfo.GetRankInfo()
 	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 2
 	if timeLevel <= 12 {
-		if timeLevel>=0&&timeLevel<2{//近4个小时提权权重高1.2
+		if timeLevel >= 0 && timeLevel < 2 { //近4个小时提权权重高1.2
 			rankInfo.AddRecommend("momentNearTimeWeightV2", 1.2)
 		}
-		if timeLevel>=2&&timeLevel<4{//4-8小时1.05
+		if timeLevel >= 2 && timeLevel < 4 { //4-8小时1.05
 			rankInfo.AddRecommend("momentNearTimeWeightV2", 1.05)
 		}
-		if timeLevel>=4{
+		if timeLevel >= 4 {
 			rankInfo.AddRecommend("momentNearTimeWeightV2", 1.01)
 		}
 	}
@@ -46,9 +46,9 @@ func BetterUserMomAddWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	if dataInfo.UserCache != nil && dataInfo.UserCache.Grade > 0 {
-		if dataInfo.UserCache.Grade<50{
+		if dataInfo.UserCache.Grade < 50 {
 			rankInfo.AddRecommend("betterUserWeight", 1+float32(dataInfo.UserCache.Grade)/50*0.2)
-		} else{
+		} else {
 			rankInfo.AddRecommend("betterUserWeight", 1.2)
 		}
 	}
@@ -198,7 +198,7 @@ func AroundNewUserAddWeightFunc(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	if newUserDefine := abtest.GetInt("new_user_define", 0); newUserDefine > 0 {
-		if dataInfo.UserCache!=nil{
+		if dataInfo.UserCache != nil {
 			hourInterval := int(ctx.GetCreateTime().Sub(dataInfo.UserCache.CreateTime.Time).Hours()) / 24
 			if hourInterval < newUserDefine {
 				rankInfo.AddRecommend("newUserWeight", 1.2)
@@ -296,13 +296,13 @@ func ContentAddWeight(ctx algo.IContext) error {
 }
 
 //回流用户日志提权策略
-func RecallUserAddWeight(ctx algo.IContext) error{
+func RecallUserAddWeight(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.UserCache !=nil{
-			newRecall :=dataInfo.UserCache.Recall
-			if newRecall==1{
+		if dataInfo.UserCache != nil {
+			newRecall := dataInfo.UserCache.Recall
+			if newRecall == 1 {
 				rankInfo.AddRecommend("RecallUserWeight", 1.2)
 			}
 		}
@@ -355,15 +355,15 @@ func MomentCategWeight(ctx algo.IContext) error {
 }
 
 //热门日志打压策略
-func HotMomentSuppressStrategyFunc(ctx algo.IContext) error{
-	for index :=0;index < ctx.GetDataLength();index ++{
-		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo :=dataInfo.GetRankInfo()
-		if dataInfo.ItemBehavior!=nil{
-			itemBehavior :=dataInfo.ItemBehavior
-			if itemBehavior!=nil{
+func HotMomentSuppressStrategyFunc(ctx algo.IContext) error {
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.ItemBehavior != nil {
+			itemBehavior := dataInfo.ItemBehavior
+			if itemBehavior != nil {
 				willSonScore := strategy.WilsonScore(itemBehavior.GetMomentListExposure(), itemBehavior.GetMomentListInteract(), 3)
-				rankInfo.AddRecommend("willSonSuppressWeight",1-float32(willSonScore))
+				rankInfo.AddRecommend("willSonSuppressWeight", 1-float32(willSonScore))
 			}
 		}
 	}
@@ -409,34 +409,35 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 }
 
 //附近日志未看过的提权
-func NeverSeeStrategyFunc(ctx algo.IContext) error{
-	abtest :=ctx.GetAbTest()
-	exposureNum :=abtest.GetFloat64("exposure_num",1.0)
-	weight :=abtest.GetFloat("never_see_weight",0.2)
-	for index :=0;index < ctx.GetDataLength();index ++{
-		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo :=dataInfo.GetRankInfo()
-		if dataInfo.UserItemBehavior==nil||dataInfo.UserItemBehavior.Count<exposureNum{
-			rankInfo.AddRecommend("NeverSeeWeight",1+weight)
+func NeverSeeStrategyFunc(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	exposureNum := abtest.GetFloat64("exposure_num", 1.0)
+	weight := abtest.GetFloat("never_see_weight", 0.2)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < exposureNum {
+			rankInfo.AddRecommend("NeverSeeWeight", 1+weight)
 		}
 	}
 	return nil
 }
 
 //活动提权策略仅针对白名单
-func increaseEventExpose(ctx algo.IContext) error{
+func increaseEventExpose(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
-	icpSwitch :=abtest.GetBool("icp_switch",false)
-	icpWhite :=abtest.GetBool("icp_white",false)
+	icpSwitch := abtest.GetBool("icp_switch", false)
+	icpWhite := abtest.GetBool("icp_white", false)
 	userInfo := ctx.GetUserInfo().(*UserInfo)
+	params := ctx.GetRequest()
 	if userInfo.UserCache != nil {
-		if icpSwitch&&(userInfo.UserCache.MaybeICPUser()||icpWhite){
-			for index := 0; index < ctx.GetDataLength(); index ++ {
+		if icpSwitch && (userInfo.UserCache.MaybeICPUser(params.Lat, params.Lng) || icpWhite) {
+			for index := 0; index < ctx.GetDataLength(); index++ {
 				dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 				rankInfo := dataInfo.GetRankInfo()
 				if dataInfo.MomentProfile != nil {
-					if dataInfo.MomentProfile.IsActivity{
-						rankInfo.AddRecommend("icpActivityWeight",1.2)
+					if dataInfo.MomentProfile.IsActivity {
+						rankInfo.AddRecommend("icpActivityWeight", 1.2)
 					}
 				}
 			}
@@ -444,29 +445,31 @@ func increaseEventExpose(ctx algo.IContext) error{
 	}
 	return nil
 }
+
 //晚上9-12点热门直播日志前2名会被放置去指定位置，看过后沉底
-func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error{
+func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
-	lower :=abtest.GetInt("top_mom_lower",21)
-	interval := abtest.GetInt("live_interval",2)//指定位置间隔
-	upper :=abtest.GetInt("top_mom_upper",24)
-	maxShowLive :=abtest.GetInt("max_show_live",2)//最多显示top的直播日志条数
-	maxSeeTime :=abtest.GetFloat64("max_see_time",1.0)//最大看过次数
-	if ctx.GetCreateTime().Hour()>=lower && ctx.GetCreateTime().Hour()<=upper{
+	lower := abtest.GetInt("top_mom_lower", 21)
+	interval := abtest.GetInt("live_interval", 2) //指定位置间隔
+	upper := abtest.GetInt("top_mom_upper", 24)
+	maxShowLive := abtest.GetInt("max_show_live", 2)     //最多显示top的直播日志条数
+	maxSeeTime := abtest.GetFloat64("max_see_time", 1.0) //最大看过次数
+	if ctx.GetCreateTime().Hour() >= lower && ctx.GetCreateTime().Hour() <= upper {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
-			if dataInfo.UserItemBehavior==nil || dataInfo.UserItemBehavior.Count<=maxSeeTime{
-				if rankInfo.LiveIndex>0 &&rankInfo.LiveIndex<=maxShowLive{
-					rankInfo.HopeIndex=1+interval*(rankInfo.LiveIndex-1)//位置从1开始，间隔interval
+			if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count <= maxSeeTime {
+				if rankInfo.LiveIndex > 0 && rankInfo.LiveIndex <= maxShowLive {
+					rankInfo.HopeIndex = 1 + interval*(rankInfo.LiveIndex-1) //位置从1开始，间隔interval
 				}
 			}
 		}
 	}
 	return nil
 }
+
 //头部主播上线即指定位置曝光
-func topLiveIncreaseExposureFunc(ctx algo.IContext) error{
+func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	interval := abtest.GetInt("top_live_interval",2)//指定位置间隔
 	var liveIndex =0
@@ -483,13 +486,12 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error{
 	return nil
 }
 
-func MaybeTopLive(ctx algo.IContext,user *redis.UserProfile) bool{
-	if user.LiveInfo!=nil&&user.LiveInfo.Status==1&&(user.LiveInfo.ExpireDate>ctx.GetCreateTime().Unix()){
+func MaybeTopLive(ctx algo.IContext, user *redis.UserProfile) bool {
+	if user.LiveInfo != nil && user.LiveInfo.Status == 1 && (user.LiveInfo.ExpireDate > ctx.GetCreateTime().Unix()) {
 		return true
 	}
 	return false
 }
-
 
 func TestHopIndexStrategyFunc(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {

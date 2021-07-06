@@ -33,17 +33,52 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var userBehavior *behavior.UserBehavior // 用户实时行为
 	var tagList []int64                     //用户操作行为tag集合
 	newThemeIdList := []int64{}
+	var new_user []int64
+	canExposeUserMap := make(map[int64]float64)
+	canExposeEvent := abtest.GetBool("expose_event", false)
+	canExposeUser := abtest.GetStrings("can_event_user", "106806610,104208008,108900360")
 	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
 		"list": func(*performs.Performs) interface{} { // 获取推荐列表
 			recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_reply_recommend_list:%d")
-			recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(params.UserId, -999999999, recListKeyFormatter)
-			if listErr == nil {
-				for _, recommend := range recommendList {
-					replyIdList = append(replyIdList, recommend.ThemeReplyID)
-					themeIdList = append(themeIdList, recommend.ThemeID)
-					themeReplyMap[recommend.ThemeID] = recommend.ThemeReplyID
+			var userlist = []int64{}
+			userlist = append(userlist, params.UserId)
+			for _, backuser := range canExposeUser { //建立白名单用户
+				backuser64 := int64(utils.GetInt(backuser))
+				canExposeUserMap[backuser64] = 1.0
+			}
+			var profileErr error //判断是否是新用户
+			userProfile, profileErr := userCache.QueryUsersByIds(userlist)
+			if profileErr == nil {
+				for _, userP := range userProfile {
+					if userP.MaybeICPUser(params.Lat, params.Lng) == true {
+						new_user = append(new_user, userP.UserId)
+					}
 				}
-				return len(recommendList)
+			}
+			//for k, _ := range canExposeUserMap {//白名单用户ab
+			//	log.Infof("user_id===============alll", k)
+			//}
+			var listErr error
+			if _, ok := canExposeUserMap[params.UserId]; ok || canExposeEvent || len(new_user) != 0 { //审核数据，修改redis的key 以及白名单用户
+				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(-999999998, -999999998, recListKeyFormatter)
+				if listErr == nil {
+					for _, recommend := range recommendList {
+						replyIdList = append(replyIdList, recommend.ThemeReplyID)
+						themeIdList = append(themeIdList, recommend.ThemeID)
+						themeReplyMap[recommend.ThemeID] = recommend.ThemeReplyID
+					}
+					return len(recommendList)
+				}
+			} else { //默认推荐数据
+				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(params.UserId, -999999999, recListKeyFormatter)
+				if listErr == nil {
+					for _, recommend := range recommendList {
+						replyIdList = append(replyIdList, recommend.ThemeReplyID)
+						themeIdList = append(themeIdList, recommend.ThemeID)
+						themeReplyMap[recommend.ThemeID] = recommend.ThemeReplyID
+					}
+					return len(recommendList)
+				}
 			}
 			return listErr
 		}, "new": func(*performs.Performs) interface{} {
@@ -156,7 +191,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var themes = []redis.MomentsAndExtend{}
 	var themesUserIds = []int64{}
 	var remove_list = []int64{}
-	canExposeEvent := abtest.GetBool("expose_event", false)
+
+	recommend_icp := abtest.GetBool("recommend_icp", false)
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"reply": func(*performs.Performs) interface{} { // 获取内容缓存
 			var replyErr error
@@ -164,7 +200,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if replyErr == nil {
 				for _, mom := range replysMap {
 					if mom.Moments != nil {
-						replysUserIds = append(replysUserIds, mom.Moments.UserId)
+						if mom.CanRecommend() == recommend_icp { //是否推荐开关
+							replysUserIds = append(replysUserIds, mom.Moments.UserId)
+						}
 					}
 				}
 				replysUserIds = utils.NewSetInt64FromArray(replysUserIds).ToList()
@@ -176,9 +214,10 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			var themesMapErr error
 			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
 			if themesMapErr == nil {
-				for _, mom := range themes {
+				for _, mom := range themes { //活动反例过滤
 					if canExposeEvent && mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity &&
-						mom.MomentsProfile.ActivityInfo != nil && mom.MomentsProfile.ActivityInfo.DateType == 0 {
+						mom.MomentsProfile.ActivityInfo != nil && mom.MomentsProfile.ActivityInfo.DateType == 0 &&
+						mom.CanRecommend() == recommend_icp {
 						endDate := mom.MomentsProfile.ActivityInfo.ActivityEndTime
 						timeNow := time.Now().Unix()
 						if endDate < timeNow {
@@ -196,7 +235,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			if themesMapErr == nil {
 				for _, mom := range themes {
 					if mom.Moments != nil {
-						themesUserIds = append(themesUserIds, mom.Moments.UserId)
+						if mom.CanRecommend() == recommend_icp { //是否推荐开关
+							themesUserIds = append(themesUserIds, mom.Moments.UserId)
+						}
 					}
 				}
 				themesUserIds = utils.NewSetInt64FromArray(themesUserIds).ToList()
@@ -269,11 +310,19 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-				if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
+				if theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
 					recommends = append(recommends, algo.RecommendItem{
 						Reason:     "EVENT",
 						Score:      backendRecommendEventScore,
 						NeedReturn: true})
+				}
+				if _, ok := canExposeUserMap[theme.Moments.UserId]; ok { //是否是白名单用户日志
+					if canExposeEvent && theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
+						recommends = append(recommends, algo.RecommendItem{
+							Reason:     "EVENT",
+							Score:      backendRecommendEventScore,
+							NeedReturn: true})
+					}
 				}
 				info := &DataInfo{
 					DataId:            themeId,
