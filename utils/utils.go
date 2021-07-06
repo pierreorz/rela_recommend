@@ -231,7 +231,6 @@ func Rand(start, end int) int {
 func RandomNums(num, limit int) []int {
 	var ids = make([]int, 0)
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
 	ids = r.Perm(num)
 
 	if len(ids) < limit {

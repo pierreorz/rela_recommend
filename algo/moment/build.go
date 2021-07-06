@@ -336,11 +336,21 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				var liveIndex = 0
-				if liveMap != nil {
-					if rank, isOk := liveMap[mom.Moments.Id]; isOk {
-						liveIndex = rank
+				var isTopLiveMom = -1
+				if liveMap!=nil{
+					if rank,isOk :=liveMap[mom.Moments.Id]; isOk{
+						liveIndex=rank
+						momUser, _ := usersMap[mom.Moments.UserId]
+						if momUser !=nil {
+							if isTopLive(ctx,momUser) {
+								isTopLiveMom=1
+							}else{
+								isTopLiveMom=0
+							}
+						}
 					}
 				}
+
 				// 处理推荐
 				var recommends = []algo.RecommendItem{}
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
@@ -367,7 +377,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentExtendCache:    mom.MomentsExtend,
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,LiveIndex:liveIndex,TopLive:isTopLiveMom},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],
@@ -391,5 +401,12 @@ func getMapKey(scoreMap map[int64]int) []int64 {
 		}
 	}
 	return res
-
 }
+
+func isTopLive(ctx algo.IContext,user *redis.UserProfile) bool{
+	if user.LiveInfo!=nil&&user.LiveInfo.Status==1&&(user.LiveInfo.ExpireDate>ctx.GetCreateTime().Unix()){
+		return true
+	}
+	return false
+}
+

@@ -64,6 +64,8 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 			role, wantRoles = rutils.GetInt(memu.RoleName), rutils.GetInts(memu.WantRole)
 			fs.AddCategory(2040, 10, -1, role, -1)        // 自我认同
 			fs.AddCategories(2050, 10, -1, wantRoles, -1) // 想要寻找
+			fs.Add(2100,float32(memu.MomentsCount))//发布者历史发布日志数
+			fs.Add(2101,float32(memu.Grade))//优质用户评分 非优质用户0
 		}
 		memuEmbedding := data.MomentUserProfile
 		if (memuEmbedding != nil) {
