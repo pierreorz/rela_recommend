@@ -292,6 +292,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
+		statusSwitch :=abtest.GetBool("mom_status_filter",false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
@@ -317,6 +318,9 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 			if mom.Moments.ShareTo != "all" {
+				continue
+			}
+			if statusSwitch&&mom.Moments.Status!=1{//状态不为1的过滤
 				continue
 			}
 			if mom.Moments.Id > 0 {
