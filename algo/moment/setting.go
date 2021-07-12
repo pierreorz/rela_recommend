@@ -57,7 +57,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"recall_new": &strategy.BaseRichStrategy{
 		StrategyFunc: RecallUserAddWeight},
 	"exposure_increase": &strategy.BaseRichStrategy{StrategyFunc: strategy.ExposureIncreaseFunc, DefaultWeight: 3},
-	"interact_increase":&strategy.BaseRichStrategy{StrategyFunc: strategy.NotInteractIncreaseFunc, DefaultWeight: 3},
+	"interact_increase":&strategy.BaseRichStrategy{StrategyFunc: strategy.NotInteractIncreaseFunc},
 	"test_hope_index":   &strategy.BaseRichStrategy{StrategyFunc: TestHopIndexStrategyFunc},
 	"live_hope_index":   &strategy.BaseRichStrategy{StrategyFunc: hotLiveHopeIndexStrategyFunc},
 	"topLive_hope_index":  &strategy.BaseRichStrategy{StrategyFunc: topLiveIncreaseExposureFunc},
