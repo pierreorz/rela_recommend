@@ -121,4 +121,5 @@ func NotInteractIncreaseFunc(ctx algo.IContext) error {
 			}
 		}
 	}
+	return nil
 }
