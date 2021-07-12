@@ -104,3 +104,21 @@ func ExposureIncreaseFunc(ctx algo.IContext) error {
 	}
 	return nil
 }
+
+
+//未被互动的日志提权
+func NotInteractIncreaseFunc(ctx algo.IContext) error {
+	abtest :=ctx.GetAbTest()
+	increaseInteract :=abtest.GetStrings("interact_increase","moment.friend:like,moment.around:like,moment.friend:send_comment,moment.around:send_comment")
+	for index :=0 ;index < ctx.GetDataLength() ;index ++{
+		dataInfo := ctx.GetDataByIndex(index)
+		rankInfo := dataInfo.GetRankInfo()
+
+		if itemBehavior := dataInfo.GetBehavior(); itemBehavior != nil {
+			interact :=itemBehavior.Gets(increaseInteract...)
+			if interact.Count<1{
+				rankInfo.AddRecommend("InteractIncrease",2)
+			}
+		}
+	}
+}
