@@ -113,10 +113,9 @@ func NotInteractIncreaseFunc(ctx algo.IContext) error {
 	for index :=0 ;index < ctx.GetDataLength() ;index ++{
 		dataInfo := ctx.GetDataByIndex(index)
 		rankInfo := dataInfo.GetRankInfo()
-
 		if itemBehavior := dataInfo.GetBehavior(); itemBehavior != nil {
 			interact :=itemBehavior.Gets(increaseInteract...)
-			if interact.Count<1{
+			if interact.Count<20{
 				rankInfo.AddRecommend("InteractIncrease",2)
 			}
 		}
