@@ -428,7 +428,6 @@ func NeverInteractStrategyFunc(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		rankInfo.AddRecommend("NeverInteractWeight", 1+float32(dataInfo.ItemBehavior.GetAroundInteract().Count))
 		if dataInfo.ItemBehavior == nil || dataInfo.ItemBehavior.GetAroundInteract().Count < 10 {
 			rankInfo.AddRecommend("NeverInteractWeight", 10)
 		}
