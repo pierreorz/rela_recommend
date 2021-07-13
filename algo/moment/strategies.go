@@ -423,13 +423,15 @@ func NeverSeeStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
-//附近日志未看过的提权
+//附近日志未被互动提权
 func NeverInteractStrategyFunc(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	interactNum := abtest.GetFloat64("interact_num", 1.0)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.ItemBehavior == nil || dataInfo.ItemBehavior.GetAroundInteract().Count < 10 {
-			rankInfo.AddRecommend("NeverInteractWeight", 10)
+		if dataInfo.ItemBehavior == nil || dataInfo.ItemBehavior.GetAroundInteract().Count < interactNum {//
+			rankInfo.AddRecommend("NeverInteractWeight", 1.2)
 		}
 	}
 	return nil
