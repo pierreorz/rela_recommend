@@ -423,6 +423,19 @@ func NeverSeeStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
+//附近日志未看过的提权
+func NeverInteractStrategyFunc(ctx algo.IContext) error {
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		rankInfo.AddRecommend("NeverInteractWeight", 1+float32(dataInfo.ItemBehavior.GetAroundInteract().Count))
+		if dataInfo.ItemBehavior == nil || dataInfo.ItemBehavior.GetAroundInteract().Count < 10 {
+			rankInfo.AddRecommend("NeverInteractWeight", 10)
+		}
+	}
+	return nil
+}
+
 //活动提权策略仅针对白名单
 func increaseEventExpose(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()

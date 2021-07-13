@@ -105,19 +105,3 @@ func ExposureIncreaseFunc(ctx algo.IContext) error {
 	return nil
 }
 
-
-//未被互动的日志提权
-func NotInteractIncreaseFunc(ctx algo.IContext) error {
-	for index :=0 ;index < ctx.GetDataLength() ;index ++{
-		dataInfo := ctx.GetDataByIndex(index)
-		rankInfo := dataInfo.GetRankInfo()
-		if itemBehavior := dataInfo.GetBehavior();itemBehavior!=nil {
-			interact :=itemBehavior.GetAroundInteract().Count
-			rankInfo.AddRecommend("InteractIncrease",1+float32(interact)+1)
-			if interact<10{
-				rankInfo.AddRecommend("InteractIncrease",2)
-			}
-		}
-	}
-	return nil
-}
