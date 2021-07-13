@@ -349,7 +349,9 @@ func DoBuildData(ctx algo.IContext) error {
 							if isTopLive(ctx,momUser) {
 								isTopLiveMom=1
 							}else{
-								isTopLiveMom=0
+								if isTop!=1{//非头部主播且非置顶直播日志进行过滤
+									continue
+								}
 							}
 						}
 					}

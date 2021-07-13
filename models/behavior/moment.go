@@ -53,6 +53,10 @@ func (self *UserBehavior) GetMomentListInteract() *Behavior {
 	)
 }
 
+func (self *UserBehavior) GetAroundInteract() *Behavior {
+	return self.Gets("moment.around:like", "moment.around:comment",)
+}
+
 //获取总点击行为
 func (self *UserBehavior) GetMomentListClick() *Behavior{
 	return self.Gets(

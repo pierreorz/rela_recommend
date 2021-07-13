@@ -61,6 +61,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"live_hope_index":   &strategy.BaseRichStrategy{StrategyFunc: hotLiveHopeIndexStrategyFunc},
 	"topLive_hope_index":  &strategy.BaseRichStrategy{StrategyFunc: topLiveIncreaseExposureFunc},
 	"never_see":         &strategy.BaseRichStrategy{StrategyFunc: NeverSeeStrategyFunc},
+	"never_interact":    &strategy.BaseRichStrategy{StrategyFunc: NeverInteractStrategyFunc},
 	"willson_suppress":  &strategy.BaseRichStrategy{StrategyFunc: HotMomentSuppressStrategyFunc},
 	"icp_activity":&strategy.BaseRichStrategy{StrategyFunc: increaseEventExpose},
 }

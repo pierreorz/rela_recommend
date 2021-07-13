@@ -423,6 +423,22 @@ func NeverSeeStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
+//附近日志未被互动提权
+func NeverInteractStrategyFunc(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	interactNum := abtest.GetFloat64("interact_num", 1.0)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.ItemBehavior == nil || dataInfo.ItemBehavior.GetAroundInteract().Count < interactNum { //
+			if dataInfo.MomentCache != nil && int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) < 5 {
+				rankInfo.AddRecommend("NeverInteractWeight", 1.2)
+			}
+		}
+	}
+	return nil
+}
+
 //活动提权策略仅针对白名单
 func increaseEventExpose(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
@@ -468,17 +484,26 @@ func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
-//头部主播上线即指定位置曝光
+//头部主播上线即指定位置曝光推荐页
 func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
+	var startIndex =1
 	interval := abtest.GetInt("top_live_interval",2)//指定位置间隔
 	var liveIndex =0
+	for index := 0; index < ctx.GetDataLength(); index++{
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if rankInfo.IsTop==1{
+			startIndex=2
+			break
+		}
+	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.UserItemBehavior==nil || dataInfo.UserItemBehavior.Count<=1{
-				if rankInfo.TopLive==1{
-					rankInfo.HopeIndex=1+interval*liveIndex//位置从1开始，间隔interval
+				if rankInfo.TopLive==1&&rankInfo.IsTop!=1{
+					rankInfo.HopeIndex=startIndex+interval*liveIndex//位置从1开始，间隔interval
 					liveIndex+=1
 			}
 		}
