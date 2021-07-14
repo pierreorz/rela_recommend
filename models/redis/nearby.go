@@ -22,17 +22,16 @@ type NearbyProfile struct {
 }
 
 // 读取速配画像信息
-func (self *UserCacheModule) QueryNearbyProfileByIds(ids []int64) ([]NearbyProfile, error) {
-	keyFormatter := "nearby_user_profile:%d"
+func (self *UserCacheModule) QueryNearbyProfileByIds(ids []int64, keyFormatter string) ([]NearbyProfile, error) {
 	ress, err := self.MGetStructs(NearbyProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
 	objs := ress.Interface().([]NearbyProfile)
 	return objs, err
 }
 
 // 获取当前用户和用户列表Map
-func (this *UserCacheModule) QueryNearbyProfileByUserAndUsersMap(userId int64, userIds []int64) (*NearbyProfile, map[int64]*NearbyProfile, error) {
+func (this *UserCacheModule) QueryNearbyProfileByUserAndUsersMap(userId int64, userIds []int64, keyFormatter string) (*NearbyProfile, map[int64]*NearbyProfile, error) {
 	allIds := append(userIds, userId)
-	users, err := this.QueryNearbyProfileByIds(allIds)
+	users, err := this.QueryNearbyProfileByIds(allIds, keyFormatter)
 	var resUser *NearbyProfile
 	var resUsersMap = make(map[int64]*NearbyProfile, 0)
 	if err == nil {
