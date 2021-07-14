@@ -139,7 +139,8 @@ func DoBuildDataV1(ctx algo.IContext) error {
 		},
 		"profile": func(*performs.Performs) interface{} {
 			var profileCacheErr error
-			userProfile, userProfileMap, profileCacheErr = userCache.QueryNearbyProfileByUserAndUsersMap(params.UserId, dataIds)
+			profileKeyFormatter := abtest.GetString("profile_key_formatter", "nearby_user_profile:%d")
+			userProfile, userProfileMap, profileCacheErr = userCache.QueryNearbyProfileByUserAndUsersMap(params.UserId, dataIds, profileKeyFormatter)
 			if profileCacheErr != nil {
 				return profileCacheErr
 			}
