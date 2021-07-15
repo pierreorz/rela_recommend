@@ -25,6 +25,21 @@ func ActiveUserUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *
 	return nil
 }
 
+// 对已婚、交往中等降权
+// affection  感情状态	int	‘-1表示未设置 0=不想透漏 1=单身 2=约会中 3=稳定关系 4=已婚 5=开放关系 6=交往中 7=等一个人
+func NotSingleDecreaseItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	notSingleStatus := []int{2, 3, 6}
+	matchUser := iDataInfo.(*DataInfo)
+
+	for _, st := range notSingleStatus {
+		if matchUser.UserCache.Affection == st {
+			rankInfo.AddRecommend("NotSingleDecrease", 0.5)
+		}
+	}
+
+	return nil
+}
+
 // 对有头像的用户进行提权
 func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)
