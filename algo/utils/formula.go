@@ -24,3 +24,17 @@ func ArrayMultSum(arr1, arr2 []float32) float32 {
 	}
 	return sum
 }
+
+// 数组相乘的和
+func ArrayCosine(arr1, arr2 []float32) float32 {
+	var sum, absArr1, absArr2 float32
+	if arr1 != nil && arr2 != nil && len(arr1) == len(arr2) {
+		for i, arr1i := range arr1 {
+			sum += arr1i * arr2[i]
+			absArr1 += arr1[i] * arr1[i]
+			absArr2 += arr2[i] * arr2[i]
+		}
+
+	}
+	return (sum + 0.01) / float32(math.Sqrt(float64(absArr1*absArr2))+0.01)
+}
