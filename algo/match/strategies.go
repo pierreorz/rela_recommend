@@ -33,7 +33,7 @@ func NotSingleDecreaseItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 
 	for _, st := range notSingleStatus {
 		if matchUser.UserCache.Affection == st {
-			rankInfo.AddRecommend("NotSingleDecrease", 0.5)
+			rankInfo.AddRecommendNeedReturn("NotSingleDecrease", 0.5)
 		}
 	}
 
