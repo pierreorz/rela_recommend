@@ -26,9 +26,9 @@ func ActiveUserUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *
 }
 
 // 对已婚、交往中等降权
-// affection  感情状态	int	‘-1表示未设置 0=不想透漏 1=单身 2=约会中 3=稳定关系 4=已婚 5=开放关系 6=交往中 7=等一个人
+// affection  感情状态	int	‘-1表示未设置 0=不想透漏 1=单身 2=约会中 3=稳定关系 4=已婚 5=开放关系 6=求交往 7=等一个人
 func NotSingleDecreaseItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
-	notSingleStatus := []int{2, 3, 6}
+	notSingleStatus := []int{2, 3, 4}
 	matchUser := iDataInfo.(*DataInfo)
 
 	for _, st := range notSingleStatus {
