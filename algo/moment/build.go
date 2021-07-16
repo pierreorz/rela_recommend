@@ -339,6 +339,16 @@ func DoBuildData(ctx algo.IContext) error {
 						isTop = 1
 					}
 				}
+				// 处理推荐
+				var recommends = []algo.RecommendItem{}
+				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
+					topTypeRes := topType.GetCurrentTopType(searchScenery)
+					isTop = utils.GetInt(topTypeRes == "TOP")
+					if topTypeRes == "RECOMMEND" {
+						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+					}
+				}
+				
 				var liveIndex = 0
 				var isTopLiveMom = -1
 				if liveMap!=nil{
@@ -357,15 +367,7 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 
-				// 处理推荐
-				var recommends = []algo.RecommendItem{}
-				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
-					topTypeRes := topType.GetCurrentTopType(searchScenery)
-					isTop = utils.GetInt(topTypeRes == "TOP")
-					if topTypeRes == "RECOMMEND" {
-						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
-					}
-				}
+
 				if recMap != nil {
 					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
