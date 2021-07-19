@@ -373,7 +373,7 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 
 		switch ctx.GetAbTest().GetString("array_metric", "") {
 		case "cosine":
-			metricFunc = utils.ArrayCosine
+			metricFunc = utils.ArrayCosineInvert
 		case "distance":
 			metricFunc = utils.ArrayDistance
 		default:

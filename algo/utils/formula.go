@@ -28,7 +28,7 @@ func ArrayMultSum(arr1, arr2 []float32) float32 {
 }
 
 // 向量 cosine
-func ArrayCosine(arr1, arr2 []float32) float32 {
+func ArrayCosineInvert(arr1, arr2 []float32) float32 {
 	var sum, absArr1, absArr2 float32
 	if arr1 != nil && arr2 != nil && len(arr1) == len(arr2) {
 		for i, arr1i := range arr1 {
@@ -38,7 +38,7 @@ func ArrayCosine(arr1, arr2 []float32) float32 {
 		}
 
 	}
-	return (sum + 0.01) / float32(math.Sqrt(float64(absArr1*absArr2))+0.01)
+	return float32(math.Sqrt(float64(absArr1*absArr2))+0.01) / (sum + 0.01) // cosine是越小越相似，因此此处分子分母反过来
 }
 
 // 向量距离
