@@ -14,6 +14,8 @@ func ExpLogit(score float64) float64 {
 	return 2.0 / (1.0 + math.Exp(-math.Log(score)))
 }
 
+type ArrayMetric = func(arr1, arr2 []float32) float32
+
 // 数组相乘的和
 func ArrayMultSum(arr1, arr2 []float32) float32 {
 	var sum float32 = 0.0
@@ -25,7 +27,7 @@ func ArrayMultSum(arr1, arr2 []float32) float32 {
 	return sum
 }
 
-// 数组相乘的和
+// 向量 cosine
 func ArrayCosine(arr1, arr2 []float32) float32 {
 	var sum, absArr1, absArr2 float32
 	if arr1 != nil && arr2 != nil && len(arr1) == len(arr2) {
@@ -37,4 +39,16 @@ func ArrayCosine(arr1, arr2 []float32) float32 {
 
 	}
 	return (sum + 0.01) / float32(math.Sqrt(float64(absArr1*absArr2))+0.01)
+}
+
+// 向量距离
+func ArrayDistance(arr1, arr2 []float32) float32 {
+	var sum float32
+	if arr1 != nil && arr2 != nil && len(arr1) == len(arr2) {
+		for i, arr1i := range arr1 {
+			sum += (arr1i - arr2[i]) * (arr1i - arr2[i])
+		}
+
+	}
+	return float32(math.Sqrt(float64(sum)))
 }
