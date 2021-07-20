@@ -342,6 +342,9 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				// 处理置顶
 
+				if mom.Moments.Id==162678943256710081{
+					log.Warnf("top momentid2")
+				}
 				var isTop = 0
 				if topMap != nil {
 					if _, isTopOk := topMap[mom.Moments.Id]; isTopOk {
@@ -357,7 +360,9 @@ func DoBuildData(ctx algo.IContext) error {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 					}
 				}
-
+				if mom.Moments.Id==162678943256710081{
+					log.Warnf("top momentid1")
+				}
 				var liveIndex = 0
 				var isTopLiveMom = -1
 				if liveMap!=nil{
@@ -371,7 +376,9 @@ func DoBuildData(ctx algo.IContext) error {
 						}
 					}
 				}
-
+				if mom.Moments.Id==162678943256710081{
+					log.Warnf("top momentid3")
+				}
 
 				if recMap != nil {
 					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
