@@ -24,7 +24,7 @@ func DoBuildData(ctx algo.IContext) error {
 	app := ctx.GetAppInfo()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	// search list
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
@@ -292,7 +292,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
-		statusSwitch :=abtest.GetBool("mom_status_filter",false)
+		statusSwitch := abtest.GetBool("mom_status_filter", false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
@@ -320,7 +320,7 @@ func DoBuildData(ctx algo.IContext) error {
 			if mom.Moments.ShareTo != "all" {
 				continue
 			}
-			if statusSwitch&&mom.Moments.Status!=1{//状态不为1的过滤
+			if statusSwitch && mom.Moments.Status != 1 { //状态不为1的过滤
 				continue
 			}
 			if mom.Moments.Id > 0 {
@@ -348,25 +348,24 @@ func DoBuildData(ctx algo.IContext) error {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 					}
 				}
-				
+
 				var liveIndex = 0
 				var isTopLiveMom = -1
-				if liveMap!=nil{
-					if rank,isOk :=liveMap[mom.Moments.Id]; isOk{
-						liveIndex=rank
+				if liveMap != nil {
+					if rank, isOk := liveMap[mom.Moments.Id]; isOk {
+						liveIndex = rank
 						momUser, _ := usersMap[mom.Moments.UserId]
-						if momUser !=nil {
-							if isTopLive(ctx,momUser) {
-								isTopLiveMom=1
-							}else{
-								if isTop!=1{//非头部主播且非置顶直播日志进行过滤
+						if momUser != nil {
+							if isTopLive(ctx, momUser) {
+								isTopLiveMom = 1
+							} else {
+								if isTop != 1 { //非头部主播且非置顶直播日志进行过滤
 									continue
 								}
 							}
 						}
 					}
 				}
-
 
 				if recMap != nil {
 					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
@@ -385,7 +384,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentExtendCache:    mom.MomentsExtend,
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,LiveIndex:liveIndex,TopLive:isTopLiveMom},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],
@@ -411,10 +410,9 @@ func getMapKey(scoreMap map[int64]int) []int64 {
 	return res
 }
 
-func isTopLive(ctx algo.IContext,user *redis.UserProfile) bool{
-	if user.LiveInfo!=nil&&user.LiveInfo.Status==1&&(user.LiveInfo.ExpireDate>ctx.GetCreateTime().Unix()){
+func isTopLive(ctx algo.IContext, user *redis.UserProfile) bool {
+	if user.LiveInfo != nil && user.LiveInfo.Status == 1 && (user.LiveInfo.ExpireDate > ctx.GetCreateTime().Unix()) {
 		return true
 	}
 	return false
 }
-

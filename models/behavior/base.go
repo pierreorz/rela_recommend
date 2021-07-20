@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"rela_recommend/cache"
+	"rela_recommend/factory"
 	"rela_recommend/models/redis"
 	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
@@ -186,8 +186,12 @@ func (self *BehaviorCacheModule) QueryUserBehaviorMap(module string, ids []int64
 	return objs, err
 }
 
-func NewBehaviorCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache) *BehaviorCacheModule {
-	cachePika := redis.NewCachePikaModule(ctx, *cache)
+func NewBehaviorCacheModule(ctx abtest.IAbTestAble) *BehaviorCacheModule {
+	cache := factory.CacheBehaviorRds
+	if ctx.GetAbTest().GetBool("use_new_behavior_redis", false) && (factory.CacheBehaviorRdsBackup != nil) {
+		cache = factory.CacheBehaviorRdsBackup
+	}
+	cachePika := redis.NewCachePikaModule(ctx, cache)
 	return &BehaviorCacheModule{CachePikaModule: *cachePika, ctx: ctx}
 }
 

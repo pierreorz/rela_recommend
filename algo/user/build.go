@@ -79,7 +79,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 	pf := ctx.GetPerforms()
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	liveMap := live.GetCachedLiveMap() // 当前的直播列表
 
 	var userCurrent *redis.UserProfile

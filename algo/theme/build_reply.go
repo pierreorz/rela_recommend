@@ -25,7 +25,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 
 	replyIdList := []int64{}                // 话题参与 ids
 	themeIdList := []int64{}                // 主话题Ids

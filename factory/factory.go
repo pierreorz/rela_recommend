@@ -40,6 +40,9 @@ var CacheCluster cache.Cache
 // Behavior cache
 var CacheBehaviorRds cache.Cache
 
+// 新的阿里flink双写的redis
+var CacheBehaviorRdsBackup cache.Cache
+
 //本地cache
 var CacheLoc cache.Cache
 
@@ -166,6 +169,12 @@ func initCache(cfg *conf.Config) {
 
 	log.Infof("INIT ClusterAddr: %s ....", cfg.Rds.ClusterAddr)
 	CacheBehaviorRds, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.BehaviorAddr, "", 0)
+	if err != nil {
+		log.Error(err.Error())
+	}
+
+	log.Infof("INIT ClusterAddr: %s ....", cfg.Rds.ClusterAddr)
+	CacheBehaviorRdsBackup, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.BehaviorBackupAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}

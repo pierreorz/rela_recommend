@@ -2,7 +2,6 @@ package strategy
 
 import (
 	"rela_recommend/algo"
-	"rela_recommend/factory"
 	"rela_recommend/models/behavior"
 )
 
@@ -29,7 +28,7 @@ func (self *BaseBehaviorRichStrategy) GetDefaultWeight() int {
 func (self *BaseBehaviorRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {
 	return &BaseBehaviorRichStrategy{
 		ctx:                  ctx,
-		cacheModule:          behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds),
+		cacheModule:          behavior.NewBehaviorCacheModule(ctx),
 		UserBehaviorMap:      map[int64]*behavior.UserBehavior{},
 		ItemBehaviorMap:      map[int64]*behavior.UserBehavior{},
 		UserStrategyFunc:     self.UserStrategyFunc,
@@ -104,4 +103,3 @@ func ExposureIncreaseFunc(ctx algo.IContext) error {
 	}
 	return nil
 }
-
