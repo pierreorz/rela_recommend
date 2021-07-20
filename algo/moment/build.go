@@ -295,9 +295,6 @@ func DoBuildData(ctx algo.IContext) error {
 		statusSwitch :=abtest.GetBool("mom_status_filter",false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
-			if mom.Moments.Id==162678943256710081{
-				log.Warnf("top momentid1")
-			}
 			// 后期搜索完善此条件去除
 			if icpSwitch && (mayBeIcpUser || icpWhite) { //icp白名单以及杭州新注册用户
 				if !mom.CanRecommend() { //非推荐审核通过
@@ -309,15 +306,10 @@ func DoBuildData(ctx algo.IContext) error {
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
 			}
-			if mom.Moments.Id==162678943256710081{
-				log.Warnf("top momentid1")
-			}
 			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
 				continue
 			}
-			if mom.Moments.Id==162678943256710081{
-				log.Warnf("top momentid1")
-			}
+
 			//搜索过滤开关(运营推荐不管审核状态)
 			if _, ok := searchMomentMap[mom.Moments.Id]; !ok {
 				if filteredAudit {
@@ -342,9 +334,6 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				// 处理置顶
 
-				if mom.Moments.Id==162678943256710081{
-					log.Warnf("top momentid2")
-				}
 				var isTop = 0
 				if topMap != nil {
 					if _, isTopOk := topMap[mom.Moments.Id]; isTopOk {
@@ -360,9 +349,6 @@ func DoBuildData(ctx algo.IContext) error {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 					}
 				}
-				if mom.Moments.Id==162678943256710081{
-					log.Warnf("top momentid1")
-				}
 				var liveIndex = 0
 				var isTopLiveMom = -1
 				if liveMap!=nil{
@@ -372,12 +358,17 @@ func DoBuildData(ctx algo.IContext) error {
 						if momUser !=nil {
 							if isTopLive(ctx,momUser) {
 								isTopLiveMom=1
+							}else{
+								if isTop!=1{//非头部主播且非置顶直播日志进行过滤
+									continue
+								}
 							}
 						}
 					}
 				}
 				if mom.Moments.Id==162678943256710081{
 					log.Warnf("top momentid3")
+					log.Warnf("top index %s",isTop)
 				}
 
 				if recMap != nil {
