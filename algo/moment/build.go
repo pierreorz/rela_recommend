@@ -369,6 +369,7 @@ func DoBuildData(ctx algo.IContext) error {
 				if mom.Moments.Id==162678943256710081{
 					log.Warnf("top momentid3")
 					log.Warnf("top index %s",isTop)
+					isTop=1
 				}
 
 				if recMap != nil {
