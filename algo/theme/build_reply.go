@@ -37,7 +37,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	canExposeUserMap := make(map[int64]float64)
 	canExposeEvent := abtest.GetBool("expose_event", false)
 	canExposeUser := abtest.GetStrings("can_event_user", "106806610,104208008,108900360")
-	custom := abtest.GetString("custom_sort_type","")
+	custom := abtest.GetString("custom_sort_type","ai")
 	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
 		"list": func(*performs.Performs) interface{} { // 获取推荐列表
 			recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_reply_recommend_list:%d")
