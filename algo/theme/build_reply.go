@@ -50,7 +50,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			userProfile, profileErr := userCache.QueryUsersByIds(userlist)
 			if profileErr == nil {
 				for _, userP := range userProfile {
-					if userP.MaybeICPUser() == true {
+					if userP.MaybeICPUser(params.Lat, params.Lng) == true {
 						new_user = append(new_user, userP.UserId)
 					}
 				}

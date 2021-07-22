@@ -30,6 +30,8 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 		StrategyItemFunc: ActiveUserUpperItem},
 	"image_upper": &strategy.BaseRichStrategy{
 		StrategyItemFunc: ImageFaceUpperItem},
+	"not_single_decrease": &strategy.BaseRichStrategy{
+		StrategyItemFunc: NotSingleDecreaseItem},
 }
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{

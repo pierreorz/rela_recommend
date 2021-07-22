@@ -369,16 +369,27 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 	}
 
 	if userProfile != nil && currProfile != nil {
+		var metricFunc utils.ArrayMetric
+
+		switch ctx.GetAbTest().GetString("array_metric", "") {
+		case "cosine":
+			metricFunc = utils.ArrayCosineInvert
+		case "distance":
+			metricFunc = utils.ArrayDistance
+		default:
+			metricFunc = utils.ArrayMultSum
+		}
+
 		// 通过关注的als相关性
 
 		followUser := userProfile.VectorMap["vector_follow_als_user"]
 		followFollower := currProfile.VectorMap["vector_follow_als_follower"]
-		fs.Add(10006, utils.ArrayMultSum(followUser, followFollower))
+		fs.Add(10006, metricFunc(followUser, followFollower))
 
 		// 通过点击的als相关性
 		clickUser := userProfile.VectorMap["vector_click_als_user"]
 		clickReceived := currProfile.VectorMap["vector_click_als_received"]
-		fs.Add(10007, utils.ArrayMultSum(clickUser, clickReceived))
+		fs.Add(10007, metricFunc(clickUser, clickReceived))
 	}
 
 	return fs

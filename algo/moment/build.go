@@ -1,9 +1,11 @@
 package moment
 
 import (
+	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/live"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
@@ -11,9 +13,7 @@ import (
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
-	"math/rand"
 	"time"
-	"rela_recommend/log"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -28,50 +28,50 @@ func DoBuildData(ctx algo.IContext) error {
 	// search list
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
-	autoRecList :=make([]int64 ,0)
+	autoRecList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
 	tagRecommendIdList := make([]int64, 0)
 	liveMomentIds := make([]int64, 0)
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
-	var liveMap =map[int64]int{}
+	var liveMap = map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 
 	if abtest.GetBool("rec_liveMoments_switch", false) {
-		liveMap =live.GetCachedLiveMomentListByTypeClassify(-1, -1)
+		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 		liveMomentIds = getMapKey(liveMap)
 	}
 
 	//icp白名单及新注册用户
 	var userTest *redis.UserProfile
 	var userTestErr error
-	userTest,userTestErr =userCache.QueryUserById(params.UserId)
+	userTest, userTestErr = userCache.QueryUserById(params.UserId)
 	var userBehavior *behavior.UserBehavior // 用户实时行为
-	if userTestErr!=nil{
+	if userTestErr != nil {
 		log.Warnf("query user icp white err, %s\n", userTestErr)
 		return userTestErr
 	}
-	icpSwitch :=abtest.GetBool("icp_switch",false)
-	mayBeIcpUser :=userTest.MaybeICPUser()
-	icpWhite :=abtest.GetBool("icp_white",false)
-	if icpSwitch&&(mayBeIcpUser||icpWhite){
+	icpSwitch := abtest.GetBool("icp_switch", false)
+	mayBeIcpUser := userTest.MaybeICPUser(params.Lat, params.Lng)
+	icpWhite := abtest.GetBool("icp_white", false)
+	if icpSwitch && (mayBeIcpUser || icpWhite) {
 		recListKeyFormatter := abtest.GetString("icp_recommend_list_key", "icp_recommend_list:%d") // moment_recommend_list:%d
 		//白名单以及杭州新用户默认数据
-		if len(recListKeyFormatter)>5{
-			recIdList, err = momentCache.GetInt64ListOrDefault(-10000000, -999999999, recListKeyFormatter)//icp_recommend_list:-10000000
+		if len(recListKeyFormatter) > 5 {
+			recIdList, err = momentCache.GetInt64ListOrDefault(-10000000, -999999999, recListKeyFormatter) //icp_recommend_list:-10000000
 		}
-		if abtest.GetBool("icp_around_rec",false){
+		if abtest.GetBool("icp_around_rec", false) {
 			var errSearch error
 			newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*2)
 			newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
 			newIdList, errSearch = search.CallNearMomentListV2(params.UserId, params.Lat, params.Lng, 0, 1000,
 				momentTypes, newMomentStartTime, "50km", true)
-			if errSearch!=nil{
+			if errSearch != nil {
 				log.Warnf("query user around icp err %s\n", errSearch)
 				return errSearch
 			}
 		}
-	}else{
+	} else {
 		//原代码
 		preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
 			"recommend": func(*performs.Performs) interface{} { // 获取推荐日志
@@ -84,21 +84,21 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				return nil
 			}, "new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
-				newMomentLen := abtest.GetInt("new_moment_len", 1000)//不为0即推荐添加实时日志
+				newMomentLen := abtest.GetInt("new_moment_len", 1000) //不为0即推荐添加实时日志
 				if newMomentLen > 0 {
 					radiusArray := abtest.GetStrings("radius_range", "50km")
 					newMomentOffsetSecond := abtest.GetFloat("new_moment_offset_second", 60*60*24*30*3)
 					newMomentStartTime := float32(ctx.GetCreateTime().Unix()) - newMomentOffsetSecond
-					recommended :=abtest.GetBool("realtime_mom_switch",false)// 是否过滤推荐审核
-					if abtest.GetBool("near_liveMoments_switch", false)&& abtest.GetBool("search_switched_around",true){
+					recommended := abtest.GetBool("realtime_mom_switch", false) // 是否过滤推荐审核
+					if abtest.GetBool("near_liveMoments_switch", false) && abtest.GetBool("search_switched_around", true) {
 						var lives []pika.LiveCache
 						lives = live.GetCachedLiveListByTypeClassify(-1, -1)
-						distance :=abtest.GetFloat64("live_distance",50.0)
-						liveMomentIds = ReturnAroundLiveMom(lives, params.Lng, params.Lat,distance)
+						distance := abtest.GetFloat64("live_distance", 50.0)
+						liveMomentIds = ReturnAroundLiveMom(lives, params.Lng, params.Lat, distance)
 					}
 					//当附近50km无日志，扩大范围200km,2000km,20000km直至找到日志
 					var errSearch error
-					if abtest.GetBool("search_switched_around",true){//附近日志搜索开关，关闭则走兜底数据
+					if abtest.GetBool("search_switched_around", true) { //附近日志搜索开关，关闭则走兜底数据
 						for _, radius := range radiusArray {
 							//if abtest.GetBool("use_ai_search", false) {
 							//
@@ -113,7 +113,7 @@ func DoBuildData(ctx algo.IContext) error {
 								break
 							}
 						}
-					} else{
+					} else {
 						recListKeyFormatter := abtest.GetString("around_list_key", "moment.around_list_data:%s")
 						newIdList, errSearch = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
 					}
@@ -142,20 +142,20 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				return errBackend
-			},"better_user":func(*performs.Performs) interface{}{
+			}, "better_user": func(*performs.Performs) interface{} {
 				var errBetterUser error
-				autoKeyFormatter :="better_user_mom_yesterday:%d"
-				if abtest.GetBool("auto_recommend_switch",false){
+				autoKeyFormatter := "better_user_mom_yesterday:%d"
+				if abtest.GetBool("auto_recommend_switch", false) {
 					autoRecList, errBetterUser = momentCache.GetInt64ListOrDefault(-999999999, -999999999, autoKeyFormatter)
-					if num :=abtest.GetInt("auto_recommend_random_num",0);num>0&&errBetterUser==nil&&len(autoRecList)>0{//随机挑选num个优质用户日志
+					if num := abtest.GetInt("auto_recommend_random_num", 0); num > 0 && errBetterUser == nil && len(autoRecList) > 0 { //随机挑选num个优质用户日志
 						rand.Seed(time.Now().UnixNano())
-						rand.Shuffle(len(autoRecList),func(i,j int){autoRecList[i],autoRecList[j]=autoRecList[j],autoRecList[i]})
-						if len(autoRecList)<num{
-							num=len(autoRecList)
+						rand.Shuffle(len(autoRecList), func(i, j int) { autoRecList[i], autoRecList[j] = autoRecList[j], autoRecList[i] })
+						if len(autoRecList) < num {
+							num = len(autoRecList)
 						}
-						autoRecList=autoRecList[:num-1]
+						autoRecList = autoRecList[:num-1]
 					}
-					if errBetterUser==nil{
+					if errBetterUser == nil {
 						return len(autoRecList)
 					}
 				}
@@ -192,7 +192,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList,autoRecList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
@@ -214,9 +214,9 @@ func DoBuildData(ctx algo.IContext) error {
 		})
 	}
 
-	var itemBehaviorMap = map[int64]*behavior.UserBehavior{} // 获取日志行为
-	var userItemBehaviorMap =map[int64]*behavior.UserBehavior{}//获取用户日志行为
-	var moms = []redis.MomentsAndExtend{}                    // 获取日志缓存
+	var itemBehaviorMap = map[int64]*behavior.UserBehavior{}     // 获取日志行为
+	var userItemBehaviorMap = map[int64]*behavior.UserBehavior{} //获取用户日志行为
+	var moms = []redis.MomentsAndExtend{}                        // 获取日志缓存
 	var userIds = make([]int64, 0)
 	var momOfflineProfileMap = map[int64]*redis.MomentOfflineProfile{} // 获取日志离线画像
 
@@ -229,10 +229,10 @@ func DoBuildData(ctx algo.IContext) error {
 				return len(itemBehaviorMap)
 			}
 			return itemBehaviorErr
-		},"useritem_behavior": func(*performs.Performs) interface{} {
+		}, "useritem_behavior": func(*performs.Performs) interface{} {
 			var userItemBehaviorErr error
-			userItemBehaviorMap,userItemBehaviorErr =behaviorCache.QueryUserItemBehaviorMap(behaviorModuleName, params.UserId,dataIds)
-			if userItemBehaviorErr == nil{
+			userItemBehaviorMap, userItemBehaviorErr = behaviorCache.QueryUserItemBehaviorMap(behaviorModuleName, params.UserId, dataIds)
+			if userItemBehaviorErr == nil {
 				return len(userItemBehaviorMap)
 			}
 			return userItemBehaviorErr
@@ -292,12 +292,13 @@ func DoBuildData(ctx algo.IContext) error {
 
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
+		statusSwitch :=abtest.GetBool("mom_status_filter",false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
 			if icpSwitch && (mayBeIcpUser || icpWhite) { //icp白名单以及杭州新注册用户
-				if !mom.CanRecommend() {//非推荐审核通过
-					if !(mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity) {//非活动
+				if !mom.CanRecommend() { //非推荐审核通过
+					if !(mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity) { //非活动
 						continue
 					}
 				}
@@ -305,9 +306,10 @@ func DoBuildData(ctx algo.IContext) error {
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
 			}
-			if mom.Moments!=nil&&mom.Moments.Secret==1 && abtest.GetBool("close_secret",false){//匿名日志且后台开关开启即关闭
+			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
 				continue
 			}
+
 			//搜索过滤开关(运营推荐不管审核状态)
 			if _, ok := searchMomentMap[mom.Moments.Id]; !ok {
 				if filteredAudit {
@@ -317,6 +319,9 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 			if mom.Moments.ShareTo != "all" {
+				continue
+			}
+			if statusSwitch&&mom.Moments.Status!=1{//状态不为1的过滤
 				continue
 			}
 			if mom.Moments.Id > 0 {
@@ -335,12 +340,6 @@ func DoBuildData(ctx algo.IContext) error {
 						isTop = 1
 					}
 				}
-				var liveIndex = 0
-				if liveMap!=nil{
-					if rank,isOk :=liveMap[mom.Moments.Id]; isOk{
-						liveIndex=rank
-					}
-				}
 				// 处理推荐
 				var recommends = []algo.RecommendItem{}
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
@@ -350,6 +349,27 @@ func DoBuildData(ctx algo.IContext) error {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 					}
 				}
+				var liveIndex = 0
+				var isTopLiveMom = -1
+				if liveMap!=nil{
+					if rank,isOk :=liveMap[mom.Moments.Id]; isOk{
+						liveIndex=rank
+						momUser, _ := usersMap[mom.Moments.UserId]
+						if momUser !=nil {
+							if isTopLive(ctx,momUser) {
+								isTopLiveMom=1
+							}else{
+								if isTop!=1{//非头部主播且非置顶直播日志进行过滤
+									continue
+								}
+							}
+						}
+					}
+				}
+				if mom.Moments.Id==162678943256710081{
+					isTop=1
+				}
+
 				if recMap != nil {
 					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
@@ -367,7 +387,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentExtendCache:    mom.MomentsExtend,
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,LiveIndex:liveIndex},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,LiveIndex:liveIndex,TopLive:isTopLiveMom},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],
@@ -383,13 +403,20 @@ func DoBuildData(ctx algo.IContext) error {
 	return nil
 }
 
-func getMapKey(scoreMap map[int64]int ) []int64{
-	res :=make([]int64 ,0)
-	if scoreMap!=nil&&len(scoreMap)>0{
-		for key,_ :=range scoreMap{
-			res=append(res,key)
+func getMapKey(scoreMap map[int64]int) []int64 {
+	res := make([]int64, 0)
+	if scoreMap != nil && len(scoreMap) > 0 {
+		for key, _ := range scoreMap {
+			res = append(res, key)
 		}
 	}
 	return res
-
 }
+
+func isTopLive(ctx algo.IContext,user *redis.UserProfile) bool{
+	if user.LiveInfo!=nil&&user.LiveInfo.Status==1&&(user.LiveInfo.ExpireDate>ctx.GetCreateTime().Unix()){
+		return true
+	}
+	return false
+}
+

@@ -22,6 +22,7 @@ var strategyMap = map[string]algo.IStrategy{
 	"new_user":         &algo.StrategyBase{DoSingle: AroundNewUserAddWeightFunc},
 	"label_mom":        &algo.StrategyBase{DoSingle: MomLabelAddWeight},
 	"video_mom":        &algo.StrategyBase{DoSingle: VideoMomWeight},
+	"text_mom":         &algo.StrategyBase{DoSingle: TextMomInterval},
 	"edit_tags":        &algo.StrategyBase{DoSingle: EditTagWeight},
 	"assignTag_weight": &algo.StrategyBase{DoSingle: AssignTagAddWeight},
 	"short_pref":       &algo.StrategyBase{DoSingle: ShortPrefAddWeight},
@@ -58,7 +59,9 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"exposure_increase": &strategy.BaseRichStrategy{StrategyFunc: strategy.ExposureIncreaseFunc, DefaultWeight: 3},
 	"test_hope_index":   &strategy.BaseRichStrategy{StrategyFunc: TestHopIndexStrategyFunc},
 	"live_hope_index":   &strategy.BaseRichStrategy{StrategyFunc: hotLiveHopeIndexStrategyFunc},
+	"topLive_hope_index":  &strategy.BaseRichStrategy{StrategyFunc: topLiveIncreaseExposureFunc},
 	"never_see":         &strategy.BaseRichStrategy{StrategyFunc: NeverSeeStrategyFunc},
+	"never_interact":    &strategy.BaseRichStrategy{StrategyFunc: NeverInteractStrategyFunc},
 	"willson_suppress":  &strategy.BaseRichStrategy{StrategyFunc: HotMomentSuppressStrategyFunc},
 	"icp_activity":&strategy.BaseRichStrategy{StrategyFunc: increaseEventExpose},
 }

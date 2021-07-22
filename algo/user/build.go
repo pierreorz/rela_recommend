@@ -4,6 +4,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/live"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 
@@ -81,18 +82,40 @@ func DoBuildDataV1(ctx algo.IContext) error {
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 	liveMap := live.GetCachedLiveMap() // 当前的直播列表
 
+	var userCurrent *redis.UserProfile
+	var userCurrentErr error
+	userCurrent, userCurrentErr = userCache.QueryUserById(params.UserId)
+	if userCurrentErr != nil {
+		log.Errorf("failed to get current user cache: %d, %s", params.UserId, userCurrentErr)
+		return userCurrentErr
+	}
+
 	// 确定候选用户
 	dataIds := params.DataIds
 	if dataIds == nil || len(dataIds) == 0 {
-		pf.Run("search", func(*performs.Performs) interface{} {
-			var searchErr error
-			if dataIds, searchErr = search.CallNearUserIdList(params.UserId, params.Lat, params.Lng,
-				0, 2000, params.Params["search"]); searchErr == nil {
-				return len(dataIds)
-			} else {
-				return searchErr
-			}
-		})
+		if abtest.GetBool("icp_switch", false) &&
+			(abtest.GetBool("is_icp_user", false) || userCurrent.MaybeICPUser(params.Lat, params.Lng)) {
+
+			pf.Run("get_fix_icp", func(*performs.Performs) interface{} {
+				var searchErr error
+				if dataIds, searchErr = search.CallNearUserICPIdList(params.UserId, params.Lat, params.Lng,
+					0, 2000, params.Params["search"]); searchErr == nil {
+					return len(dataIds)
+				} else {
+					return searchErr
+				}
+			})
+		} else {
+			pf.Run("search", func(*performs.Performs) interface{} {
+				var searchErr error
+				if dataIds, searchErr = search.CallNearUserIdList(params.UserId, params.Lat, params.Lng,
+					0, 2000, params.Params["search"]); searchErr == nil {
+					return len(dataIds)
+				} else {
+					return searchErr
+				}
+			})
+		}
 	}
 
 	// 获取用户信息
@@ -116,7 +139,8 @@ func DoBuildDataV1(ctx algo.IContext) error {
 		},
 		"profile": func(*performs.Performs) interface{} {
 			var profileCacheErr error
-			userProfile, userProfileMap, profileCacheErr = userCache.QueryNearbyProfileByUserAndUsersMap(params.UserId, dataIds)
+			profileKeyFormatter := abtest.GetString("profile_key_formatter", "nearby_user_profile:%d")
+			userProfile, userProfileMap, profileCacheErr = userCache.QueryNearbyProfileByUserAndUsersMap(params.UserId, dataIds, profileKeyFormatter)
 			if profileCacheErr != nil {
 				return profileCacheErr
 			}

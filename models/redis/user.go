@@ -18,6 +18,11 @@ type Location struct {
 	Lon float64 `json:"lon"`
 }
 
+type liveInfo struct {
+	Status     int   `json:"status"`
+	ExpireDate int64 `json:"expire_date"`
+}
+
 type UserProfile struct {
 	UserId         int64    `json:"id"`             // 用户ID
 	Location       Location `json:"location"`       //地理位置
@@ -43,27 +48,26 @@ type UserProfile struct {
 
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
+	LiveInfo     *liveInfo          `json:"live_info,omitempty"`
 }
 
-func (user *UserProfile) MaybeICPUser() bool {
+func (user *UserProfile) MaybeICPUser(lat, lng float32) bool {
 	// 特定ICP审核用户
 	if user.UserId == 104208008 {
 		return true
 	}
 
-	// 杭州经纬度的新注册用户(大于 2021-06-21 00:00:00)
+	// 杭州经纬度的新注册用户(大于 2021-03-01 00:00:00)
 	// 也可能没打开经纬度
-	// 121.135242,31.336124
-	// 122.081039,30.600137
-	if user.CreateTime.Unix() > 1624204800 {
+	if user.CreateTime.Unix() > 1614528000 {
 		//if user.CreateTime.Unix() > 1623945600 {
 		//	if user.Location.Lat >= 30.600137 && user.Location.Lat <= 31.336124 &&
 		//		user.Location.Lon >= 121.135242 && user.Location.Lon <= 122.081039 {
 		//		return true
 		//	}
 
-		if user.Location.Lat >= 30.043946 && user.Location.Lat <= 30.466238 &&
-			user.Location.Lon >= 119.892146 && user.Location.Lon <= 120.595841 {
+		if lat >= 30.043946 && lat <= 30.466238 &&
+			lng >= 119.892146 && lng <= 120.595841 {
 			return true
 		}
 
