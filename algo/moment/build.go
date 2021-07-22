@@ -22,10 +22,12 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	preforms := ctx.GetPerforms()
 	app := ctx.GetAppInfo()
+
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 	// search list
+	custom :=abtest.GetString("custom_sort_type","ai")
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
 	autoRecList := make([]int64, 0)
@@ -37,7 +39,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var liveMap = map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 
-	if abtest.GetBool("rec_liveMoments_switch", false) {
+	if abtest.GetBool("rec_liveMoments_switch", false)&&custom=="ai" {
 		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 		liveMomentIds = getMapKey(liveMap)
 	}
@@ -78,7 +80,11 @@ func DoBuildData(ctx algo.IContext) error {
 				if dataIdList == nil || len(dataIdList) == 0 {
 					recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
 					if len(recListKeyFormatter) > 5 {
-						recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
+						var userId =params.UserId
+						if custom=="hot"{
+							userId=-999999999
+						}
+						recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
 						return len(recIdList)
 					}
 				}
