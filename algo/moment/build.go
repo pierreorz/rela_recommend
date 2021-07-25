@@ -28,6 +28,7 @@ func DoBuildData(ctx algo.IContext) error {
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 	// search list
 	custom :=abtest.GetString("custom_sort_type","ai")
+	log.Warnf("custom_sort_type %s",custom)
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
 	autoRecList := make([]int64, 0)
