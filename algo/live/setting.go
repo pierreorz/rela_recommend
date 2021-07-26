@@ -15,6 +15,7 @@ var builderMap = map[string]algo.IBuilder{
 var strategyMap = map[string]algo.IStrategy{
 	"top_recommend_level": &algo.StrategyBase{DoSingle: LiveTopRecommandStrategyFunc},
 	"old_score":           &OldScoreStrategy{},
+	"algo_score":         &NewLiveStrategy{},
 }
 var richStrategyMap = map[string]algo.IRichStrategy{
 	"per_hour_top": &strategy.BaseRichStrategy{StrategyFunc: HourRankRecommendFunc, DefaultWeight: 1}, // 执行优先级在top_recommend之后，避免覆盖

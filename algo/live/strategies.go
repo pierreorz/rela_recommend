@@ -58,6 +58,33 @@ func (self *OldScoreStrategy) oldScore(live *LiveInfo) float32 {
 	return score
 }
 
+
+type  NewLiveStrategy struct{}
+
+func (self *NewLiveStrategy) Do(ctx algo.IContext) error {
+	var err error
+	new_score := ctx.GetAbTest().GetFloat("algo_score", 0.1)
+	old_score := 1 - new_score
+	for i := 0; i < ctx.GetDataLength(); i++ {
+		dataInfo := ctx.GetDataByIndex(i)
+		live := dataInfo.(*LiveInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		score := self.oldScore(live)
+		rankInfo.Score = live.RankInfo.Score*new_score + score*old_score
+	}
+	return err
+}
+func (self *NewLiveStrategy) scoreFx(score float32) float32 {
+	return (score / 200) / (1 + score/200)
+}
+func (self *NewLiveStrategy) oldScore(live *LiveInfo) float32 {
+	var score float32 = 0
+	score += self.scoreFx(live.LiveCache.Score) * 0.5
+	score += self.scoreFx(float32(live.LiveCache.FansCount)) * 0.25
+	score += self.scoreFx(float32(live.LiveCache.Live.ShareCount)) * 0.25
+	return score
+}
+
 // 对于上个小时榜前3名进行随机制前
 func HourRankRecommendFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
