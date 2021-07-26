@@ -39,7 +39,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var liveMap = map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 
-	if abtest.GetBool("rec_liveMoments_switch", false)&&custom=="ai" {
+	if abtest.GetBool("rec_liveMoments_switch", false)&&custom!="hot" {
 		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 		liveMomentIds = getMapKey(liveMap)
 	}
@@ -371,9 +371,6 @@ func DoBuildData(ctx algo.IContext) error {
 							}
 						}
 					}
-				}
-				if mom.Moments.Id==162678943256710081{
-					isTop=1
 				}
 
 				if recMap != nil {
