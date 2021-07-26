@@ -363,7 +363,7 @@ func DoBuildData(ctx algo.IContext) error {
 						liveIndex=rank
 						momUser, _ := usersMap[mom.Moments.UserId]
 						if momUser !=nil {
-							if isTopLive(ctx,momUser) {
+							if !isTopLive(ctx,momUser) {
 								isTopLiveMom=1
 								log.Warnf("top live id %s",mom.Moments.Id)
 							}else{
