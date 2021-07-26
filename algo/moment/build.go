@@ -28,7 +28,6 @@ func DoBuildData(ctx algo.IContext) error {
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 	// search list
 	custom :=abtest.GetString("custom_sort_type","ai")
-	log.Warnf("custom_sort_type %s",custom)
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
 	autoRecList := make([]int64, 0)
@@ -40,7 +39,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var liveMap = map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 
-	if abtest.GetBool("rec_liveMoments_switch", false)&&custom=="ai" {
+	if abtest.GetBool("rec_liveMoments_switch", false)&&custom!="hot" {
 		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 		liveMomentIds = getMapKey(liveMap)
 	}
@@ -365,16 +364,13 @@ func DoBuildData(ctx algo.IContext) error {
 						if momUser !=nil {
 							if isTopLive(ctx,momUser) {
 								isTopLiveMom=1
-								log.Warnf("top live id %s",mom.Moments.Id)
 							}else{
 								if isTop!=1{//非头部主播且非置顶直播日志进行过滤
+									continue
 								}
 							}
 						}
 					}
-				}
-				if mom.Moments.Id==162678943256710081{
-					isTop=1
 				}
 
 				if recMap != nil {
