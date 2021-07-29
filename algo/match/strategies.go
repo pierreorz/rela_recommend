@@ -49,7 +49,7 @@ func NewUserUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *alg
 
 	if matchUser.UserCache != nil {
 		if ctx.GetCreateTime().Sub(matchUser.UserCache.CreateTime.Time) <= time.Hour*24*7 {
-			rankInfo.AddRecommend("NewUserUpper", 1.2)
+			rankInfo.AddRecommend("NewUserUpper", 1.1)
 		}
 	}
 
