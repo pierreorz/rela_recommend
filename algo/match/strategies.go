@@ -31,9 +31,25 @@ func NotSingleDecreaseItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 	notSingleStatus := []int{2, 3, 4}
 	matchUser := iDataInfo.(*DataInfo)
 
-	for _, st := range notSingleStatus {
-		if matchUser.UserCache.Affection == st {
-			rankInfo.AddRecommendNeedReturn("NotSingleDecrease", 0.5)
+	if matchUser.UserCache != nil {
+		for _, st := range notSingleStatus {
+			if matchUser.UserCache.Affection == st {
+				rankInfo.AddRecommendNeedReturn("NotSingleDecrease", 0.5)
+			}
+		}
+	}
+
+	return nil
+}
+
+// 参考数据分析：https://das.base.shuju.aliyun.com/product/view.htm?productId=2242a5a3afe249feb0ecebb8b71f8fc7&menuId=tsh720r7at8
+// 新注册用户营收转化率远远高于总体用户
+func NewUserUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	matchUser := iDataInfo.(*DataInfo)
+
+	if matchUser.UserCache != nil {
+		if ctx.GetCreateTime().Sub(matchUser.UserCache.CreateTime.Time) <= time.Hour*24*7 {
+			rankInfo.AddRecommend("NewUserUpper", 1.2)
 		}
 	}
 
