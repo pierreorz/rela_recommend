@@ -30,16 +30,17 @@ type rdbConfig struct {
 }
 
 type rdsConfig struct {
-	RedisAddr     string `toml:"redis_addr"`
-	RedisLiveAddr string `toml:"redis_live_addr"`
-	ClusterAddr   string `toml:"redis_cluster_addr"`
-	LedisAddr     string `toml:"ledis_addr"`
-	PikaAddr      string `toml:"pika_addr"`
-	LedisViewAddr string `toml:"ledis_view_addr"`
-	LedisDataAddr string `toml:"ledis_data_addr"`
-	RedisComAddr  string `toml:"redis_com_addr"`
-	RedisPushAddr string `toml:"redis_push_addr"`
-	BehaviorAddr  string `toml:"behavior_addr"`
+	RedisAddr          string `toml:"redis_addr"`
+	RedisLiveAddr      string `toml:"redis_live_addr"`
+	ClusterAddr        string `toml:"redis_cluster_addr"`
+	LedisAddr          string `toml:"ledis_addr"`
+	PikaAddr           string `toml:"pika_addr"`
+	LedisViewAddr      string `toml:"ledis_view_addr"`
+	LedisDataAddr      string `toml:"ledis_data_addr"`
+	RedisComAddr       string `toml:"redis_com_addr"`
+	RedisPushAddr      string `toml:"redis_push_addr"`
+	BehaviorAddr       string `toml:"behavior_addr"`
+	BehaviorBackupAddr string `toml:"behavior_backup_addr"`
 }
 
 type cassandraConfig struct {

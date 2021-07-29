@@ -25,7 +25,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 
 	replyIdList := []int64{}                // 话题参与 ids
 	themeIdList := []int64{}                // 主话题Ids
@@ -37,7 +37,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	canExposeUserMap := make(map[int64]float64)
 	canExposeEvent := abtest.GetBool("expose_event", false)
 	canExposeUser := abtest.GetStrings("can_event_user", "106806610,104208008,108900360")
-	custom := abtest.GetString("custom_sort_type","ai")
+	custom := abtest.GetString("custom_sort_type", "ai")
 	preforms.RunsGo("recommend", map[string]func(*performs.Performs) interface{}{
 		"list": func(*performs.Performs) interface{} { // 获取推荐列表
 			recListKeyFormatter := abtest.GetString("recommend_list_key", "theme_reply_recommend_list:%d")
@@ -70,7 +70,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 					return len(recommendList)
 				}
-			} else if custom=="hot"{//热门话题
+			} else if custom == "hot" { //热门话题
 				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(-999999997, -999999997, recListKeyFormatter)
 				if listErr == nil {
 					for _, recommend := range recommendList {
@@ -80,7 +80,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 					return len(recommendList)
 				}
-			} else if custom=="ai"{ //默认推荐数据
+			} else if custom == "ai" { //默认推荐数据
 				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(params.UserId, -999999999, recListKeyFormatter)
 				if listErr == nil {
 					for _, recommend := range recommendList {
@@ -90,7 +90,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 					return len(recommendList)
 				}
-			}else{
+			} else {
 				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(params.UserId, -999999999, recListKeyFormatter)
 				if listErr == nil {
 					for _, recommend := range recommendList {
@@ -105,7 +105,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		}, "new": func(*performs.Performs) interface{} {
 			newThemeLen := abtest.GetInt("search_theme_line", 100)
 			recommended := abtest.GetBool("realtime_mom_switch", false) // 是否过滤推荐审核
-			if custom!="hot" && newThemeLen > 0 {
+			if custom != "hot" && newThemeLen > 0 {
 				momentTypes := abtest.GetString("new_moment_types", "theme")
 				newThemeIdList, err = search.CallNewThemeuserId(params.UserId, int64(newThemeLen), momentTypes, recommended)
 				themeIdList = append(themeIdList, newThemeIdList...)
