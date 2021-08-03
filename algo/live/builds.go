@@ -35,6 +35,7 @@ func DoBuildData(ctx algo.IContext) error {
 		for i, _ := range lives {
 			liveIds = append(liveIds, lives[i].Live.UserId)
 			id,err :=strconv.ParseInt("88888"+lives[i].Live.UserIdStr,10,64)
+			log.Warnf("live ids %s",id)
 			if err!=nil{
 				liveQueryIds=append(liveQueryIds,id)
 			}
