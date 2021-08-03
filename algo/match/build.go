@@ -25,7 +25,7 @@ func DoBuildData(ctx algo.IContext) error {
 		var userCacheErr error
 		if user, userCacheErr = userCache.QueryUserById(params.UserId); userCacheErr == nil {
 			if params.Lat == 0 || params.Lng == 0 {
-				if userCacheErr == nil && user != nil {
+				if user != nil {
 					params.Lat = float32(user.Location.Lat)
 					params.Lng = float32(user.Location.Lon)
 				}
@@ -36,11 +36,12 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 
 	var recMap = utils.SetInt64{}
+	userSearchMap := make(map[int64]*search.MatchResDataItem, 0)
 	pfms.RunsGo("ids", map[string]func(*performs.Performs) interface{}{
 		"search": func(*performs.Performs) interface{} {
 			var searchErr error
 			if abtest.GetBool("used_ai_search", false) {
-				if dataIds, searchErr = search.CallMatchList(ctx, params.UserId, params.Lat, params.Lng, dataIds, user); searchErr == nil {
+				if dataIds, userSearchMap, searchErr = search.CallMatchList(ctx, params.UserId, params.Lat, params.Lng, dataIds, user); searchErr == nil {
 					return len(dataIds)
 				}
 			}
@@ -103,6 +104,7 @@ func DoBuildData(ctx algo.IContext) error {
 				UserCache:    data,
 				MatchProfile: matchUserMap[dataId],
 				RankInfo:     &algo.RankInfo{Recommends: recommends},
+				SearchFields: userSearchMap[dataId],
 			}
 			dataList = append(dataList, info)
 		}

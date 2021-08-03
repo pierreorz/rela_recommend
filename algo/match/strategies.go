@@ -98,6 +98,15 @@ func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *a
 	return nil
 }
 
+// 对有头像的用户进行提权
+func ImageFaceUpperItemV2(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	matchUser := iDataInfo.(*DataInfo)
+	if (matchUser.SearchFields != nil) && (matchUser.SearchFields.CoverHasFace) {
+		upperRate := ctx.GetAbTest().GetFloat("match_face_upper", 0)
+		rankInfo.AddRecommend("ImageFaceUpperV2", upperRate)
+	}
+}
+
 type DoMatchSeenSearchLogger struct{}
 
 // 已读接口调用
