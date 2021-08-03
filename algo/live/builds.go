@@ -10,7 +10,6 @@ import (
 	"rela_recommend/utils"
 	"rela_recommend/models/behavior"
 	"strconv"
-	"rela_recommend/log"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -68,8 +67,6 @@ func DoBuildData(ctx algo.IContext) error {
 		"realtime_useritem": func(*performs.Performs) interface{} {
 			var userBehaviorErr error
 			userBehaviorMap, userBehaviorErr = behaviorCache.QueryUserItemBehaviorMap("live", params.UserId, liveQueryIds)
-			log.Warnf("user live ids%s",liveQueryIds)
-			log.Warnf("userlive behavior%s",userBehaviorMap)
 			if userBehaviorErr != nil {
 				return userBehaviorErr
 			}
