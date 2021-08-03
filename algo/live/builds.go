@@ -34,10 +34,8 @@ func DoBuildData(ctx algo.IContext) error {
 
 		for i, _ := range lives {
 			liveIds = append(liveIds, lives[i].Live.UserId)
-			id,err :=strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId,10),10,64)
-			if err==nil{
-				liveQueryIds=append(liveQueryIds,id)
-			}
+			id,_ :=strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId,10),10,64)
+			liveQueryIds=append(liveQueryIds,id)
 		}
 		return len(lives)
 	})
