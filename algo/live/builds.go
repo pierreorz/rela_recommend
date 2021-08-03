@@ -34,8 +34,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 		for i, _ := range lives {
 			liveIds = append(liveIds, lives[i].Live.UserId)
-			id,err :=strconv.ParseInt("88888"+lives[i].Live.UserIdStr,10,64)
-			log.Warnf("live ids %s",id)
+			id,err :=strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId,10),10,64)
 			if err!=nil{
 				liveQueryIds=append(liveQueryIds,id)
 			}
@@ -100,7 +99,7 @@ func DoBuildData(ctx algo.IContext) error {
 		livesInfo := make([]algo.IDataInfo, 0)
 		for i, _ := range lives {
 			liveId := lives[i].Live.UserId
-			id,_ := strconv.ParseInt("88888"+lives[i].Live.UserIdStr,10,64)
+			id,_ := strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId,10),10,64)
 			liveInfo := LiveInfo{
 				UserId:      liveId,
 				LiveCache:   &lives[i],
