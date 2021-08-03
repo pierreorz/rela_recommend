@@ -31,7 +31,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"image_upper": &strategy.BaseRichStrategy{
 		StrategyItemFunc: ImageFaceUpperItem},
 	"image_upper_v2": &strategy.BaseRichStrategy{
-		StrategyItemFunc: ImageFaceUpperItemV2, DefaultWeight: 2},
+		StrategyItemFunc: ImageFaceUpperItemV2},
 	"not_single_decrease": &strategy.BaseRichStrategy{
 		StrategyItemFunc: NotSingleDecreaseItem},
 	"new_user_upper": &strategy.BaseRichStrategy{

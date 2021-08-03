@@ -105,6 +105,7 @@ func ImageFaceUpperItemV2(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 		upperRate := ctx.GetAbTest().GetFloat("match_face_upper", 0)
 		rankInfo.AddRecommend("ImageFaceUpperV2", upperRate)
 	}
+	return nil
 }
 
 type DoMatchSeenSearchLogger struct{}
