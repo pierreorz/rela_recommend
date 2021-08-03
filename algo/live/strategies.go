@@ -106,3 +106,25 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 	}
 	return nil
 }
+
+// 曝光未点击的直播降权 曝光两次未点击降权70%，曝光三次未点击降权50%，曝光四次未点击降权权30%，曝光五次以上未点击降权10%
+func UserBehaviorExposureDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*LiveInfo)
+
+	if userBehavior := dataInfo.UserItemBehavior; userBehavior != nil {
+		exposure := userBehavior.GetLiveExposure()
+		if exposure.Count>0 {
+			if exposure.Count==2{
+				rankInfo.AddRecommend("exposureDown",0.7)
+			}else if exposure.Count==3{
+				rankInfo.AddRecommend("exposureDown",0.5)
+			}else if exposure.Count==4{
+				rankInfo.AddRecommend("exposureDown",0.3)
+			}else if  exposure.Count>4{
+				rankInfo.AddRecommend("exposureDown",0.1)
+			}
+		}
+	}
+	return nil
+}
+

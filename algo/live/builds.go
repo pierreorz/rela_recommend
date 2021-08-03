@@ -8,6 +8,8 @@ import (
 	"rela_recommend/rpc/api"
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
+	"rela_recommend/models/behavior"
+	"strconv"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -18,9 +20,12 @@ func DoBuildData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, &factory.CacheRds)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
+
 
 	var lives []pika.LiveCache
 	var liveIds = []int64{}
+	var liveQueryIds = []int64{}
 	pfms.Run("live", func(*performs.Performs) interface{} { // 获取主播列表
 		liveType := utils.GetInt(params.Params["type"])
 		classify := utils.GetInt(params.Params["classify"])
@@ -28,6 +33,8 @@ func DoBuildData(ctx algo.IContext) error {
 
 		for i, _ := range lives {
 			liveIds = append(liveIds, lives[i].Live.UserId)
+			id,_ :=strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId,10),10,64)
+			liveQueryIds=append(liveQueryIds,id)
 		}
 		return len(lives)
 	})
@@ -38,6 +45,8 @@ func DoBuildData(ctx algo.IContext) error {
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
+	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
+
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} { // 获取基础用户画像
 			var userErr error
@@ -54,6 +63,14 @@ func DoBuildData(ctx algo.IContext) error {
 				return len(usersMap2)
 			}
 			return userProfileErr
+		},
+		"realtime_useritem": func(*performs.Performs) interface{} {
+			var userBehaviorErr error
+			userBehaviorMap, userBehaviorErr = behaviorCache.QueryUserItemBehaviorMap("live", params.UserId, liveQueryIds)
+			if userBehaviorErr != nil {
+				return userBehaviorErr
+			}
+			return len(userBehaviorMap)
 		},
 		"concerns": func(*performs.Performs) interface{} { // 获取关注信息
 			if concerns, conErr := redisTheCache.QueryConcernsByUser(params.UserId); conErr == nil {
@@ -77,10 +94,12 @@ func DoBuildData(ctx algo.IContext) error {
 		livesInfo := make([]algo.IDataInfo, 0)
 		for i, _ := range lives {
 			liveId := lives[i].Live.UserId
+			id,_ := strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId,10),10,64)
 			liveInfo := LiveInfo{
 				UserId:      liveId,
 				LiveCache:   &lives[i],
 				UserCache:   usersMap[liveId],
+				UserItemBehavior: userBehaviorMap[id],
 				LiveProfile: usersMap2[liveId],
 				LiveData: &LiveData{
 					PreHourIndex: hourRankMap[liveId].Index,

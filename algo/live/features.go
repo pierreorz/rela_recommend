@@ -45,6 +45,10 @@ func GetLiveFeaturesV2(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 	// 	fs.AddArray(600, 30, liveInfo.LiveProfile.LiveViewLiveEmbedding)
 	// }
 
+
+	//live的实时特征
+
+
 	// 离散特征与交叉特征  10000 - 15000
 	fs.AddCategory(10000, 24, 0, ctx.GetCreateTime().Hour(), 0)        // 时间
 	fs.AddCategory(10024, 7, 0, int(ctx.GetCreateTime().Weekday()), 0) // 周几

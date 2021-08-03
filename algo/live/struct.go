@@ -35,7 +35,9 @@ type LiveInfo struct {
 	LiveData    *LiveData
 	RankInfo    *algo.RankInfo
 	Features    *utils.Features
+	UserItemBehavior *behavior.UserBehavior
 }
+
 
 func (self *LiveInfo) GetDataId() int64 {
 	return self.UserId

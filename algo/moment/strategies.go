@@ -417,7 +417,9 @@ func NeverSeeStrategyFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < exposureNum {
-			rankInfo.AddRecommend("NeverSeeWeight", 1+weight)
+			if dataInfo.MomentCache != nil && int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) < 13 {
+				rankInfo.AddRecommend("NeverSeeWeight", 1+weight)
+			}
 		}
 	}
 	return nil
