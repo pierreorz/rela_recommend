@@ -20,7 +20,7 @@ func DoBuildData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, &factory.CacheRds)
-	behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 
 
 	var lives []pika.LiveCache
