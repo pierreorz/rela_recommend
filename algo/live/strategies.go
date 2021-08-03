@@ -113,16 +113,15 @@ func UserBehaviorExposureDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInf
 
 	if userBehavior := dataInfo.UserItemBehavior; userBehavior != nil {
 		exposure := userBehavior.GetLiveExposure()
-		click :=userBehavior.GetLiveClick()
-		if click.Count <= 0&&exposure.Count>0 {
+		if exposure.Count>0 {
 			if exposure.Count==2{
-				rankInfo.AddRecommend("exposureDonw",0.7)
+				rankInfo.AddRecommend("exposureDown",0.7)
 			}else if exposure.Count==3{
-				rankInfo.AddRecommend("exposureDonw",0.5)
+				rankInfo.AddRecommend("exposureDown",0.5)
 			}else if exposure.Count==4{
-				rankInfo.AddRecommend("exposureDonw",0.3)
+				rankInfo.AddRecommend("exposureDown",0.3)
 			}else if  exposure.Count>4{
-				rankInfo.AddRecommend("exposureDonw",0.1)
+				rankInfo.AddRecommend("exposureDown",0.1)
 			}
 		}
 	}
