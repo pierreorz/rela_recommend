@@ -4,6 +4,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
+	"rela_recommend/rpc/search"
 )
 
 type UserInfo struct {
@@ -21,6 +22,7 @@ type DataInfo struct {
 	UserCache    *redis.UserProfile
 	MatchProfile *redis.MatchProfile
 	RankInfo     *algo.RankInfo
+	SearchFields *search.MatchResDataItem
 }
 
 func (self *DataInfo) GetDataId() int64 {

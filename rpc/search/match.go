@@ -14,27 +14,29 @@ import (
 // 搜索接口
 const internalSearchMatchListUrl = "/search/quick_match"
 
-type SearchMatchResDataItem struct {
-	Id int64 `json:"id"`
+type MatchResDataItem struct {
+	Id           int64 `json:"id"`
+	CoverHasFace bool  `json:"cover_has_face"`
 }
 
 type matchListResIds struct {
-	Data      []SearchMatchResDataItem `json:"result_data"`
-	TotalSize int64                    `json:"total_size"`
-	AggsData  map[string]interface{}   `json:"-"`
-	Result    string                   `json:"result"`
-	ErrCode   string                   `json:"errcode"`
-	ErrDesc   string                   `json:"errdesc"`
-	ErrDescEn string                   `json:"errdesc_en"`
-	ReqeustID string                   `json:"request_id"`
+	Data      []MatchResDataItem     `json:"result_data"`
+	TotalSize int64                  `json:"total_size"`
+	AggsData  map[string]interface{} `json:"-"`
+	Result    string                 `json:"result"`
+	ErrCode   string                 `json:"errcode"`
+	ErrDesc   string                 `json:"errdesc"`
+	ErrDescEn string                 `json:"errdesc_en"`
+	ReqeustID string                 `json:"request_id"`
 }
 
 type searchMatchRequest struct {
-	UserID    int64   `json:"userId" form:"userId"`
-	Lng       float32 `json:"lng" form:"lng" `
-	Lat       float32 `json:"lat" form:"lat" `
-	PinnedIds string  `json:"pinned_ids" form:"pinned_ids" `
-	Filter    string  `json:"filter" form:"filter" `
+	UserID       int64   `json:"userId" form:"userId"`
+	Lng          float32 `json:"lng" form:"lng" `
+	Lat          float32 `json:"lat" form:"lat" `
+	PinnedIds    string  `json:"pinned_ids" form:"pinned_ids" `
+	Filter       string  `json:"filter" form:"filter" `
+	ReturnFields string  `json:"return_fields" form:"return_fields"`
 }
 
 // 已读接口
@@ -58,9 +60,10 @@ type searchMatchSeenRequest struct {
 
 // 获取用户列表, 过滤条件：
 // role_name = "1,2,3"
-func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []int64, user *redis.UserProfile) ([]int64, error) {
+func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []int64, user *redis.UserProfile) ([]int64, map[int64]*MatchResDataItem, error) {
 	abtest := ctx.GetAbTest()
-	idlist := make([]int64, 0)
+	idList := make([]int64, 0)
+	userSearchMap := make(map[int64]*MatchResDataItem, 0)
 
 	strIds := make([]string, len(userIds))
 	for k, v := range userIds {
@@ -81,25 +84,27 @@ func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []
 	}
 
 	params := searchMatchRequest{
-		UserID:    userId,
-		Lng:       lng,
-		Lat:       lat,
-		PinnedIds: strsIds,
-		Filter:    strings.Join(filters, "*"),
+		UserID:       userId,
+		Lng:          lng,
+		Lat:          lat,
+		PinnedIds:    strsIds,
+		Filter:       strings.Join(filters, "*"),
+		ReturnFields: "id,cover_has_face",
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		res := &matchListResIds{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchMatchListUrl, paramsData, res); err == nil {
 			for _, element := range res.Data {
-				idlist = append(idlist, element.Id)
+				idList = append(idList, element.Id)
+				userSearchMap[element.Id] = &element
 			}
 			log.Infof("get paramsData:%s", string(paramsData))
-			return idlist, err
+			return idList, userSearchMap, err
 		} else {
-			return idlist, err
+			return idList, userSearchMap, err
 		}
 	} else {
-		return idlist, err
+		return idList, userSearchMap, err
 	}
 
 }
