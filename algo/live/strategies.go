@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/algo/utils"
 )
 
 // 处理业务给出的置顶和推荐内容
@@ -58,6 +59,36 @@ func (self *OldScoreStrategy) oldScore(live *LiveInfo) float32 {
 	return score
 }
 
+
+
+// 融合老策略的分数
+type NewScoreStrategyV2 struct{}
+
+func (self *NewScoreStrategyV2) Do(ctx algo.IContext) error {
+	var err error
+	new_score := ctx.GetAbTest().GetFloat("algo_ratio", 0.5)
+	old_score := 1 - new_score
+	for i := 0; i < ctx.GetDataLength(); i++ {
+		dataInfo := ctx.GetDataByIndex(i)
+		live := dataInfo.(*LiveInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		score := self.oldScore(live)
+		rankInfo.Score = live.RankInfo.Score*new_score + score*old_score
+	}
+	return err
+}
+func (self *NewScoreStrategyV2) scoreFx(score float32) float32 {
+	return utils.Expit(score/600)
+}
+func (self *NewScoreStrategyV2) oldScore(live *LiveInfo) float32 {
+	var score float32 = 0
+	score += self.scoreFx(live.LiveCache.DayIncoming) * 0.25//日收入
+	score += self.scoreFx(live.LiveCache.MonthIncoming) * 0.05//月收入
+	score += self.scoreFx(live.LiveCache.Score) * 0.5//当前观看人数
+	score += self.scoreFx(float32(live.LiveCache.FansCount)) * 0.10//粉丝数
+	score += self.scoreFx(float32(live.LiveCache.Live.ShareCount)) * 0.10//分享数
+	return score
+}
 
 type  NewLiveStrategy struct{}
 
