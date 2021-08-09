@@ -491,12 +491,14 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error{
 	abtest :=ctx.GetAbTest()
 	adInfo :=abtest.GetInt64("ad_moment_id",0)
 	adLocation :=abtest.GetInt("ad_location",1)
+	start :=abtest.GetInt64("ad_starttime",1628492400)//活动开始时间
+	end :=abtest.GetInt64("ad_endtime",1628956800)//活动结束时间
 	if adInfo!=0{
 		for index :=0;index <ctx.GetDataLength();index++{
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.MomentCache!=nil&&dataInfo.MomentCache.Id==adInfo{
-				if ctx.GetCreateTime().Unix()>=1628492400&&ctx.GetCreateTime().Unix()<=1628956800{
+				if ctx.GetCreateTime().Unix()>=start&&ctx.GetCreateTime().Unix()<=end{
 					if rankInfo.IsTop!=1{
 						rankInfo.HopeIndex=adLocation
 					}
