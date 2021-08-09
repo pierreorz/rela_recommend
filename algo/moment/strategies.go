@@ -495,7 +495,7 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error{
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.MomentCache!=nil&&dataInfo.MomentCache.Id==adInfo{
-				if ctx.GetCreateTime().Unix()>=1628697600&&ctx.GetCreateTime().Unix()<=1628956800{
+				if ctx.GetCreateTime().Unix()>=1628492400&&ctx.GetCreateTime().Unix()<=1628956800{
 					if rankInfo.IsTop!=1{
 						rankInfo.HopeIndex=1
 					}
