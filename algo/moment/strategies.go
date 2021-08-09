@@ -490,6 +490,7 @@ func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error {
 func adHopeIndexStrategyFunc(ctx algo.IContext) error{
 	abtest :=ctx.GetAbTest()
 	adInfo :=abtest.GetInt64("ad_moment_id",0)
+	adLocation :=abtest.GetInt("ad_location",1)
 	if adInfo!=0{
 		for index :=0;index <ctx.GetDataLength();index++{
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -497,7 +498,7 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error{
 			if dataInfo.MomentCache!=nil&&dataInfo.MomentCache.Id==adInfo{
 				if ctx.GetCreateTime().Unix()>=1628492400&&ctx.GetCreateTime().Unix()<=1628956800{
 					if rankInfo.IsTop!=1{
-						rankInfo.HopeIndex=1
+						rankInfo.HopeIndex=adLocation
 					}
 				}
 			}

@@ -34,6 +34,7 @@ func DoBuildData(ctx algo.IContext) error {
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
 	tagRecommendIdList := make([]int64, 0)
+	adList :=make([]int64,0)
 	liveMomentIds := make([]int64, 0)
 	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
 	var liveMap = map[int64]int{}
@@ -44,6 +45,11 @@ func DoBuildData(ctx algo.IContext) error {
 		liveMomentIds = getMapKey(liveMap)
 	}
 
+	adInfo :=abtest.GetInt64("ad_moment_id",0)
+
+	if adInfo!=0{//广告类型日志
+		adList=append(adList,adInfo)
+	}
 	//icp白名单及新注册用户
 	var userTest *redis.UserProfile
 	var userTestErr error
