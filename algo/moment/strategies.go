@@ -500,7 +500,6 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error{
 						rankInfo.HopeIndex=1
 					}
 				}
-
 			}
 		}
 	}
@@ -520,6 +519,9 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 			startIndex=2
 			break
 		}
+	}
+	if abtest.GetInt("rich_strategy:ad_hope_index:weight",0)==1&&ctx.GetCreateTime().Unix()>=1628492400&&ctx.GetCreateTime().Unix()<=1628956800{
+		startIndex=4
 	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
