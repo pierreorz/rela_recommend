@@ -361,6 +361,9 @@ func DoBuildData(ctx algo.IContext) error {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 					}
 				}
+				if mom.Moments.Id==162847362641210002{
+					isTop=1
+				}
 				var liveIndex = 0
 				var isTopLiveMom = -1
 				if liveMap != nil {
