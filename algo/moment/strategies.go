@@ -486,6 +486,29 @@ func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
+
+func adHopeIndexStrategyFunc(ctx algo.IContext) error{
+	abtest :=ctx.GetAbTest()
+	adInfo :=abtest.GetInt64("ad_moment_id",0)
+	adLocation :=abtest.GetInt("ad_location",1)
+	start :=abtest.GetInt64("ad_starttime",1628492400)//活动开始时间
+	end :=abtest.GetInt64("ad_endtime",1628956800)//活动结束时间
+	if adInfo!=0{
+		for index :=0;index <ctx.GetDataLength();index++{
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if dataInfo.MomentCache!=nil&&dataInfo.MomentCache.Id==adInfo{
+				if ctx.GetCreateTime().Unix()>=start&&ctx.GetCreateTime().Unix()<=end{
+					if rankInfo.IsTop!=1{
+						rankInfo.HopeIndex=adLocation
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
 //头部主播上线即指定位置曝光推荐页
 func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
@@ -499,6 +522,11 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 			startIndex=2
 			break
 		}
+	}
+	start :=abtest.GetInt64("ad_starttime",1628492400)//活动开始时间
+	end :=abtest.GetInt64("ad_endtime",1628956800)//活动结束时间
+	if abtest.GetInt("rich_strategy:ad_hope_index:weight",0)==1&&ctx.GetCreateTime().Unix()>=start&&ctx.GetCreateTime().Unix()<=end{
+		startIndex=4
 	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)

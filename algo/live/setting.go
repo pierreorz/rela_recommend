@@ -15,6 +15,7 @@ var builderMap = map[string]algo.IBuilder{
 var strategyMap = map[string]algo.IStrategy{
 	"top_recommend_level": &algo.StrategyBase{DoSingle: LiveTopRecommandStrategyFunc},
 	"old_score":           &OldScoreStrategy{},
+	"algo_v2":                &NewScoreStrategyV2{},
 	"algo_score":         &NewLiveStrategy{},
 }
 var richStrategyMap = map[string]algo.IRichStrategy{
