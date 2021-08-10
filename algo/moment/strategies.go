@@ -523,7 +523,9 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 			break
 		}
 	}
-	if abtest.GetInt("rich_strategy:ad_hope_index:weight",0)==1&&ctx.GetCreateTime().Unix()>=1628492400&&ctx.GetCreateTime().Unix()<=1628956800{
+	start :=abtest.GetInt64("ad_starttime",1628492400)//活动开始时间
+	end :=abtest.GetInt64("ad_endtime",1628956800)//活动结束时间
+	if abtest.GetInt("rich_strategy:ad_hope_index:weight",0)==1&&ctx.GetCreateTime().Unix()>=start&&ctx.GetCreateTime().Unix()<=end{
 		startIndex=4
 	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
