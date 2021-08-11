@@ -97,7 +97,6 @@ func SimpleUpperItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *
 // 对有头像的用户进行提权
 func CoverFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	matchUser := iDataInfo.(*DataInfo)
-	log.Infof("search fields %+v", matchUser.SearchFields)
 	if (matchUser.SearchFields != nil) && (matchUser.SearchFields.CoverHasFace) {
 		upperRate := ctx.GetAbTest().GetFloat("cover_face_upper", 0)
 		rankInfo.AddRecommend("CoverFaceUpper", 1+upperRate)
