@@ -165,9 +165,6 @@ func DoBuildDataV1(ctx algo.IContext) error {
 		},
 	})
 
-	log.Infof("dataIds: %+v", dataIds)
-	log.Infof("searchMap: %+v", userSearchMap)
-	log.Infof("userMap: %+v", usersMap)
 	// 组装用户信息
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
@@ -178,7 +175,6 @@ func DoBuildDataV1(ctx algo.IContext) error {
 		// 组装被曝光者信息
 		dataList := make([]algo.IDataInfo, 0)
 		for dataId, data := range usersMap {
-			log.Infof("search fields %d, %+v, %v", dataId, userSearchMap[dataId], userProfileMap[dataId])
 			info := &DataInfo{
 				DataId:       dataId,
 				UserCache:    data,

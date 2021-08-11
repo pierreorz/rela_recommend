@@ -107,9 +107,7 @@ func CallNearUserList(userId int64, lat, lng float32, offset, limit int64, filte
 				innerElement := element // 闭包
 				idList = append(idList, innerElement.Id)
 				userSearchMap[element.Id] = &innerElement
-				log.Infof("search element: %d, %+v, %s, %s", element.Id, element, &element, userSearchMap[element.Id])
 			}
-			log.Infof("element result %+v", userSearchMap)
 			return idList, userSearchMap, err
 		} else {
 			return idList, userSearchMap, err

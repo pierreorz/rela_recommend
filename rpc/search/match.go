@@ -79,8 +79,9 @@ func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []
 		res := &userListRes{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchMatchListUrl, paramsData, res); err == nil {
 			for _, element := range res.Data {
-				idList = append(idList, element.Id)
-				userSearchMap[element.Id] = &element
+				newElement := element // 闭包
+				idList = append(idList, newElement.Id)
+				userSearchMap[newElement.Id] = &newElement
 			}
 			log.Infof("get paramsData:%s", string(paramsData))
 			return idList, userSearchMap, err
