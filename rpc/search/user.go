@@ -106,6 +106,7 @@ func CallNearUserList(userId int64, lat, lng float32, offset, limit int64, filte
 			for _, element := range res.Data {
 				idList = append(idList, element.Id)
 				userSearchMap[element.Id] = &element
+				log.Infof("search return %d, %+v", element.Id, element)
 			}
 			return idList, userSearchMap, err
 		} else {
