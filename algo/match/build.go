@@ -36,7 +36,7 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 
 	var recMap = utils.SetInt64{}
-	userSearchMap := make(map[int64]*search.MatchResDataItem, 0)
+	userSearchMap := make(map[int64]*search.UserResDataItem, 0)
 	pfms.RunsGo("ids", map[string]func(*performs.Performs) interface{}{
 		"search": func(*performs.Performs) interface{} {
 			var searchErr error

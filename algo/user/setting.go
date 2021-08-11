@@ -34,6 +34,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"clicked_down":      &strategy.BaseRichStrategy{StrategyItemFunc: UserBehaviorClickedDownItemFunc},
 	"simple_upper":      &strategy.BaseRichStrategy{StrategyItemFunc: SimpleUpperItemFunc, DefaultWeight: 2},
 	"exposure_increase": &strategy.BaseRichStrategy{StrategyFunc: strategy.ExposureIncreaseFunc, DefaultWeight: 3},
+	"cover_face":        &strategy.BaseRichStrategy{StrategyItemFunc: CoverFaceUpperItem},
 }
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{

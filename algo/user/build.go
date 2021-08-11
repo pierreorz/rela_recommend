@@ -92,13 +92,14 @@ func DoBuildDataV1(ctx algo.IContext) error {
 
 	// 确定候选用户
 	dataIds := params.DataIds
+	userSearchMap := make(map[int64]*search.UserResDataItem, 0)
 	if dataIds == nil || len(dataIds) == 0 {
 		if abtest.GetBool("icp_switch", false) &&
 			(abtest.GetBool("is_icp_user", false) || userCurrent.MaybeICPUser(params.Lat, params.Lng)) {
 
 			pf.Run("get_fix_icp", func(*performs.Performs) interface{} {
 				var searchErr error
-				if dataIds, searchErr = search.CallNearUserICPIdList(params.UserId, params.Lat, params.Lng,
+				if dataIds, userSearchMap, searchErr = search.CallNearUserICPIdList(params.UserId, params.Lat, params.Lng,
 					0, 2000, params.Params["search"]); searchErr == nil {
 					return len(dataIds)
 				} else {
@@ -108,7 +109,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 		} else {
 			pf.Run("search", func(*performs.Performs) interface{} {
 				var searchErr error
-				if dataIds, searchErr = search.CallNearUserIdList(params.UserId, params.Lat, params.Lng,
+				if dataIds, userSearchMap, searchErr = search.CallNearUserIdList(params.UserId, params.Lat, params.Lng,
 					0, 2000, params.Params["search"]); searchErr == nil {
 					return len(dataIds)
 				} else {
@@ -175,11 +176,12 @@ func DoBuildDataV1(ctx algo.IContext) error {
 		dataList := make([]algo.IDataInfo, 0)
 		for dataId, data := range usersMap {
 			info := &DataInfo{
-				DataId:      dataId,
-				UserCache:   data,
-				UserProfile: userProfileMap[dataId],
-				LiveInfo:    liveMap[dataId],
-				RankInfo:    &algo.RankInfo{},
+				DataId:       dataId,
+				UserCache:    data,
+				UserProfile:  userProfileMap[dataId],
+				LiveInfo:     liveMap[dataId],
+				RankInfo:     &algo.RankInfo{},
+				SearchFields: userSearchMap[dataId],
 
 				UserBehavior: userBehaviorMap[dataId],
 				ItemBehavior: itemBehaviorMap[dataId],
