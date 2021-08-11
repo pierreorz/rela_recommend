@@ -104,8 +104,9 @@ func CallNearUserList(userId int64, lat, lng float32, offset, limit int64, filte
 		res := &userListRes{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchNearUserListUrlV1, paramsData, res); err == nil {
 			for _, element := range res.Data {
-				idList = append(idList, element.Id)
-				userSearchMap[element.Id] = &element
+				innerElement := element // 闭包
+				idList = append(idList, innerElement.Id)
+				userSearchMap[element.Id] = &innerElement
 				log.Infof("search element: %d, %+v, %s, %s", element.Id, element, &element, userSearchMap[element.Id])
 			}
 			log.Infof("element result %+v", userSearchMap)
