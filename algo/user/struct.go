@@ -2,6 +2,8 @@ package user
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/rpc/search"
+
 	// rutils "rela_recommend/utils"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
@@ -22,11 +24,12 @@ func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
 
 // 被推荐用户信息
 type DataInfo struct {
-	DataId      int64
-	UserCache   *redis.UserProfile
-	UserProfile *redis.NearbyProfile
-	LiveInfo    *pika.LiveCache
-	RankInfo    *algo.RankInfo
+	DataId       int64
+	UserCache    *redis.UserProfile
+	UserProfile  *redis.NearbyProfile
+	LiveInfo     *pika.LiveCache
+	RankInfo     *algo.RankInfo
+	SearchFields *search.UserResDataItem
 
 	UserBehavior *behavior.UserBehavior
 	ItemBehavior *behavior.UserBehavior

@@ -10,6 +10,22 @@ type SearchResDataItem struct {
 	Id int64 `json:"id"`
 }
 
+type UserResDataItem struct {
+	Id           int64 `json:"id"`
+	CoverHasFace bool  `json:"cover_has_face"`
+}
+
+type userListRes struct {
+	Data      []UserResDataItem      `json:"result_data"`
+	TotalSize int64                  `json:"total_size"`
+	AggsData  map[string]interface{} `json:"-"`
+	Result    string                 `json:"result"`
+	ErrCode   string                 `json:"errcode"`
+	ErrDesc   string                 `json:"errdesc"`
+	ErrDescEn string                 `json:"errdesc_en"`
+	ReqeustID string                 `json:"request_id"`
+}
+
 type searchBaseResponse struct {
 	Data      []SearchResDataItem `json:"result_data"`
 	TotalSize int                 `json:"total_size"`

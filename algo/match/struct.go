@@ -22,7 +22,7 @@ type DataInfo struct {
 	UserCache    *redis.UserProfile
 	MatchProfile *redis.MatchProfile
 	RankInfo     *algo.RankInfo
-	SearchFields *search.MatchResDataItem
+	SearchFields *search.UserResDataItem
 }
 
 func (self *DataInfo) GetDataId() int64 {

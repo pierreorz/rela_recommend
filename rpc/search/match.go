@@ -14,22 +14,6 @@ import (
 // 搜索接口
 const internalSearchMatchListUrl = "/search/quick_match"
 
-type MatchResDataItem struct {
-	Id           int64 `json:"id"`
-	CoverHasFace bool  `json:"cover_has_face"`
-}
-
-type matchListResIds struct {
-	Data      []MatchResDataItem     `json:"result_data"`
-	TotalSize int64                  `json:"total_size"`
-	AggsData  map[string]interface{} `json:"-"`
-	Result    string                 `json:"result"`
-	ErrCode   string                 `json:"errcode"`
-	ErrDesc   string                 `json:"errdesc"`
-	ErrDescEn string                 `json:"errdesc_en"`
-	ReqeustID string                 `json:"request_id"`
-}
-
 type searchMatchRequest struct {
 	UserID       int64   `json:"userId" form:"userId"`
 	Lng          float32 `json:"lng" form:"lng" `
@@ -60,10 +44,10 @@ type searchMatchSeenRequest struct {
 
 // 获取用户列表, 过滤条件：
 // role_name = "1,2,3"
-func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []int64, user *redis.UserProfile) ([]int64, map[int64]*MatchResDataItem, error) {
+func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []int64, user *redis.UserProfile) ([]int64, map[int64]*UserResDataItem, error) {
 	abtest := ctx.GetAbTest()
 	idList := make([]int64, 0)
-	userSearchMap := make(map[int64]*MatchResDataItem, 0)
+	userSearchMap := make(map[int64]*UserResDataItem, 0)
 
 	strIds := make([]string, len(userIds))
 	for k, v := range userIds {
@@ -92,11 +76,12 @@ func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []
 		ReturnFields: "id,cover_has_face",
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
-		res := &matchListResIds{}
+		res := &userListRes{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchMatchListUrl, paramsData, res); err == nil {
 			for _, element := range res.Data {
-				idList = append(idList, element.Id)
-				userSearchMap[element.Id] = &element
+				newElement := element // 闭包
+				idList = append(idList, newElement.Id)
+				userSearchMap[newElement.Id] = &newElement
 			}
 			log.Infof("get paramsData:%s", string(paramsData))
 			return idList, userSearchMap, err
