@@ -187,10 +187,7 @@ func (self *BehaviorCacheModule) QueryUserBehaviorMap(module string, ids []int64
 }
 
 func NewBehaviorCacheModule(ctx abtest.IAbTestAble) *BehaviorCacheModule {
-	cache := factory.CacheBehaviorRds
-	if ctx.GetAbTest().GetBool("use_new_behavior_redis", false) && (factory.CacheBehaviorRdsBackup != nil) {
-		cache = factory.CacheBehaviorRdsBackup
-	}
+	cache := factory.CacheBehaviorRdsBackup
 	cachePika := redis.NewCachePikaModule(ctx, cache)
 	return &BehaviorCacheModule{CachePikaModule: *cachePika, ctx: ctx}
 }
