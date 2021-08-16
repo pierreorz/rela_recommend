@@ -274,6 +274,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
 	var momentUserEmbedding *redis.MomentUserProfile
+	var userLiveProfielMap map[int64]*redis.UserLiveProfile
 	var momentUserEmbeddingMap = map[int64]*redis.MomentUserProfile{}
 	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} { // 获取用户信息
@@ -292,6 +293,11 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			return embeddingCacheErr
 		},
+		"user_live_profile": func(*performs.Performs) interface{}{
+			var userLiveProfileErr error
+			userLiveProfielMap,userLiveProfileErr = userCache.QueryUserLiveProfileByIdsMap([]int64{params.UserId})
+			return userLiveProfileErr
+		},
 	})
 
 	preforms.Run("build", func(*performs.Performs) interface{} {
@@ -299,6 +305,7 @@ func DoBuildData(ctx algo.IContext) error {
 			UserId:            params.UserId,
 			UserCache:         user,
 			MomentUserProfile: momentUserEmbedding,
+			UserLiveProfile:   userLiveProfielMap[params.UserId],
 			UserBehavior:      userBehavior,
 		}
 

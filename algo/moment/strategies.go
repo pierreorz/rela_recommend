@@ -310,6 +310,47 @@ func RecallUserAddWeight(ctx algo.IContext) error {
 	return nil
 }
 
+//用户直播画像
+func UserLiveWeight(ctx algo.IContext) error{
+	userData :=ctx.GetUserInfo().(*UserInfo)
+	userLiveLongPref :=make(map[int64]float32)
+	userLiveShortPref :=make(map[int64]float32)
+	userConsumeLongPref :=make(map[int64]float32)
+	userConsumeShortPref :=make(map[int64]float32)
+	if userData.UserLiveProfile!=nil{
+		userLiveLongPref =userData.UserLiveProfile.LiveLongPref
+		userLiveShortPref =userData.UserLiveProfile.LiveShortPref
+		userConsumeLongPref =userData.UserLiveProfile.ConsumeLongPref
+		userConsumeShortPref =userData.UserLiveProfile.ConsumeShortPref
+	}
+	for index :=0;index<ctx.GetDataLength();index++{
+		DataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo :=DataInfo.GetRankInfo()
+		if DataInfo.MomentCache!=nil{
+			userId :=DataInfo.MomentCache.UserId
+			if strings.Contains(DataInfo.MomentCache.MomentsType,"live"){
+				var score float32 = 0.0
+				if w1 ,ok :=userLiveLongPref[userId];ok{
+					score +=0.2*w1
+				}
+				if w2 ,ok :=userLiveShortPref[userId];ok{
+					score +=0.5*w2
+				}
+				if w3 ,ok :=userConsumeLongPref[userId];ok{
+					score +=0.2*w3
+				}
+				if w4 ,ok :=userConsumeShortPref[userId];ok{
+					score +=0.1*w4
+				}
+				rankInfo.AddRecommend("UserLiveProFileWeight", 1+score)
+			}else{
+				continue
+			}
+		}
+	}
+	return nil
+}
+
 // 针对指定categ提权
 func MomentCategWeight(ctx algo.IContext) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
