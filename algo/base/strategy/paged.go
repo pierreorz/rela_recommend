@@ -9,10 +9,10 @@ import (
 
 // 分页历史处理策略
 type PagedRichStrategy struct {
-	ctx				algo.IContext
-	pageIdsMap		map[int64]int
-	cacheModule		*redis.CachePikaModule
-	DefaultWeight	int
+	ctx           algo.IContext
+	pageIdsMap    map[int64]int
+	cacheModule   *redis.CachePikaModule
+	DefaultWeight int
 }
 
 func (self *PagedRichStrategy) GetDefaultWeight() int {
@@ -20,9 +20,9 @@ func (self *PagedRichStrategy) GetDefaultWeight() int {
 }
 func (self *PagedRichStrategy) New(ctx algo.IContext) algo.IRichStrategy {
 	return &PagedRichStrategy{
-		ctx: ctx, 
-		pageIdsMap: map[int64]int{},
-		cacheModule: redis.NewCachePikaModule(ctx, factory.CacheBehaviorRds)}
+		ctx:         ctx,
+		pageIdsMap:  map[int64]int{},
+		cacheModule: redis.NewCachePikaModule(ctx, factory.CacheBehaviorRdsBackup)}
 }
 
 func (self *PagedRichStrategy) CacheKey() string {
@@ -33,7 +33,7 @@ func (self *PagedRichStrategy) CacheKey() string {
 
 func (self *PagedRichStrategy) BuildData() error {
 	params := self.ctx.GetRequest()
-	if params.Offset > 0 {		// 只有非第一页才获取缓存
+	if params.Offset > 0 { // 只有非第一页才获取缓存
 		self.cacheModule.GetStruct(self.CacheKey(), &self.pageIdsMap)
 	}
 	return nil
@@ -59,10 +59,10 @@ func (self *PagedRichStrategy) Logger() error {
 			self.pageIdsMap[item.DataId] = item.Index
 		}
 	}
-	
+
 	if len(self.pageIdsMap) > 0 {
-		go func(){
-			self.cacheModule.SetStruct(self.CacheKey(), self.pageIdsMap, 60 * 60, 0)
+		go func() {
+			self.cacheModule.SetStruct(self.CacheKey(), self.pageIdsMap, 60*60, 0)
 		}()
 	}
 	return nil

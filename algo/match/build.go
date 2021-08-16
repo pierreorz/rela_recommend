@@ -3,6 +3,7 @@ package match
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
@@ -83,6 +84,9 @@ func DoBuildData(ctx algo.IContext) error {
 		},
 	})
 
+	if ctx.GetRequest().UserId == 110758574 {
+		log.Infof("userSearchMap: %+v", userSearchMap)
+	}
 	pfms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId:       params.UserId,
