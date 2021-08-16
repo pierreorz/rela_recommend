@@ -103,3 +103,27 @@ func ExposureIncreaseFunc(ctx algo.IContext) error {
 	}
 	return nil
 }
+
+// 给足曝光但无互动的降权
+func NoInteractDecreaseFunc(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	decreaseScore := abtest.GetFloat("no_interact_decrease_max", 0.2)                    // 最多减小的分数
+	interactBehaviors := abtest.GetStrings("interact_behaviors", "around.list:click")    // 互动行为
+	exposureBehaviors := abtest.GetStrings("exposure_behaviors", "around.list:exposure") // 曝光行为
+	exposureThreshold := abtest.GetFloat64("success_exposure_threshold", 0.0)            // 足额曝光的阈值
+	if decreaseScore > 0.0 && len(interactBehaviors) > 0 && len(exposureBehaviors) > 0 && exposureThreshold > 0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index)
+			rankInfo := dataInfo.GetRankInfo()
+
+			if itemBehavior := dataInfo.GetBehavior(); itemBehavior != nil {
+				actions := itemBehavior.Gets(interactBehaviors...)
+				exposures := itemBehavior.Gets(exposureBehaviors...)
+				if exposures.Count >= exposureThreshold && actions.Count <= 0 {
+					rankInfo.AddRecommend("NoInteractDecrease", 1-decreaseScore)
+				}
+			}
+		}
+	}
+	return nil
+}
