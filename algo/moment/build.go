@@ -312,6 +312,7 @@ func DoBuildData(ctx algo.IContext) error {
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
 		statusSwitch := abtest.GetBool("mom_status_filter", false)
+		filterLive :=abtest.GetBool("fileter_live",false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
@@ -378,7 +379,7 @@ func DoBuildData(ctx algo.IContext) error {
 							if isTopLive(ctx, momUser) {
 								isTopLiveMom = 1
 							} else {
-								if isTop != 1 { //非头部主播且非置顶直播日志进行过滤
+								if isTop != 1 &&filterLive{ //非头部主播且非置顶直播日志进行过滤
 									continue
 								}
 							}
