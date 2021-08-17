@@ -331,16 +331,16 @@ func UserLiveWeight(ctx algo.IContext) error{
 
 				var score float32 = 0.0
 				if w1 ,ok :=userLiveLongPref[userId];ok{
-					score +=0.2*w1
+					score +=w1
 				}
 				if w2 ,ok :=userLiveShortPref[userId];ok{
-					score +=0.3*w2
+					score +=w2
 				}
 				if w3 ,ok :=userConsumeLongPref[userId];ok{
-					score +=0.2*w3
+					score +=w3
 				}
 				if w4 ,ok :=userConsumeShortPref[userId];ok{
-					score +=0.3*w4
+					score +=w4
 				}
 				rankInfo.AddRecommend("UserLiveProFileWeight", 1+score)
 		}
