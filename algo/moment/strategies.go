@@ -310,6 +310,47 @@ func RecallUserAddWeight(ctx algo.IContext) error {
 	return nil
 }
 
+//用户直播画像
+func UserLiveWeight(ctx algo.IContext) error{
+	userData :=ctx.GetUserInfo().(*UserInfo)
+	userLiveLongPref :=make(map[int64]float32)
+	userLiveShortPref :=make(map[int64]float32)
+	userConsumeLongPref :=make(map[int64]float32)
+	userConsumeShortPref :=make(map[int64]float32)
+	if userData.UserLiveProfile!=nil{
+		userLiveLongPref =userData.UserLiveProfile.LiveLongPref
+		userLiveShortPref =userData.UserLiveProfile.LiveShortPref
+		userConsumeLongPref =userData.UserLiveProfile.ConsumeLongPref
+		userConsumeShortPref =userData.UserLiveProfile.ConsumeShortPref
+	}
+	for index :=0;index<ctx.GetDataLength();index++{
+		DataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo :=DataInfo.GetRankInfo()
+		if DataInfo.MomentCache!=nil{
+			userId :=DataInfo.MomentCache.UserId
+			if strings.Contains(DataInfo.MomentCache.MomentsType,"live"){
+				var score float32 = 0.0
+				if w1 ,ok :=userLiveLongPref[userId];ok{
+					score +=w1
+				}
+				if w2 ,ok :=userLiveShortPref[userId];ok{
+					score +=w2
+				}
+				if w3 ,ok :=userConsumeLongPref[userId];ok{
+					score +=w3
+				}
+				if w4 ,ok :=userConsumeShortPref[userId];ok{
+					score +=w4
+				}
+				rankInfo.AddRecommend("UserLiveProFileWeight", 1+score)
+			}else{
+				continue
+			}
+		}
+	}
+	return nil
+}
+
 // 针对指定categ提权
 func MomentCategWeight(ctx algo.IContext) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
@@ -426,7 +467,7 @@ func NeverSeeStrategyFunc(ctx algo.IContext) error {
 }
 
 //附近日志未被互动提权
-func NeverInteractStrategyFunc(ctx algo.IContext) error {
+func  NeverInteractStrategyFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	interactNum := abtest.GetFloat64("interact_num", 1.0)
 	for index := 0; index < ctx.GetDataLength(); index++ {
@@ -522,11 +563,6 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 			startIndex=2
 			break
 		}
-	}
-	start :=abtest.GetInt64("ad_starttime",1628492400)//活动开始时间
-	end :=abtest.GetInt64("ad_endtime",1628956800)//活动结束时间
-	if abtest.GetInt("rich_strategy:ad_hope_index:weight",0)==1&&ctx.GetCreateTime().Unix()>=start&&ctx.GetCreateTime().Unix()<=end{
-		startIndex=4
 	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)

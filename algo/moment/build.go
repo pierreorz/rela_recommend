@@ -274,6 +274,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
 	var momentUserEmbedding *redis.MomentUserProfile
+	var userLiveProfielMap map[int64]*redis.UserLiveProfile
 	var momentUserEmbeddingMap = map[int64]*redis.MomentUserProfile{}
 	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} { // 获取用户信息
@@ -292,6 +293,11 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			return embeddingCacheErr
 		},
+		"user_live_profile": func(*performs.Performs) interface{}{
+			var userLiveProfileErr error
+			userLiveProfielMap,userLiveProfileErr = userCache.QueryUserLiveProfileByIdsMap([]int64{params.UserId})
+			return userLiveProfileErr
+		},
 	})
 
 	preforms.Run("build", func(*performs.Performs) interface{} {
@@ -299,12 +305,14 @@ func DoBuildData(ctx algo.IContext) error {
 			UserId:            params.UserId,
 			UserCache:         user,
 			MomentUserProfile: momentUserEmbedding,
+			UserLiveProfile:   userLiveProfielMap[params.UserId],
 			UserBehavior:      userBehavior,
 		}
 
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
 		statusSwitch := abtest.GetBool("mom_status_filter", false)
+		filterLive :=abtest.GetBool("fileter_live",true)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
@@ -371,7 +379,7 @@ func DoBuildData(ctx algo.IContext) error {
 							if isTopLive(ctx, momUser) {
 								isTopLiveMom = 1
 							} else {
-								if isTop != 1 { //非头部主播且非置顶直播日志进行过滤
+								if isTop != 1 &&filterLive{ //非头部主播且非置顶直播日志进行过滤
 									continue
 								}
 							}

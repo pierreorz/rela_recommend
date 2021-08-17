@@ -51,6 +51,40 @@ type UserProfile struct {
 	LiveInfo     *liveInfo          `json:"live_info,omitempty"`
 }
 
+
+type UserLiveProfile struct {
+	UserId     int64 `json:"user_id"`  //用户id
+	LiveLongPref map[int64]float32   `json:"live_long_pref,omitempty"` //用户长期主播偏好
+	LiveShortPref map[int64]float32   `json:"live_short_pref,omitempty"`//用户短期主播偏好
+	ConsumeLongPref map[int64]float32   `json:"consume_long_pref,omitempty"` //用户长期消费偏好
+	ConsumeShortPref map[int64]float32  `json:"consume_short_pref,omitempty"`//用户短期消费偏好
+	LiveTypeLongPref map[int]float32 `json:"live_type_long_pref,omitempty"`
+	LiveTypeShortPref map[int]float32 `json:"live_type_short_pref,omitempty"`
+	LiveClassifyLongPref map[int]float32 `json:"live_classify_long_pref,omitempty"`
+	LiveClassifyShortPref map[int]float32 `json:live_classify_short_pref,omitempty`
+}
+
+//读取用户直播画像
+func (self *UserCacheModule) QueryUserLiveProfileByIds(ids []int64) ([]UserLiveProfile, error) {
+	keyFormatter := "user_live_profile:%d"
+	ress, err := self.MGetStructs(UserLiveProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs := ress.Interface().([]UserLiveProfile)
+	return objs, err
+}
+
+// 获取当前用户和用户列表Map
+func (this *UserCacheModule) QueryUserLiveProfileByIdsMap(userIds []int64) (map[int64]*UserLiveProfile, error) {
+	userLiveProfiles, err := this.QueryUserLiveProfileByIds(userIds)
+	var resUserLiveProfileMap = make(map[int64]*UserLiveProfile, 0)
+	if err == nil {
+		for i, user := range userLiveProfiles {
+			resUserLiveProfileMap[user.UserId] = &userLiveProfiles[i]
+		}
+	}
+	return resUserLiveProfileMap, err
+}
+
+
 func (user *UserProfile) MaybeICPUser(lat, lng float32) bool {
 	// 特定ICP审核用户
 	if user.UserId == 104208008 {
@@ -107,6 +141,8 @@ func (self *UserCacheModule) QueryUserById(id int64) (*UserProfile, error) {
 	}
 	return nil, errors.New(fmt.Sprintf("not found user[%d]", id))
 }
+
+
 
 // 读取用户信息
 func (self *UserCacheModule) QueryUsersByIds(ids []int64) ([]UserProfile, error) {
