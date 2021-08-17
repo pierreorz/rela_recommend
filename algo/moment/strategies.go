@@ -328,24 +328,21 @@ func UserLiveWeight(ctx algo.IContext) error{
 		rankInfo :=DataInfo.GetRankInfo()
 		if DataInfo.MomentCache!=nil{
 			userId :=DataInfo.MomentCache.UserId
-			if strings.Contains(DataInfo.MomentCache.MomentsType,"live"){
+
 				var score float32 = 0.0
 				if w1 ,ok :=userLiveLongPref[userId];ok{
 					score +=0.2*w1
 				}
 				if w2 ,ok :=userLiveShortPref[userId];ok{
-					score +=0.5*w2
+					score +=0.3*w2
 				}
 				if w3 ,ok :=userConsumeLongPref[userId];ok{
 					score +=0.2*w3
 				}
 				if w4 ,ok :=userConsumeShortPref[userId];ok{
-					score +=0.1*w4
+					score +=0.3*w4
 				}
 				rankInfo.AddRecommend("UserLiveProFileWeight", 1+score)
-			}else{
-				continue
-			}
 		}
 	}
 	return nil
@@ -467,7 +464,7 @@ func NeverSeeStrategyFunc(ctx algo.IContext) error {
 }
 
 //附近日志未被互动提权
-func NeverInteractStrategyFunc(ctx algo.IContext) error {
+func  NeverInteractStrategyFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	interactNum := abtest.GetFloat64("interact_num", 1.0)
 	for index := 0; index < ctx.GetDataLength(); index++ {
