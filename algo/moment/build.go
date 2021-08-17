@@ -296,7 +296,6 @@ func DoBuildData(ctx algo.IContext) error {
 		"user_live_profile": func(*performs.Performs) interface{}{
 			var userLiveProfileErr error
 			userLiveProfielMap,userLiveProfileErr = userCache.QueryUserLiveProfileByIdsMap([]int64{params.UserId})
-			log.Warnf("userLiveProfile%s",userLiveProfielMap)
 			return userLiveProfileErr
 		},
 	})

@@ -328,7 +328,7 @@ func UserLiveWeight(ctx algo.IContext) error{
 		rankInfo :=DataInfo.GetRankInfo()
 		if DataInfo.MomentCache!=nil{
 			userId :=DataInfo.MomentCache.UserId
-
+			if strings.Contains(DataInfo.MomentCache.MomentsType,"live"){
 				var score float32 = 0.0
 				if w1 ,ok :=userLiveLongPref[userId];ok{
 					score +=w1
@@ -343,6 +343,9 @@ func UserLiveWeight(ctx algo.IContext) error{
 					score +=w4
 				}
 				rankInfo.AddRecommend("UserLiveProFileWeight", 1+score)
+			}else{
+				continue
+			}
 		}
 	}
 	return nil
@@ -560,11 +563,6 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 			startIndex=2
 			break
 		}
-	}
-	start :=abtest.GetInt64("ad_starttime",1628492400)//活动开始时间
-	end :=abtest.GetInt64("ad_endtime",1628956800)//活动结束时间
-	if abtest.GetInt("rich_strategy:ad_hope_index:weight",0)==1&&ctx.GetCreateTime().Unix()>=start&&ctx.GetCreateTime().Unix()<=end{
-		startIndex=4
 	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
