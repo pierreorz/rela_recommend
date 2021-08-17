@@ -312,7 +312,7 @@ func DoBuildData(ctx algo.IContext) error {
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
 		statusSwitch := abtest.GetBool("mom_status_filter", false)
-		filterLive :=abtest.GetBool("fileter_live",false)
+		filterLive :=abtest.GetBool("fileter_live",true)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
