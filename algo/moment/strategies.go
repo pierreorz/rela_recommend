@@ -328,7 +328,7 @@ func UserLiveWeight(ctx algo.IContext) error{
 		rankInfo :=DataInfo.GetRankInfo()
 		if DataInfo.MomentCache!=nil{
 			userId :=DataInfo.MomentCache.UserId
-			if strings.Contains(DataInfo.MomentCache.MomentsType,"live"){
+			if !strings.Contains(DataInfo.MomentCache.MomentsType,"live"){
 				var score float32 = 0.0
 				if w1 ,ok :=userLiveLongPref[userId];ok{
 					score +=w1
