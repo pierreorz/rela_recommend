@@ -57,13 +57,14 @@ func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []
 
 	filters := []string{}
 	if abtest.GetBool("filter_role_name", false) && user != nil {
-		wantroles := strings.Join(strings.Split(user.WantRole, ""), ",")
-		wantrole := utils.GetInt64s(wantroles)
-		wantrole0 := utils.Remove(wantrole, 0)
-		wantroleStrs := utils.JoinInt64s(wantrole0, ",")
+		// 角色(0=不想透漏 1=T 2=P 3=H 4=Bi 5=其他 6=直女 7=腐女)
+		wantRoles := strings.Join(strings.Split(user.WantRole, ""), ",")
+		wantRole := utils.GetInt64s(wantRoles)
+		wantRole0 := utils.Removes(wantRole, []int64{0, 5})
+		wantRoleStrs := utils.JoinInt64s(wantRole0, ",")
 
-		if wantroleStrs != "" {
-			filters = append(filters, fmt.Sprintf("role_name:%s", wantroleStrs))
+		if wantRoleStrs != "" {
+			filters = append(filters, fmt.Sprintf("role_name:%s", wantRoleStrs))
 		}
 	}
 
