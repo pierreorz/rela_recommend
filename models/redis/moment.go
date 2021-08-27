@@ -9,6 +9,7 @@ import (
 	"rela_recommend/service/abtest"
 
 	"github.com/gansidui/geohash"
+	"strings"
 )
 
 type Moments struct {
@@ -132,6 +133,9 @@ type MomentsAndExtend struct {
 }
 
 func (mae *MomentsAndExtend) CanRecommend() bool {
+	if strings.Contains(mae.Moments.MomentsType,"live"){
+		return true
+	}
 	if mae.MomentsProfile != nil && mae.MomentsProfile.PositiveRecommend {
 		return true
 	}
