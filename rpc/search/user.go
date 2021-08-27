@@ -46,7 +46,7 @@ func CallSearchUserIdList(userId int64, lat, lng float32, offset, limit int64, q
 
 // 获取附近用户列表
 func CallNearUserICPIdList(userId int64, lat, lng float32, offset, limit int64, filterJson string) ([]int64, map[int64]*UserResDataItem, error) {
-	filters := []string{"icp_fix:true"}
+	filters := []string{"!positive_recommend:false"}
 	return CallNearUserList(userId, lat, lng, offset, limit, filterJson, filters)
 }
 
