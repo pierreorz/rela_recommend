@@ -50,6 +50,12 @@ func CallNearUserICPIdList(userId int64, lat, lng float32, offset, limit int64, 
 	return CallNearUserList(userId, lat, lng, offset, limit, filterJson, filters)
 }
 
+// 获取附近用户列表-审核专用
+func CallNearUserAuditList(userId int64, lat, lng float32, offset, limit int64, filterJson string) ([]int64, map[int64]*UserResDataItem, error) {
+	filters := []string{fmt.Sprintf("!positive_recommend:false*!seen_by_id:%d", userId)}
+	return CallNearUserList(userId, lat, lng, offset, limit, filterJson, filters)
+}
+
 func CallNearUserList(userId int64, lat, lng float32, offset, limit int64, filterJson string,
 	filters []string) ([]int64, map[int64]*UserResDataItem, error) {
 
