@@ -127,3 +127,25 @@ func NoInteractDecreaseFunc(ctx algo.IContext) error {
 	}
 	return nil
 }
+
+// 曝光后沉底
+func ExposureBottomFunc(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	interactBehaviors := abtest.GetStrings("interact_behaviors", "around.list:click")    // 互动行为
+	exposureBehaviors := abtest.GetStrings("exposure_behaviors", "around.list:exposure") // 曝光行为
+	if len(interactBehaviors) > 0 && len(exposureBehaviors) > 0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index)
+			rankInfo := dataInfo.GetRankInfo()
+
+			if userItemBehavior := dataInfo.GetUserBehavior(); userItemBehavior != nil {
+				actions := userItemBehavior.Gets(interactBehaviors...)
+				exposures := userItemBehavior.Gets(exposureBehaviors...)
+				if exposures.Count > 0 || actions.Count > 0 {
+					rankInfo.AddRecommend("ExposureBottom", 0.01)
+				}
+			}
+		}
+	}
+	return nil
+}
