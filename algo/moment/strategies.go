@@ -383,7 +383,7 @@ func MomentContentStrategy(ctx algo.IContext) error{
 						if facePref/personPref>1.2{
 							rankInfo.AddRecommend("faceup",1.2)
 						}else if facePref/personPref<0.5{
-							rankInfo.AddRecommend("facedown",0.8)
+							rankInfo.AddRecommend("facedown",1)
 						}
 					}
 				}
