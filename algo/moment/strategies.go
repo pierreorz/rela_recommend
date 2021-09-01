@@ -351,6 +351,48 @@ func UserLiveWeight(ctx algo.IContext) error{
 	return nil
 }
 
+
+func MomentContentStrategy(ctx algo.IContext) error{
+	userInfo :=ctx.GetUserInfo().(*UserInfo)
+	if userInfo.UserContentProfile!=nil{
+		momContentPref :=userInfo.UserContentProfile.PicturePref
+		for index :=0 ;index< ctx.GetDataLength();index++{
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if dataInfo.MomentContentProfile!=nil{
+				tags :=dataInfo.MomentContentProfile.Tags
+				if len(tags)>=1{
+					var score float32=0.0
+					var personPref float32=0.0
+					var facePref float32=0.0
+					for _,tag := range strings.Split(tags,","){
+						if pref,isOk :=momContentPref[tag];isOk{
+							if tag!="人"&&tag!="人脸"{
+								score+=pref
+							}else{
+								if tag=="人"{
+									personPref=pref
+								}else{
+									facePref=pref
+								}
+							}
+						}
+					}
+					rankInfo.AddRecommend("Momcontent",1+0.4*score)
+					if personPref>0&&facePref>0{
+						if facePref/personPref>1.2{
+							rankInfo.AddRecommend("faceup",1.2)
+						}else if facePref/personPref<0.5{
+							rankInfo.AddRecommend("facedown",0.8)
+						}
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
 // 针对指定categ提权
 func MomentCategWeight(ctx algo.IContext) error {
 	userData := ctx.GetUserInfo().(*UserInfo)
