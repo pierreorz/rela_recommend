@@ -54,7 +54,7 @@ type UserProfile struct {
 
 type UserContentProfile struct{
 	UserId     int64 `json:"user_id"`
-	PicturePref  map[string]float32  `json:"picture_pref"`
+	PicturePref  map[string]float32  `json:"picture_pref,omitempty"`
 }
 
 type UserLiveProfile struct {

@@ -378,7 +378,9 @@ func MomentContentStrategy(ctx algo.IContext) error{
 							}
 						}
 					}
-					rankInfo.AddRecommend("Momcontent",1+0.4*score)
+					if score>0{
+						rankInfo.AddRecommend("Momcontent",1+0.4*score)
+					}
 					if personPref>0&&facePref>0{
 						if facePref/personPref>0.95{
 							rankInfo.AddRecommend("faceup",1.2)
