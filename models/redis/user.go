@@ -52,6 +52,11 @@ type UserProfile struct {
 }
 
 
+type UserContentProfile struct{
+	UserId     int64 `json:"user_id"`
+	PicturePref  map[string]float32  `json:"picture_pref,omitempty"`
+}
+
 type UserLiveProfile struct {
 	UserId     int64 `json:"user_id"`  //用户id
 	LiveLongPref map[int64]float32   `json:"live_long_pref,omitempty"` //用户长期主播偏好
@@ -82,6 +87,28 @@ func (this *UserCacheModule) QueryUserLiveProfileByIdsMap(userIds []int64) (map[
 		}
 	}
 	return resUserLiveProfileMap, err
+}
+
+
+
+//读取用户内容画像
+func (self *UserCacheModule) QueryUserContentProfileByIds(ids []int64) ([]UserContentProfile, error) {
+	keyFormatter := "user_picture_pref:%d"
+	ress, err := self.MGetStructs(UserContentProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs := ress.Interface().([]UserContentProfile)
+	return objs, err
+}
+
+// 获取当前用户和用户列表Map
+func (this *UserCacheModule) QueryUserContentProfileByIdsMap(userIds []int64) (map[int64]*UserContentProfile, error) {
+	userContentProfiles, err := this.QueryUserContentProfileByIds(userIds)
+	var resUserContentProfileMap = make(map[int64]*UserContentProfile, 0)
+	if err == nil {
+		for i, user := range userContentProfiles {
+			resUserContentProfileMap[user.UserId] = &userContentProfiles[i]
+		}
+	}
+	return resUserContentProfileMap, err
 }
 
 

@@ -231,7 +231,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var moms = []redis.MomentsAndExtend{}                        // 获取日志缓存
 	var userIds = make([]int64, 0)
 	var momOfflineProfileMap = map[int64]*redis.MomentOfflineProfile{} // 获取日志离线画像
-
+	var momContentProfileMap =map[int64]*redis.MomentContentProfile{}
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"item_behavior": func(*performs.Performs) interface{} { // 获取日志行为
@@ -268,6 +268,13 @@ func DoBuildData(ctx algo.IContext) error {
 				return len(momOfflineProfileMap)
 			}
 			return momOfflineProfileErr
+		},"picture_profile": func(*performs.Performs) interface{} { // 获取日志离线画像
+			var momContentProfileErr error
+			momContentProfileMap, momContentProfileErr = momentCache.QueryMomentContentProfileByIdsMap(dataIds)
+			if momContentProfileErr == nil {
+				return len(momOfflineProfileMap)
+			}
+			return momContentProfileErr
 		},
 	})
 
@@ -275,6 +282,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var usersMap = map[int64]*redis.UserProfile{}
 	var momentUserEmbedding *redis.MomentUserProfile
 	var userLiveProfielMap map[int64]*redis.UserLiveProfile
+	var userContentProfileMap map[int64]*redis.UserContentProfile
 	var momentUserEmbeddingMap = map[int64]*redis.MomentUserProfile{}
 	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} { // 获取用户信息
@@ -298,6 +306,11 @@ func DoBuildData(ctx algo.IContext) error {
 			userLiveProfielMap,userLiveProfileErr = userCache.QueryUserLiveProfileByIdsMap([]int64{params.UserId})
 			return userLiveProfileErr
 		},
+		"user_content_profile":  func(*performs.Performs) interface{}{
+			var userContentProfileErr error
+			userContentProfileMap,userContentProfileErr = userCache.QueryUserContentProfileByIdsMap([]int64{params.UserId})
+			return userContentProfileErr
+		},
 	})
 
 	preforms.Run("build", func(*performs.Performs) interface{} {
@@ -306,6 +319,7 @@ func DoBuildData(ctx algo.IContext) error {
 			UserCache:         user,
 			MomentUserProfile: momentUserEmbedding,
 			UserLiveProfile:   userLiveProfielMap[params.UserId],
+			UserContentProfile: userContentProfileMap[params.UserId],
 			UserBehavior:      userBehavior,
 		}
 
@@ -407,6 +421,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentExtendCache:    mom.MomentsExtend,
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
+					MomentContentProfile :momContentProfileMap[mom.Moments.Id],
 					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],

@@ -17,6 +17,7 @@ type UserInfo struct {
 	MomentUserProfile *redis.MomentUserProfile
 	UserBehavior      *behavior.UserBehavior
 	UserLiveProfile    *redis.UserLiveProfile
+	UserContentProfile  *redis.UserContentProfile
 }
 
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
@@ -29,6 +30,7 @@ type DataInfo struct {
 	UserCache            *redis.UserProfile
 	MomentUserProfile    *redis.MomentUserProfile
 	MomentOfflineProfile *redis.MomentOfflineProfile
+	MomentContentProfile *redis.MomentContentProfile
 	MomentCache          *redis.Moments
 	MomentExtendCache    *redis.MomentsExtend
 	MomentProfile        *redis.MomentsProfile
