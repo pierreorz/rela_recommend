@@ -24,9 +24,9 @@ type searchMatchRequest struct {
 }
 
 // 已读接口
-const internalSearchMatchSeenListUrl = "/seen/quick_match"
+const internalSearchSeenListUrl = "/seen/quick_match"
 
-type matchSeenListResIds struct {
+type seenListRes struct {
 	Data      string `json:"data"`
 	Result    string `json:"result"`
 	ErrCode   string `json:"errcode"`
@@ -40,6 +40,7 @@ type searchMatchSeenRequest struct {
 	Expiration int64  `json:"expiration" form:"expiration" `
 	Scenery    string `json:"scenery" form:"scenery" `
 	SeenIds    string `json:"seen_ids" form:"seen_ids" `
+	Sink       string `json:"sink,omitempty" form:"seen_ids"`
 }
 
 // 获取用户列表, 过滤条件：
@@ -112,8 +113,36 @@ func CallMatchSeenList(userId, expiration int64, scenery string, userIds []int64
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		log.Infof("paramsData%s", string(paramsData))
-		res := &matchSeenListResIds{}
-		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchMatchSeenListUrl, paramsData, res); err == nil {
+		res := &seenListRes{}
+		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchSeenListUrl, paramsData, res); err == nil {
+			return res.Data == "ok"
+		} else {
+			return false
+		}
+	} else {
+		return false
+	}
+
+}
+
+// 获取已读用户列表
+func CallNearbySeenList(userId int64, sink string, userIds []int64) bool {
+
+	strIds := make([]string, len(userIds))
+	for k, v := range userIds {
+		strIds[k] = fmt.Sprintf("%d", v)
+	}
+	strsIds := strings.Join(strIds, ",")
+
+	params := searchMatchSeenRequest{
+		UserID:  userId,
+		Sink:    sink,
+		SeenIds: strsIds,
+	}
+	if paramsData, err := json.Marshal(params); err == nil {
+		log.Infof("paramsData%s", string(paramsData))
+		res := &seenListRes{}
+		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchSeenListUrl, paramsData, res); err == nil {
 			return res.Data == "ok"
 		} else {
 			return false

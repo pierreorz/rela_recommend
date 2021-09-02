@@ -106,6 +106,18 @@ func DoBuildDataV1(ctx algo.IContext) error {
 					return searchErr
 				}
 			})
+		} else if abtest.GetBool("is_icp_auditor", false) {
+			pf.Run("icp_auditor", func(*performs.Performs) interface{} {
+				var searchErr error
+				lat := abtest.GetFloat("icp_center_lat", 30.284882)
+				lon := abtest.GetFloat("icp_center_lon", 120.028722)
+				if dataIds, userSearchMap, searchErr = search.CallNearUserAuditList(params.UserId, lat, lon,
+					0, 2000, params.Params["search"]); searchErr == nil {
+					return len(dataIds)
+				} else {
+					return searchErr
+				}
+			})
 		} else {
 			pf.Run("search", func(*performs.Performs) interface{} {
 				var searchErr error
