@@ -49,7 +49,17 @@ func NewUserUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *alg
 
 	if matchUser.UserCache != nil {
 		if ctx.GetCreateTime().Sub(matchUser.UserCache.CreateTime.Time) <= time.Hour*24*7 {
-			rankInfo.AddRecommend("NewUserUpper", 1.1)
+			// 新用户有高质量封面的
+			if matchUser.SearchFields != nil {
+				baseRatio := ctx.GetAbTest().GetFloat("cover_face_base_ratio", 0.2)
+				if matchUser.SearchFields.CoverHasFace {
+					baseRatio += 0.1
+				}
+				if matchUser.SearchFields.CoverBeautiful {
+					baseRatio += 0.1
+				}
+				rankInfo.AddRecommend("NewAndFaceUpper", 1+baseRatio)
+			}
 		}
 	}
 
