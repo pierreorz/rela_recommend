@@ -203,7 +203,6 @@ func DoBuildData(ctx algo.IContext) error {
 		})
 	}
 
-	log.Warnf("current module %s",app.Name)
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList,adList).ToList()
 	// 过滤审核
