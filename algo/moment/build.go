@@ -203,6 +203,7 @@ func DoBuildData(ctx algo.IContext) error {
 		})
 	}
 
+	log.Warnf("current module %s",app.Name)
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList,adList).ToList()
 	// 过滤审核
@@ -351,7 +352,12 @@ func DoBuildData(ctx algo.IContext) error {
 					//	continue
 					//}
 					if !mom.CanRecommend(){
-						continue
+						if mayBeIcpUser&&app.Name=="moment.near"{//附近日志仅对icp用户开通推荐审核
+							continue
+						}
+						if app.Name=="moment"{//推荐日志默认开通推荐审核
+							continue
+						}
 					}
 				}
 			}
