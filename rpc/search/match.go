@@ -75,7 +75,7 @@ func CallMatchList(ctx algo.IContext, userId int64, lat, lng float32, userIds []
 		Lat:          lat,
 		PinnedIds:    strsIds,
 		Filter:       strings.Join(filters, "*"),
-		ReturnFields: "id,cover_has_face",
+		ReturnFields: "id,cover_has_face,avatar_has_face,cover_beautiful,avatar_beautiful",
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		res := &userListRes{}

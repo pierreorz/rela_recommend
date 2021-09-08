@@ -11,8 +11,11 @@ type SearchResDataItem struct {
 }
 
 type UserResDataItem struct {
-	Id           int64 `json:"id"`
-	CoverHasFace bool  `json:"cover_has_face"`
+	Id              int64 `json:"id"`
+	CoverHasFace    bool  `json:"cover_has_face"`
+	AvatarHasFace   bool  `json:"avatar_has_face"`
+	CoverBeautiful  bool  `json:"cover_beautiful"`
+	AvatarBeautiful bool  `json:"avatar_beautiful"`
 }
 
 type userListRes struct {
