@@ -277,7 +277,6 @@ func DoBuildData(ctx algo.IContext) error {
 			return momContentProfileErr
 		},
 	})
-
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
 	var momentUserEmbedding *redis.MomentUserProfile
