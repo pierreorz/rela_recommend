@@ -1,19 +1,17 @@
 package moment
 
 import (
-	"rela_recommend/factory"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
-	"rela_recommend/log"
+	"rela_recommend/factory"
 	rutils "rela_recommend/utils"
-	"time"
 	"strings"
+	"time"
 )
 
 func GetMomLabel(label string,labelMap map[string]int) []int{
 	var ids = make([]int, 0)
 	if label !=""{
-		log.Warnf("mom label %s",label)
 		for _, uid := range strings.Split(label, ",") {
 			if val,ok :=labelMap[uid];ok{
 				ids = append(ids, rutils.GetInt(val))
