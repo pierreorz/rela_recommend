@@ -1,18 +1,32 @@
 package moment
 
 import (
-	"rela_recommend/factory"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
+	"rela_recommend/factory"
 	rutils "rela_recommend/utils"
-	"time"
 	"strings"
+	"time"
 )
+
+func GetMomLabel(label string,labelMap map[string]int) []int{
+	var ids = make([]int, 0)
+	if label !=""{
+		for _, uid := range strings.Split(label, ",") {
+			if val,ok :=labelMap[uid];ok{
+				ids = append(ids, rutils.GetInt(val))
+			}
+		}
+		return ids
+	}
+	return ids
+}
 
 func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *utils.Features {
 	fs := &utils.Features{}
 	shareToList := map[string]int{"all": 0, "friends": 1, "self": 2}
 	momsTypeList :=map[string]int{"text":0,"text_image":1,"image":2,"live":3,"theme":4,"themereply":5,"video":6,"voice_live":7,"ad":8,"recommend":9}
+	momsPicLabelList :=map[string]int{"卡通人脸":0,"明星人脸":1,"自拍":2,"人脸":3,"人":4,"logo":5,"美食":6,"风景":7,"表情包":8,"动漫":9,"游戏":10,"宠物":11,"运动":12,"时尚":13,"模糊":14}
 	currTime := ctx.GetCreateTime().Unix()
 	data := idata.(*DataInfo)
 	// 发布内容
@@ -49,6 +63,12 @@ func GetMomentFeatures(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 		momOfflineProfile := data.MomentOfflineProfile
 		if (momOfflineProfile != nil) {
 			fs.AddArray(100, 128, momOfflineProfile.MomentEmbedding)
+		}
+
+		//日志内容画像  1000-。。。
+		momContentProfile :=data.MomentContentProfile
+		if momContentProfile!=nil{
+			fs.AddCategories(1000,15,0,GetMomLabel(momContentProfile.Tags,momsPicLabelList),0)
 		}
 		// 发布者
 		memu := data.UserCache
