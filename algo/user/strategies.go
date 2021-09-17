@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"math"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
@@ -100,5 +101,29 @@ func CoverFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *a
 		upperRate := ctx.GetAbTest().GetFloat("cover_face_upper", 0)
 		rankInfo.AddRecommend("CoverFaceUpper", 1+upperRate)
 	}
+	return nil
+}
+
+func WeekExposureNoInteractFunc(ctx algo.IContext) error {
+	abTest := ctx.GetAbTest()
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	nearbyProfile := userInfo.UserProfile
+
+	if nearbyProfile != nil && nearbyProfile.WeekExposures != nil {
+		overExposureThreshold := abTest.GetInt("over_exposure_threshold", 10)
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index)
+			rankInfo := dataInfo.GetRankInfo()
+
+			dataIDStr := fmt.Sprintf("%d", dataInfo.GetDataId())
+			if exposures, ok := nearbyProfile.WeekExposures[dataIDStr]; ok {
+				if exposures.Exposures >= overExposureThreshold && exposures.Clicks <= 0 {
+					decreaseRatio := abTest.GetFloat("over_decrease_ratio", 0.2)
+					rankInfo.AddRecommend("WeekExposureNoInteract", 1-decreaseRatio)
+				}
+			}
+		}
+	}
+
 	return nil
 }
