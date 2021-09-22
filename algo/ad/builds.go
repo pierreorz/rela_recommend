@@ -34,8 +34,7 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 	// 获取search的广告列表
 	var searchResList = []search.SearchADResDataItem{}
-	if abtest.GetBool("icp_switch", false) &&
-		abtest.GetBool("is_icp_user", false) || user.MaybeICPUser(params.Lat, params.Lng) {
+	if abtest.GetBool("icp_switch", false) && (abtest.GetBool("is_icp_user", false) || user.MaybeICPUser(params.Lat, params.Lng)) {
 		log.Infof("ad user<%s> is_icp_user", params.UserId)
 	} else {
 		pf.Run("search", func(*performs.Performs) interface{} {
