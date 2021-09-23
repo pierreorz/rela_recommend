@@ -109,6 +109,7 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 		liveCache.StarsCount = live.StarsCount
 		liveCache.TopCount = live.TopCount
 		liveCache.BottomScore = live.BottomScore
+		liveCache.NowIncoming =live.NowIncoming
 		liveCache.DayIncoming = live.DayIncoming
 		liveCache.MonthIncoming = live.MonthIncoming
 		liveCache.Data4Api = live.Data
