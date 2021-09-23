@@ -3,12 +3,12 @@ package live
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/api"
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
-	"rela_recommend/models/behavior"
 	"strconv"
 )
 
@@ -30,7 +30,6 @@ func DoBuildData(ctx algo.IContext) error {
 		liveType := utils.GetInt(params.Params["type"])
 		classify := utils.GetInt(params.Params["classify"])
 		lives = GetCachedLiveListByTypeClassify(liveType, classify)
-
 		for i, _ := range lives {
 			liveIds = append(liveIds, lives[i].Live.UserId)
 			id,_ :=strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId,10),10,64)
@@ -46,7 +45,6 @@ func DoBuildData(ctx algo.IContext) error {
 	var concernsSet = &utils.SetInt64{}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
-
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} { // 获取基础用户画像
 			var userErr error
