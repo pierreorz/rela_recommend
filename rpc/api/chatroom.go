@@ -30,7 +30,7 @@ type SimpleChatroom struct {
 	StarsCount       int       `json:"starsCount"`
 	TopCount         int       `json:"topCount"`
 	TopView          int       `json:"topView"`
-	//NowIncoming      float32    `json:"nowGem"`
+	NowIncoming      float32    `json:"nowGem"`
 	DayIncoming      float32   `json:"dayIncoming"`
 	MonthIncoming    float32   `json:"monthIncoming"`
 	IsMulti          int       `json:"isMulti"`
