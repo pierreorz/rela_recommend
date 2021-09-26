@@ -141,6 +141,9 @@ func (mae *MomentsAndExtend) CanRecommend() bool {
 	if strings.Contains(mae.Moments.MomentsType,"live"){
 		return true
 	}
+	if mae.Moments.MomentsType=="ad"{
+		return true
+	}
 	if mae.MomentsProfile != nil && mae.MomentsProfile.PositiveRecommend {
 		return true
 	}
