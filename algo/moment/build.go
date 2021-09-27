@@ -283,6 +283,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var userLiveProfielMap map[int64]*redis.UserLiveProfile
 	var userContentProfileMap map[int64]*redis.UserContentProfile
 	var momentUserEmbeddingMap = map[int64]*redis.MomentUserProfile{}
+	var isVip = 0
 	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} { // 获取用户信息
 			var userErr error
@@ -321,7 +322,7 @@ func DoBuildData(ctx algo.IContext) error {
 			UserContentProfile: userContentProfileMap[params.UserId],
 			UserBehavior:      userBehavior,
 		}
-
+		isVip=user.IsVip
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
 		statusSwitch := abtest.GetBool("mom_status_filter", false)
@@ -358,6 +359,9 @@ func DoBuildData(ctx algo.IContext) error {
 						}
 					}
 				}
+			}
+			if mom.Moments.MomentsType=="ad"&&isVip==1{
+				continue
 			}
 			if mom.Moments.ShareTo != "all" {
 				continue
