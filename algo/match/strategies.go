@@ -65,6 +65,27 @@ func NewUserUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *alg
 	return nil
 }
 
+// 回流用户
+func RecurUserUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	matchUser := iDataInfo.(*DataInfo)
+
+	if matchUser.UserCache != nil {
+		if matchUser.UserCache.IsRecurringUser(ctx.GetCreateTime(), 24*30*time.Hour) {
+			if matchUser.SearchFields != nil {
+				if matchUser.SearchFields.CoverHasFace {
+					baseRatio := ctx.GetAbTest().GetFloat("cover_face_base_ratio", 0.2)
+					if matchUser.SearchFields.CoverBeautiful {
+						baseRatio += 0.2
+					}
+					rankInfo.AddRecommend("RecurAndFaceUpper", 1+baseRatio)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 // 对有头像的用户进行提权
 func ImageFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)

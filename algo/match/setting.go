@@ -36,6 +36,8 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 		StrategyItemFunc: NotSingleDecreaseItem},
 	"new_user_upper": &strategy.BaseRichStrategy{
 		StrategyItemFunc: NewUserUpperItem},
+	"recur_user_upper": &strategy.BaseRichStrategy{
+		StrategyItemFunc: RecurUserUpperItem},
 }
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{

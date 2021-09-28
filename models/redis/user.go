@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"time"
 
 	// "encoding/json"
 	// "rela_recommend/log"
@@ -45,28 +46,29 @@ type UserProfile struct {
 	Reason         string   `json:"reason"` //优质用户推荐理由
 	Grade          float64  `json:"grade"`  //优质用户推荐等级 1-100
 	Recall         int      `json:"new_recall,omitempty"`
+	ActiveDate     string   `json:"active_date"`      // 用于计算回流用户
+	LastActiveDate string   `json:"last_active_date"` // 用于计算回流用户
 
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
 	LiveInfo     *liveInfo          `json:"live_info,omitempty"`
 }
 
-
-type UserContentProfile struct{
-	UserId     int64 `json:"user_id"`
-	PicturePref  map[string]float32  `json:"picture_pref,omitempty"`
+type UserContentProfile struct {
+	UserId      int64              `json:"user_id"`
+	PicturePref map[string]float32 `json:"picture_pref,omitempty"`
 }
 
 type UserLiveProfile struct {
-	UserId     int64 `json:"user_id"`  //用户id
-	LiveLongPref map[int64]float32   `json:"live_long_pref,omitempty"` //用户长期主播偏好
-	LiveShortPref map[int64]float32   `json:"live_short_pref,omitempty"`//用户短期主播偏好
-	ConsumeLongPref map[int64]float32   `json:"consume_long_pref,omitempty"` //用户长期消费偏好
-	ConsumeShortPref map[int64]float32  `json:"consume_short_pref,omitempty"`//用户短期消费偏好
-	LiveTypeLongPref map[int]float32 `json:"live_type_long_pref,omitempty"`
-	LiveTypeShortPref map[int]float32 `json:"live_type_short_pref,omitempty"`
-	LiveClassifyLongPref map[int]float32 `json:"live_classify_long_pref,omitempty"`
-	LiveClassifyShortPref map[int]float32 `json:live_classify_short_pref,omitempty`
+	UserId                int64             `json:"user_id"`                      //用户id
+	LiveLongPref          map[int64]float32 `json:"live_long_pref,omitempty"`     //用户长期主播偏好
+	LiveShortPref         map[int64]float32 `json:"live_short_pref,omitempty"`    //用户短期主播偏好
+	ConsumeLongPref       map[int64]float32 `json:"consume_long_pref,omitempty"`  //用户长期消费偏好
+	ConsumeShortPref      map[int64]float32 `json:"consume_short_pref,omitempty"` //用户短期消费偏好
+	LiveTypeLongPref      map[int]float32   `json:"live_type_long_pref,omitempty"`
+	LiveTypeShortPref     map[int]float32   `json:"live_type_short_pref,omitempty"`
+	LiveClassifyLongPref  map[int]float32   `json:"live_classify_long_pref,omitempty"`
+	LiveClassifyShortPref map[int]float32   `json:live_classify_short_pref,omitempty`
 }
 
 //读取用户直播画像
@@ -89,8 +91,6 @@ func (this *UserCacheModule) QueryUserLiveProfileByIdsMap(userIds []int64) (map[
 	return resUserLiveProfileMap, err
 }
 
-
-
 //读取用户内容画像
 func (self *UserCacheModule) QueryUserContentProfileByIds(ids []int64) ([]UserContentProfile, error) {
 	keyFormatter := "user_picture_pref:%d"
@@ -110,7 +110,6 @@ func (this *UserCacheModule) QueryUserContentProfileByIdsMap(userIds []int64) (m
 	}
 	return resUserContentProfileMap, err
 }
-
 
 func (user *UserProfile) MaybeICPUser(lat, lng float32) bool {
 	// 特定ICP审核用户
@@ -143,6 +142,27 @@ func (user *UserProfile) GetRoleNameInt() int {
 	return utils.GetInt(user.RoleName)
 }
 
+func (user *UserProfile) IsRecurringUser(compareTime time.Time, threshold time.Duration) bool {
+	// 在 compareTime 当天活跃，且距离上一次活跃超过 threshold 时间
+	var activeDate, lastActiveDate time.Time
+
+	if len(user.ActiveDate) > 0 {
+		activeDate, _ = time.ParseInLocation("2006.01.02", user.ActiveDate, time.Local)
+	}
+
+	if len(user.LastActiveDate) > 0 {
+		lastActiveDate, _ = time.ParseInLocation("2006.01.02", user.LastActiveDate, time.Local)
+	}
+
+	if (compareTime.Year() == activeDate.Year()) &&
+		(compareTime.Month() == activeDate.Month()) &&
+		(compareTime.Day() == activeDate.Day()) && (activeDate.Sub(lastActiveDate) >= threshold) {
+		return true
+	}
+
+	return false
+}
+
 func (user *UserProfile) GetWantRoleInts() []int {
 	var wantRoles []string
 	if strings.Contains(user.WantRole, ",") {
@@ -168,8 +188,6 @@ func (self *UserCacheModule) QueryUserById(id int64) (*UserProfile, error) {
 	}
 	return nil, errors.New(fmt.Sprintf("not found user[%d]", id))
 }
-
-
 
 // 读取用户信息
 func (self *UserCacheModule) QueryUsersByIds(ids []int64) ([]UserProfile, error) {
