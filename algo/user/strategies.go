@@ -112,7 +112,7 @@ func WeekExposureNoInteractFunc(ctx algo.IContext) error {
 
 	if nearbyProfile != nil && nearbyProfile.WeekExposures != nil {
 		overExposureThreshold := abTest.GetInt("over_exposure_threshold", 10)
-		log.Infof("nearby profile: %+v, over_exposure_threshold: %d")
+		log.Infof("nearby profile: %+v, over_exposure_threshold: %d", nearbyProfile.WeekExposures, overExposureThreshold)
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index)
 			rankInfo := dataInfo.GetRankInfo()
