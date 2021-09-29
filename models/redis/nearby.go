@@ -1,24 +1,30 @@
 package redis
 
 type NearbyProfile struct {
-	UserID        int64                `json:"user_id"`
-	TotalMap      map[string]float32   `json:"total"`
-	AgeMap        map[string]float32   `json:"age"`
-	RoleNameMap   map[string]float32   `json:"role_name"`
-	AffectionMap  map[string]float32   `json:"affection"`
-	HoroscopeMap  map[string]float32   `json:"horoscope"`
-	HeightMap     map[string]float32   `json:"height"`
-	WeightMap     map[string]float32   `json:"weight"`
-	DistanceMap   map[string]float32   `json:"dis"`
-	MobileSysMap  map[string]float32   `json:"mobile_sys"`
-	ActiveTimeMap map[string]float32   `json:"active_time"`
-	FreqWeekMap   map[string]float32   `json:"week"`
-	FreqTimeMap   map[string]float32   `json:"time"`
-	Last30dMap    map[string]float32   `json:"last_30d"`
-	Last7dMap     map[string]float32   `json:"last_7d"`
-	NearSeeMap    map[string]float32   `json:"near_see"`
-	NearShowMap   map[string]float32   `json:"near_show"`
-	VectorMap     map[string][]float32 `json:"vector"`
+	UserID        int64                       `json:"user_id"`
+	TotalMap      map[string]float32          `json:"total"`
+	AgeMap        map[string]float32          `json:"age"`
+	RoleNameMap   map[string]float32          `json:"role_name"`
+	AffectionMap  map[string]float32          `json:"affection"`
+	HoroscopeMap  map[string]float32          `json:"horoscope"`
+	HeightMap     map[string]float32          `json:"height"`
+	WeightMap     map[string]float32          `json:"weight"`
+	DistanceMap   map[string]float32          `json:"dis"`
+	MobileSysMap  map[string]float32          `json:"mobile_sys"`
+	ActiveTimeMap map[string]float32          `json:"active_time"`
+	FreqWeekMap   map[string]float32          `json:"week"`
+	FreqTimeMap   map[string]float32          `json:"time"`
+	Last30dMap    map[string]float32          `json:"last_30d"`
+	Last7dMap     map[string]float32          `json:"last_7d"`
+	NearSeeMap    map[string]float32          `json:"near_see"`
+	NearShowMap   map[string]float32          `json:"near_show"`
+	VectorMap     map[string][]float32        `json:"vector"`
+	WeekExposures map[string]exposureAndClick `json:"week_exposures"`
+}
+
+type exposureAndClick struct {
+	Exposures int `json:"exposures"`
+	Clicks    int `json:"clicks"`
 }
 
 // 读取速配画像信息
