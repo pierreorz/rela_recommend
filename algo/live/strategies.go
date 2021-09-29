@@ -59,8 +59,6 @@ func (self *OldScoreStrategy) oldScore(live *LiveInfo) float32 {
 	return score
 }
 
-
-
 // 融合老策略的分数
 type NewScoreStrategyV2 struct{}
 
@@ -78,19 +76,19 @@ func (self *NewScoreStrategyV2) Do(ctx algo.IContext) error {
 	return err
 }
 func (self *NewScoreStrategyV2) scoreFx(score float32) float32 {
-	return utils.Expit(score/600)
+	return utils.Expit(score / 600)
 }
 func (self *NewScoreStrategyV2) oldScore(live *LiveInfo) float32 {
 	var score float32 = 0
-	score += self.scoreFx(live.LiveCache.DayIncoming) * 0.5//日收入
-	score += self.scoreFx(live.LiveCache.MonthIncoming) * 0.25//月收入
-	score += self.scoreFx(live.LiveCache.Score) * 0.2//当前观看人数
-	score += self.scoreFx(float32(live.LiveCache.FansCount)) * 0.025//粉丝数
-	score += self.scoreFx(float32(live.LiveCache.Live.ShareCount)) * 0.025//分享数
+	score += self.scoreFx(live.LiveCache.DayIncoming) * 0.5                //日收入
+	score += self.scoreFx(live.LiveCache.MonthIncoming) * 0.25             //月收入
+	score += self.scoreFx(live.LiveCache.Score) * 0.2                      //当前观看人数
+	score += self.scoreFx(float32(live.LiveCache.FansCount)) * 0.025       //粉丝数
+	score += self.scoreFx(float32(live.LiveCache.Live.ShareCount)) * 0.025 //分享数
 	return score
 }
 
-type  NewLiveStrategy struct{}
+type NewLiveStrategy struct{}
 
 func (self *NewLiveStrategy) Do(ctx algo.IContext) error {
 	var err error
@@ -134,6 +132,11 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 		rankInfo := liveInfo.GetRankInfo()
 		rankInfo.Level = rankInfo.Level + 99
 		rankInfo.AddRecommendNeedReturn("PER_HOUR_TOP3", 2.0)
+		liveInfo.LiveData.AppendLabelList(&labelItem{
+			ReasonCode: "PER_HOUR_TOP3",
+			Type:       HourRankLabel,
+			weight:     HourRankLabelWeight,
+		})
 	}
 	return nil
 }
@@ -144,18 +147,17 @@ func UserBehaviorExposureDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInf
 
 	if userBehavior := dataInfo.UserItemBehavior; userBehavior != nil {
 		exposure := userBehavior.GetLiveExposure()
-		if exposure.Count>0 {
-			if exposure.Count==2{
-				rankInfo.AddRecommend("exposureDown",0.7)
-			}else if exposure.Count==3{
-				rankInfo.AddRecommend("exposureDown",0.5)
-			}else if exposure.Count==4{
-				rankInfo.AddRecommend("exposureDown",0.3)
-			}else if  exposure.Count>4{
-				rankInfo.AddRecommend("exposureDown",0.1)
+		if exposure.Count > 0 {
+			if exposure.Count == 2 {
+				rankInfo.AddRecommend("exposureDown", 0.7)
+			} else if exposure.Count == 3 {
+				rankInfo.AddRecommend("exposureDown", 0.5)
+			} else if exposure.Count == 4 {
+				rankInfo.AddRecommend("exposureDown", 0.3)
+			} else if exposure.Count > 4 {
+				rankInfo.AddRecommend("exposureDown", 0.1)
 			}
 		}
 	}
 	return nil
 }
-
