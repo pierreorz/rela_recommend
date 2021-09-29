@@ -179,6 +179,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 
 	// 组装用户信息
 	pf.Run("build", func(*performs.Performs) interface{} {
+		log.Infof("user profile: %+v, %+v", userProfile, userProfile.WeekExposures)
 		userInfo := &UserInfo{
 			UserId:      params.UserId,
 			UserCache:   user,
