@@ -168,10 +168,6 @@ func (self *CachePikaModule) MGet(ids []int64, keyFormater string) ([]interface{
 func (self *CachePikaModule) jsonsToValues(keyFormater string, jsons []interface{}, objType reflect.Type) ([]*reflect.Value, error) {
 	objs := make([]*reflect.Value, len(jsons), len(jsons))
 	for i, res := range jsons {
-		if strings.HasPrefix(keyFormater, "nearby_") {
-
-			log.Infof("current res: %s", res)
-		}
 		if res != nil {
 			var newObj = reflect.New(objType)
 			bs, ok := res.([]byte)
@@ -179,10 +175,6 @@ func (self *CachePikaModule) jsonsToValues(keyFormater string, jsons []interface
 				if bs2, errDe := self.decompress(keyFormater, bs); errDe == nil { // 解压缩
 					if err := json.Unmarshal(bs2, newObj.Interface()); err == nil {
 						newValue := reflect.Indirect(newObj)
-						if strings.HasPrefix(keyFormater, "nearby_") {
-							log.Infof("current newValue: %+v", newValue)
-
-						}
 						objs[i] = &newValue
 					} else {
 						log.Warnf("jsonsToValues:%s json %s err:%+v", keyFormater, string(bs2), err.Error())
