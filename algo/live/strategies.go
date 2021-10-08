@@ -133,9 +133,13 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 		rankInfo.Level = rankInfo.Level + 99
 		rankInfo.AddRecommendNeedReturn("PER_HOUR_TOP3", 2.0)
 		liveInfo.LiveData.AppendLabelList(&labelItem{
-			ReasonCode: "PER_HOUR_TOP3",
-			Type:       HourRankLabel,
-			weight:     HourRankLabelWeight,
+			Style: HourRankLabel,
+			Title: multiLanguage{
+				Chs: "上小时TOP3",
+				Cht: "上小時TOP3",
+				En:  "TOP3",
+			},
+			weight: HourRankLabelWeight,
 		})
 	}
 	return nil

@@ -19,11 +19,12 @@ const (
 	LiveTypeLabelWeight
 	ClassifyLabelWeight
 
-	HourRankLabel  = "hour_rank"
-	RecommendLabel = "recommend"
-	WeekStarLabel  = "week_star"
-	LiveTypeLabel  = "live_type"
-	ClassifyLabel  = "classify"
+	HourRankLabel  = 1
+	RecommendLabel = 2
+	WeekStarLabel  = 3
+	PkLabel        = 4
+	BeamingLabel   = 5
+	ClassifyLabel  = 6
 )
 
 // 用户信息
@@ -74,13 +75,16 @@ type LiveInfo struct {
 }
 
 type labelItem struct {
-	ClassifyId int    `json:"classifyId"`
-	LiveType   int    `json:"liveType"`
-	Text       string `json:"text"`
-	ReasonCode string `json:"reasonCode"`
-	Type       string `json:"type"`
+	Title multiLanguage `json:"title"`
+	Style int           `json:"style"`
 
 	weight int
+}
+
+type multiLanguage struct {
+	Chs string `json:"chs"`
+	Cht string `json:"cht"`
+	En  string `json:"en"`
 }
 
 type ILiveRankItemV3 struct {
@@ -126,9 +130,36 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 		}
 		if len(data.Label) > 0 {
 			self.LiveData.AppendLabelList(&labelItem{
-				Text:   data.Label,
-				Type:   RecommendLabel,
+				Style: RecommendLabel,
+				Title: multiLanguage{
+					Chs: data.Label,
+					Cht: "",
+					En:  "",
+				},
 				weight: RecommendLabelWeight,
+			})
+		}
+
+		switch data.Status {
+		case 0:
+			self.LiveData.AppendLabelList(&labelItem{
+				Style: PkLabel,
+				Title: multiLanguage{
+					Chs: "PK中",
+					Cht: "PK中",
+					En:  "PK",
+				},
+				weight: LiveTypeLabelWeight,
+			})
+		case 1:
+			self.LiveData.AppendLabelList(&labelItem{
+				Style: BeamingLabel,
+				Title: multiLanguage{
+					Chs: "连麦中",
+					Cht: "連麥中",
+					En:  "Beaming",
+				},
+				weight: LiveTypeLabelWeight,
 			})
 		}
 
