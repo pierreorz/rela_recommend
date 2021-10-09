@@ -220,7 +220,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 
 		dataJson, err := json.Marshal(data)
 		if err == nil {
-			return dataJson
+			return string(dataJson)
 		}
 		log.Errorf("marshal live data %+v err: %+v", data, err)
 		return nil
