@@ -1,9 +1,11 @@
 package live
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"rela_recommend/factory"
+	"rela_recommend/help"
 	"rela_recommend/log"
 	"rela_recommend/models/pika"
 	"rela_recommend/service/performs"
@@ -53,6 +55,30 @@ func refreshLiveList(duration time.Duration) {
 						} else {
 							return errors.New(fmt.Sprintf("list is nil"))
 						}
+					}
+				} else {
+					return errors.New("cache not ready")
+				}
+			})
+
+			pf.Run("cache_classify", func(perform *performs.Performs) interface{} {
+				if factory.CacheInternalRds != nil {
+					var classifyData []ClassifyItem
+					err := help.GetStructByCache(factory.CacheInternalRds, "liveClassify:data:", &classifyData)
+					if err == nil {
+						tempMap := make(map[int]multiLanguage, len(classifyData))
+						for _, item := range classifyData {
+							var multi multiLanguage
+							err = json.Unmarshal([]byte(item.SkillsJson), &multi)
+							if err == nil {
+								tempMap[int(item.Id)] = multi
+							} else {
+								log.Warnf("live classify unmarshal %s err: %+v", item.SkillsJson, err)
+							}
+						}
+						classifyMap = tempMap
+					} else {
+						return err
 					}
 				} else {
 					return errors.New("cache not ready")

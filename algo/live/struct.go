@@ -10,6 +10,7 @@ import (
 	"rela_recommend/models/redis"
 	rutils "rela_recommend/utils"
 	"sort"
+	"time"
 )
 
 const (
@@ -26,6 +27,22 @@ const (
 	BeamingLabel   = 5
 	ClassifyLabel  = 6
 )
+
+const (
+	FREE = iota
+
+	LinkMicWait // wait for link mic
+	LinkMicBusy // linking
+
+	PkWait    // wait for pk
+	PkBusy    // pking
+	PkSummary // pk summary
+
+	MultiAudio          // multi link
+	MultiAudioEncounter // multi link and encounter
+)
+
+var classifyMap map[int]multiLanguage
 
 // 用户信息
 type UserInfo struct {
@@ -87,17 +104,43 @@ type multiLanguage struct {
 	En  string `json:"en"`
 }
 
+type ClassifyItem struct {
+	Id            int64     `gorm:"primary_key;column:id" json:"id"`
+	Rank          int       `gorm:"column:rank" json:"rank,omitempty"`
+	Icon          string    `gorm:"column:icon" json:"icon,omitempty"`
+	SelectIcon    string    `gorm:"column:selected_icon" json:"selected_icon,omitempty"`
+	Status        int       `gorm:"column:status" json:"status,omitempty"`
+	IsRecommended int       `gorm:"column:is_recommended" json:"is_recommended,omitempty"`
+	SkillsJson    string    `gorm:"column:skills" json:"skills,omitempty"`
+	Guide         string    `gorm:"column:guide" json:"guide,omitempty"`
+	OnlineTime    time.Time `gorm:"column:online_time" json:"online_time,omitempty"`
+	OfflineTime   time.Time `gorm:"column:offline_time" json:"offline_time,omitempty"`
+
+	skill multiLanguage
+}
+
 type ILiveRankItemV3 struct {
-	Rank      int          `json:"rank"`      //等级
-	Score     int          `json:"score"`     //观看人数
-	Label     string       `json:"label"`     //推荐标签
-	Recommend int          `json:"recommend"` //推荐类型
-	LiveId    int64        `json:"liveID"`    //直播ID
-	UserId    int64        `json:"user_id"`   //主播ID
-	Status    int          `json:"status"`    //直播间状态
-	Classify  int          `json:"classify"`  //直播分类
-	Seats     []SeatInfo   `json:"seats"`
-	LabelList []*labelItem `json:"label_list"` //排序好的直播标签，见 https://wiki.rela.me/pages/viewpage.action?pageId=30474709
+	Rank      int            `json:"rank"`      //等级
+	Score     int            `json:"score"`     //观看人数
+	Label     string         `json:"label"`     //推荐标签
+	Recommend int            `json:"recommend"` //推荐类型
+	LiveId    int64          `json:"liveID"`    //直播ID
+	UserId    int64          `json:"user_id"`   //主播ID
+	Status    int            `json:"status"`    //直播间状态
+	Classify  int            `json:"classify"`  //直播分类
+	Seats     []SeatInfo     `json:"seats"`
+	LabelLang *multiLanguage `json:"labelLang"`
+	LabelList []*labelItem   `json:"label_list"` //排序好的直播标签，见 https://wiki.rela.me/pages/viewpage.action?pageId=30474709
+}
+
+func (lrt *ILiveRankItemV3) GetLiveType() int {
+	switch lrt.Status {
+	case LinkMicBusy:
+		return 1
+	case PkBusy, PkSummary:
+		return 2
+	}
+	return 0
 }
 
 type SeatInfo struct {
@@ -128,20 +171,30 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 			log.Errorf("unmarshal live data %+v error: %+v", self.LiveCache.Data4Api, err)
 			return nil
 		}
-		if len(data.Label) > 0 {
+		if len(data.Label) > 0 && data.LabelLang != nil {
 			self.LiveData.AppendLabelList(&labelItem{
 				Style: RecommendLabel,
 				Title: multiLanguage{
-					Chs: data.Label,
-					Cht: "",
-					En:  "",
+					Chs: data.LabelLang.Chs,
+					Cht: data.LabelLang.Cht,
+					En:  data.LabelLang.En,
 				},
 				weight: RecommendLabelWeight,
 			})
 		}
 
-		switch data.Status {
-		case 0:
+		if classifyMap != nil {
+			if lang, ok := classifyMap[data.Classify]; ok {
+				self.LiveData.AppendLabelList(&labelItem{
+					Title:  lang,
+					Style:  ClassifyLabel,
+					weight: ClassifyLabelWeight,
+				})
+			}
+		}
+
+		switch data.GetLiveType() {
+		case 2:
 			self.LiveData.AppendLabelList(&labelItem{
 				Style: PkLabel,
 				Title: multiLanguage{
@@ -163,7 +216,14 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 			})
 		}
 
-		return self.LiveCache.Data4Api
+		data.LabelList = self.LiveData.labelList
+
+		dataJson, err := json.Marshal(data)
+		if err == nil {
+			return dataJson
+		}
+		log.Errorf("marshal live data %+v err: %+v", data, err)
+		return nil
 	} else {
 		return nil
 	}

@@ -33,6 +33,7 @@ var DbW *gorm.DB
 var CacheRds cache.Cache
 
 var CacheLiveRds cache.Cache
+var CacheInternalRds cache.Cache
 
 // redis cache
 var CacheCluster cache.Cache
@@ -148,6 +149,12 @@ func initCache(cfg *conf.Config) {
 	}
 
 	CacheLiveRds, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.RedisLiveAddr, "", 0)
+	if err != nil {
+		log.Error(err.Error())
+	}
+
+	log.Infof("INIT CacheInternal: %s ....", cfg.Rds.RedisInternalAddr)
+	CacheInternalRds, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.RedisInternalAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
