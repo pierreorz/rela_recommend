@@ -77,6 +77,7 @@ func refreshLiveList(duration time.Duration) {
 							}
 						}
 						classifyMap = tempMap
+						return len(classifyMap)
 					} else {
 						return err
 					}
