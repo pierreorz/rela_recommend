@@ -578,7 +578,7 @@ func RecExposureAssignmentsStrategyFunc(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.ItemBehavior == nil {
+		if dataInfo.ItemBehavior != nil {
 			exposureCount :=dataInfo.ItemBehavior.GetRecExposure().Count
 			if exposureCount>maxNum{
 				rankInfo.AddRecommend("max_exposure_down",0.9)
@@ -594,7 +594,7 @@ func AroundExposureAssignmentsStrategyFunc(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.ItemBehavior == nil {
+		if dataInfo.ItemBehavior != nil {
 			exposureCount :=dataInfo.ItemBehavior.GetAroundExposure().Count
 			if exposureCount>maxNum{
 				rankInfo.AddRecommend("max_exposure_down",0.9)
