@@ -54,7 +54,7 @@ func (self *UserBehavior) GetMomentListInteract() *Behavior {
 }
 
 func (self *UserBehavior) GetAroundInteract() *Behavior {
-	return self.Gets("moment.around:like", "moment.around:share","moment.around:follow")
+	return self.Gets("moment.around:like","moment.around:comment")
 }
 
 func (self *UserBehavior) GetAroundExposure() *Behavior {
