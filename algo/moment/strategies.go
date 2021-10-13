@@ -518,7 +518,7 @@ func  NeverInteractStrategyFunc(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.ItemBehavior == nil || dataInfo.ItemBehavior.GetAroundInteract().Count < interactNum { //
+		if dataInfo.ItemBehavior == nil || dataInfo.ItemBehavior.GetMomentListInteract().Count < interactNum { //
 			if dataInfo.MomentCache != nil && int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) < hour {
 				rankInfo.AddRecommend("NeverInteractWeight", 1.2)
 			}
