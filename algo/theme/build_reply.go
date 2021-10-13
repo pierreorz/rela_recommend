@@ -83,7 +83,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			} else if custom == "ai" { //默认推荐数据
 				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(params.UserId, -999999999, recListKeyFormatter)
 				if listErr == nil {
-					log.Infof("ai====================================",params.UserId)
 					for _, recommend := range recommendList {
 						replyIdList = append(replyIdList, recommend.ThemeReplyID)
 						themeIdList = append(themeIdList, recommend.ThemeID)
@@ -94,7 +93,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			} else {
 				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(params.UserId, -999999999, recListKeyFormatter)
 				if listErr == nil {
-					log.Infof("====================================",params.UserId)
 					for _, recommend := range recommendList {
 						replyIdList = append(replyIdList, recommend.ThemeReplyID)
 						themeIdList = append(themeIdList, recommend.ThemeID)
@@ -176,8 +174,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					for _, searchRes := range searchReplyMap {
 						replyIdSet.Append(searchRes.Id)
 					}
-					for themeId, v := range searchThemeMap {
-						log.Infof("serch=====================%d,%v",themeId,v)
+					for themeId, _ := range searchThemeMap {
 						searchReplyThemeIds = append(searchReplyThemeIds, themeId)
 					}
 					replyIdList = replyIdSet.ToList()
@@ -205,7 +202,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return nil
 		},
 	})
-	log.Infof("themeIdList=====================%+v",themeIdList)
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
 	log.Debugf("all themeIds: %+v", themeIds)
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
@@ -325,7 +321,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				// 计算推荐类型
 				var isTop int = 0
 				var recommends []algo.RecommendItem
-				log.Infof("searchMap=====================",themeId,searchThemeMap[themeId])
 				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
