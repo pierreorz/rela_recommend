@@ -174,7 +174,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					for _, searchRes := range searchReplyMap {
 						replyIdSet.Append(searchRes.Id)
 					}
-					for themeId, _ := range searchThemeMap {
+					for themeId, v := range searchThemeMap {
+						log.Infof("serch=====================%d,%v",themeId,v)
 						searchReplyThemeIds = append(searchReplyThemeIds, themeId)
 					}
 					replyIdList = replyIdSet.ToList()
@@ -444,9 +445,8 @@ func DoBuildDetailReplyData(ctx algo.IContext) error {
 
 // 搜索返回的推荐置顶与算法返回的进行去重，以运营配置优先
 func themeReplayReplaction(searchReplyMap map[int64]search.SearchMomentAuditResDataItem, themeReplyMap map[int64]int64, scenery string) map[int64]int64 {
-	for mid, searchRes := range searchReplyMap {
+	for _, searchRes := range searchReplyMap {
 		// 运营配置和算法推荐去重复，以运营配置优先
-		log.Infof("serch=====================:%d,%v",mid,searchRes)
 		if _, theThemeOK := themeReplyMap[searchRes.ParentId]; theThemeOK {
 			if len(searchRes.GetCurrentTopType(scenery)) > 0 {
 				themeReplyMap[searchRes.ParentId] = searchRes.Id
