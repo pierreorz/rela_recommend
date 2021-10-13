@@ -323,7 +323,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				// 计算推荐类型
 				var isTop int = 0
 				var recommends []algo.RecommendItem
-				log.Infof("searchMap",searchThemeMap[themeId])
+				log.Infof("searchMap=====================",themeId,searchThemeMap[themeId])
 				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
