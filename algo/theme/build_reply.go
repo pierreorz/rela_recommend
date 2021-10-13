@@ -361,7 +361,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				}
 				dataIds = append(dataIds, themeId)
 				dataList = append(dataList, info)
-				log.Infof("============",isTop,recommends)
+				log.Debugf("all recommends: %+v", recommends)
+				log.Infof("=====================",isTop)
 			}
 		}
 		ctx.SetUserInfo(userInfo)
