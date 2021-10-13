@@ -313,13 +313,13 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		backendRecommendEventScore := abtest.GetFloat("backend_recommend_event_score", 1.4)
 		//canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
-		log.Infof("themeList=====================: %+v",themes)
 		for _, theme := range themes {
 			//log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
 			if theme.Moments != nil && theme.Moments.Id > 0 {
 				themeId := theme.Moments.Id
 				replyId, replyIdOk := themeReplyMap[themeId]
 				reply, replyInfoOK := replysMap[replyId]
+				log.Infof("themeList=====================",themeId,replyId,reply)
 				// 计算推荐类型
 				var isTop int = 0
 				var recommends []algo.RecommendItem
