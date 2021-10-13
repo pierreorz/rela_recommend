@@ -248,7 +248,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 				}
 				themeIds = utils.NewSetInt64FromArray(themeIds).RemoveArray(remove_list).ToList()
-				log.Debugf("fiter=====================: %+v", themeIds)
 			}
 			return themesMapErr
 		},
@@ -314,6 +313,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		backendRecommendEventScore := abtest.GetFloat("backend_recommend_event_score", 1.4)
 		//canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
+		log.Infof("themeList=====================: %+v",themes)
 		for _, theme := range themes {
 			//log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
 			if theme.Moments != nil && theme.Moments.Id > 0 {
