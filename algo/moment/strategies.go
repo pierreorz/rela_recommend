@@ -514,11 +514,12 @@ func NeverSeeStrategyFunc(ctx algo.IContext) error {
 func  NeverInteractStrategyFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	interactNum := abtest.GetFloat64("interact_num", 1.0)
+	hour :=abtest.GetInt("not_interact_hour",3)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.ItemBehavior == nil || dataInfo.ItemBehavior.GetAroundInteract().Count < interactNum { //
-			if dataInfo.MomentCache != nil && int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) < 5 {
+		if dataInfo.ItemBehavior == nil || dataInfo.ItemBehavior.GetMomentListInteract().Count < interactNum { //
+			if dataInfo.MomentCache != nil && int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) < hour {
 				rankInfo.AddRecommend("NeverInteractWeight", 1.2)
 			}
 		}
@@ -571,6 +572,37 @@ func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
+func RecExposureAssignmentsStrategyFunc(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	maxNum := abtest.GetFloat64("max_exposure_count", 100.0)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.ItemBehavior != nil {
+			exposureCount :=dataInfo.ItemBehavior.GetRecExposure().Count
+			if exposureCount>maxNum{
+				rankInfo.AddRecommend("max_exposure_down",0.9)
+			}
+		}
+	}
+	return nil
+}
+
+func AroundExposureAssignmentsStrategyFunc(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	maxNum := abtest.GetFloat64("max_exposure_count", 100.0)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.ItemBehavior != nil {
+			exposureCount :=dataInfo.ItemBehavior.GetAroundExposure().Count
+			if exposureCount>maxNum{
+				rankInfo.AddRecommend("max_exposure_down",0.9)
+			}
+		}
+	}
+	return nil
+}
 
 func adHopeIndexStrategyFunc(ctx algo.IContext) error{
 	abtest :=ctx.GetAbTest()
