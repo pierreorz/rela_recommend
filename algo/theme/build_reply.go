@@ -210,6 +210,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var replysMap = map[int64]redis.MomentsAndExtend{}
 	var replysUserIds = []int64{}
 	var themes = []redis.MomentsAndExtend{}
+	var themes_event = []redis.MomentsAndExtend{}
 	var themesUserIds = []int64{}
 	var remove_list = []int64{}
 
@@ -233,9 +234,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 		"theme_event_filter": func(*performs.Performs) interface{} { // 过滤活动时间过期
 			var themesMapErr error
-			themes, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
+			themes_event, themesMapErr = momentCache.QueryMomentsByIds(themeIds)
 			if themesMapErr == nil {
-				for _, mom := range themes { //活动反例过滤
+				for _, mom := range themes_event { //活动反例过滤
 					if canExposeEvent && mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity &&
 						mom.MomentsProfile.ActivityInfo != nil && mom.MomentsProfile.ActivityInfo.DateType == 0 &&
 						mom.CanRecommend() == recommend_icp {
