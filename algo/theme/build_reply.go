@@ -345,7 +345,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-				log.Infof("===================",recommends,isTop,recommends)
 				info := &DataInfo{
 					DataId:            themeId,
 					UserCache:         usersMap[theme.Moments.UserId],
@@ -362,7 +361,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				}
 				dataIds = append(dataIds, themeId)
 				dataList = append(dataList, info)
-
+				log.Infof("============",isTop,recommends)
 			}
 		}
 		ctx.SetUserInfo(userInfo)
