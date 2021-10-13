@@ -206,6 +206,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	log.Debugf("reply_map=====================:%+v", searchReplyMap)
 	log.Debugf(	"theme_reply_map=====================:%+v\n", themeReplyMap)
 	log.Infof("serchReply=====================%+v",searchReplyThemeIds)
+	log.Infof("themeIdList===================%+v",themeIdList)
+	log.Infof("searchThemeNoReturnIds===================%+v",searchThemeNoReturnIds)
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
 	log.Debugf("all themeIds: %+v", themeIds)
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
