@@ -83,6 +83,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			} else if custom == "ai" { //默认推荐数据
 				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(params.UserId, -999999999, recListKeyFormatter)
 				if listErr == nil {
+					log.Infof("ai====================================",params.UserId)
 					for _, recommend := range recommendList {
 						replyIdList = append(replyIdList, recommend.ThemeReplyID)
 						themeIdList = append(themeIdList, recommend.ThemeID)
@@ -93,6 +94,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			} else {
 				recommendList, listErr := momentCache.GetThemeRelpyListOrDefault(params.UserId, -999999999, recListKeyFormatter)
 				if listErr == nil {
+					log.Infof("====================================",params.UserId)
 					for _, recommend := range recommendList {
 						replyIdList = append(replyIdList, recommend.ThemeReplyID)
 						themeIdList = append(themeIdList, recommend.ThemeID)
@@ -203,6 +205,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return nil
 		},
 	})
+	log.Infof("themeIdList=====================%+v",themeIdList)
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
 	log.Debugf("all themeIds: %+v", themeIds)
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
