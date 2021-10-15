@@ -34,6 +34,14 @@ func GetCachedLiveMapMap(liveType int) map[int64]*pika.LiveCache {
 
 // 通过直播分类获取直播列表
 func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache {
+	// 客户端和服务端约定了两个大数分别代表 video 和 multi_audio
+	if classify == 32768 {
+		typeId = 1
+		classify = 1
+	} else if classify == 65535 {
+		typeId = 3
+		classify = 1
+	}
 	lives := []pika.LiveCache{}
 	if typeId <= 0 {
 		typeId = -1
@@ -109,7 +117,7 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 		liveCache.StarsCount = live.StarsCount
 		liveCache.TopCount = live.TopCount
 		liveCache.BottomScore = live.BottomScore
-		liveCache.NowIncoming =live.NowIncoming
+		liveCache.NowIncoming = live.NowIncoming
 		liveCache.DayIncoming = live.DayIncoming
 		liveCache.MonthIncoming = live.MonthIncoming
 		liveCache.Data4Api = live.Data
