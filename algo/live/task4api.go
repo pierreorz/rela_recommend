@@ -35,12 +35,12 @@ func GetCachedLiveMapMap(liveType int) map[int64]*pika.LiveCache {
 // 通过直播分类获取直播列表
 func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache {
 	// 客户端和服务端约定了两个大数分别代表 video 和 multi_audio
-	if classify == 32768 {
+	if classify == typeBigVideo {
 		typeId = 1
-		classify = 1
-	} else if classify == 65535 {
+		classify = typeRecommend
+	} else if classify == typeBigMultiAudio {
 		typeId = 3
-		classify = 1
+		classify = typeRecommend
 	}
 	lives := []pika.LiveCache{}
 	if typeId <= 0 {
@@ -49,7 +49,7 @@ func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache 
 	liveList := GetCachedLiveMapList(typeId) // -1 获取所有直播
 	for i, live := range liveList {
 		// 不限制 或 类型是特定类型; classify=1时为推荐分类，不限制分类
-		if classify <= 1 || live.Live.Classify == classify {
+		if classify <= typeRecommend || live.Live.Classify == classify {
 			lives = append(lives, liveList[i])
 		}
 	}

@@ -26,6 +26,10 @@ const (
 	PkLabel        = 4
 	BeamingLabel   = 5
 	ClassifyLabel  = 6
+
+	typeRecommend     = 1
+	typeBigVideo      = 32768
+	typeBigMultiAudio = 65535
 )
 
 const (
@@ -163,8 +167,17 @@ func (self *LiveInfo) GetDataId() int64 {
 }
 
 func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
+	params := ctx.GetRequest()
 
-	if self.LiveCache != nil {
+	// 只有在“推荐、视频、热聊“的情况下，返回label_list
+	var needReturnLabel bool
+	classify := rutils.GetInt(params.Params["classify"])
+	switch classify {
+	case typeRecommend, typeBigVideo, typeBigMultiAudio:
+		needReturnLabel = true
+	}
+
+	if needReturnLabel && self.LiveCache != nil {
 		var data ILiveRankItemV3
 		err := json.Unmarshal([]byte(self.LiveCache.Data4Api.(string)), &data)
 		if err != nil {
