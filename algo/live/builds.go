@@ -105,7 +105,7 @@ func DoBuildData(ctx algo.IContext) error {
 				RankInfo: &algo.RankInfo{}}
 			if lives[i].Live.IsWeekStar {
 				liveInfo.GetRankInfo().AddRecommendNeedReturn("WEEK_STAR", 1.0)
-				liveInfo.LiveData.AppendLabelList(&labelItem{
+				liveInfo.LiveData.AddLabel(&labelItem{
 					Style: WeekStarLabel,
 					Title: multiLanguage{
 						Chs: "闪耀周星",
@@ -113,6 +113,7 @@ func DoBuildData(ctx algo.IContext) error {
 						En:  "Weekly Star",
 					},
 					weight: WeekStarLabelWeight,
+					level:  level1,
 				})
 			}
 			livesInfo = append(livesInfo, &liveInfo)

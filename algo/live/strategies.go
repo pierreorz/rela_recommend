@@ -132,7 +132,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 		rankInfo := liveInfo.GetRankInfo()
 		rankInfo.Level = rankInfo.Level + 99
 		rankInfo.AddRecommendNeedReturn("PER_HOUR_TOP3", 2.0)
-		liveInfo.LiveData.AppendLabelList(&labelItem{
+		liveInfo.LiveData.AddLabel(&labelItem{
 			Style: HourRankLabel,
 			Title: multiLanguage{
 				Chs: "上小时TOP3",
@@ -140,6 +140,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 				En:  "TOP3",
 			},
 			weight: HourRankLabelWeight,
+			level:  level1,
 		})
 	}
 	return nil

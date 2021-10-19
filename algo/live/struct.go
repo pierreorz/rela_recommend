@@ -9,7 +9,6 @@ import (
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	rutils "rela_recommend/utils"
-	"sort"
 	"time"
 )
 
@@ -30,6 +29,10 @@ const (
 	typeRecommend     = 1
 	typeBigVideo      = 32768
 	typeBigMultiAudio = 65535
+
+	level1 = 1
+	level2 = 2
+	level3 = 3
 )
 
 const (
@@ -63,24 +66,45 @@ func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
 type LiveData struct {
 	PreHourIndex int // 小时榜排名，1开始
 	PreHourRank  int // 小时榜排名，1开始, 相同分数有并列名次
-	labelList    []*labelItem
+	level1Label  *labelItem
+	level2Label  *labelItem
+	level3Label  *labelItem
 }
 
-func (ld *LiveData) AppendLabelList(item *labelItem) {
-	if ld.labelList == nil {
-		ld.labelList = make([]*labelItem, 0)
+func (ld *LiveData) AddLabel(item *labelItem) {
+	switch item.level {
+	case level1:
+		if ld.level1Label == nil {
+			ld.level1Label = item
+		} else if ld.level1Label.weight > item.weight {
+			ld.level1Label = item
+		}
+	case level2:
+		if ld.level2Label == nil {
+			ld.level2Label = item
+		} else if ld.level2Label.weight > item.weight {
+			ld.level2Label = item
+		}
+	case level3:
+		if ld.level3Label == nil {
+			ld.level3Label = item
+		} else if ld.level3Label.weight > item.weight {
+			ld.level3Label = item
+		}
 	}
+}
 
-	ld.labelList = append(ld.labelList, item)
-	sort.SliceStable(ld.labelList, func(i, j int) bool {
-		iItem := ld.labelList[i]
-		jItem := ld.labelList[j]
-		return iItem.weight <= jItem.weight
-	})
-
-	if len(ld.labelList) > 2 {
-		ld.labelList = ld.labelList[:2]
+func (ld *LiveData) ToLabelList() []*labelItem {
+	var labels []*labelItem
+	for _, l := range []*labelItem{ld.level1Label, ld.level2Label, ld.level3Label} {
+		if l != nil {
+			labels = append(labels, l)
+		}
+		if len(labels) >= 2 {
+			break
+		}
 	}
+	return labels
 }
 
 // 主播信息
@@ -100,6 +124,7 @@ type labelItem struct {
 	Style int           `json:"style"`
 
 	weight int
+	level  int
 }
 
 type multiLanguage struct {
@@ -185,7 +210,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 			return nil
 		}
 		if len(data.Label) > 0 && data.LabelLang != nil {
-			self.LiveData.AppendLabelList(&labelItem{
+			self.LiveData.AddLabel(&labelItem{
 				Style: RecommendLabel,
 				Title: multiLanguage{
 					Chs: data.LabelLang.Chs,
@@ -193,22 +218,24 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					En:  data.LabelLang.En,
 				},
 				weight: RecommendLabelWeight,
+				level:  level1,
 			})
 		}
 
 		if classifyMap != nil {
 			if lang, ok := classifyMap[data.Classify]; ok {
-				self.LiveData.AppendLabelList(&labelItem{
+				self.LiveData.AddLabel(&labelItem{
 					Title:  lang,
 					Style:  ClassifyLabel,
 					weight: ClassifyLabelWeight,
+					level:  level3,
 				})
 			}
 		}
 
 		switch data.GetLiveType() {
 		case 2:
-			self.LiveData.AppendLabelList(&labelItem{
+			self.LiveData.AddLabel(&labelItem{
 				Style: PkLabel,
 				Title: multiLanguage{
 					Chs: "PK中",
@@ -216,9 +243,10 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					En:  "PK",
 				},
 				weight: LiveTypeLabelWeight,
+				level:  level2,
 			})
 		case 1:
-			self.LiveData.AppendLabelList(&labelItem{
+			self.LiveData.AddLabel(&labelItem{
 				Style: BeamingLabel,
 				Title: multiLanguage{
 					Chs: "连麦中",
@@ -226,10 +254,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					En:  "Beaming",
 				},
 				weight: LiveTypeLabelWeight,
+				level:  level2,
 			})
 		}
 
-		data.LabelList = self.LiveData.labelList
+		data.LabelList = self.LiveData.ToLabelList()
 
 		dataJson, err := json.Marshal(data)
 		if err == nil {
