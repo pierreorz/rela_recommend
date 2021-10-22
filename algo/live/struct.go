@@ -202,7 +202,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 		needReturnLabel = true
 	}
 
-	if needReturnLabel && self.LiveCache != nil {
+	liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
+
+	if liveLabelSwitchON && needReturnLabel && self.LiveCache != nil {
 		var data ILiveRankItemV3
 		err := json.Unmarshal([]byte(self.LiveCache.Data4Api.(string)), &data)
 		if err != nil {
