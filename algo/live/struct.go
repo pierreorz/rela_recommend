@@ -192,85 +192,93 @@ func (self *LiveInfo) GetDataId() int64 {
 }
 
 func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
-	params := ctx.GetRequest()
+	if self.LiveCache != nil {
+		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
 
-	// 只有在“推荐、视频、热聊“的情况下，返回label_list
-	var needReturnLabel bool
-	classify := rutils.GetInt(params.Params["classify"])
-	switch classify {
-	case typeRecommend, typeBigVideo, typeBigMultiAudio:
-		needReturnLabel = true
-	}
+		params := ctx.GetRequest()
 
-	liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
-
-	if liveLabelSwitchON && needReturnLabel && self.LiveCache != nil {
-		var data ILiveRankItemV3
-		err := json.Unmarshal([]byte(self.LiveCache.Data4Api.(string)), &data)
-		if err != nil {
-			log.Errorf("unmarshal live data %+v error: %+v", self.LiveCache.Data4Api, err)
-			return nil
-		}
-		if len(data.Label) > 0 && data.LabelLang != nil {
-			self.LiveData.AddLabel(&labelItem{
-				Style: RecommendLabel,
-				Title: multiLanguage{
-					Chs: data.LabelLang.Chs,
-					Cht: data.LabelLang.Cht,
-					En:  data.LabelLang.En,
-				},
-				weight: RecommendLabelWeight,
-				level:  level1,
-			})
+		// 只有在“推荐、视频、热聊“的情况下，返回label_list
+		var needReturnLabel bool
+		classify := rutils.GetInt(params.Params["classify"])
+		switch classify {
+		case typeRecommend, typeBigVideo, typeBigMultiAudio:
+			needReturnLabel = true
 		}
 
-		if classifyMap != nil {
-			if lang, ok := classifyMap[data.Classify]; ok {
-				self.LiveData.AddLabel(&labelItem{
-					Title:  lang,
-					Style:  ClassifyLabel,
-					weight: ClassifyLabelWeight,
-					level:  level3,
-				})
+		if liveLabelSwitchON && needReturnLabel {
+			if dataStr, ok := self.LiveCache.Data4Api.(string); ok {
+
+				var data ILiveRankItemV3
+				err := json.Unmarshal([]byte(dataStr), &data)
+				if err != nil {
+					log.Errorf("unmarshal live data %+v error: %+v", self.LiveCache.Data4Api, err)
+					return nil
+				}
+				if len(data.Label) > 0 && data.LabelLang != nil {
+					self.LiveData.AddLabel(&labelItem{
+						Style: RecommendLabel,
+						Title: multiLanguage{
+							Chs: data.LabelLang.Chs,
+							Cht: data.LabelLang.Cht,
+							En:  data.LabelLang.En,
+						},
+						weight: RecommendLabelWeight,
+						level:  level1,
+					})
+				}
+
+				if classifyMap != nil {
+					if lang, ok := classifyMap[data.Classify]; ok {
+						self.LiveData.AddLabel(&labelItem{
+							Title:  lang,
+							Style:  ClassifyLabel,
+							weight: ClassifyLabelWeight,
+							level:  level3,
+						})
+					}
+				}
+
+				switch data.GetLiveType() {
+				case 2:
+					self.LiveData.AddLabel(&labelItem{
+						Style: PkLabel,
+						Title: multiLanguage{
+							Chs: "PK中",
+							Cht: "PK中",
+							En:  "PK",
+						},
+						weight: LiveTypeLabelWeight,
+						level:  level2,
+					})
+				case 1:
+					self.LiveData.AddLabel(&labelItem{
+						Style: BeamingLabel,
+						Title: multiLanguage{
+							Chs: "连麦中",
+							Cht: "連麥中",
+							En:  "Beaming",
+						},
+						weight: LiveTypeLabelWeight,
+						level:  level2,
+					})
+				}
+
+				data.LabelList = self.LiveData.ToLabelList()
+
+				dataJson, err := json.Marshal(data)
+				if err == nil {
+					return string(dataJson)
+				}
+				log.Errorf("marshal live data %+v err: %+v", data, err)
+				return nil
 			}
+		} else {
+			return self.LiveCache.Data4Api
 		}
-
-		switch data.GetLiveType() {
-		case 2:
-			self.LiveData.AddLabel(&labelItem{
-				Style: PkLabel,
-				Title: multiLanguage{
-					Chs: "PK中",
-					Cht: "PK中",
-					En:  "PK",
-				},
-				weight: LiveTypeLabelWeight,
-				level:  level2,
-			})
-		case 1:
-			self.LiveData.AddLabel(&labelItem{
-				Style: BeamingLabel,
-				Title: multiLanguage{
-					Chs: "连麦中",
-					Cht: "連麥中",
-					En:  "Beaming",
-				},
-				weight: LiveTypeLabelWeight,
-				level:  level2,
-			})
-		}
-
-		data.LabelList = self.LiveData.ToLabelList()
-
-		dataJson, err := json.Marshal(data)
-		if err == nil {
-			return string(dataJson)
-		}
-		log.Errorf("marshal live data %+v err: %+v", data, err)
-		return nil
 	} else {
 		return nil
 	}
+	return nil
 }
 
 func (self *LiveInfo) SetRankInfo(rankInfo *algo.RankInfo) {
