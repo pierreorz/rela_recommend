@@ -2,12 +2,14 @@ package moment
 
 import (
 	"math"
+	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"strings"
+	"time"
 )
 
 // 按照6小时优先策略
@@ -653,6 +655,56 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 	return nil
 }
 
+func ThemeReplyIndexFunc(ctx algo.IContext) error{
+	abtest := ctx.GetAbTest()
+	index_ := abtest.GetInt("themereply_index",2)//指定位置间隔
+	isTop :=0
+	themeListRec :=make([]int64,0)
+	themeListHot :=make([]int64,0)
+	for index :=0; index <ctx.GetDataLength();index++{
+		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo :=dataInfo.GetRankInfo()
+		if rankInfo.IsTop>0{
+			isTop = 1
+		}
+		userItemBehavior :=dataInfo.UserItemBehavior
+		if moms :=dataInfo.MomentCache;moms!=nil{
+			if moms.MomentsType=="themereply"&&rankInfo.IsTop>0{
+				return nil
+			}
+			if moms.MomentsType=="themereply"&&userItemBehavior==nil{
+				if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
+					if int(ctx.GetCreateTime().Sub(moms.InsertTime).Hours())<=24{
+						themeListRec=append(themeListRec,moms.Id)
+					}
+				}else{
+					themeListHot=append(themeListHot,moms.Id)
+				}
+			}
+		}
+	}
+	choice :=int64(0)
+	if len(themeListRec)>0||len(themeListHot)>0{
+		if len(themeListRec)>0{
+			choice =RandChoiceOne(themeListRec)
+		}else{
+			choice =RandChoiceOne(themeListHot)
+		}
+	}
+	if choice!=0{
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo :=dataInfo.GetRankInfo()
+			if moms :=dataInfo.MomentCache;moms!=nil{
+				if moms.Id==choice{
+					rankInfo.HopeIndex=index_+isTop
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func MaybeTopLive(ctx algo.IContext, user *redis.UserProfile) bool {
 	if user.LiveInfo != nil && user.LiveInfo.Status == 1 && (user.LiveInfo.ExpireDate > ctx.GetCreateTime().Unix()) {
 		return true
@@ -673,4 +725,13 @@ func TestHopIndexStrategyFunc(ctx algo.IContext) error {
 		}
 	}
 	return nil
+}
+
+func RandChoiceOne(list []int64) int64{
+	if list!=nil&&len(list)>0{
+		rand.Seed(time.Now().UnixNano())
+		rand.Shuffle(len(list), func(i, j int) { list[i], list[j] = list[j], list[i] })
+		return list[0]
+	}
+	return 0
 }
