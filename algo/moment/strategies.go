@@ -6,6 +6,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"strings"
@@ -684,6 +685,8 @@ func ThemeReplyIndexFunc(ctx algo.IContext) error{
 		}
 	}
 	choice :=int64(0)
+	log.Warnf("themeListRec,%s",themeListRec)
+	log.Warnf("themeListHot,%s",themeListHot)
 	if len(themeListRec)>0||len(themeListHot)>0{
 		if len(themeListRec)>0{
 			choice =RandChoiceOne(themeListRec)
@@ -691,6 +694,7 @@ func ThemeReplyIndexFunc(ctx algo.IContext) error{
 			choice =RandChoiceOne(themeListHot)
 		}
 	}
+	log.Warnf("chioce,%s",choice)
 	if choice!=0{
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
