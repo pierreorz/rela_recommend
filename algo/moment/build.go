@@ -159,7 +159,6 @@ func DoBuildData(ctx algo.IContext) error {
 				var errBussiness error
 				if abtest.GetBool("bussiness_recommend_switched", false) { // 是否开启业务推荐
 					bussinessIdList, errBussiness = momentCache.GetInt64ListOrDefault(params.UserId,-9999999, "bussiness_rec_moment_data:%d")
-					log.Warnf("bussiness id %s",bussinessIdList)
 					if errBussiness == nil {
 						return len(bussinessIdList)
 					}
@@ -168,6 +167,7 @@ func DoBuildData(ctx algo.IContext) error {
 							bussinessMap[id] = 1
 						}
 					}
+					log.Warnf("bussiness id %s",bussinessMap)
 				}
 				return errBussiness
 			},"better_user": func(*performs.Performs) interface{} {
