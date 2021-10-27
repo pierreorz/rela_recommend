@@ -663,6 +663,7 @@ func BussinessExposureFunc(ctx algo.IContext) error{
 		rankInfo :=dataInfo.GetRankInfo()
 		userItemBehavior :=dataInfo.UserItemBehavior
 		if rankInfo.IsBussiness>0{
+			log.Warnf("bussiness%s",dataInfo.MomentCache.Id)
 			if moms :=dataInfo.MomentCache;moms!=nil{
 				if userItemBehavior==nil{
 					bussinessIdList=append(bussinessIdList,moms.Id)
