@@ -159,6 +159,7 @@ func DoBuildData(ctx algo.IContext) error {
 				var errBussiness error
 				if abtest.GetBool("bussiness_recommend_switched", false) { // 是否开启业务推荐
 					bussinessIdList, errBussiness = momentCache.GetInt64List(params.UserId, "bussiness_rec_moment_data:%s")
+					log.Warnf("bussiness id %s",bussinessIdList)
 					if errBussiness == nil {
 						return len(bussinessIdList)
 					}
