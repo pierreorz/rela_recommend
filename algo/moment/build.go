@@ -158,7 +158,7 @@ func DoBuildData(ctx algo.IContext) error {
 			},"bussiness": func(*performs.Performs) interface{} { // 业务推荐id列表
 				var errBussiness error
 				if abtest.GetBool("bussiness_recommend_switched", false) { // 是否开启业务推荐
-					bussinessIdList, errBussiness = momentCache.GetInt64List(params.UserId, "bussiness_rec_moment_data:%s")
+					bussinessIdList, errBussiness = momentCache.GetInt64ListOrDefault(params.UserId,-9999999, "bussiness_rec_moment_data:%s")
 					log.Warnf("bussiness id %s",bussinessIdList)
 					if errBussiness == nil {
 						return len(bussinessIdList)
