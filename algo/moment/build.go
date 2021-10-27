@@ -162,7 +162,8 @@ func DoBuildData(ctx algo.IContext) error {
 					if errBussiness == nil {
 						return len(bussinessIdList)
 					}
-					if bussinessIdList!=nil&&len(bussinessIdList)>0{
+					log.Warnf("bussiness id %s",bussinessIdList)
+					if len(bussinessIdList)>0{
 						for _, id := range bussinessIdList {
 							bussinessMap[id] = 1
 						}
