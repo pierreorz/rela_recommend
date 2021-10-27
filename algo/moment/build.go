@@ -159,16 +159,14 @@ func DoBuildData(ctx algo.IContext) error {
 				var errBussiness error
 				if abtest.GetBool("bussiness_recommend_switched", false) { // 是否开启业务推荐
 					bussinessIdList, errBussiness = momentCache.GetInt64ListOrDefault(params.UserId,-9999999, "bussiness_rec_moment_data:%d")
-					if errBussiness == nil {
-						return len(bussinessIdList)
-					}
-					log.Warnf("bussiness id %s",bussinessIdList)
 					if len(bussinessIdList)>0{
 						for _, id := range bussinessIdList {
 							bussinessMap[id] = 1
 						}
 					}
-					log.Warnf("bussiness id %s",bussinessMap)
+					if errBussiness == nil {
+						return len(bussinessIdList)
+					}
 				}
 				return errBussiness
 			},"better_user": func(*performs.Performs) interface{} {
