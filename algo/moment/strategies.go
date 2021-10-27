@@ -674,13 +674,13 @@ func BussinessExposureFunc(ctx algo.IContext) error{
 		choice =RandChoiceOne(bussinessIdList)
 	}
 	rand.Seed(time.Now().UnixNano())
-	var intNum =rand.Intn(10)
+	//var intNum =rand.Intn(10)
 	if choice != 0 {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if moms := dataInfo.MomentCache; moms != nil {
-				if moms.Id == choice&&intNum==5{
+				if moms.Id == choice{
 					rankInfo.HopeIndex =0
 				}
 			}
