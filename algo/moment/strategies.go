@@ -681,7 +681,7 @@ func BussinessExposureFunc(ctx algo.IContext) error{
 			rankInfo := dataInfo.GetRankInfo()
 			if moms := dataInfo.MomentCache; moms != nil {
 				if moms.Id == choice{
-					rankInfo.HopeIndex =0
+					rankInfo.HopeIndex =1
 				}
 			}
 		}
