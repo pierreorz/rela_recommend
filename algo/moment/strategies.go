@@ -6,6 +6,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"strings"
@@ -673,6 +674,7 @@ func BussinessExposureFunc(ctx algo.IContext) error{
 	if len(bussinessIdList)>0{
 		choice =RandChoiceOne(bussinessIdList)
 	}
+	log.Warnf("bussiness id %s",choice)
 	rand.Seed(time.Now().UnixNano())
 	//var intNum =rand.Intn(10)
 	if choice != 0 {
