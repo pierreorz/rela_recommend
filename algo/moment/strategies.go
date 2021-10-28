@@ -655,6 +655,38 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 	return nil
 }
 
+func BussinessExposureFunc(ctx algo.IContext) error{
+	bussinessIdList :=make([]int64,0)
+	for index :=0; index <ctx.GetDataLength();index++{
+		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo :=dataInfo.GetRankInfo()
+		userItemBehavior :=dataInfo.UserItemBehavior
+		if rankInfo.IsBussiness>0{
+			if moms :=dataInfo.MomentCache;moms!=nil{
+				if userItemBehavior==nil{
+					bussinessIdList=append(bussinessIdList,moms.Id)
+				}
+			}
+		}
+	}
+	choice :=int64(0)
+	if len(bussinessIdList)>0{
+		choice =RandChoiceOne(bussinessIdList)
+	}
+	//var intNum =rand.Intn(10)
+	if choice != 0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if moms := dataInfo.MomentCache; moms != nil {
+				if moms.Id == choice{
+					rankInfo.HopeIndex =4
+				}
+			}
+		}
+	}
+	return nil
+}
 func ThemeReplyIndexFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
 	index_ := abtest.GetInt("themereply_index",2)//指定位置间隔
