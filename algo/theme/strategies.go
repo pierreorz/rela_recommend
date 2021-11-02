@@ -219,7 +219,7 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 //增加广告
 func UserAdTheme(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
-	adString := abtest.GetStrings("ad_theme", "163584599416810088")
+	adString := abtest.GetStrings("ad_theme", "")
 	log.Debugf("adTheme===================", adString)
 	adMap := make(map[int64]float64)
 	for _, backtad := range adString {
@@ -232,6 +232,7 @@ func UserAdTheme(ctx algo.IContext) error {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
+			log.Debugf("dataInfo===================%+v", dataInfo.DataId)
 			if _, ok := adMap[dataInfo.DataId]; ok {
 				count += 1
 				rankInfo.HopeIndex = count
