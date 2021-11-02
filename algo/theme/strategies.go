@@ -6,6 +6,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"time"
@@ -210,6 +211,30 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 					}
 				}
 
+			}
+		}
+	}
+	return nil
+}
+//增加广告
+func UserAdTheme(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	adString := abtest.GetStrings("theme_Ad", "163584599416810088")
+	adMap := make(map[int64]float64)
+	for _, backtad := range adString {
+		backtag64 := int64(utils.GetInt(backtad))
+		adMap[backtag64] = 1.0
+	}
+	var count int = 1
+	if len(adString) > 1 && len(adMap) > 0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if _, ok := adMap[dataInfo.DataId]; ok {
+				count += 1
+				rankInfo.HopeIndex = count
+				log.Debugf("adTheme===================", dataInfo.DataId,count)
+				rankInfo.AddRecommend("adTheme", float32(count))
 			}
 		}
 	}
