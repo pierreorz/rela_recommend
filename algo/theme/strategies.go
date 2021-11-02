@@ -228,7 +228,9 @@ func UserAdTheme(ctx algo.IContext) error {
 	}
 	log.Debugf("adTheme===================%+v", adMap)
 	var count int = 1
-	if len(adString) > 1 && len(adMap) > 0 {
+	log.Debugf("adString=============", len(adString) )
+	if len(adString) >=1 && len(adMap) > 0 {
+		log.Debugf("********************************" )
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
