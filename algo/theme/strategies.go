@@ -6,7 +6,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	autils "rela_recommend/algo/utils"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"time"
@@ -220,25 +219,19 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 func UserAdTheme(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	adString := abtest.GetStrings("ad_theme", "163584647505910019")
-	log.Debugf("adTheme===================", adString)
 	adMap := make(map[int64]float64)
 	for _, backtad := range adString {
 		backtag64 := int64(utils.GetInt(backtad))
 		adMap[backtag64] = 1.0
 	}
-	log.Debugf("adTheme===================%+v", adMap)
-	var count int = 1
-	log.Debugf("adString=============", len(adString) )
+	var count int = 0
 	if len(adString) >=1 && len(adMap) > 0 {
-		log.Debugf("********************************" )
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
-			log.Debugf("dataInfo===================%+v", dataInfo.DataId)
 			if _, ok := adMap[dataInfo.DataId]; ok {
 				count += 1
 				rankInfo.HopeIndex = count
-				log.Debugf("adTheme===================", dataInfo.DataId,count)
 				rankInfo.AddRecommend("adTheme", float32(count))
 			}
 		}
