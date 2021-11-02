@@ -32,6 +32,7 @@ type rdbConfig struct {
 type rdsConfig struct {
 	RedisAddr          string `toml:"redis_addr"`
 	RedisLiveAddr      string `toml:"redis_live_addr"`
+	RedisInternalAddr  string `toml:"redis_internal_addr"`
 	ClusterAddr        string `toml:"redis_cluster_addr"`
 	LedisAddr          string `toml:"ledis_addr"`
 	PikaAddr           string `toml:"pika_addr"`

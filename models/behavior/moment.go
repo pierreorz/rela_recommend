@@ -54,9 +54,20 @@ func (self *UserBehavior) GetMomentListInteract() *Behavior {
 }
 
 func (self *UserBehavior) GetAroundInteract() *Behavior {
-	return self.Gets("moment.around:like", "moment.around:comment",)
+	return self.Gets("moment.around:like","moment.around:comment")
 }
 
+func (self *UserBehavior) GetAroundExposure() *Behavior {
+	return self.Gets("moment.around:exposure")
+}
+
+func (self *UserBehavior) GetRecInteract() *Behavior {
+	return self.Gets("moment.recommend:like", "moment.recommend:share", "moment.recommend:follow")
+}
+
+func (self *UserBehavior) GetRecExposure() *Behavior {
+	return self.Gets("moment.recommend:exposure")
+}
 //获取总点击行为
 func (self *UserBehavior) GetMomentListClick() *Behavior{
 	return self.Gets(

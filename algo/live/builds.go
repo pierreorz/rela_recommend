@@ -22,7 +22,6 @@ func DoBuildData(ctx algo.IContext) error {
 	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, &factory.CacheRds)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 
-
 	var lives []pika.LiveCache
 	var liveIds = []int64{}
 	var liveQueryIds = []int64{}
@@ -32,8 +31,8 @@ func DoBuildData(ctx algo.IContext) error {
 		lives = GetCachedLiveListByTypeClassify(liveType, classify)
 		for i, _ := range lives {
 			liveIds = append(liveIds, lives[i].Live.UserId)
-			id,_ :=strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId,10),10,64)
-			liveQueryIds=append(liveQueryIds,id)
+			id, _ := strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId, 10), 10, 64)
+			liveQueryIds = append(liveQueryIds, id)
 		}
 		return len(lives)
 	})
@@ -92,13 +91,13 @@ func DoBuildData(ctx algo.IContext) error {
 		livesInfo := make([]algo.IDataInfo, 0)
 		for i, _ := range lives {
 			liveId := lives[i].Live.UserId
-			id,_ := strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId,10),10,64)
+			id, _ := strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId, 10), 10, 64)
 			liveInfo := LiveInfo{
-				UserId:      liveId,
-				LiveCache:   &lives[i],
-				UserCache:   usersMap[liveId],
+				UserId:           liveId,
+				LiveCache:        &lives[i],
+				UserCache:        usersMap[liveId],
 				UserItemBehavior: userBehaviorMap[id],
-				LiveProfile: usersMap2[liveId],
+				LiveProfile:      usersMap2[liveId],
 				LiveData: &LiveData{
 					PreHourIndex: hourRankMap[liveId].Index,
 					PreHourRank:  hourRankMap[liveId].Rank,
@@ -106,6 +105,16 @@ func DoBuildData(ctx algo.IContext) error {
 				RankInfo: &algo.RankInfo{}}
 			if lives[i].Live.IsWeekStar {
 				liveInfo.GetRankInfo().AddRecommendNeedReturn("WEEK_STAR", 1.0)
+				liveInfo.LiveData.AddLabel(&labelItem{
+					Style: WeekStarLabel,
+					Title: multiLanguage{
+						Chs: "闪耀周星",
+						Cht: "閃耀周星",
+						En:  "Weekly Star",
+					},
+					weight: WeekStarLabelWeight,
+					level:  level1,
+				})
 			}
 			livesInfo = append(livesInfo, &liveInfo)
 		}

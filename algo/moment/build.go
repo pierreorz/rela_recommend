@@ -33,10 +33,11 @@ func DoBuildData(ctx algo.IContext) error {
 	autoRecList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
+	bussinessIdList :=make([]int64,0)
 	tagRecommendIdList := make([]int64, 0)
 	adList :=make([]int64,0)
 	liveMomentIds := make([]int64, 0)
-	var recIds, topMap, recMap = []int64{}, map[int64]int{}, map[int64]int{}
+	var recIds, topMap, recMap ,bussinessMap = []int64{}, map[int64]int{}, map[int64]int{},map[int64]int{}
 	var liveMap = map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 
@@ -154,7 +155,21 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				return errBackend
-			}, "better_user": func(*performs.Performs) interface{} {
+			},"bussiness": func(*performs.Performs) interface{} { // 业务推荐id列表
+				var errBussiness error
+				if abtest.GetBool("bussiness_recommend_switched", false) { // 是否开启业务推荐
+					bussinessIdList, errBussiness = momentCache.GetInt64ListOrDefault(params.UserId,-9999999, "bussiness_rec_moment_data:%d")
+					if len(bussinessIdList)>0{
+						for _, id := range bussinessIdList {
+							bussinessMap[id] = 1
+						}
+					}
+					if errBussiness == nil {
+						return len(bussinessIdList)
+					}
+				}
+				return errBussiness
+			},"better_user": func(*performs.Performs) interface{} {
 				var errBetterUser error
 				autoKeyFormatter := "better_user_mom_yesterday:%d"
 				if abtest.GetBool("auto_recommend_switch", false) {
@@ -204,7 +219,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList,adList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList,adList,bussinessIdList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
@@ -411,7 +426,12 @@ func DoBuildData(ctx algo.IContext) error {
 						}
 					}
 				}
-
+				var isBussiness = 0
+				if bussinessMap!=nil{
+					if _,isOk :=bussinessMap[mom.Moments.Id];isOk{
+						isBussiness =1
+					}
+				}
 				if recMap != nil {
 					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
@@ -430,7 +450,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile :momContentProfileMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom,IsBussiness:isBussiness},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],

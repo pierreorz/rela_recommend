@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"net/http"
 	"os"
 	"os/signal"
 	"rela_recommend/conf"
@@ -17,6 +18,8 @@ import (
 	// "rela_recommend/algo/live"
 	"rela_recommend/service/abtest"
 	"rela_recommend/service/performs"
+
+	_ "net/http/pprof"
 )
 
 var (
@@ -85,6 +88,9 @@ func main() {
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
 
+	go func() {
+		log.Infof("pprof %+v", http.ListenAndServe("0.0.0.0:8080", nil))
+	}()
 	go apiServer.Run()
 	<-sc
 
