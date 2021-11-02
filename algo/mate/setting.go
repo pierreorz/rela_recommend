@@ -6,7 +6,7 @@ import (
 	"rela_recommend/algo/base/strategy"
 )
 
-var workDir = algo.GetWorkDir("/algo_files/ad/")
+var workDir = algo.GetWorkDir("/algo_files/mate/")
 
 var builderMap = map[string]algo.IBuilder{
 	"base": &algo.BuilderBase{DoBuild: DoBuildData},
@@ -30,7 +30,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{})
 
-// 开屏广告
+// 假装情侣文案
 var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "mate.text", Module: "mate", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "base", AlgoMap: nil,
