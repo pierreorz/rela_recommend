@@ -230,9 +230,12 @@ func UserAdTheme(ctx algo.IContext) error {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if _, ok := adMap[dataInfo.DataId]; ok {
-				count += 1
-				rankInfo.HopeIndex = count
-				rankInfo.AddRecommend("adTheme", float32(count))
+				rankTop:=dataInfo.RankInfo.IsTop
+				if rankTop !=1 {
+					count += 1
+					rankInfo.HopeIndex = count
+					rankInfo.AddRecommend("adTheme", float32(count))
+				}
 			}
 		}
 	}
