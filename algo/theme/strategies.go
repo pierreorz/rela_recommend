@@ -234,7 +234,7 @@ func UserAdTheme(ctx algo.IContext) error {
 				if rankTop !=1 {
 					count += 1
 					rankInfo.HopeIndex = count
-					rankInfo.AddRecommend("adTheme", float32(count))
+					rankInfo.AddRecommend("adTheme", 1.0)
 				}
 			}
 		}
