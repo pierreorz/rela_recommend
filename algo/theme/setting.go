@@ -24,7 +24,6 @@ var strategyMap = map[string]algo.IStrategy{
 	"user_short_tags":  &algo.StrategyBase{DoSingle: UserShortTagWeight},
 	"edit_tags_weight": &algo.BuilderBase{DoBuild: ThemeCategWeight},
 	//"event_user":&algo.BuilderBase{DoBuild: UserEventThemeWeight},
-
 }
 var sorterMap = map[string]algo.ISorter{
 	"base":     &sort.SorterBase{},
@@ -47,6 +46,8 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 		StrategyFunc: UserBehaviorInteractStrategyFunc},
 	"event_theme": &strategy.BaseRichStrategy{
 		StrategyFunc: UserEventThemeWeight},
+	"ad_theme": &strategy.BaseRichStrategy{
+			StrategyFunc: UserAdTheme},
 }
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{

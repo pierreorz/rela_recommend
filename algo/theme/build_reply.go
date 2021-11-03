@@ -202,7 +202,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return nil
 		},
 	})
-	// log.Debugf("reply_map:%+v, theme_reply_map:%+v\n", searchReplyMap, themeReplyMap)
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
 	log.Debugf("all themeIds: %+v", themeIds)
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
@@ -210,6 +209,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 	var replysMap = map[int64]redis.MomentsAndExtend{}
 	var replysUserIds = []int64{}
 	var themes = []redis.MomentsAndExtend{}
+	//var themes_event = []redis.MomentsAndExtend{}
 	var themesUserIds = []int64{}
 	var remove_list = []int64{}
 
@@ -361,7 +361,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				}
 				dataIds = append(dataIds, themeId)
 				dataList = append(dataList, info)
-
 			}
 		}
 		ctx.SetUserInfo(userInfo)

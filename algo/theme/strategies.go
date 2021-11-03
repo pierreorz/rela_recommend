@@ -215,6 +215,32 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 	}
 	return nil
 }
+//增加广告
+func UserAdTheme(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	adString := abtest.GetStrings("ad_theme", "163584599416810088")
+	adMap := make(map[int64]float64)
+	for _, backtad := range adString {
+		backtag64 := int64(utils.GetInt(backtad))
+		adMap[backtag64] = 1.0
+	}
+	var count int = 0
+	if len(adString) >=1 && len(adMap) > 0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if _, ok := adMap[dataInfo.DataId]; ok {
+				rankTop:=dataInfo.RankInfo.IsTop
+				if rankTop !=1 {
+					count += 1
+					rankInfo.HopeIndex = count
+					rankInfo.AddRecommend("adTheme", 1.0)
+				}
+			}
+		}
+	}
+	return nil
+}
 
 // 内容较短，包含关键词的内容沉底
 func TextDownStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
