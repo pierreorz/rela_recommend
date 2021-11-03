@@ -218,7 +218,7 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 //增加广告
 func UserAdTheme(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
-	adString := abtest.GetStrings("ad_theme", "163584647505910019")
+	adString := abtest.GetStrings("ad_theme", "163584599416810088")
 	adMap := make(map[int64]float64)
 	for _, backtad := range adString {
 		backtag64 := int64(utils.GetInt(backtad))
