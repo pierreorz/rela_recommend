@@ -19,8 +19,9 @@ func DoBuildData(ctx algo.IContext) error {
 	// 获取search的广告列表
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
+		searchLimit := abtest.GetInt64("search_limit", 50)
 		var searchErr error
-		if searchResList, searchErr = search.CallMateTextList(params); searchErr == nil {
+		if searchResList, searchErr = search.CallMateTextList(params, searchLimit); searchErr == nil {
 			return len(searchResList)
 		} else {
 			return searchErr

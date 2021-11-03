@@ -38,7 +38,7 @@ type mateSearchRequest struct {
 	Distance      string  `json:"distance" form:"distance"`
 }
 
-func CallMateTextList(request *algo.RecommendRequest) ([]MateTextResDataItem, error) {
+func CallMateTextList(request *algo.RecommendRequest, searchLimit int64) ([]MateTextResDataItem, error) {
 	localTimeStr, ok := request.Params["local_time"]
 	if !ok {
 		return nil, nil
@@ -58,7 +58,7 @@ func CallMateTextList(request *algo.RecommendRequest) ([]MateTextResDataItem, er
 	params := mateSearchRequest{
 		UserID:        request.UserId,
 		Offset:        request.Offset,
-		Limit:         request.Limit,
+		Limit:         searchLimit,
 		Lng:           request.Lng,
 		Lat:           request.Lat,
 		MobileOS:      request.MobileOS,
