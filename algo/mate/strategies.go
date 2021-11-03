@@ -14,7 +14,7 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 	randomScore := rand.Intn(100) / 100
 	abSwitch := abtest.GetBool("mate_text_switch", false)
 	if abSwitch {
-		rankInfo.AddRecommend("random", float32(sd.Weight+randomScore))
+		rankInfo.Score = float32(sd.Weight + randomScore)
 	}
 
 	return nil
