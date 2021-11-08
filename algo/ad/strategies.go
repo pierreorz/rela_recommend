@@ -37,6 +37,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 	//request := ctx.GetRequest()
 	dataInfo := iDataInfo.(*DataInfo)
 	sd := dataInfo.SearchData
+	log.Infof("adList====================:%+v",sd)
 	log.Infof("adtable=================:%+v",sd.MediaUrl)
 	return nil
 }
