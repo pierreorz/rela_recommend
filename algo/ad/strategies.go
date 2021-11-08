@@ -41,7 +41,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 	sd := dataInfo.SearchData
 	rand.Seed(time.Now().Unix())
 	rand_num := rand.Int63n(5)+1.0
-	nums:=rand_num/sd.Id
+	nums:=float32(rand_num)/float32(sd.Id)
 	log.Infof("rand_num===========",nums)
 	if sd.Status == 1 && rutils.NewSetInt64FromArray(sd.TestUsers).Contains(request.UserId) {
 		rankInfo.AddRecommend("ad_sort",1.0+float32(nums))
