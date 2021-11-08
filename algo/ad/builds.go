@@ -45,6 +45,7 @@ func DoBuildData(ctx algo.IContext) error {
 			if params.ClientVersion >= 50802 {
 				log.Infof ("new_userfeed==============",params.UserId)
 				if searchResList, searchErr = search.CallFeedAdList(clientName, params, user); searchErr == nil {
+					log.Infof("searchResList======:%+v",searchResList)
 					return len(searchResList)
 				} else {
 					return searchErr

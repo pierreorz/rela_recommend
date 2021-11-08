@@ -178,7 +178,7 @@ func CallFeedAdList(app string, request *algo.RecommendRequest, user *redis.User
 		fmt.Sprintf("{dump_type:%s}",dumpType),          				   // fiter dump_type 不为3的数据
 		fmt.Sprintf("{advert_source:%s}",AdvertSource),          	       // 广告涞源，淘宝小游戏
 	}
-
+	log.Infof("filters============%+v",filters)
 	params := searchRequest{
 		UserID:        request.UserId,
 		Offset:        request.Offset,
@@ -191,6 +191,7 @@ func CallFeedAdList(app string, request *algo.RecommendRequest, user *redis.User
 		Filter:        strings.Join(filters, "*"),
 		ReturnFields:  "*",
 	}
+	log.Infof("params============%+v",params)
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchADRes{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchAdListUrl, paramsData, searchRes); err == nil {
