@@ -2,9 +2,11 @@ package ad
 
 import (
 	"math"
+	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/log"
 	rutils "rela_recommend/utils"
+	"time"
 )
 
 // 内容较短，包含关键词的内容沉底
@@ -34,11 +36,16 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 }
 //广告分发策略
 func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error{
-	//request := ctx.GetRequest()
+	request := ctx.GetRequest()
 	dataInfo := iDataInfo.(*DataInfo)
 	sd := dataInfo.SearchData
-	log.Infof("adList====================:%+v",sd)
-	log.Infof("adtable=================:%+v",sd.MediaUrl)
+	rand.Seed(time.Now().Unix())
+	rand_num := rand.Int63n(5)+1.0
+	nums:=rand_num/sd.Id
+	log.Infof("rand_num===========",nums)
+	if sd.Status == 1 && rutils.NewSetInt64FromArray(sd.TestUsers).Contains(request.UserId) {
+		rankInfo.AddRecommend("ad_sort",1.0+float32(nums))
+	}
 	return nil
 }
 
