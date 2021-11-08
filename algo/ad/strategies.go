@@ -6,7 +6,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/log"
 	rutils "rela_recommend/utils"
-	"time"
 )
 
 // 内容较短，包含关键词的内容沉底
@@ -39,8 +38,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 	request := ctx.GetRequest()
 	dataInfo := iDataInfo.(*DataInfo)
 	sd := dataInfo.SearchData
-	rand.Seed(time.Now().Unix())
-	rand_num := rand.Int63n(5)+1.0
+	rand_num := rand.Intn(5)+1.0
 	nums:=float32(rand_num)/float32(sd.Id)
 	log.Infof("rand_num===========",nums)
 	if sd.Status == 1 && rutils.NewSetInt64FromArray(sd.TestUsers).Contains(request.UserId) {
