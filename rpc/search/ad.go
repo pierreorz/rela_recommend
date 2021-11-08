@@ -166,7 +166,7 @@ func CallFeedAdList(app string, request *algo.RecommendRequest, user *redis.User
 		displayTypes = "1,3" // 不限制，会员不可见
 	}
 	dumpType:="3"//外部跳转类型
-	AdvertSource:="taobaoxiaoyouxi"//目前外部涞源
+	//AdvertSource:="taobaoxiaoyouxi"//目前外部涞源
 	filters := []string{
 		fmt.Sprintf("app_source:%s*location:%s", app, request.Type),        // base
 		fmt.Sprintf("{status:2|{status:1*test_users:%d}}", request.UserId), // user
@@ -176,7 +176,7 @@ func CallFeedAdList(app string, request *algo.RecommendRequest, user *redis.User
 		fmt.Sprintf("can_exposure:true"),                                   // exposure cnt: search 端处理
 		fmt.Sprintf("{client_os:|client_os:%s}", request.GetOS()),          // exposure cnt
 		fmt.Sprintf("{dump_type:%s}",dumpType),          				   // fiter dump_type 不为3的数据
-		fmt.Sprintf("{advert_source:%s}",AdvertSource),          	       // 广告涞源，淘宝小游戏
+		//fmt.Sprintf("{advert_source:%s}",AdvertSource),          	       // 广告涞源，淘宝小游戏
 	}
 	log.Infof("filters============%+v",filters)
 	params := searchRequest{

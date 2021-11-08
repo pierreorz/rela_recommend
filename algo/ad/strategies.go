@@ -35,13 +35,13 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 }
 //广告分发策略
 func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error{
-	request := ctx.GetRequest()
+	//request := ctx.GetRequest()
 	dataInfo := iDataInfo.(*DataInfo)
 	sd := dataInfo.SearchData
 	rand_num := rand.Intn(5)+1.0
 	nums:=float32(rand_num)/float32(sd.Id)
 	log.Infof("rand_num===========",nums)
-	if sd.Status == 1 && rutils.NewSetInt64FromArray(sd.TestUsers).Contains(request.UserId) {
+	if sd.Status == 1 {
 		rankInfo.AddRecommend("ad_sort",1.0+float32(nums))
 	}
 	return nil
