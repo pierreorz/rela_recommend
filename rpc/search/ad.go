@@ -167,7 +167,6 @@ func CallFeedAdList(app string, request *algo.RecommendRequest, user *redis.User
 	}
 
 	dumpType:="3"
-
 	filters := []string{
 		fmt.Sprintf("app_source:%s*location:%s", app, request.Type),        // base
 		fmt.Sprintf("{status:2|{status:1*test_users:%d}}", request.UserId), // user

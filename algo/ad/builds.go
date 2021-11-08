@@ -43,12 +43,14 @@ func DoBuildData(ctx algo.IContext) error {
 			var searchErr error
 			//针对新老版本的请求过滤
 			if params.ClientVersion >= 50802 {
+				log.Infof ("new_userfeed==============",params.UserId)
 				if searchResList, searchErr = search.CallFeedAdList(clientName, params, user); searchErr == nil {
 					return len(searchResList)
 				} else {
 					return searchErr
 					}
 				}else{
+					log.Infof ("old_userfeed==============",params.UserId)
 					if searchResList, searchErr = search.CallAdList(clientName, params, user); searchErr == nil {
 						return len(searchResList)
 					} else{
