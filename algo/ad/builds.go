@@ -16,6 +16,7 @@ func DoBuildData(ctx algo.IContext) error {
 	pf := ctx.GetPerforms()
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	//userData := ctx.GetUserInfo().(*UserInfo)
 	// behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 
 	if params.Limit == 0 {
@@ -40,13 +41,38 @@ func DoBuildData(ctx algo.IContext) error {
 		pf.Run("search", func(*performs.Performs) interface{} {
 			clientName := abtest.GetString("backend_app_name", "1") // 1: rela 2: 饭角
 			var searchErr error
-			if searchResList, searchErr = search.CallAdList(clientName, params, user); searchErr == nil {
-				return len(searchResList)
-			} else {
-				return searchErr
+			//针对新老版本的请求过滤
+			if params.ClientVersion >= 50802 {
+				if searchResList, searchErr = search.CallFeedAdList(clientName, params, user); searchErr == nil {
+					return len(searchResList)
+				} else {
+					return searchErr
+					}
+				}else{
+					if searchResList, searchErr = search.CallAdList(clientName, params, user); searchErr == nil {
+						return len(searchResList)
+					} else{
+					return searchErr
+				}
 			}
 		})
 	}
+	//根据用户偏好，投放广告
+	//pf.Run("user_profile", func(*performs.Performs) interface{} {
+	//	//user:=userData.UserId
+	//	userThemeProfile := userData.ThemeUser
+	//	tagMapLine := userThemeProfile.AiTag.UserShortTag
+	//	for _, tagLine := range tagMapLine {
+	//		if tagLine.TagId == 19 { //19 游戏，用户偏好
+	//
+	//
+	//		} else {
+	//			return err
+	//		}
+	//	}
+	//	return err
+	//})
+
 
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{

@@ -11,6 +11,8 @@ import (
 type UserInfo struct {
 	UserId    int64
 	UserCache *redis.UserProfile
+	ThemeUser *redis.ThemeUserProfile
+	MomentUserProfile *redis.MomentUserProfile
 }
 
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {

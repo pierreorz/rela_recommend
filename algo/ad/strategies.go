@@ -3,6 +3,7 @@ package ad
 import (
 	"math"
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 )
 
@@ -31,6 +32,15 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 	rankInfo.Score = float32(priceRate * cntRate * clickRate * weightRate)
 	return nil
 }
+//广告分发策略
+func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error{
+	//request := ctx.GetRequest()
+	dataInfo := iDataInfo.(*DataInfo)
+	sd := dataInfo.SearchData
+	log.Infof("adtable=================:%+v",sd.MediaUrl)
+	return nil
+}
+
 
 // 测试用户查看测试内容时置顶
 func TestUserTopStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
