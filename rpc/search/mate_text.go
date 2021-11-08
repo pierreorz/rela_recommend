@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"strings"
 	"time"
 )
@@ -51,6 +52,10 @@ func CallMateTextList(request *algo.RecommendRequest, searchLimit int64) ([]Mate
 
 	localHour := localTime.Hour()
 
+	log.Infof("mate local hour: %+v, %d", localTime, localHour)
+	if localHour >= 0 && localHour <= 2 {
+		localHour += 24 // 22点到凌晨2点会跨天，+24方便比较
+	}
 	filters := []string{
 		fmt.Sprintf("start_hour:(,%d]*end_hour:[%d,)", localHour, localHour), // base
 	}
