@@ -124,6 +124,8 @@ func CallAdList(app string, request *algo.RecommendRequest, user *redis.UserProf
 	} else {
 		displayTypes = "1,3" // 不限制，会员不可见
 	}
+	//dumpType为3外部跳转，15内部跳转
+	dumpType :=15
 	filters := []string{
 		fmt.Sprintf("app_source:%s*location:%s", app, request.Type),        // base
 		fmt.Sprintf("{status:2|{status:1*test_users:%d}}", request.UserId), // user
@@ -132,6 +134,7 @@ func CallAdList(app string, request *algo.RecommendRequest, user *redis.UserProf
 		fmt.Sprintf("{display_type:%s}", displayTypes),                     // display vip
 		fmt.Sprintf("can_exposure:true"),                                   // exposure cnt: search 端处理
 		fmt.Sprintf("{client_os:|client_os:%s}", request.GetOS()),          // exposure cnt
+		fmt.Sprintf("{dump_type:%s}",dumpType),          				   // fiter dump_type 不为3的数据
 	}
 
 	params := searchRequest{
