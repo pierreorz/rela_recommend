@@ -43,7 +43,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 		rand_num := rand.Intn(5) + 1.0
 		nums :=float32(rand_num)/float32(sd.Id)
 		log.Infof("nums===========", nums)
-		if sd.Status == 2 { // 0 下架  1 测试  2 上架',
+		if sd.Status == 1 { // 0 下架  1 测试  2 上架',
 			log.Infof("rand_num===========", nums)
 			rankInfo.AddRecommend("ad_sort", 1.0+float32(nums))
 			}
