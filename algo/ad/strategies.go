@@ -34,24 +34,20 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 	return nil
 }
 //广告分发策略
-func BaseFeedPrice(ctx algo.IContext) error {
-	log.Infof("ctxlen================",ctx.GetDataLength())
-	log.Infof("ctxClientVersion=======",ctx.GetRequest().ClientVersion)
-	if ctx.GetDataLength()>0 && ctx.GetRequest().ClientVersion>= 50802 {
-		for index := 0; index < ctx.GetDataLength(); index++ {
-			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-			rankInfo := dataInfo.GetRankInfo()
-			sd := dataInfo.SearchData
-			log.Infof("sd=====================:%+v",sd)
-			rand_num := rand.Intn(5) + ctx.GetDataLength() + 1.0
-			nums :=float32(ctx.GetDataLength())/float32(rand_num)
-			log.Infof("nums===========", nums)
-			if sd.Status == 1 {
-				log.Infof("rand_num===========", nums)
-				rankInfo.AddRecommend("ad_sort", 1.0+float32(nums))
+func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	request := ctx.GetRequest()
+	if request.ClientVersion>= 50802 {
+		dataInfo := iDataInfo.(*DataInfo)
+		sd := dataInfo.SearchData
+		log.Infof("sd=====================:%+v",sd)
+		rand_num := rand.Intn(5) + 1.0
+		nums :=float32(rand_num)/float32(sd.Id)
+		log.Infof("nums===========", nums)
+		if sd.Status == 1 {
+			log.Infof("rand_num===========", nums)
+			rankInfo.AddRecommend("ad_sort", 1.0+float32(nums))
 			}
 		}
-	}
 	return nil
 }
 
