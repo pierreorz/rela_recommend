@@ -8,6 +8,7 @@ import (
 	_ "rela_recommend/algo/ad"
 	_ "rela_recommend/algo/live"
 	_ "rela_recommend/algo/match"
+	_ "rela_recommend/algo/mate"
 	_ "rela_recommend/algo/moment"
 	_ "rela_recommend/algo/moment/coarse"
 	_ "rela_recommend/algo/moment_tag"
