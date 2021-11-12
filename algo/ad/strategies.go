@@ -4,7 +4,6 @@ import (
 	"math"
 	"math/rand"
 	"rela_recommend/algo"
-	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 )
 
@@ -39,14 +38,10 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 	if request.ClientVersion>= 50802 {
 		dataInfo := iDataInfo.(*DataInfo)
 		sd := dataInfo.SearchData
-		rand_num := rand.Intn(10) + 1.0
-		nums :=float32(rand_num)/float32(sd.Id)
-		log.Infof("random==========",nums)
-		if sd.Status == 2 || sd.Status == 1{ // 0 下架  1 测试  2 上架',
-			log.Infof("randomin==========",nums)
-			rankInfo.AddRecommend("ad_sort", 1.0+float32(nums))
-			}
-		}
+		rand_num := rand.Intn(5) + 1.0
+		nums := float32(rand_num) / float32(sd.Id)
+		rankInfo.AddRecommend("ad_sort", 1.0+float32(nums))
+	}
 	return nil
 }
 
