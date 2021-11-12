@@ -39,11 +39,9 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 		dataInfo := iDataInfo.(*DataInfo)
 		sd := dataInfo.SearchData
 		rand_num := rand.Intn(5) + 1.0
-		nums :=float32(rand_num)/float32(sd.Id)
-		if sd.Status == 2 { // 0 下架  1 测试  2 上架',
-			rankInfo.AddRecommend("ad_sort", 1.0+float32(nums))
-			}
-		}
+		nums := float32(rand_num) / float32(sd.Id)
+		rankInfo.AddRecommend("ad_sort", 1.0+float32(nums))
+	}
 	return nil
 }
 
