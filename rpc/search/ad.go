@@ -125,7 +125,7 @@ func CallAdList(app string, request *algo.RecommendRequest, user *redis.UserProf
 		displayTypes = "1,3" // 不限制，会员不可见
 	}
 	//dumpType为3外部跳转，15内部跳转
-	dumpType :=15
+	dumpType :="15"
 	filters := []string{
 		fmt.Sprintf("app_source:%s*location:%s", app, request.Type),        // base
 		fmt.Sprintf("{status:2|{status:1*test_users:%d}}", request.UserId), // user
@@ -149,6 +149,7 @@ func CallAdList(app string, request *algo.RecommendRequest, user *redis.UserProf
 		Filter:        strings.Join(filters, "*"),
 		ReturnFields:  "*",
 	}
+	log.Infof("es=========================:%+V",params)
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchADRes{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchAdListUrl, paramsData, searchRes); err == nil {
