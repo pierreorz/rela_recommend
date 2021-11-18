@@ -466,6 +466,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error{
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
 		if userInteract.Count > 0 {
 			pictureTagMap :=userInteract.GetTopCountPictureTagsMap(5)
+			log.Warnf("pictureTagMap is %s",pictureTagMap)
 			if pictureTagMap!=nil&&len(pictureTagMap)>0{
 				for index :=0;index<ctx.GetDataLength();index++{
 					dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
@@ -475,11 +476,13 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error{
 						var count float64 = 0.0
 						for _,tag :=range dataInfo.MomentProfile.ShuMeiLabels{
 							if userTag,ok :=pictureTagMap[tag];ok &&userTag!=nil{
-								log.Warnf("picture tag is %s",userTag)
-								rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
-								hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
-								score += utils.ExpLogit(rate) * math.Exp(-hour)
-								count += 1.0
+								if behavior.LabelConvert(tag)!=""{
+									log.Warnf("picture tag is %s",userTag)
+									rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
+									hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
+									score += utils.ExpLogit(rate) * math.Exp(-hour)
+									count += 1.0
+								}
 							}
 						}
 						if count > 0.0 && score > 0.0 {
