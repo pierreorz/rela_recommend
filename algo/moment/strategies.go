@@ -458,9 +458,8 @@ func HotMomentSuppressStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
-func UserPictureInteractStartegyFunc(ctx algo.IContext) error{
+func UserPictureInteractStrategyFunc(ctx algo.IContext) error{
 	var err error
-	var abtest = ctx.GetAbTest()
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	var userInfo = ctx.GetUserInfo().(*UserInfo)
 	if userInfo.UserBehavior != nil {
