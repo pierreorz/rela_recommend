@@ -7,11 +7,16 @@ import (
 	"rela_recommend/rpc/search"
 )
 
+const (
+	feedType = "feed"
+	initType = "init"
+)
+
 // 用户信息
 type UserInfo struct {
-	UserId    int64
-	UserCache *redis.UserProfile
-	ThemeUser *redis.ThemeUserProfile
+	UserId            int64
+	UserCache         *redis.UserProfile
+	ThemeUser         *redis.ThemeUserProfile
 	MomentUserProfile *redis.MomentUserProfile
 }
 
