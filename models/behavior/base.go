@@ -156,9 +156,6 @@ func LabelConvert(label string)  string {
 	if utils.StringContains(label,[]string{"meishi"}){
 		return "meishi"
 	}
-	if utils.StringContains(label,[]string{"zipai","face"}){
-		return "face"
-	}
 	if utils.StringContains(label,[]string{"jiejing","ziranfengjing"}){
 		return "fengjing"
 	}
