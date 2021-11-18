@@ -119,6 +119,7 @@ type MomentsProfile struct {
 	TextCnt           int                      `json:"textCnt,omitempty"`
 	MomentsTextWords  []string                 `json:"momentsTextWords,omitempty"`
 	Tags              []MomentsProfileTagScore `json:"tags,omitempty"`
+	ShuMeiLabels      []string                  `json:"shuMeiLabels,omitempty"`
 }
 
 type MomentOfflineProfile struct {
