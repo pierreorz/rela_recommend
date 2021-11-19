@@ -477,7 +477,6 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 								if behavior.LabelConvert(tag) != "" {
 									rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
 									hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
-
 									score += utils.ExpLogit(rate) * math.Exp(-hour)
 									count += 1.0
 								}
