@@ -196,14 +196,14 @@ func DoBuildData(ctx algo.IContext) error {
 						if userInteract.Count > 0 {
 							//获取用户实时互动日志的各个标签的实时热门数据
 							tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
-							pictureTagMap :=userInteract.GetTopCountPictureTagsMap(5)
+							//pictureTagMap :=userInteract.GetTopCountPictureTagsMap(5)
 							tagList := make([]int64, 0)
-							pictureTagList :=make([]string,0)
-							for tag,_ :=range pictureTagMap{
-								if behavior.LabelConvert(tag)!=""{
-									pictureTagList=append(pictureTagList,tag)
-								}
-							}
+							//pictureTagList :=make([]string,0)
+							//for tag,_ :=range pictureTagMap{
+							//	if behavior.LabelConvert(tag)!=""{
+							//		pictureTagList=append(pictureTagList,tag)
+							//	}
+							//}
 							for key, _ := range tagMap {
 								//去掉情感恋爱
 								if key != 23 {
