@@ -457,34 +457,33 @@ func HotMomentSuppressStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
-func UserPictureInteractStrategyFunc(ctx algo.IContext) error{
+func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	var userInfo = ctx.GetUserInfo().(*UserInfo)
 	if userInfo.UserBehavior != nil {
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
 		if userInteract.Count > 0 {
-			pictureTagMap :=userInteract.GetTopCountPictureTagsMap(5)
-			if pictureTagMap!=nil&&len(pictureTagMap)>0{
-				for index :=0;index<ctx.GetDataLength();index++{
-					dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
-					if dataInfo.MomentProfile!=nil{
-						rankInfo :=dataInfo.GetRankInfo()
+			pictureTagMap := userInteract.GetTopCountPictureTagsMap(5)
+			if pictureTagMap != nil && len(pictureTagMap) > 0 {
+				for index := 0; index < ctx.GetDataLength(); index++ {
+					dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+					if dataInfo.MomentProfile != nil {
+						rankInfo := dataInfo.GetRankInfo()
 						var score float64 = 0.0
 						var count float64 = 0.0
-						for _,tag :=range dataInfo.MomentProfile.ShuMeiLabels{
-							if userTag,ok :=pictureTagMap[tag];ok &&userTag!=nil{
-								if behavior.LabelConvert(tag)!=""{
+						for _, tag := range dataInfo.MomentProfile.ShuMeiLabels {
+							if userTag, ok := pictureTagMap[tag]; ok && userTag != nil {
+								if behavior.LabelConvert(tag) != "" {
 									rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
 									hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
-									if hour<=1{
-										score += utils.ExpLogit(rate) * math.Exp(-hour)
-										count += 1.0
-									}
+
+									score += utils.ExpLogit(rate) * math.Exp(-hour)
+									count += 1.0
 								}
 							}
 						}
-						if count > 0.0 && score > 0.0{
+						if count > 0.0 && score > 0.0 {
 							var finalScore = float32(1.0 + score/count)
 							rankInfo.AddRecommend("UserPictureTagInteract", finalScore)
 						}
