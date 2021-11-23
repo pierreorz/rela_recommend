@@ -38,6 +38,24 @@ func UserBehaviorClickedDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo
 	return nil
 }
 
+// 单用户曝光过多降权
+func ExpoTooMuchDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+
+	if userBehavior := dataInfo.UserBehavior; userBehavior != nil {
+		exposuresItem := userBehavior.GetAroundExposure()
+		expoThreshold := ctx.GetAbTest().GetFloat64("single_expo_threshold", 3.)
+		if exposuresItem.Count >= expoThreshold {
+			timeMinute := (float64(ctx.GetCreateTime().Unix()) - exposuresItem.LastTime) / 60
+			if timeMinute > 0 {
+				decay := rutils.GaussDecay(exposuresItem.Count, 0., expoThreshold, timeMinute)
+				rankInfo.AddRecommend("ExpoTooMuchDown", float32(decay))
+			}
+		}
+	}
+	return nil
+}
+
 func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	request := ctx.GetRequest()
 	abtest := ctx.GetAbTest()

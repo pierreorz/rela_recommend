@@ -518,3 +518,18 @@ func MergeMapStringFloat64(maps ...map[string]float64) map[string]float64 {
 	}
 	return res
 }
+
+func GaussDecay(x, center, offset, sigma float64) float64 {
+	// center 高斯函数中心点
+	// offset 从 center 为中心，为他设置一个偏移量offset覆盖一个范围，在此范围内所有的概率也都是和 center 一样满分
+	// sigma 衰减速率，越大衰减越快，即输出越小
+	if sigma <= 0 {
+		sigma = 0.1
+	}
+	if math.Abs(x-center) <= offset {
+		x = 0.
+	} else {
+		x = x - center - offset
+	}
+	return math.Pow(math.E, -math.Pow(x, 2)/(2*math.Pow(sigma, 2)))
+}
