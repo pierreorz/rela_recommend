@@ -152,7 +152,7 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 		}
 	}
 	var endTime = time.Now()
-	log.Infof("ress: %+v", ress)
+	log.Infof("ress: %+s", ress)
 	log.Infof("ReadKey:%s,rankId:%s,all:%d,cache:%d,store:%d,final:%d,set:%d,setnil:%d;total:%.3f,keys:%.3f,cache:%.3f,notfound:%.3f,store:%.3f,2cache:%.3f\n",
 		keyFormater, "", dataLen, dataLen-len(notFoundIndexs), len(notFoundIndexs), len(ress), setLen, setNilLen,
 		endTime.Sub(startTime).Seconds(),
