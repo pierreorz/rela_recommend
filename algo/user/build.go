@@ -187,6 +187,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 		// 组装被曝光者信息
 		dataList := make([]algo.IDataInfo, 0)
 		for dataId, data := range usersMap {
+			log.Infof("user behavior: %d, %+v", dataId, userBehaviorMap[dataId])
 			info := &DataInfo{
 				DataId:       dataId,
 				UserCache:    data,
