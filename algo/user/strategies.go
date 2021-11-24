@@ -45,7 +45,7 @@ func ExpoTooMuchDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankIn
 
 	log.Infof("expo_too_much data_id %d", dataInfo.DataId)
 	if userBehavior := dataInfo.UserBehavior; userBehavior != nil {
-		exposuresItem := userBehavior.GetAroundExposure()
+		exposuresItem := userBehavior.GetNearbyListExposure()
 		expoThreshold := ctx.GetAbTest().GetFloat64("single_expo_threshold", 3.)
 		log.Infof("expo_too_much exposure: %+v, %+v", exposuresItem, expoThreshold)
 		if exposuresItem.Count >= expoThreshold {
