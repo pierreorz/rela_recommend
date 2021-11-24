@@ -67,7 +67,7 @@ func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 	if abtest.GetString("custom_sort_type", "distance") == "distance" { // 是否按照距离排序
 		rankInfo.Level = -int(distance)
 	} else { // 安装距离分段排序
-		if randomArea := abtest.GetInt("random_distance_area", 0); randomArea > 0 {
+		if randomArea := abtest.GetInt("random_distance_area", 0); (randomArea > 0) && (request.Offset == 0) {
 			distance = distance + float64(rand.Intn(randomArea))
 		}
 		sortWeightType := abtest.GetString("distance_sort_weight_type", "level")
