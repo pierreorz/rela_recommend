@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"math"
+	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	rutils "rela_recommend/utils"
@@ -66,6 +67,9 @@ func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 	if abtest.GetString("custom_sort_type", "distance") == "distance" { // 是否按照距离排序
 		rankInfo.Level = -int(distance)
 	} else { // 安装距离分段排序
+		if randomArea := abtest.GetInt("random_distance_area", 0); randomArea > 0 {
+			distance = distance + float64(rand.Intn(randomArea))
+		}
 		sortWeightType := abtest.GetString("distance_sort_weight_type", "level")
 		if sortWeightType == "weight" { // weight:按照权重，10公里为基准
 			weight := float32(0.5 * math.Exp(-distance/10000.0))
