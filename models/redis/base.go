@@ -103,6 +103,7 @@ func (self *CachePikaModule) MGetSet(ids []int64, keyFormater string, cacheTime 
 	keys := utils.FormatKeyInt64s(keyFormater, ids)
 	var startCacheTime = time.Now()
 	// 从缓存读取
+	log.Infof("keys: %+v", keys)
 	ress, err := self.cache.Mget(keys)
 	var endCacheTime = time.Now()
 	if err != nil {
