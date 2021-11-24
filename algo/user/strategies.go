@@ -5,7 +5,6 @@ import (
 	"math"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
-	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 )
 
@@ -43,14 +42,11 @@ func UserBehaviorClickedDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo
 func ExpoTooMuchDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)
 
-	log.Infof("expo_too_much data_id %d", dataInfo.DataId)
 	if userBehavior := dataInfo.UserBehavior; userBehavior != nil {
 		exposuresItem := userBehavior.GetNearbyListExposure()
 		expoThreshold := ctx.GetAbTest().GetFloat64("single_expo_threshold", 3.)
-		log.Infof("expo_too_much exposure: %+v, %+v", exposuresItem, expoThreshold)
 		if exposuresItem.Count >= expoThreshold {
 			timeMinute := (float64(ctx.GetCreateTime().Unix()) - exposuresItem.LastTime) / 60
-			log.Infof("expo_too_much time: %f", timeMinute)
 			if timeMinute > 0 {
 				decay := rutils.GaussDecay(exposuresItem.Count, 0., expoThreshold, timeMinute)
 				rankInfo.AddRecommend("ExpoTooMuchDown", float32(decay))
