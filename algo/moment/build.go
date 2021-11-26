@@ -408,14 +408,17 @@ func DoBuildData(ctx algo.IContext) error {
 						isTop = 1
 					}
 				}
+				var isSoftTop =0
 				// 处理推荐
 				var recommends = []algo.RecommendItem{}
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
+					isSoftTop=utils.GetInt(topTypeRes=="SOFT")
 					if topTypeRes == "RECOMMEND" {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 					}
+
 				}
 				var liveIndex = 0
 				var isTopLiveMom = -1
@@ -458,7 +461,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile :momContentProfileMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom,IsBussiness:isBussiness},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom,IsBussiness:isBussiness,IsSoftTop:isSoftTop},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],

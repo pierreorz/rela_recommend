@@ -77,7 +77,6 @@ func ShortPrefAddWeight(ctx algo.IContext, index int) error {
 				}
 			}
 		}
-
 	}
 	return nil
 }
@@ -588,6 +587,70 @@ func increaseEventExpose(ctx algo.IContext) error {
 	return nil
 }
 
+func adLocationAroundExposureThresholdFunc(ctx algo.IContext) error{
+	for index :=0;index<ctx.GetDataLength();index++{
+		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if adLcaotion :=dataInfo.MomentCache.MomentsExt.AdLocation;adLcaotion!=nil{
+			if val,ok :=adLcaotion.AdInfo["moment.around"];ok{
+				if ctx.GetCreateTime().Unix()>val.StartTime&&ctx.GetCreateTime().Unix()<val.EndTime{
+					if dataInfo.UserItemBehavior==nil||dataInfo.UserItemBehavior.GetAroundExposure().Count<float64(val.Threshold){
+						rankInfo.HopeIndex=val.Index
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func adLocationRecExposureThresholdFunc(ctx algo.IContext) error{
+	for index :=0;index<ctx.GetDataLength();index++{
+		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if adLcaotion :=dataInfo.MomentCache.MomentsExt.AdLocation;adLcaotion!=nil{
+			if val,ok :=adLcaotion.AdInfo["moment.recommend"];ok{
+				if ctx.GetCreateTime().Unix()>val.StartTime&&ctx.GetCreateTime().Unix()<val.EndTime{
+					if dataInfo.UserItemBehavior==nil||dataInfo.UserItemBehavior.GetRecExposure().Count<float64(val.Threshold){
+						rankInfo.HopeIndex=val.Index
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func softTopExposureFunc(ctx algo.IContext) error {
+	var isTop = 0
+	var softTopList = make([]int64, 0)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetRecExposure().Count < 1 {
+			if rankInfo.IsSoftTop == 1 {
+				softTopList = append(softTopList, dataInfo.MomentCache.Id)
+			}
+		}
+		if rankInfo.IsTop == 0 {
+			continue
+		} else {
+			isTop = 1
+		}
+	}
+	if len(softTopList) > 0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if dataInfo.MomentCache.Id==softTopList[0]{
+				rankInfo.HopeIndex=isTop
+			}
+		}
+	}
+
+	return nil
+}
+
 //晚上9-12点热门直播日志前2名会被放置去指定位置，看过后沉底
 func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
@@ -668,7 +731,7 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error{
 func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	var startIndex =1
-	interval := abtest.GetInt("top_live_interval",2)//指定位置间隔
+	interval := abtest.GetInt(" ",2)//指定位置间隔
 	var liveIndex =0
 	for index := 0; index < ctx.GetDataLength(); index++{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -706,7 +769,8 @@ func BussinessExposureFunc(ctx algo.IContext) error{
 		}
 	}
 	choice :=int64(0)
-	if len(bussinessIdList)>0{
+	if
+	len(bussinessIdList)>0{
 		choice =RandChoiceOne(bussinessIdList)
 	}
 	//var intNum =rand.Intn(10)

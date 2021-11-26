@@ -46,6 +46,18 @@ type Moments struct {
 	MomentsExt MomentsExt `gorm:"column:ext" json:"ext,omitempty"`
 }
 
+type adLocation struct{
+	AdInfo   map[string]*exposureThreshold
+}
+
+type exposureThreshold struct {
+	Index  int `json:"index"`
+	Threshold int `json:"exposure_threshold"`
+	StartTime  int64 `json:"start_time"`
+	EndTime int64 `json:"end_time"`
+}
+
+
 type MomentsExt struct {
 	ThemeClass      string `json:"themeClass,omitempty"`
 	ThemeReplyClass string `json:"themeReplyClass,omitempty"`
@@ -62,6 +74,8 @@ type MomentsExt struct {
 	TagList         string `json:"tagList,omitempty"`      //标签组
 	IsFive          int    `json:"isFive,omitempty"`       //5.0版本此值为1
 	Reason          string `json:"reason,omitempty"`       //推荐网页的理由
+	AdLocation      *adLocation `json:"ad_location,omitempty"`
+
 }
 
 type MomentsExtend struct {

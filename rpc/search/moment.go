@@ -161,7 +161,7 @@ func (self *SearchMomentAuditResDataItem) GetCurrentTopType(scenery string) stri
 	for _, top := range self.TopInfo {
 		if top.Scenery == scenery {
 			if top.StartTime < currentTime && currentTime < top.EndTime {
-				return strings.ToUpper(top.TopType) // 返回 TOP, RECOMMEND
+				return strings.ToUpper(top.TopType) // 返回 TOP, RECOMMEND，SOFT
 			}
 		}
 	}

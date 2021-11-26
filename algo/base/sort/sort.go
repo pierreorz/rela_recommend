@@ -106,7 +106,7 @@ func (self *SorterHope) sortByIndexWithHope() error {
 	var hopeList = [][]int{} // 期望index []{当前index, 期望index}
 	for i, data := range list {
 		indexs[i] = i
-		if rank := data.GetRankInfo(); 0 < rank.HopeIndex && rank.HopeIndex < listLen {
+		if rank := data.GetRankInfo(); -1< rank.HopeIndex && rank.HopeIndex < listLen {
 			hopeList = append(hopeList, []int{i, rank.HopeIndex})
 		}
 	}
