@@ -74,10 +74,16 @@ type MomentsExt struct {
 	TagList         string `json:"tagList,omitempty"`      //标签组
 	IsFive          int    `json:"isFive,omitempty"`       //5.0版本此值为1
 	Reason          string `json:"reason,omitempty"`       //推荐网页的理由
-	AdLocation      *adLocation `json:"ad_location,omitempty"`
+	AdLocation      map[string]adLoc `json:"ad_location,omitempty"`
 
 }
 
+type adLoc struct {
+	Index             int   `json:"index"`
+	ExposureThreshold int   `json:"exposure_threshold"`
+	StartTime         int64 `json:"start_time"`
+	EndTime           int64 `json:"end_time"`
+}
 type MomentsExtend struct {
 	MomentsId   int64  `gorm:"column:moments_id" json:"momentsId"`               //日志的 id
 	ImgLen      int    `gorm:"column:img_len" json:"imgLen,omitempty"`           //有图片的日志，大图的大小（字节数），无图就写0
