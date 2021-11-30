@@ -6,6 +6,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"strings"
@@ -644,6 +645,7 @@ func softTopExposureFunc(ctx algo.IContext) error {
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.MomentCache.Id==softTopList[0]{
 				rankInfo.HopeIndex=isTop
+				log.Warnf("istop %s",isTop)
 			}
 		}
 	}
