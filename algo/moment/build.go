@@ -366,7 +366,7 @@ func DoBuildData(ctx algo.IContext) error {
 			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
 				continue
 			}
-
+			log.Warnf("moms id %s",mom.Moments.Id)
 			//搜索过滤开关(运营推荐不管审核状态)
 			if _, ok := searchMomentMap[mom.Moments.Id]; !ok {
 				if filteredAudit {
@@ -419,6 +419,9 @@ func DoBuildData(ctx algo.IContext) error {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 					}
 
+				}
+				if isSoftTop==1{
+					log.Warnf("soft top moment%s",mom.Moments.Id)
 				}
 				var liveIndex = 0
 				var isTopLiveMom = -1
