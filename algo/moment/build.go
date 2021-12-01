@@ -36,6 +36,7 @@ func DoBuildData(ctx algo.IContext) error {
 	bussinessIdList :=make([]int64,0)
 	tagRecommendIdList := make([]int64, 0)
 	adList :=make([]int64,0)
+	adLocationList :=make([]int64,0)
 	liveMomentIds := make([]int64, 0)
 	var recIds, topMap, recMap ,bussinessMap = []int64{}, map[int64]int{}, map[int64]int{},map[int64]int{}
 	var liveMap = map[int64]int{}
@@ -63,6 +64,7 @@ func DoBuildData(ctx algo.IContext) error {
 	icpSwitch := abtest.GetBool("icp_switch", false)
 	mayBeIcpUser := userTest.MaybeICPUser(params.Lat, params.Lng)
 	icpWhite := abtest.GetBool("icp_white", false)
+
 	if icpSwitch && (mayBeIcpUser || icpWhite) {
 		recListKeyFormatter := abtest.GetString("icp_recommend_list_key", "icp_recommend_list:%d") // moment_recommend_list:%d
 		//白名单以及杭州新用户默认数据
@@ -169,6 +171,10 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				return errBussiness
+			},"adLocation": func(*performs.Performs) interface{} {
+				var adLocationSearchErr error
+				adLocationList,adLocationSearchErr = search.CallAdMomentListV1(params.UserId)
+				return adLocationSearchErr
 			},"better_user": func(*performs.Performs) interface{} {
 				var errBetterUser error
 				autoKeyFormatter := "better_user_mom_yesterday:%d"
@@ -227,7 +233,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList,adList,bussinessIdList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList,adList,bussinessIdList,adLocationList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)

@@ -68,6 +68,35 @@ func CallLiveMomentList(userIdList []int64) ([]int64, error) {
 	}
 }
 
+
+//获取广告日志列表
+func CallAdMomentListV1(userId int64) ([]int64, error) {
+	idlist := make([]int64, 0)
+	filters := []string{
+		fmt.Sprintf("{moments_type:%s}", "ad"),     //  moments Type
+		fmt.Sprintf("ad_location.start_time:(,now/m]", ), // time
+		fmt.Sprint("ad_location.end_time:[now/m,)"),
+	}
+
+	params := searchMomentRequest{
+		UserID:   userId,
+		Filter:   strings.Join(filters, "*"),
+	}
+
+	if paramsData, err := json.Marshal(params); err == nil {
+		searchRes := &searchMomentRes{}
+		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchNearMomentListUrlV1, paramsData, searchRes); err == nil {
+			for _, element := range searchRes.Data {
+				idlist = append(idlist, element.Id)
+			}
+			return idlist, err
+		} else {
+			return idlist, err
+		}
+	} else {
+		return idlist, err
+	}
+}
 // 获取附近日志列表
 func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, momentTypes string, insertTimestamp float32, distance string,recommend bool) ([]int64, error) {
 	idlist := make([]int64, 0)

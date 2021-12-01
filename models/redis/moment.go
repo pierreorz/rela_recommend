@@ -74,11 +74,16 @@ type MomentsExt struct {
 	TagList         string `json:"tagList,omitempty"`      //标签组
 	IsFive          int    `json:"isFive,omitempty"`       //5.0版本此值为1
 	Reason          string `json:"reason,omitempty"`       //推荐网页的理由
-	AdLocation      map[string]adLoc `json:"ad_location,omitempty"`
+	AdLocation      *Locations `json:"ad_location,omitempty"`
 
 }
 
-type adLoc struct {
+type Locations struct {
+	MomentRecommend *AdLoc `json:"moment.recommend,omitempty"`
+	MomentAround    *AdLoc `json:"moment.around,omitempty"`
+}
+
+type AdLoc struct {
 	Index             int   `json:"index"`
 	ExposureThreshold int   `json:"exposure_threshold"`
 	StartTime         int64 `json:"start_time"`

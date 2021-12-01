@@ -593,7 +593,7 @@ func adLocationAroundExposureThresholdFunc(ctx algo.IContext) error{
 		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if adLcaotion :=dataInfo.MomentCache.MomentsExt.AdLocation;adLcaotion!=nil{
-			if val,ok :=adLcaotion["moment.around"];ok{
+			if val :=adLcaotion.MomentAround;val!=nil{
 				if ctx.GetCreateTime().Unix()>val.StartTime&&ctx.GetCreateTime().Unix()<val.EndTime{
 					if dataInfo.UserItemBehavior==nil||dataInfo.UserItemBehavior.GetAroundExposure().Count<float64(val.ExposureThreshold){
 						rankInfo.HopeIndex=val.Index
@@ -610,7 +610,7 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error{
 		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if adLcaotion :=dataInfo.MomentCache.MomentsExt.AdLocation;adLcaotion!=nil{
-			if val,ok :=adLcaotion["moment.recommend"];ok{
+			if val :=adLcaotion.MomentRecommend;val!=nil{
 				if ctx.GetCreateTime().Unix()>val.StartTime&&ctx.GetCreateTime().Unix()<val.EndTime{
 					if dataInfo.UserItemBehavior==nil||dataInfo.UserItemBehavior.GetRecExposure().Count<float64(val.ExposureThreshold){
 						rankInfo.HopeIndex=val.Index
