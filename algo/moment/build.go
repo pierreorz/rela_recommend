@@ -41,12 +41,10 @@ func DoBuildData(ctx algo.IContext) error {
 	var recIds, topMap, recMap ,bussinessMap = []int64{}, map[int64]int{}, map[int64]int{},map[int64]int{}
 	var liveMap = map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
-
 	if abtest.GetBool("rec_liveMoments_switch", false) && custom != "hot" {
 		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 		liveMomentIds = getMapKey(liveMap)
 	}
-
 	adInfo :=abtest.GetInt64("ad_moment_id",0)
 
 	if adInfo!=0{//广告类型日志
