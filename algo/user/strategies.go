@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"math"
+	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	rutils "rela_recommend/utils"
@@ -38,6 +39,24 @@ func UserBehaviorClickedDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo
 	return nil
 }
 
+// 单用户曝光过多降权
+func ExpoTooMuchDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+
+	if userBehavior := dataInfo.UserBehavior; userBehavior != nil {
+		exposuresItem := userBehavior.GetNearbyListExposure()
+		expoThreshold := ctx.GetAbTest().GetFloat64("single_expo_threshold", 3.)
+		if exposuresItem.Count >= expoThreshold {
+			timeMinute := (float64(ctx.GetCreateTime().Unix()) - exposuresItem.LastTime) / 60
+			if timeMinute > 0 {
+				decay := rutils.GaussDecay(exposuresItem.Count, 0., expoThreshold, timeMinute)
+				rankInfo.AddRecommend("ExpoTooMuchDown", float32(decay))
+			}
+		}
+	}
+	return nil
+}
+
 func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	request := ctx.GetRequest()
 	abtest := ctx.GetAbTest()
@@ -48,6 +67,9 @@ func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 	if abtest.GetString("custom_sort_type", "distance") == "distance" { // 是否按照距离排序
 		rankInfo.Level = -int(distance)
 	} else { // 安装距离分段排序
+		if randomArea := abtest.GetInt("random_distance_area", 0); (randomArea > 0) && (request.Offset == 0) {
+			distance = distance + float64(rand.Intn(randomArea))
+		}
 		sortWeightType := abtest.GetString("distance_sort_weight_type", "level")
 		if sortWeightType == "weight" { // weight:按照权重，10公里为基准
 			weight := float32(0.5 * math.Exp(-distance/10000.0))

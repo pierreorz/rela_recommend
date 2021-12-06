@@ -11,6 +11,7 @@ func AddAppInfo(app *AppInfo) *AppInfo {
 		log.Errorf("app is exists: %s\n", app.Name)
 	} else {
 		appMap[app.Name] = app
+		log.Infof("app added: %s", app.Name)
 	}
 	return app
 }

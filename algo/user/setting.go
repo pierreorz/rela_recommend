@@ -39,6 +39,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"no_interact_decrease": &strategy.BaseRichStrategy{StrategyFunc: strategy.NoInteractDecreaseFunc, DefaultWeight: 3},
 	"exposure_bottom":      &strategy.BaseRichStrategy{StrategyFunc: strategy.ExposureBottomFunc},
 	"week_no_interact":     &strategy.BaseRichStrategy{StrategyFunc: WeekExposureNoInteractFunc},
+	"single_user_exposure": &strategy.BaseRichStrategy{StrategyItemFunc: ExpoTooMuchDownItemFunc},
 	"cover_face":           &strategy.BaseRichStrategy{StrategyItemFunc: CoverFaceUpperItem},
 }
 

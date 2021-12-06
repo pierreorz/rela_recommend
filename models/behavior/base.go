@@ -26,6 +26,13 @@ type BehaviorTag struct {
 	LastTime float64 `json:"last_time"`
 }
 
+///    *********picture tags
+type PictureTag struct{
+	LastTime float64 `json:"last_time"`
+	Name string `json:"name"`
+	Count float64 `json:"count"`
+}
+
 func (self *BehaviorTag) Merge(other *BehaviorTag) *BehaviorTag {
 	self.Id = other.Id
 	self.Category = other.Category
@@ -35,7 +42,14 @@ func (self *BehaviorTag) Merge(other *BehaviorTag) *BehaviorTag {
 	return self
 }
 
+func (self *PictureTag) Merge(other *PictureTag) *PictureTag{
+	self.LastTime=math.Max(other.LastTime,self.LastTime)
+	self.Name=other.Name
+	self.Count+=other.Count
+	return self
+}
 // 排序
+type pictureTagSorter []*PictureTag
 type behaviorTagSorter []*BehaviorTag
 
 func (a behaviorTagSorter) Len() int      { return len(a) }
@@ -52,15 +66,29 @@ func (a behaviorTagSorter) Less(i, j int) bool { // 按照 Count , lastTime, Nam
 	}
 }
 
+func (a pictureTagSorter) Len() int      { return len(a) }
+func (a pictureTagSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a pictureTagSorter) Less(i, j int) bool { // 按照 Count , lastTime, Name 倒序
+	if a[i].Count == a[j].Count {
+		if a[i].LastTime == a[j].LastTime {
+			return a[i].Name > a[j].Name
+		} else {
+			return a[i].LastTime > a[j].LastTime
+		}
+	} else {
+		return a[i].Count > a[j].Count
+	}
+}
 type Behavior struct {
 	Count    float64                 `json:"count"`
 	LastTime float64                 `json:"last_time"`
 	LastList []BehaviorItemLog       `json:"last_list"` // 最后操作列表
 	CountMap map[string]*BehaviorTag `json:"count_map"` // 类别对应的标签
+	PictureMap map[string]*PictureTag `json:"picture_map"`
 }
 
 // 获取最后操作dataids列表
-func (self *Behavior) GetLastDataIds() []int64 {
+func (self *Behavior) GetLastDataIds() []int64{
 	ids := utils.SetInt64{}
 	for _, log := range self.LastList {
 		ids.Append(log.DataId)
@@ -92,6 +120,56 @@ func (self *Behavior) GetTopCountTags(category string, n int) []*BehaviorTag {
 	return res
 }
 
+func (self *Behavior)GetTopCountPictureTags(n int)[]*PictureTag{
+	var res =pictureTagSorter{}
+	for key,tag :=range self.PictureMap{
+		if LabelConvert(tag.Name)!=""{
+			res=append(res,self.PictureMap[key])
+		}
+	}
+	sort.Sort(res)
+	if n<len(res){
+		res=res[:n]
+	}
+	return res
+}
+
+func LabelConvert(label string)  string {
+	if utils.StringContains(label,[]string{"burudongwu"}){
+		return "pet"
+	}
+	if utils.StringContains(label,[]string{"dongman"}){
+		return "dongman"
+	}
+	if utils.StringContains(label,[]string{"biaoqingbao"}){
+		return "biaoqingbao"
+	}
+	if utils.StringContains(label,[]string{"jianshen"}){
+		return "yundong"
+	}
+	if utils.StringContains(label,[]string{"youxi"}){
+		return "youxi"
+	}
+	if utils.StringContains(label,[]string{"shaoshumingzufushi","xiaofu","JKzhifu"}){
+		return "shishang"
+	}
+	if utils.StringContains(label,[]string{"meishi"}){
+		return "meishi"
+	}
+	if utils.StringContains(label,[]string{"jiejing","ziranfengjing"}){
+		return "fengjing"
+	}
+	return ""
+}
+func (self *Behavior) GetTopCountPictureTagsMap(n int) map[string]*PictureTag{
+	tagMap :=map[string]*PictureTag{}
+	tags :=self.GetTopCountPictureTags(n)
+	for i,tag :=range tags {
+		tagMap[tag.Name]=tags[i]
+	}
+	return tagMap
+}
+
 func (self *Behavior) GetTopCountTagsMap(category string, n int) map[int64]*BehaviorTag {
 	tagMap := map[int64]*BehaviorTag{}
 	tags := self.GetTopCountTags(category, n)
@@ -105,6 +183,9 @@ func (self *Behavior) Merge(other *Behavior) *Behavior {
 	if self.CountMap == nil {
 		self.CountMap = map[string]*BehaviorTag{}
 	}
+	if self.PictureMap==nil{
+		self.PictureMap= map[string]*PictureTag{}
+	}
 	if other != nil {
 		self.Count += other.Count
 		self.LastTime = math.Max(self.LastTime, other.LastTime)
@@ -114,6 +195,13 @@ func (self *Behavior) Merge(other *Behavior) *Behavior {
 				self.CountMap[categoryName] = current.Merge(tag)
 			} else {
 				self.CountMap[categoryName] = other.CountMap[categoryName]
+			}
+		}
+		for label,pictureTag := range other.PictureMap{
+			if current,ok :=self.PictureMap[label];ok{
+				self.PictureMap[label]=current.Merge(pictureTag)
+			}else{
+				self.PictureMap[label]=other.PictureMap[label]
 			}
 		}
 	}
