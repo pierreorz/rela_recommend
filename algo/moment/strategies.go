@@ -6,7 +6,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"strings"
@@ -589,42 +588,123 @@ func increaseEventExpose(ctx algo.IContext) error {
 }
 
 func adLocationAroundExposureThresholdFunc(ctx algo.IContext) error{
+	var adMapIndex = make(map[int64]int,0)
+	var indexMapAd =make(map[int]int64,0)
 	for index :=0;index<ctx.GetDataLength();index++{
 		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo := dataInfo.GetRankInfo()
-		if adLcaotion :=dataInfo.MomentCache.MomentsExt.AdLocation;adLcaotion!=nil{
-			if val :=adLcaotion.MomentAround;val!=nil{
+		if adLocation :=dataInfo.MomentCache.MomentsExt.AdLocation;adLocation!=nil{
+			if val :=adLocation.MomentAround;val!=nil{
 				if ctx.GetCreateTime().Unix()>val.StartTime&&ctx.GetCreateTime().Unix()<val.EndTime{
 					if dataInfo.UserItemBehavior==nil||dataInfo.UserItemBehavior.GetAroundExposure().Count<float64(val.ExposureThreshold){
-						rankInfo.HopeIndex=val.Index
+						if _,ok :=indexMapAd[val.Index];ok{
+							var adIndex =val.Index
+							for{
+								adIndex+=1
+								if _,ok :=indexMapAd[adIndex];!ok{
+									indexMapAd[adIndex]=dataInfo.MomentCache.Id
+									break
+								}
+							}
+						}else{
+							indexMapAd[val.Index]=dataInfo.MomentCache.Id
+						}
 					}
 				}
+			}
+		}
+	}
+	if len(indexMapAd)>0{
+		for index,momId :=range indexMapAd{
+			adMapIndex[momId]=index
+		}
+		for index :=0;index<ctx.GetDataLength();index++{
+			dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if _,ok :=adMapIndex[dataInfo.MomentCache.Id];ok{
+				rankInfo.HopeIndex=adMapIndex[dataInfo.MomentCache.Id]
 			}
 		}
 	}
 	return nil
 }
 
-func adLocationRecExposureThresholdFunc(ctx algo.IContext) error{
-	for index :=0;index<ctx.GetDataLength();index++{
-		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
+	var adMapIndex = make(map[int64]int, 0)
+	var indexMapAd = make(map[int]int64, 0)
+	var isTop = 0
+	var softTopList = make(map[int64]int, 0)
+	var softIndex = 0
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if adLcaotion :=dataInfo.MomentCache.MomentsExt.AdLocation;adLcaotion!=nil{
-			if val :=adLcaotion.MomentRecommend;val!=nil{
-				if ctx.GetCreateTime().Unix()>val.StartTime&&ctx.GetCreateTime().Unix()<val.EndTime{
-					if dataInfo.UserItemBehavior==nil||dataInfo.UserItemBehavior.GetRecExposure().Count<float64(val.ExposureThreshold){
-						rankInfo.HopeIndex=val.Index
+		if rankInfo.IsTop == 1 {
+			isTop = 1
+		}
+		if rankInfo.IsSoftTop == 1 {
+			if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetRecExposure().Count < 1 {
+				softTopList[dataInfo.MomentCache.Id] = softIndex
+				softIndex += 1
+			}
+		}
+
+		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
+			if val := adLocation.MomentAround; val != nil {
+				if ctx.GetCreateTime().Unix() > val.StartTime && ctx.GetCreateTime().Unix() < val.EndTime {
+					if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetAroundExposure().Count < float64(val.ExposureThreshold) {
+						if _, ok := indexMapAd[val.Index]; ok {
+							var adIndex = val.Index
+							for {
+								adIndex += 1
+								if _, ok := indexMapAd[adIndex]; !ok {
+									indexMapAd[adIndex] = dataInfo.MomentCache.Id
+									break
+								}
+							}
+						} else {
+							indexMapAd[val.Index] = dataInfo.MomentCache.Id
+						}
 					}
 				}
+			}
+		}
+	}
+	var minIndex = 100
+	var change=0
+	if len(softTopList) > 0 || len(indexMapAd) > 0 {
+		if len(indexMapAd) > 0 {
+			for index, momId := range indexMapAd {
+				adMapIndex[momId] = index
+				if index < minIndex {
+					minIndex = index
+				}
+			}
+			if isTop+len(softTopList)>minIndex{
+				minIndex=isTop+len(softTopList)
+				change=1
+			}
+		}
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if _,ok :=adMapIndex[dataInfo.MomentCache.Id];ok{
+				if change==0{
+					rankInfo.HopeIndex=adMapIndex[dataInfo.MomentCache.Id]
+				}else{
+					rankInfo.HopeIndex=adMapIndex[dataInfo.MomentCache.Id]+(isTop+len(softTopList))-minIndex
+				}
+			}
+			if _, ok := softTopList[dataInfo.MomentCache.Id]; ok {
+				rankInfo.HopeIndex = isTop + softTopList[dataInfo.MomentCache.Id]
 			}
 		}
 	}
 	return nil
 }
 
-func softTopExposureFunc(ctx algo.IContext) error {
+func softTopAndExposureFunc(ctx algo.IContext) error {
 	var isTop = 0
 	var softTopList = make([]int64, 0)
+	s
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -645,7 +725,6 @@ func softTopExposureFunc(ctx algo.IContext) error {
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.MomentCache.Id==softTopList[0]{
 				rankInfo.HopeIndex=isTop
-				log.Warnf("istop %s",isTop)
 			}
 		}
 	}
