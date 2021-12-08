@@ -701,36 +701,35 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 	return nil
 }
 
-func softTopAndExposureFunc(ctx algo.IContext) error {
-	var isTop = 0
-	var softTopList = make([]int64, 0)
-	s
-	for index := 0; index < ctx.GetDataLength(); index++ {
-		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetRecExposure().Count < 1 {
-			if rankInfo.IsSoftTop == 1 {
-				softTopList = append(softTopList, dataInfo.MomentCache.Id)
-			}
-		}
-		if rankInfo.IsTop == 0 {
-			continue
-		} else {
-			isTop = 1
-		}
-	}
-	if len(softTopList) > 0 {
-		for index := 0; index < ctx.GetDataLength(); index++ {
-			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-			rankInfo := dataInfo.GetRankInfo()
-			if dataInfo.MomentCache.Id==softTopList[0]{
-				rankInfo.HopeIndex=isTop
-			}
-		}
-	}
-
-	return nil
-}
+//func softTopAndExposureFunc(ctx algo.IContext) error {
+//	var isTop = 0
+//	var softTopList = make([]int64, 0)
+//	for index := 0; index < ctx.GetDataLength(); index++ {
+//		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+//		rankInfo := dataInfo.GetRankInfo()
+//		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetRecExposure().Count < 1 {
+//			if rankInfo.IsSoftTop == 1 {
+//				softTopList = append(softTopList, dataInfo.MomentCache.Id)
+//			}
+//		}
+//		if rankInfo.IsTop == 0 {
+//			continue
+//		} else {
+//			isTop = 1
+//		}
+//	}
+//	if len(softTopList) > 0 {
+//		for index := 0; index < ctx.GetDataLength(); index++ {
+//			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+//			rankInfo := dataInfo.GetRankInfo()
+//			if dataInfo.MomentCache.Id==softTopList[0]{
+//				rankInfo.HopeIndex=isTop
+//			}
+//		}
+//	}
+//
+//	return nil
+//}
 
 //晚上9-12点热门直播日志前2名会被放置去指定位置，看过后沉底
 func hotLiveHopeIndexStrategyFunc(ctx algo.IContext) error {
