@@ -356,6 +356,8 @@ func UserLiveWeight(ctx algo.IContext) error{
 
 func MomentContentStrategy(ctx algo.IContext) error{
 	userInfo :=ctx.GetUserInfo().(*UserInfo)
+	var recommend1 =0
+	var recommend2 =0
 	if userInfo.UserContentProfile!=nil{
 		momContentPref :=userInfo.UserContentProfile.PicturePref
 		for index :=0 ;index< ctx.GetDataLength();index++{
@@ -382,15 +384,20 @@ func MomentContentStrategy(ctx algo.IContext) error{
 					}
 					if score>0{
 						rankInfo.AddRecommend("Momcontent",1+0.3*utils.Expit(score))
+						recommend1+=1
 					}
 					if personPref>0&&facePref>0{
 						if facePref/personPref>0.95{
 							rankInfo.AddRecommend("faceup",1.2)
+							recommend2+=1
 						}else if facePref/personPref<0.7{
 							rankInfo.AddRecommend("facedown",0.8)
 						}
 					}
 				}
+			}
+			if recommend2>=3&&recommend1>=3{
+				break
 			}
 		}
 	}
@@ -460,12 +467,15 @@ func HotMomentSuppressStrategyFunc(ctx algo.IContext) error {
 func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
 	var currTime = float64(ctx.GetCreateTime().Unix())
+	var abtest = ctx.GetAbTest()
+   var max =abtest.GetInt("user_picture_tag_max",2)
 	var userInfo = ctx.GetUserInfo().(*UserInfo)
 	if userInfo.UserBehavior != nil {
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
 		if userInteract.Count > 0 {
 			pictureTagMap := userInteract.GetTopCountPictureTagsMap(5)
 			if pictureTagMap != nil && len(pictureTagMap) > 0 {
+				var recommend = 0
 				for index := 0; index < ctx.GetDataLength(); index++ {
 					dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 					if dataInfo.MomentProfile != nil {
@@ -485,7 +495,11 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 						if count > 0.0 && score > 0.0 {
 							var finalScore = float32(1.0 + score/count)
 							rankInfo.AddRecommend("UserPictureTagInteract", finalScore)
+							recommend+=1
 						}
+					}
+					if recommend>=max{
+						break
 					}
 				}
 			}
