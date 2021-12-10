@@ -249,6 +249,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				dataIds = momentIdSet.AppendArray(dataIds).ToList()
 				return len(searchMomentMap)
+				log.Warnf("search result %s",searchMomentMap)
 			}
 			return searchMomentMapErr
 		})
