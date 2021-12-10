@@ -172,6 +172,7 @@ func DoBuildData(ctx algo.IContext) error {
 			},"adLocation": func(*performs.Performs) interface{} {
 				var adLocationSearchErr error
 				adLocationList,adLocationSearchErr = search.CallAdMomentListV1(params.UserId)
+				log.Warnf("ad location list %s",adLocationList)
 				return adLocationSearchErr
 			},"better_user": func(*performs.Performs) interface{} {
 				var errBetterUser error
