@@ -122,8 +122,8 @@ func (self *Behavior) GetTopCountTags(category string, n int) []*BehaviorTag {
 
 func (self *Behavior)GetTopCountPictureTags(n int)[]*PictureTag{
 	var res =pictureTagSorter{}
-	for key,tag :=range self.PictureMap{
-		if LabelConvert(tag.Name)!=""{
+	for key,_ :=range self.PictureMap{
+		if LabelConvert(key)!=""{
 			res=append(res,self.PictureMap[key])
 		}
 	}

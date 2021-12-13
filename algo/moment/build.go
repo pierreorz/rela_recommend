@@ -388,7 +388,7 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 			}
-			if mom.Moments.MomentsType=="ad"&&isVip==1{
+			if mom.Moments.MomentsType=="ad"{
 				continue
 			}
 			if mom.Moments.ShareTo != "all" {
