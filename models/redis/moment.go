@@ -3,7 +3,6 @@ package redis
 import (
 	"fmt"
 	"rela_recommend/algo"
-	"rela_recommend/models/behavior"
 	"rela_recommend/utils"
 	"time"
 
@@ -91,7 +90,7 @@ type AdLoc struct {
 	JumpType          int64   `json:"jump_type"`
 }
 
-func (loc AdLoc) CanExposure(ctx algo.IContext, exposureRecords *behavior.Behavior) bool {
+func (loc AdLoc) CanExposure(ctx algo.IContext, exposureRecords float64) bool {
 	nowTime := ctx.GetCreateTime().Unix()
 	requestVersion := ctx.GetRequest().ClientVersion
 
@@ -113,7 +112,7 @@ func (loc AdLoc) CanExposure(ctx algo.IContext, exposureRecords *behavior.Behavi
 		}
 	}
 
-	if exposureRecords != nil && (exposureRecords.Count >= loc.ExposureThreshold) {
+	if exposureRecords >= loc.ExposureThreshold {
 		return false
 	}
 

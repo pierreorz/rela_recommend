@@ -593,8 +593,11 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext, iDataInfo algo
 	if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
 		if aroundAd := adLocation.MomentAround; aroundAd != nil {
 
-			if aroundAd.CanExposure(ctx, dataInfo.UserItemBehavior.GetAroundExposure()) {
-				rankInfo.HopeIndex = aroundAd.Index
+			userBehavior := dataInfo.UserItemBehavior
+			if userBehavior != nil {
+				if aroundAd.CanExposure(ctx, userBehavior.GetAroundExposure().Count) {
+					rankInfo.HopeIndex = aroundAd.Index
+				}
 			}
 		}
 	}
@@ -609,18 +612,21 @@ func adLocationAroundExposureThresholdFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
 			if val := adLocation.MomentAround; val != nil {
-				if val.CanExposure(ctx, dataInfo.UserItemBehavior.GetAroundExposure()) {
-					if _, ok := indexMapAd[val.Index]; ok {
-						var adIndex = val.Index
-						for {
-							adIndex += 1
-							if _, ok := indexMapAd[adIndex]; !ok {
-								indexMapAd[adIndex] = dataInfo.MomentCache.Id
-								break
+				userBehavior := dataInfo.UserItemBehavior
+				if userBehavior != nil {
+					if val.CanExposure(ctx, userBehavior.GetAroundExposure().Count) {
+						if _, ok := indexMapAd[val.Index]; ok {
+							var adIndex = val.Index
+							for {
+								adIndex += 1
+								if _, ok := indexMapAd[adIndex]; !ok {
+									indexMapAd[adIndex] = dataInfo.MomentCache.Id
+									break
+								}
 							}
+						} else {
+							indexMapAd[val.Index] = dataInfo.MomentCache.Id
 						}
-					} else {
-						indexMapAd[val.Index] = dataInfo.MomentCache.Id
 					}
 				}
 			}
@@ -662,18 +668,21 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 
 		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
 			if val := adLocation.MomentRecommend; val != nil {
-				if val.CanExposure(ctx, dataInfo.UserItemBehavior.GetRecExposure()) {
-					if _, ok := indexMapAd[val.Index]; ok {
-						var adIndex = val.Index
-						for {
-							adIndex += 1
-							if _, ok := indexMapAd[adIndex]; !ok {
-								indexMapAd[adIndex] = dataInfo.MomentCache.Id
-								break
+				userBehavior := dataInfo.UserItemBehavior
+				if userBehavior != nil {
+					if val.CanExposure(ctx, userBehavior.GetRecExposure().Count) {
+						if _, ok := indexMapAd[val.Index]; ok {
+							var adIndex = val.Index
+							for {
+								adIndex += 1
+								if _, ok := indexMapAd[adIndex]; !ok {
+									indexMapAd[adIndex] = dataInfo.MomentCache.Id
+									break
+								}
 							}
+						} else {
+							indexMapAd[val.Index] = dataInfo.MomentCache.Id
 						}
-					} else {
-						indexMapAd[val.Index] = dataInfo.MomentCache.Id
 					}
 				}
 			}
