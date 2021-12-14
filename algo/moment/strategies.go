@@ -131,11 +131,11 @@ func VideoMomWeight(ctx algo.IContext, index int) error {
 }
 
 //文本日志打上标签进行打散
-func TextMomInterval(ctx algo.IContext,index int) error {
+func TextMomInterval(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	if dataInfo.MomentCache != nil {
-		if dataInfo.MomentCache.MomentsType == "text" || dataInfo.MomentCache.MomentsType=="themereply"{
+		if dataInfo.MomentCache.MomentsType == "text" || dataInfo.MomentCache.MomentsType == "themereply" {
 			rankInfo.AddRecommend("textmom", 1.0)
 		}
 	}
@@ -312,39 +312,39 @@ func RecallUserAddWeight(ctx algo.IContext) error {
 }
 
 //用户直播画像
-func UserLiveWeight(ctx algo.IContext) error{
-	userData :=ctx.GetUserInfo().(*UserInfo)
-	userLiveLongPref :=make(map[int64]float32)
-	userLiveShortPref :=make(map[int64]float32)
-	userConsumeLongPref :=make(map[int64]float32)
-	userConsumeShortPref :=make(map[int64]float32)
-	if userData.UserLiveProfile!=nil{
-		userLiveLongPref =userData.UserLiveProfile.LiveLongPref
-		userLiveShortPref =userData.UserLiveProfile.LiveShortPref
-		userConsumeLongPref =userData.UserLiveProfile.ConsumeLongPref
-		userConsumeShortPref =userData.UserLiveProfile.ConsumeShortPref
+func UserLiveWeight(ctx algo.IContext) error {
+	userData := ctx.GetUserInfo().(*UserInfo)
+	userLiveLongPref := make(map[int64]float32)
+	userLiveShortPref := make(map[int64]float32)
+	userConsumeLongPref := make(map[int64]float32)
+	userConsumeShortPref := make(map[int64]float32)
+	if userData.UserLiveProfile != nil {
+		userLiveLongPref = userData.UserLiveProfile.LiveLongPref
+		userLiveShortPref = userData.UserLiveProfile.LiveShortPref
+		userConsumeLongPref = userData.UserLiveProfile.ConsumeLongPref
+		userConsumeShortPref = userData.UserLiveProfile.ConsumeShortPref
 	}
-	for index :=0;index<ctx.GetDataLength();index++{
-		DataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo :=DataInfo.GetRankInfo()
-		if DataInfo.MomentCache!=nil{
-			userId :=DataInfo.MomentCache.UserId
-			if strings.Contains(DataInfo.MomentCache.MomentsType,"live"){
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		DataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := DataInfo.GetRankInfo()
+		if DataInfo.MomentCache != nil {
+			userId := DataInfo.MomentCache.UserId
+			if strings.Contains(DataInfo.MomentCache.MomentsType, "live") {
 				var score float32 = 0.0
-				if w1 ,ok :=userLiveLongPref[userId];ok{
-					score +=w1
+				if w1, ok := userLiveLongPref[userId]; ok {
+					score += w1
 				}
-				if w2 ,ok :=userLiveShortPref[userId];ok{
-					score +=w2
+				if w2, ok := userLiveShortPref[userId]; ok {
+					score += w2
 				}
-				if w3 ,ok :=userConsumeLongPref[userId];ok{
-					score +=w3
+				if w3, ok := userConsumeLongPref[userId]; ok {
+					score += w3
 				}
-				if w4 ,ok :=userConsumeShortPref[userId];ok{
-					score +=w4
+				if w4, ok := userConsumeShortPref[userId]; ok {
+					score += w4
 				}
 				rankInfo.AddRecommend("UserLiveProFileWeight", 1+score)
-			}else{
+			} else {
 				continue
 			}
 		}
@@ -352,41 +352,40 @@ func UserLiveWeight(ctx algo.IContext) error{
 	return nil
 }
 
-
-func MomentContentStrategy(ctx algo.IContext) error{
-	userInfo :=ctx.GetUserInfo().(*UserInfo)
-	if userInfo.UserContentProfile!=nil{
-		momContentPref :=userInfo.UserContentProfile.PicturePref
-		for index :=0 ;index< ctx.GetDataLength();index++{
+func MomentContentStrategy(ctx algo.IContext) error {
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	if userInfo.UserContentProfile != nil {
+		momContentPref := userInfo.UserContentProfile.PicturePref
+		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
-			if dataInfo.MomentContentProfile!=nil{
-				tags :=dataInfo.MomentContentProfile.Tags
-				if len(tags)>=1{
-					var score float32=0.0
-					var personPref float32=0.0
-					var facePref float32=0.0
-					for _,tag := range strings.Split(tags,","){
-						if pref,isOk :=momContentPref[tag];isOk{
-							if tag!="人"&&tag!="人脸"{
-								score+=pref
-							}else{
-								if tag=="人"{
-									personPref=pref
-								}else{
-									facePref=pref
+			if dataInfo.MomentContentProfile != nil {
+				tags := dataInfo.MomentContentProfile.Tags
+				if len(tags) >= 1 {
+					var score float32 = 0.0
+					var personPref float32 = 0.0
+					var facePref float32 = 0.0
+					for _, tag := range strings.Split(tags, ",") {
+						if pref, isOk := momContentPref[tag]; isOk {
+							if tag != "人" && tag != "人脸" {
+								score += pref
+							} else {
+								if tag == "人" {
+									personPref = pref
+								} else {
+									facePref = pref
 								}
 							}
 						}
 					}
-					if score>0{
-						rankInfo.AddRecommend("Momcontent",1+0.3*utils.Expit(score))
+					if score > 0 {
+						rankInfo.AddRecommend("Momcontent", 1+0.3*utils.Expit(score))
 					}
-					if personPref>0&&facePref>0{
-						if facePref/personPref>0.95{
-							rankInfo.AddRecommend("faceup",1.2)
-						}else if facePref/personPref<0.7{
-							rankInfo.AddRecommend("facedown",0.8)
+					if personPref > 0 && facePref > 0 {
+						if facePref/personPref > 0.95 {
+							rankInfo.AddRecommend("faceup", 1.2)
+						} else if facePref/personPref < 0.7 {
+							rankInfo.AddRecommend("facedown", 0.8)
 						}
 					}
 				}
@@ -492,6 +491,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 	}
 	return err
 }
+
 // 根据用户实时行为偏好，进行的策略
 func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
@@ -548,10 +548,10 @@ func NeverSeeStrategyFunc(ctx algo.IContext) error {
 }
 
 //附近日志未被互动提权
-func  NeverInteractStrategyFunc(ctx algo.IContext) error {
+func NeverInteractStrategyFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	interactNum := abtest.GetFloat64("interact_num", 1.0)
-	hour :=abtest.GetInt("not_interact_hour",3)
+	hour := abtest.GetInt("not_interact_hour", 3)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -587,41 +587,54 @@ func increaseEventExpose(ctx algo.IContext) error {
 	return nil
 }
 
-func adLocationAroundExposureThresholdFunc(ctx algo.IContext) error{
-	var adMapIndex = make(map[int64]int,0)
-	var indexMapAd =make(map[int]int64,0)
-	for index :=0;index<ctx.GetDataLength();index++{
-		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
-		if adLocation :=dataInfo.MomentCache.MomentsExt.AdLocation;adLocation!=nil{
-			if val :=adLocation.MomentAround;val!=nil{
-				if ctx.GetCreateTime().Unix()>val.StartTime&&ctx.GetCreateTime().Unix()<val.EndTime{
-					if dataInfo.UserItemBehavior==nil||dataInfo.UserItemBehavior.GetAroundExposure().Count<float64(val.ExposureThreshold){
-						if _,ok :=indexMapAd[val.Index];ok{
-							var adIndex =val.Index
-							for{
-								adIndex+=1
-								if _,ok :=indexMapAd[adIndex];!ok{
-									indexMapAd[adIndex]=dataInfo.MomentCache.Id
-									break
-								}
+func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+
+	if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
+		if aroundAd := adLocation.MomentAround; aroundAd != nil {
+
+			if aroundAd.CanExposure(ctx, dataInfo.UserItemBehavior.GetAroundExposure()) {
+				rankInfo.HopeIndex = aroundAd.Index
+			}
+		}
+	}
+
+	return nil
+}
+
+func adLocationAroundExposureThresholdFunc(ctx algo.IContext) error {
+	var adMapIndex = make(map[int64]int, 0)
+	var indexMapAd = make(map[int]int64, 0)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
+			if val := adLocation.MomentAround; val != nil {
+				if val.CanExposure(ctx, dataInfo.UserItemBehavior.GetAroundExposure()) {
+					if _, ok := indexMapAd[val.Index]; ok {
+						var adIndex = val.Index
+						for {
+							adIndex += 1
+							if _, ok := indexMapAd[adIndex]; !ok {
+								indexMapAd[adIndex] = dataInfo.MomentCache.Id
+								break
 							}
-						}else{
-							indexMapAd[val.Index]=dataInfo.MomentCache.Id
 						}
+					} else {
+						indexMapAd[val.Index] = dataInfo.MomentCache.Id
 					}
 				}
 			}
 		}
 	}
-	if len(indexMapAd)>0{
-		for index,momId :=range indexMapAd{
-			adMapIndex[momId]=index
+	if len(indexMapAd) > 0 {
+		for index, momId := range indexMapAd {
+			adMapIndex[momId] = index
 		}
-		for index :=0;index<ctx.GetDataLength();index++{
-			dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
-			if _,ok :=adMapIndex[dataInfo.MomentCache.Id];ok{
-				rankInfo.HopeIndex=adMapIndex[dataInfo.MomentCache.Id]
+			if _, ok := adMapIndex[dataInfo.MomentCache.Id]; ok {
+				rankInfo.HopeIndex = adMapIndex[dataInfo.MomentCache.Id]
 			}
 		}
 	}
@@ -648,28 +661,26 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 		}
 
 		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
-			if val := adLocation.MomentAround; val != nil {
-				if ctx.GetCreateTime().Unix() > val.StartTime && ctx.GetCreateTime().Unix() < val.EndTime {
-					if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetAroundExposure().Count < float64(val.ExposureThreshold) {
-						if _, ok := indexMapAd[val.Index]; ok {
-							var adIndex = val.Index
-							for {
-								adIndex += 1
-								if _, ok := indexMapAd[adIndex]; !ok {
-									indexMapAd[adIndex] = dataInfo.MomentCache.Id
-									break
-								}
+			if val := adLocation.MomentRecommend; val != nil {
+				if val.CanExposure(ctx, dataInfo.UserItemBehavior.GetRecExposure()) {
+					if _, ok := indexMapAd[val.Index]; ok {
+						var adIndex = val.Index
+						for {
+							adIndex += 1
+							if _, ok := indexMapAd[adIndex]; !ok {
+								indexMapAd[adIndex] = dataInfo.MomentCache.Id
+								break
 							}
-						} else {
-							indexMapAd[val.Index] = dataInfo.MomentCache.Id
 						}
+					} else {
+						indexMapAd[val.Index] = dataInfo.MomentCache.Id
 					}
 				}
 			}
 		}
 	}
 	var minIndex = 100
-	var change=0
+	var change = 0
 	if len(softTopList) > 0 || len(indexMapAd) > 0 {
 		if len(indexMapAd) > 0 {
 			for index, momId := range indexMapAd {
@@ -678,19 +689,19 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 					minIndex = index
 				}
 			}
-			if isTop+len(softTopList)>minIndex{
-				minIndex=isTop+len(softTopList)
-				change=1
+			if isTop+len(softTopList) > minIndex {
+				minIndex = isTop + len(softTopList)
+				change = 1
 			}
 		}
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
-			if _,ok :=adMapIndex[dataInfo.MomentCache.Id];ok{
-				if change==0{
-					rankInfo.HopeIndex=adMapIndex[dataInfo.MomentCache.Id]
-				}else{
-					rankInfo.HopeIndex=adMapIndex[dataInfo.MomentCache.Id]+(isTop+len(softTopList))-minIndex
+			if _, ok := adMapIndex[dataInfo.MomentCache.Id]; ok {
+				if change == 0 {
+					rankInfo.HopeIndex = adMapIndex[dataInfo.MomentCache.Id]
+				} else {
+					rankInfo.HopeIndex = adMapIndex[dataInfo.MomentCache.Id] + (isTop + len(softTopList)) - minIndex
 				}
 			}
 			if _, ok := softTopList[dataInfo.MomentCache.Id]; ok {
@@ -722,8 +733,8 @@ func softTopAndExposureFunc(ctx algo.IContext) error {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
-			if dataInfo.MomentCache.Id==softTopList[0]{
-				rankInfo.HopeIndex=isTop
+			if dataInfo.MomentCache.Id == softTopList[0] {
+				rankInfo.HopeIndex = isTop
 			}
 		}
 	}
@@ -760,9 +771,9 @@ func RecExposureAssignmentsStrategyFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.ItemBehavior != nil {
-			exposureCount :=dataInfo.ItemBehavior.GetRecExposure().Count
-			if exposureCount>maxNum{
-				rankInfo.AddRecommend("max_exposure_down",0.9)
+			exposureCount := dataInfo.ItemBehavior.GetRecExposure().Count
+			if exposureCount > maxNum {
+				rankInfo.AddRecommend("max_exposure_down", 0.9)
 			}
 		}
 	}
@@ -776,29 +787,29 @@ func AroundExposureAssignmentsStrategyFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.ItemBehavior != nil {
-			exposureCount :=dataInfo.ItemBehavior.GetAroundExposure().Count
-			if exposureCount>maxNum{
-				rankInfo.AddRecommend("max_exposure_down",0.9)
+			exposureCount := dataInfo.ItemBehavior.GetAroundExposure().Count
+			if exposureCount > maxNum {
+				rankInfo.AddRecommend("max_exposure_down", 0.9)
 			}
 		}
 	}
 	return nil
 }
 
-func adHopeIndexStrategyFunc(ctx algo.IContext) error{
-	abtest :=ctx.GetAbTest()
-	adInfo :=abtest.GetInt64("ad_moment_id",0)
-	adLocation :=abtest.GetInt("ad_location",1)
-	start :=abtest.GetInt64("ad_starttime",1628492400)//活动开始时间
-	end :=abtest.GetInt64("ad_endtime",1628956800)//活动结束时间
-	if adInfo!=0{
-		for index :=0;index <ctx.GetDataLength();index++{
+func adHopeIndexStrategyFunc(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	adInfo := abtest.GetInt64("ad_moment_id", 0)
+	adLocation := abtest.GetInt("ad_location", 1)
+	start := abtest.GetInt64("ad_starttime", 1628492400) //活动开始时间
+	end := abtest.GetInt64("ad_endtime", 1628956800)     //活动结束时间
+	if adInfo != 0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
-			if dataInfo.MomentCache!=nil&&dataInfo.MomentCache.Id==adInfo{
-				if ctx.GetCreateTime().Unix()>=start&&ctx.GetCreateTime().Unix()<=end{
-					if rankInfo.IsTop!=1{
-						rankInfo.HopeIndex=adLocation
+			if dataInfo.MomentCache != nil && dataInfo.MomentCache.Id == adInfo {
+				if ctx.GetCreateTime().Unix() >= start && ctx.GetCreateTime().Unix() <= end {
+					if rankInfo.IsTop != 1 {
+						rankInfo.HopeIndex = adLocation
 					}
 				}
 			}
@@ -810,48 +821,47 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error{
 //头部主播上线即指定位置曝光推荐页
 func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
-	var startIndex =1
-	interval := abtest.GetInt(" ",2)//指定位置间隔
-	var liveIndex =0
-	for index := 0; index < ctx.GetDataLength(); index++{
+	var startIndex = 1
+	interval := abtest.GetInt(" ", 2) //指定位置间隔
+	var liveIndex = 0
+	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if rankInfo.IsTop==1{
-			startIndex=2
+		if rankInfo.IsTop == 1 {
+			startIndex = 2
 			break
 		}
 	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-			if dataInfo.UserItemBehavior==nil || dataInfo.UserItemBehavior.Count<=1{
-				if rankInfo.TopLive==1&&rankInfo.IsTop!=1{
-					rankInfo.HopeIndex=startIndex+interval*liveIndex//位置从1开始，间隔interval
-					liveIndex+=1
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count <= 1 {
+			if rankInfo.TopLive == 1 && rankInfo.IsTop != 1 {
+				rankInfo.HopeIndex = startIndex + interval*liveIndex //位置从1开始，间隔interval
+				liveIndex += 1
 			}
 		}
 	}
 	return nil
 }
 
-func BussinessExposureFunc(ctx algo.IContext) error{
-	bussinessIdList :=make([]int64,0)
-	for index :=0; index <ctx.GetDataLength();index++{
-		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo :=dataInfo.GetRankInfo()
-		userItemBehavior :=dataInfo.UserItemBehavior
-		if rankInfo.IsBussiness>0{
-			if moms :=dataInfo.MomentCache;moms!=nil{
-				if userItemBehavior==nil{
-					bussinessIdList=append(bussinessIdList,moms.Id)
+func BussinessExposureFunc(ctx algo.IContext) error {
+	bussinessIdList := make([]int64, 0)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		userItemBehavior := dataInfo.UserItemBehavior
+		if rankInfo.IsBussiness > 0 {
+			if moms := dataInfo.MomentCache; moms != nil {
+				if userItemBehavior == nil {
+					bussinessIdList = append(bussinessIdList, moms.Id)
 				}
 			}
 		}
 	}
-	choice :=int64(0)
-	if
-	len(bussinessIdList)>0{
-		choice =RandChoiceOne(bussinessIdList)
+	choice := int64(0)
+	if len(bussinessIdList) > 0 {
+		choice = RandChoiceOne(bussinessIdList)
 	}
 	//var intNum =rand.Intn(10)
 	if choice != 0 {
@@ -859,57 +869,57 @@ func BussinessExposureFunc(ctx algo.IContext) error{
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if moms := dataInfo.MomentCache; moms != nil {
-				if moms.Id == choice{
-					rankInfo.HopeIndex =4
+				if moms.Id == choice {
+					rankInfo.HopeIndex = 4
 				}
 			}
 		}
 	}
 	return nil
 }
-func ThemeReplyIndexFunc(ctx algo.IContext) error{
+func ThemeReplyIndexFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
-	index_ := abtest.GetInt("themereply_index",2)//指定位置间隔
-	isTop :=0
-	themeListRec :=make([]int64,0)
-	themeListHot :=make([]int64,0)
-	for index :=0; index <ctx.GetDataLength();index++{
-		dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo :=dataInfo.GetRankInfo()
-		if rankInfo.IsTop>0{
+	index_ := abtest.GetInt("themereply_index", 2) //指定位置间隔
+	isTop := 0
+	themeListRec := make([]int64, 0)
+	themeListHot := make([]int64, 0)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if rankInfo.IsTop > 0 {
 			isTop = 1
 		}
-		userItemBehavior :=dataInfo.UserItemBehavior
-		if moms :=dataInfo.MomentCache;moms!=nil{
-			if moms.MomentsType=="themereply"&&rankInfo.IsTop>0{
+		userItemBehavior := dataInfo.UserItemBehavior
+		if moms := dataInfo.MomentCache; moms != nil {
+			if moms.MomentsType == "themereply" && rankInfo.IsTop > 0 {
 				return nil
 			}
-			if moms.MomentsType=="themereply"&&userItemBehavior==nil{
-				if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
-					if int(ctx.GetCreateTime().Sub(moms.InsertTime).Hours())<=24{
-						themeListRec=append(themeListRec,moms.Id)
+			if moms.MomentsType == "themereply" && userItemBehavior == nil {
+				if strings.Contains(rankInfo.RecommendsString(), "RECOMMEND") {
+					if int(ctx.GetCreateTime().Sub(moms.InsertTime).Hours()) <= 24 {
+						themeListRec = append(themeListRec, moms.Id)
 					}
-				}else{
-					themeListHot=append(themeListHot,moms.Id)
+				} else {
+					themeListHot = append(themeListHot, moms.Id)
 				}
 			}
 		}
 	}
-	choice :=int64(0)
-	if len(themeListRec)>0||len(themeListHot)>0{
-		if len(themeListRec)>0{
-			choice =RandChoiceOne(themeListRec)
-		}else{
-			choice =RandChoiceOne(themeListHot)
+	choice := int64(0)
+	if len(themeListRec) > 0 || len(themeListHot) > 0 {
+		if len(themeListRec) > 0 {
+			choice = RandChoiceOne(themeListRec)
+		} else {
+			choice = RandChoiceOne(themeListHot)
 		}
 	}
-	if choice!=0{
+	if choice != 0 {
 		for index := 0; index < ctx.GetDataLength(); index++ {
-			dataInfo :=ctx.GetDataByIndex(index).(*DataInfo)
-			rankInfo :=dataInfo.GetRankInfo()
-			if moms :=dataInfo.MomentCache;moms!=nil{
-				if moms.Id==choice{
-					rankInfo.HopeIndex=index_+isTop
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if moms := dataInfo.MomentCache; moms != nil {
+				if moms.Id == choice {
+					rankInfo.HopeIndex = index_ + isTop
 				}
 			}
 		}
@@ -939,8 +949,8 @@ func TestHopIndexStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
-func RandChoiceOne(list []int64) int64{
-	if list!=nil&&len(list)>0{
+func RandChoiceOne(list []int64) int64 {
+	if list != nil && len(list) > 0 {
 		rand.Seed(time.Now().UnixNano())
 		rand.Shuffle(len(list), func(i, j int) { list[i], list[j] = list[j], list[i] })
 		return list[0]
