@@ -595,7 +595,7 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext, iDataInfo algo
 
 			userBehavior := dataInfo.UserItemBehavior
 			if userBehavior != nil {
-				if aroundAd.CanExposure(ctx, userBehavior.GetAroundExposure().Count) {
+				if AdCanExposure(ctx, aroundAd, userBehavior.GetAroundExposure().Count) {
 					rankInfo.HopeIndex = aroundAd.Index
 				}
 			}
@@ -614,7 +614,7 @@ func adLocationAroundExposureThresholdFunc(ctx algo.IContext) error {
 			if val := adLocation.MomentAround; val != nil {
 				userBehavior := dataInfo.UserItemBehavior
 				if userBehavior != nil {
-					if val.CanExposure(ctx, userBehavior.GetAroundExposure().Count) {
+					if AdCanExposure(ctx, val, userBehavior.GetAroundExposure().Count) {
 						if _, ok := indexMapAd[val.Index]; ok {
 							var adIndex = val.Index
 							for {
@@ -670,7 +670,7 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 			if val := adLocation.MomentRecommend; val != nil {
 				userBehavior := dataInfo.UserItemBehavior
 				if userBehavior != nil {
-					if val.CanExposure(ctx, userBehavior.GetRecExposure().Count) {
+					if AdCanExposure(ctx, val, userBehavior.GetRecExposure().Count) {
 						if _, ok := indexMapAd[val.Index]; ok {
 							var adIndex = val.Index
 							for {

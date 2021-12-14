@@ -2,7 +2,6 @@ package redis
 
 import (
 	"fmt"
-	"rela_recommend/algo"
 	"rela_recommend/utils"
 	"time"
 
@@ -88,35 +87,6 @@ type AdLoc struct {
 	StartTime         int64   `json:"start_time"`
 	EndTime           int64   `json:"end_time"`
 	JumpType          int64   `json:"jump_type"`
-}
-
-func (loc AdLoc) CanExposure(ctx algo.IContext, exposureRecords float64) bool {
-	nowTime := ctx.GetCreateTime().Unix()
-	requestVersion := ctx.GetRequest().ClientVersion
-
-	// 低版本不支持一些跳转类型
-	adSkipDumpType := ctx.GetAbTest().GetInt64s("ad_skip_dump_type", "3,6")
-	adMinVersion := ctx.GetAbTest().GetInt("ad_min_version", 50900)
-
-	if loc.StartTime > nowTime {
-		return false
-	}
-
-	if loc.EndTime < nowTime {
-		return false
-	}
-
-	for _, _ty := range adSkipDumpType {
-		if (requestVersion < adMinVersion) && (loc.JumpType == _ty) {
-			return false
-		}
-	}
-
-	if exposureRecords >= loc.ExposureThreshold {
-		return false
-	}
-
-	return true
 }
 
 type MomentsExtend struct {
