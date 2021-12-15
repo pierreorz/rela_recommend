@@ -656,7 +656,7 @@ func adLocationAroundExposureThresholdFunc(ctx algo.IContext) error {
 
 func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 	var isTop = 0   //判断是否有置顶日志
-	var isSoftTop = 0 //判断是否有软置顶
+	//var isSoftTop = 0 //判断是否有软置顶
 	var softTopId int64  //最先日志id
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -667,7 +667,7 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 		if rankInfo.IsSoftTop == 1 {
 			if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetRecExposure().Count < 1 {
 				softTopId = dataInfo.MomentCache.Id
-				isSoftTop=1
+				//isSoftTop=1
 			}
 		}
 	}
