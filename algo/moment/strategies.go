@@ -596,7 +596,11 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext, iDataInfo algo
 			userBehavior := dataInfo.UserItemBehavior
 			if userBehavior != nil {
 				if AdCanExposure(ctx, aroundAd, userBehavior.GetAroundExposure().Count) {
-					rankInfo.HopeIndex = aroundAd.Index
+					if aroundAd.Index==0{
+						rankInfo.IsTop=0
+					}else{
+						rankInfo.HopeIndex = aroundAd.Index
+					}
 				}
 			}
 		}
@@ -651,9 +655,8 @@ func adLocationAroundExposureThresholdFunc(ctx algo.IContext) error {
 
 func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 	var isTop = 0   //判断是否有置顶日志
+	var isSoftTop = 0 //判断是否有软置顶
 	var softTopId int64  //最先日志id
-	var softTopList = make(map[int64]int, 0)
-	var softIndex = 0
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -662,11 +665,8 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 		}
 		if rankInfo.IsSoftTop == 1 {
 			if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetRecExposure().Count < 1 {
-				softTopList[dataInfo.MomentCache.Id] = softIndex
-				if softIndex==0{
-					softTopId=dataInfo.MomentCache.Id
-				}
-				softIndex += 1
+				softTopId = dataInfo.MomentCache.Id
+				isSoftTop=1
 			}
 		}
 	}
@@ -678,18 +678,16 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 			if dataInfo.MomentCache.Id==softTopId{
 				rankInfo.IsTop=1
 			}
-		}
-		if _,ok :=softTopList[dataInfo.MomentCache.Id];ok{
+		}else{
 			rankInfo.HopeIndex=1
 		}
 		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
-			if recAd := adLocation.MomentAround; recAd != nil {
-
+			if recAd := adLocation.MomentRecommend; recAd != nil {
 				userBehavior := dataInfo.UserItemBehavior
 				if userBehavior != nil {
 					if AdCanExposure(ctx, recAd, userBehavior.GetAroundExposure().Count) {
-						if recAd.Index<isTop+len(softTopList){
-							rankInfo.HopeIndex=isTop+len(softTopList)
+						if recAd.Index<isTop+isSoftTop{
+							rankInfo.HopeIndex=isSoftTop+isTop
 						}else{
 							rankInfo.HopeIndex = recAd.Index
 						}
