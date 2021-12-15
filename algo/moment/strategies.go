@@ -682,20 +682,20 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 		}else{
 			rankInfo.HopeIndex=1
 		}
-		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
-			if recAd := adLocation.MomentRecommend; recAd != nil {
-				userBehavior := dataInfo.UserItemBehavior
-				if userBehavior != nil {
-					if AdCanExposure(ctx, recAd, userBehavior.GetAroundExposure().Count) {
-						if recAd.Index<isTop+isSoftTop{
-							rankInfo.HopeIndex=isSoftTop+isTop
-						}else{
-							rankInfo.HopeIndex = recAd.Index
-						}
-					}
-				}
-			}
-		}
+		//if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
+		//	if recAd := adLocation.MomentRecommend; recAd != nil {
+		//		userBehavior := dataInfo.UserItemBehavior
+		//		if userBehavior != nil {
+		//			if AdCanExposure(ctx, recAd, userBehavior.GetAroundExposure().Count) {
+		//				if recAd.Index<isTop+isSoftTop{
+		//					rankInfo.HopeIndex=isSoftTop+isTop
+		//				}else{
+		//					rankInfo.HopeIndex = recAd.Index
+		//				}
+		//			}
+		//		}
+		//	}
+		//}
 
 	}
 
