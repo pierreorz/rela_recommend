@@ -87,6 +87,7 @@ type AdLoc struct {
 	StartTime         int64   `json:"start_time"`
 	EndTime           int64   `json:"end_time"`
 	JumpType          int64   `json:"jump_type"`
+	UserType          string  `json:"user_type"`
 }
 
 type MomentsExtend struct {

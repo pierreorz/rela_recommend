@@ -588,24 +588,33 @@ func increaseEventExpose(ctx algo.IContext) error {
 }
 
 func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
+	var ua = ctx.GetRequest().GetOS()  //ios,android,other
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	var isVip=0
+	if userInfo!=nil{
+		isVip=userInfo.UserCache.IsVip
+	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
 			if aroundAd := adLocation.MomentAround; aroundAd != nil {
-				userBehavior := dataInfo.UserItemBehavior
-				var count = 0.0
-				if userBehavior != nil {
-					count = userBehavior.GetAroundExposure().Count
-				}
+				if (aroundAd.UserType=="is_vip"&&isVip==1)||(aroundAd.UserType=="not_vip"&&isVip==0)||(strings.Contains(aroundAd.UserType,ua))||(aroundAd.UserType=="all")||(aroundAd.UserType==""){
+					userBehavior := dataInfo.UserItemBehavior
+					var count = 0.0
+					if userBehavior != nil {
+						count = userBehavior.GetAroundExposure().Count
+					}
 
-				if AdCanExposure(ctx, aroundAd, count) {
-					if aroundAd.Index==0{
-						rankInfo.IsTop=0
-					}else{
-						rankInfo.HopeIndex=aroundAd.Index
+					if AdCanExposure(ctx, aroundAd, count) {
+						if aroundAd.Index==0{
+							rankInfo.IsTop=0
+						}else{
+							rankInfo.HopeIndex=aroundAd.Index
+						}
 					}
 				}
+
 			}
 		}
 
@@ -659,9 +668,15 @@ func adLocationAroundExposureThresholdFunc(ctx algo.IContext) error {
 }
 
 func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
-	var isTop = 0       //判断是否有置顶日志
-	var isSoftTop = 0   //判断是否有软置顶
-	var softTopId int64 //最先日志id
+	var isTop = 0                     //判断是否有置顶日志
+	var isSoftTop = 0                 //判断是否有软置顶
+	var softTopId int64               //最先日志id
+	var ua = ctx.GetRequest().GetOS() //ios,android,other
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	var isVip = 0
+	if userInfo != nil {
+		isVip = userInfo.UserCache.IsVip
+	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -685,25 +700,27 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 				rankInfo.HopeIndex = 1
 			}
 		}
-		var change=0
+		var change = 0
 		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
 			if recAd := adLocation.MomentRecommend; recAd != nil {
-				userBehavior := dataInfo.UserItemBehavior
-				var count = 0.0
-				if userBehavior != nil {
-					count = userBehavior.GetRecExposure().Count
-				}
-
-				if AdCanExposure(ctx, recAd, count) {
-					if recAd.Index < isTop+isSoftTop {
-						rankInfo.HopeIndex = isSoftTop + isTop
-					} else {
-						rankInfo.HopeIndex = recAd.Index
+				if (recAd.UserType == "is_vip" && isVip == 1) || (recAd.UserType == "not_vip" && isVip == 0) || (strings.Contains(recAd.UserType, ua)) || (recAd.UserType == "all") || (recAd.UserType == "") {
+					userBehavior := dataInfo.UserItemBehavior
+					var count = 0.0
+					if userBehavior != nil {
+						count = userBehavior.GetRecExposure().Count
 					}
-					if isTop==0&&isSoftTop==0&&change==0{
-						if recAd.Index==0{
-							rankInfo.IsTop=0
-							change+=1
+
+					if AdCanExposure(ctx, recAd, count) {
+						if recAd.Index < isTop+isSoftTop {
+							rankInfo.HopeIndex = isSoftTop + isTop
+						} else {
+							rankInfo.HopeIndex = recAd.Index
+						}
+						if isTop == 0 && isSoftTop == 0 && change == 0 {
+							if recAd.Index == 0 {
+								rankInfo.IsTop = 0
+								change += 1
+							}
 						}
 					}
 				}
