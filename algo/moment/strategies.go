@@ -686,7 +686,11 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 			if recAd := adLocation.MomentRecommend; recAd != nil {
 				userBehavior := dataInfo.UserItemBehavior
 				if userBehavior != nil {
+					if dataInfo.MomentCache.Id==163962445848010068{
+						log.Warnf("data mom id %s",recAd)
+					}
 					if AdCanExposure(ctx, recAd, userBehavior.GetAroundExposure().Count) {
+						log.Warnf("id pass")
 						if recAd.Index<isTop+isSoftTop{
 							rankInfo.HopeIndex=isSoftTop+isTop
 						}else{
