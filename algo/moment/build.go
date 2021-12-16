@@ -367,8 +367,9 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			if mom.Moments.MomentsType=="ad"{
 				log.Warnf("ad moms id is %s",mom.Moments)
+				log.Warnf("ad moms momsextend %s",mom.MomentsExtend)
 			}
-			if mom.Moments == nil || mom.MomentsExtend == nil {
+			if mom.Moments == nil || (mom.MomentsExtend == nil && mom.Moments.MomentsType!="ad") {
 				continue
 			}
 			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
