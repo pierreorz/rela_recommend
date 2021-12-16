@@ -6,7 +6,6 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"strings"
@@ -588,27 +587,30 @@ func increaseEventExpose(ctx algo.IContext) error {
 	return nil
 }
 
-func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
-	dataInfo := iDataInfo.(*DataInfo)
+func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
+			if aroundAd := adLocation.MomentAround; aroundAd != nil {
+				userBehavior := dataInfo.UserItemBehavior
+				var count = 0.0
+				if userBehavior != nil {
+					count = userBehavior.GetAroundExposure().Count
+				}
 
-	if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
-		if aroundAd := adLocation.MomentAround; aroundAd != nil {
-
-			userBehavior := dataInfo.UserItemBehavior
-			var count = 0.0
-			if userBehavior != nil {
-				count = userBehavior.GetAroundExposure().Count
-			}
-			if AdCanExposure(ctx, aroundAd, count) {
-				if aroundAd.Index == 0 {
-					rankInfo.IsTop = 0
-				} else {
-					rankInfo.HopeIndex = aroundAd.Index
+				if AdCanExposure(ctx, aroundAd, count) {
+					if aroundAd.Index==0{
+						rankInfo.IsTop=0
+					}else{
+						rankInfo.HopeIndex=aroundAd.Index
+					}
 				}
 			}
 		}
 
 	}
+
 	return nil
 }
 
@@ -662,9 +664,6 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 	var softTopId int64 //最先日志id
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-		if dataInfo.MomentCache.MomentsType == "ad" {
-			log.Warnf("data ad1 location %s", dataInfo.MomentCache.MomentsExt.AdLocation)
-		}
 		rankInfo := dataInfo.GetRankInfo()
 		if rankInfo.IsTop == 1 {
 			isTop = 1
@@ -676,7 +675,6 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 			}
 		}
 	}
-	log.Warnf("soft top id %s", softTopId)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -687,25 +685,26 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 				rankInfo.HopeIndex = 1
 			}
 		}
-		if dataInfo.MomentCache.MomentsType == "ad" {
-			log.Warnf("data ad location %s", dataInfo.MomentCache.MomentsExt.AdLocation)
-		}
+		var change=0
 		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
-			log.Warnf("")
 			if recAd := adLocation.MomentRecommend; recAd != nil {
-				log.Warnf("recad %s", recAd)
 				userBehavior := dataInfo.UserItemBehavior
 				var count = 0.0
 				if userBehavior != nil {
-					count = userBehavior.GetAroundExposure().Count
+					count = userBehavior.GetRecExposure().Count
 				}
 
 				if AdCanExposure(ctx, recAd, count) {
-					log.Warnf("id pass")
 					if recAd.Index < isTop+isSoftTop {
 						rankInfo.HopeIndex = isSoftTop + isTop
 					} else {
 						rankInfo.HopeIndex = recAd.Index
+					}
+					if isTop==0&&isSoftTop==0&&change==0{
+						if recAd.Index==0{
+							rankInfo.IsTop=0
+							change+=1
+						}
 					}
 				}
 			}
