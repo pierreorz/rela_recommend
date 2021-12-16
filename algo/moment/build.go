@@ -371,10 +371,7 @@ func DoBuildData(ctx algo.IContext) error {
 			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
 				continue
 			}
-			if mom.Moments.MomentsType=="ad"{
-				log.Warnf("pass1")
-
-			}
+			
 			//搜索过滤开关(运营推荐不管审核状态)
 			if _, ok := searchMomentMap[mom.Moments.Id]; !ok {
 				if filteredAudit {
@@ -391,25 +388,15 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 			}
-			if mom.Moments.MomentsType=="ad"{
-				log.Warnf("pass2")
 
-			}
 
 			if mom.Moments.ShareTo != "all" {
 				continue
 			}
-			if mom.Moments.MomentsType=="ad"{
-				log.Warnf("pass3")
 
-			}
 
 			if statusSwitch && mom.Moments.Status != 1 { //状态不为1的过滤
 				continue
-			}
-			if mom.Moments.MomentsType=="ad"{
-				log.Warnf("pass4")
-
 			}
 
 			if mom.Moments.Id > 0 {
@@ -419,10 +406,6 @@ func DoBuildData(ctx algo.IContext) error {
 					if momUser.Status == 0 || momUser.Status == 5 {
 						continue
 					}
-				}
-				if mom.Moments.MomentsType=="ad"{
-					log.Warnf("pass5")
-					log.Warnf("ad id is %s",mom.Moments.Id)
 				}
 
 				// 处理置顶
