@@ -422,7 +422,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				if mom.Moments.MomentsType=="ad"{
 					log.Warnf("pass5")
-
+					log.Warnf("ad id is %s",mom.Moments.Id)
 				}
 
 				// 处理置顶

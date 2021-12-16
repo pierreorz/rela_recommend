@@ -682,14 +682,14 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 				rankInfo.HopeIndex=1
 			}
 		}
-		if dataInfo.MomentCache.Id==163962445848010068{
+		if dataInfo.MomentCache.Id==163956038735310068{
 			log.Warnf("data ad location %s",dataInfo.MomentCache.MomentsExt.AdLocation)
 		}
 		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
 			if recAd := adLocation.MomentRecommend; recAd != nil {
 				userBehavior := dataInfo.UserItemBehavior
 				if userBehavior != nil {
-					if dataInfo.MomentCache.Id==163962445848010068{
+					if dataInfo.MomentCache.Id==163956038735310068{
 						log.Warnf("data mom id %s",recAd)
 					}
 					if AdCanExposure(ctx, recAd, userBehavior.GetAroundExposure().Count) {
