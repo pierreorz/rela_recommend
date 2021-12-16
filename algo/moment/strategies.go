@@ -660,6 +660,9 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 	var softTopId int64  //最先日志id
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		if dataInfo.MomentCache.MomentsType=="ad"{
+			log.Warnf("data ad location %s",dataInfo.MomentCache.MomentsExt.AdLocation)
+		}
 		rankInfo := dataInfo.GetRankInfo()
 		if rankInfo.IsTop == 1 {
 			isTop = 1
@@ -682,7 +685,7 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 				rankInfo.HopeIndex=1
 			}
 		}
-		if dataInfo.MomentCache.Id==163956038735310068{
+		if dataInfo.MomentCache.MomentsType=="ad"{
 			log.Warnf("data ad location %s",dataInfo.MomentCache.MomentsExt.AdLocation)
 		}
 		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
