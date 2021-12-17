@@ -603,7 +603,6 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
 	if userInfo!=nil{
 		isVip=userInfo.UserCache.IsVip
 	}
-	log.Warnf("vip type %s",ctx.GetRequest().Ua)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -619,7 +618,6 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
 					}
 
 					if AdCanExposure(ctx, aroundAd, count,jumpType) {
-						log.Warnf("can exposure %s",ctx.GetRequest().ClientVersion)
 						if aroundAd.Index==0{
 							rankInfo.IsTop=1
 						}else{
@@ -704,7 +702,6 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 			}
 		}
 	}
-	log.Warnf("ua is %s",ua)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
