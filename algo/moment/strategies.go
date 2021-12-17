@@ -603,6 +603,8 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
 	if userInfo!=nil{
 		isVip=userInfo.UserCache.IsVip
 	}
+	log.Warnf("vip type %s",ctx.GetRequest().GetUa())
+	log.Warnf("version %s",ctx.GetRequest().GetVersion())
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -616,6 +618,7 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
 					if userBehavior != nil {
 						count = userBehavior.GetAroundExposure().Count
 					}
+					log.Warnf("can exposure %s",AdCanExposure(ctx, aroundAd, count,jumpType))
 
 					if AdCanExposure(ctx, aroundAd, count,jumpType) {
 						if aroundAd.Index==0{
@@ -688,7 +691,9 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 	if userInfo != nil {
 		isVip = userInfo.UserCache.IsVip
 	}
-	log.Warnf("vip type %s",ctx.GetRequest().Ua)
+	log.Warnf("vip type %s",ctx.GetRequest().GetUa())
+	log.Warnf("version %s",ctx.GetRequest().GetVersion())
+
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -723,7 +728,7 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 					if userBehavior != nil {
 						count = userBehavior.GetRecExposure().Count
 					}
-
+					log.Warnf("can exposure %s",AdCanExposure(ctx, recAd, count,jumpType))
 					if AdCanExposure(ctx, recAd, count,jumpType) {
 						if recAd.Index < isTop+isSoftTop {
 							rankInfo.HopeIndex = isSoftTop + isTop
