@@ -596,20 +596,20 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
 	if userInfo!=nil{
 		isVip=userInfo.UserCache.IsVip
 	}
-
+	log.Warnf("can exposure %s",ctx.GetRequest().ClientVersion)
+	log.Warnf("vip type %s",isVip)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if adLocation := dataInfo.MomentCache.MomentsExt.AdLocation; adLocation != nil {
 			if aroundAd := adLocation.MomentAround; aroundAd != nil {
-				log.Warnf("vip type %s",isVip)
-				log.Warnf("usertyp %s",aroundAd.UserType)
 				if (aroundAd.UserType=="is_vip"&&isVip==1)||(aroundAd.UserType=="not_vip"&&isVip==0)||(strings.Contains(aroundAd.UserType,ua))||(aroundAd.UserType=="all")||(aroundAd.UserType==""){
 					userBehavior := dataInfo.UserItemBehavior
 					var count = 0.0
 					if userBehavior != nil {
 						count = userBehavior.GetAroundExposure().Count
 					}
+					log.Warnf("can exposure %s",AdCanExposure(ctx, aroundAd, count))
 
 					if AdCanExposure(ctx, aroundAd, count) {
 						log.Warnf("can exposure %s",ctx.GetRequest().ClientVersion)
