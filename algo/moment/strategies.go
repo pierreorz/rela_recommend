@@ -596,15 +596,14 @@ func increaseEventExpose(ctx algo.IContext) error {
 }
 
 func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
-	var ua = ctx.GetRequest().GetOS()  //ios,android,other
+	var ua = ctx.GetRequest().GetUa()  //ios,android,other
 
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	var isVip=0
 	if userInfo!=nil{
 		isVip=userInfo.UserCache.IsVip
 	}
-	log.Warnf("can exposure %s",ctx.GetRequest().ClientVersion)
-	log.Warnf("vip type %s",ctx.GetRequest().MobileOS)
+	log.Warnf("vip type %s",ctx.GetRequest().Ua)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -685,14 +684,13 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 	var isTop = 0                     //判断是否有置顶日志
 	var isSoftTop = 0                 //判断是否有软置顶
 	var softTopId int64               //最先日志id
-	var ua = ctx.GetRequest().GetOS() //ios,android,other
+	var ua = ctx.GetRequest().GetUa() //ios,android,other
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	var isVip = 0
 	if userInfo != nil {
 		isVip = userInfo.UserCache.IsVip
 	}
-	log.Warnf("can exposure %s",ctx.GetRequest().ClientVersion)
-	log.Warnf("vip type %s",ctx.GetRequest().MobileOS)
+	log.Warnf("vip type %s",ctx.GetRequest().Ua)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()

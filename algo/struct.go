@@ -119,6 +119,17 @@ func (self *RecommendRequest) GetOS() string {
 	return self.osName
 }
 
+func (self *RecommendRequest) GetUa() string {
+	if self.osName == "" {
+		if os := rutils.GetPlatformName(self.Ua); os == "other" || os == "" {
+			self.osName = rutils.GetPlatformName(self.Ua)
+		} else {
+			self.osName = os
+		}
+	}
+	return self.osName
+}
+
 func (self *RecommendRequest) GetVersion() int {
 	if self.version == 0 {
 		if self.ClientVersion > 0 {
