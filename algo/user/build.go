@@ -87,7 +87,6 @@ func DoBuildDataV1(ctx algo.IContext) error {
 	userCurrent, userCurrentErr = userCache.QueryUserById(params.UserId)
 	if userCurrentErr != nil {
 		log.Errorf("failed to get current user cache: %d, %s", params.UserId, userCurrentErr)
-		return userCurrentErr
 	}
 
 	// 确定候选用户
