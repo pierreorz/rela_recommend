@@ -94,7 +94,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 	userSearchMap := make(map[int64]*search.UserResDataItem, 0)
 	if dataIds == nil || len(dataIds) == 0 {
 		if abtest.GetBool("icp_switch", false) &&
-			(abtest.GetBool("is_icp_user", false) || userCurrent.MaybeICPUser(params.Lat, params.Lng)) {
+			(abtest.GetBool("is_icp_user", false) || ((userCurrent != nil) && userCurrent.MaybeICPUser(params.Lat, params.Lng))) {
 
 			pf.Run("get_fix_icp", func(*performs.Performs) interface{} {
 				var searchErr error
