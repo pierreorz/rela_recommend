@@ -74,6 +74,8 @@ type MomentsExt struct {
 	IsFive          int        `json:"isFive,omitempty"`       //5.0版本此值为1
 	Reason          string     `json:"reason,omitempty"`       //推荐网页的理由
 	AdLocation      *Locations `json:"ad_location,omitempty"`
+	JumpType        int64              `json:"jump_type,omitempty"`
+	UserType        string           `json:"user_type,omitempty"`
 }
 
 type Locations struct {
@@ -86,8 +88,6 @@ type AdLoc struct {
 	ExposureThreshold float64 `json:"exposure_threshold"`
 	StartTime         int64   `json:"start_time"`
 	EndTime           int64   `json:"end_time"`
-	JumpType          int64   `json:"jump_type"`
-	UserType          string  `json:"user_type"`
 }
 
 type MomentsExtend struct {

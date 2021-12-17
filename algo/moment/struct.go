@@ -68,7 +68,7 @@ func (self *DataInfo) GetUserItemBehavior() *behavior.UserBehavior {
 	return self.UserItemBehavior
 }
 
-func AdCanExposure(ctx algo.IContext, loc *redis.AdLoc, exposureRecords float64) bool {
+func AdCanExposure(ctx algo.IContext, loc *redis.AdLoc, exposureRecords float64,jumpType int64) bool {
 	nowTime := ctx.GetCreateTime().Unix()
 	requestVersion := ctx.GetRequest().ClientVersion
 
@@ -85,7 +85,7 @@ func AdCanExposure(ctx algo.IContext, loc *redis.AdLoc, exposureRecords float64)
 	}
 
 	for _, _ty := range adSkipDumpType {
-		if (requestVersion < adMinVersion) && (loc.JumpType == _ty) {
+		if (requestVersion < adMinVersion) && (jumpType == _ty) {
 			return false
 		}
 	}
