@@ -6,6 +6,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
 	"rela_recommend/algo/utils"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"strings"
@@ -690,6 +691,7 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 			}
 		}
 	}
+	log.Warnf("ua is %s",ua)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
