@@ -590,6 +590,7 @@ func increaseEventExpose(ctx algo.IContext) error {
 
 func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
 	var ua = ctx.GetRequest().GetOS()  //ios,android,other
+
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	var isVip=0
 	if userInfo!=nil{
@@ -611,8 +612,9 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
 					}
 
 					if AdCanExposure(ctx, aroundAd, count) {
+						log.Warnf("can exposure %s",ctx.GetRequest().ClientVersion)
 						if aroundAd.Index==0{
-							rankInfo.IsTop=0
+							rankInfo.IsTop=1
 						}else{
 							rankInfo.HopeIndex=aroundAd.Index
 						}
@@ -723,7 +725,7 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 						}
 						if isTop == 0 && isSoftTop == 0 && change == 0 {
 							if recAd.Index == 0 {
-								rankInfo.IsTop = 0
+								rankInfo.IsTop = 1
 								change += 1
 							}
 						}
