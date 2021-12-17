@@ -225,9 +225,9 @@ func (self *RankInfo) getRecommendsString(returnAll bool, f func(string, float32
 		buffer.WriteString(f("BOTTOM", 1))
 	}
 
-	if self.HopeIndex > 0 {
-		buffer.WriteString(f("HOPE", float32(self.HopeIndex)))
-	}
+	//if self.HopeIndex > 0 {
+	//	buffer.WriteString(f("HOPE", float32(self.HopeIndex)))
+	//}
 
 	if self.Level > 0 {
 		buffer.WriteString(f("LEVEL", float32(self.Level)))
