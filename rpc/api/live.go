@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"sync"
 	"time"
 )
@@ -102,6 +103,10 @@ func GetHourRankList(userId int64) (map[int64]AnchorHourRankInfo, error) {
 		if err == nil {
 			internalHourCache.fetchedTime = time.Now()
 			internalHourCache.resMap = currentResMap
+			log.Infof("refresh live hour rank: %+v", internalHourCache.resMap)
+		} else {
+			log.Errorf("refresh live hour rank err: %+v", err)
+			return nil, err
 		}
 	}
 	return internalHourCache.resMap, nil
