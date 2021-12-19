@@ -105,6 +105,7 @@ func GetHourRankList(userId int64) (map[int64]AnchorHourRankInfo, error) {
 			internalHourCache.resMap = currentResMap
 			log.Infof("refresh live hour rank: %+v", internalHourCache.resMap)
 		} else {
+			internalHourCache.fetchedTime = time.Now()
 			log.Errorf("refresh live hour rank err: %+v", err)
 			return nil, err
 		}
