@@ -78,7 +78,7 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		},
 		"hour_rank": func(*performs.Performs) interface{} { // 获取小时榜排名
-			rankMap, hourRankErr := api.CallLiveHourRankMap(params.UserId)
+			rankMap, hourRankErr := api.GetHourRankList(params.UserId)
 			if hourRankErr == nil {
 				hourRankMap = rankMap
 				return len(hourRankMap)
