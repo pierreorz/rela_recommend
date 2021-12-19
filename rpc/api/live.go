@@ -86,6 +86,9 @@ func callLiveHourRankMap(userId int64) (map[int64]AnchorHourRankInfo, time.Time,
 }
 
 func GetHourRankList(userId int64) (map[int64]AnchorHourRankInfo, error) {
+	if internalHourCache == nil {
+		initLive()
+	}
 	if time.Now().After(internalHourCache.nextFetched) {
 
 		internalHourCache.lock.RLock()
@@ -101,7 +104,7 @@ func GetHourRankList(userId int64) (map[int64]AnchorHourRankInfo, error) {
 	return internalHourCache.resMap, nil
 }
 
-func init() {
+func initLive() {
 	internalHourCache = &hourCache{
 		resMap:      make(map[int64]AnchorHourRankInfo),
 		nextFetched: time.Time{},
