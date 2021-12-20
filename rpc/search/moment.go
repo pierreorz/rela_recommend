@@ -68,6 +68,35 @@ func CallLiveMomentList(userIdList []int64) ([]int64, error) {
 	}
 }
 
+
+//获取广告日志列表
+func CallAdMomentListV1(userId int64) ([]int64, error) {
+	idlist := make([]int64, 0)
+	filters := []string{
+		fmt.Sprintf("{moments_type:%s}", "ad"),     //  moments Type
+		fmt.Sprintf("ad_location.start_time:(,now/m]", ), // time
+		fmt.Sprint("ad_location.end_time:[now/m,)"),
+	}
+
+	params := searchMomentRequest{
+		UserID:   userId,
+		Filter:   strings.Join(filters, "*"),
+	}
+
+	if paramsData, err := json.Marshal(params); err == nil {
+		searchRes := &searchMomentRes{}
+		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchNearMomentListUrlV1, paramsData, searchRes); err == nil {
+			for _, element := range searchRes.Data {
+				idlist = append(idlist, element.Id)
+			}
+			return idlist, err
+		} else {
+			return idlist, err
+		}
+	} else {
+		return idlist, err
+	}
+}
 // 获取附近日志列表
 func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, momentTypes string, insertTimestamp float32, distance string,recommend bool) ([]int64, error) {
 	idlist := make([]int64, 0)
@@ -161,7 +190,7 @@ func (self *SearchMomentAuditResDataItem) GetCurrentTopType(scenery string) stri
 	for _, top := range self.TopInfo {
 		if top.Scenery == scenery {
 			if top.StartTime < currentTime && currentTime < top.EndTime {
-				return strings.ToUpper(top.TopType) // 返回 TOP, RECOMMEND
+				return strings.ToUpper(top.TopType) // 返回 TOP, RECOMMEND，SOFT
 			}
 		}
 	}
@@ -246,7 +275,7 @@ func CallMomentTopMap(userId int64, scenery string) (map[int64]SearchMomentAudit
 	//}
 
 	filters := []string{
-		fmt.Sprintf("{top_info.scenery:%s*top_info.top_type:top,recommend*top_info.start_time:(,now/m]*top_info.end_time:[now/m,)}", scenery),
+		fmt.Sprintf("{top_info.scenery:%s*top_info.start_time:(,now/m]*top_info.end_time:[now/m,)}", scenery),
 	}
 	// 返回运营推荐数据，未审或过审的都可以通过
 	//recommendFilter := fmt.Sprintf("{top_info.scenery:%s*top_info.top_type:top,recommend*top_info.start_time:(,now/m]*top_info.end_time:[now/m,)}", scenery)

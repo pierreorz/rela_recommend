@@ -98,14 +98,14 @@ func (self *SorterHope) swapByIndex(arr []int, currIndex, hopeIndex int) map[int
 }
 
 func (self *SorterHope) sortByIndexWithHope() error {
-	abtest := self.Context.GetAbTest()
+	abTest := self.Context.GetAbTest()
 	// 最终排序
 	var listLen = self.Context.GetDataLength()
 	var list = self.Context.GetDataList()
-	var indexs = make([]int, listLen)
+	var indices = make([]int, listLen)
 	var hopeList = [][]int{} // 期望index []{当前index, 期望index}
 	for i, data := range list {
-		indexs[i] = i
+		indices[i] = i
 		if rank := data.GetRankInfo(); 0 < rank.HopeIndex && rank.HopeIndex < listLen {
 			hopeList = append(hopeList, []int{i, rank.HopeIndex})
 		}
@@ -114,13 +114,13 @@ func (self *SorterHope) sortByIndexWithHope() error {
 		sort.SliceStable(hopeList, func(i, j int) bool { // 从小到大排序
 			return hopeList[i][1] < hopeList[j][1]
 		})
-		maxLen := abtest.GetInt("sort_with_interval_hope_max_len", 20)
+		maxLen := abTest.GetInt("sort_with_interval_hope_max_len", 20)
 		log.Debugf("SorterHope maxLen %d HOPE list: %+v \n", maxLen, hopeList)
 		if len(hopeList) > maxLen { // 限制最多允许多少个希望位置调整
 			hopeList = hopeList[:maxLen]
 		}
 		for i, hope := range hopeList {
-			changedIndex := self.swapByIndex(indexs, hope[0], hope[1])
+			changedIndex := self.swapByIndex(indices, hope[0], hope[1])
 			for _, nhope := range hopeList[i+1:] { // 因为index变化，更新后续需要调整位置的index做相应变化
 				if val, ok := changedIndex[nhope[0]]; ok {
 					nhope[0] = val
@@ -133,7 +133,7 @@ func (self *SorterHope) sortByIndexWithHope() error {
 		for i, _ := range list {
 			itemMap[i] = list[i]
 		}
-		for i, ni := range indexs {
+		for i, ni := range indices {
 			list[i] = itemMap[ni]
 		}
 	}
@@ -154,26 +154,26 @@ type SorterWithInterval struct {
 func (self *SorterWithInterval) Do(ctx algo.IContext) error {
 	sorter := &SorterWithInterval{&SorterBase{Context: ctx}}
 	sort.Sort(sorter)
-	abtest := ctx.GetAbTest()
-	var interval = abtest.GetInt("sort_with_interval_interval", 3)                   // 优先间隔，如果没有会逐步缩小
-	var floatRange = abtest.GetInt("sort_with_interval_float", interval)             // 允许将当前向下的多少范围来填充
-	var recommends = abtest.GetStrings("sort_with_interval_recommends", "RECOMMEND") // 根据哪些推荐理由进行打散
+	abTest := ctx.GetAbTest()
+	var interval = abTest.GetInt("sort_with_interval_interval", 3)                   // 优先间隔，如果没有会逐步缩小
+	var floatRange = abTest.GetInt("sort_with_interval_float", interval)             // 允许将当前向下的多少范围来填充
+	var recommends = abTest.GetStrings("sort_with_interval_recommends", "RECOMMEND") // 根据哪些推荐理由进行打散
 	if len(recommends) > 0 && interval > 1 {
-		allIndexs := make([]int, sorter.Len())
+		allIndices := make([]int, sorter.Len())
 		partitions, _ := sorter.partitions() // 分组隔离排序
 		partitionStartIndex := 0
 		for _, partition := range partitions {
-			indexs, _ := sorter.sortWithInterval(partition, interval, floatRange, recommends) // 每组内进行间隔打散
-			for i, index := range indexs {
-				allIndexs[i+partitionStartIndex] = index + partitionStartIndex
+			indices, _ := sorter.sortWithInterval(partition, interval, floatRange, recommends) // 每组内进行间隔打散
+			for i, index := range indices {
+				allIndices[i+partitionStartIndex] = index + partitionStartIndex
 			}
 			partitionStartIndex += len(partition)
 		}
-		sorter.sortByIndex(allIndexs) // 按照最终index排序
+		sorter.sortByIndex(allIndices) // 按照最终index排序
 	}
 
 	// 期望位置处理，将HopeIndex指定大于1的内容进行移动
-	if abtest.GetBool("sort_with_interval_hope_switch", true) { // 打开开关
+	if abTest.GetBool("sort_with_interval_hope_switch", true) { // 打开开关
 		hopeSorter := &SorterHope{Context: ctx}
 		hopeSorter.sortByIndexWithHope()
 	}
@@ -274,14 +274,14 @@ func (self *SorterWithInterval) sortWithInterval(list []algo.IDataInfo, interval
 }
 
 // 按照给定的indexs进行重排序
-func (self *SorterWithInterval) sortByIndex(indexs []int) error {
+func (self *SorterWithInterval) sortByIndex(indices []int) error {
 	// 最终排序
 	list := self.Context.GetDataList()
 	var itemMap = map[int]algo.IDataInfo{}
 	for i, _ := range list {
 		itemMap[i] = list[i]
 	}
-	for i, ni := range indexs {
+	for i, ni := range indices {
 		list[i] = itemMap[ni]
 	}
 	return nil
