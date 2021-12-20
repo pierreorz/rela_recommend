@@ -16,7 +16,7 @@ type hourCache struct {
 	fetchedTime time.Time
 }
 
-var lockLive = new(sync.RWMutex)
+var lockLive = new(sync.Mutex)
 
 var internalHourCache *hourCache
 
@@ -88,24 +88,23 @@ func callLiveHourRankMap(userId int64) (map[int64]AnchorHourRankInfo, time.Time,
 
 func GetHourRankList(userId int64) (map[int64]AnchorHourRankInfo, error) {
 	if internalHourCache == nil {
-		lockLive.RLock()
-		defer lockLive.RUnlock()
+		lockLive.Lock()
+		defer lockLive.Unlock()
 
 		initLive()
 	}
 	if time.Now().Sub(internalHourCache.fetchedTime) >= time.Minute {
 
-		lockLive.RLock()
-		defer lockLive.RUnlock()
+		lockLive.Lock()
+		defer lockLive.Unlock()
+		internalHourCache.fetchedTime = time.Now()
 
 		currentResMap, _, err := callLiveHourRankMap(userId)
 
 		if err == nil {
-			internalHourCache.fetchedTime = time.Now()
 			internalHourCache.resMap = currentResMap
 			log.Infof("refresh live hour rank: %+v", internalHourCache.resMap)
 		} else {
-			internalHourCache.fetchedTime = time.Now()
 			log.Errorf("refresh live hour rank err: %+v", err)
 			return nil, err
 		}
