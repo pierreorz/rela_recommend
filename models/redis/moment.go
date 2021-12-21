@@ -46,22 +46,48 @@ type Moments struct {
 	MomentsExt MomentsExt `gorm:"column:ext" json:"ext,omitempty"`
 }
 
+type adLocation struct {
+	AdInfo map[string]*exposureThreshold
+}
+
+type exposureThreshold struct {
+	Index     int   `json:"index"`
+	Threshold int   `json:"exposure_threshold"`
+	StartTime int64 `json:"start_time"`
+	EndTime   int64 `json:"end_time"`
+}
+
 type MomentsExt struct {
-	ThemeClass      string `json:"themeClass,omitempty"`
-	ThemeReplyClass string `json:"themeReplyClass,omitempty"`
-	AdUrl           string `json:"adUrl,omitempty"`
-	AdType          string `json:"adType,omitempty"`
-	AppSchemeUrl    string `json:"appSchemeUrl,omitempty"`
-	VideoWebp       string `json:"videoWebp,omitempty"`
-	VideoColor      string `json:"videoColor,omitempty"`
-	VideoType       string `json:"videoType,omitempty"`    // 4.7.3视频新增类型 PGC 官方 UGC 个人
-	IsCoverImage    bool   `json:"isCoverImage,omitempty"` // 4.9.1封面图
-	IsLandscape     int    `json:"isLandscape,omitempty"`  // 横屏
-	SyncMainPage    bool   `json:"syncMainPage,omitempty"` //是否同步到主页
-	AtUserList      string `json:"atUserList,omitempty"`   //提及用户列表
-	TagList         string `json:"tagList,omitempty"`      //标签组
-	IsFive          int    `json:"isFive,omitempty"`       //5.0版本此值为1
-	Reason          string `json:"reason,omitempty"`       //推荐网页的理由
+	ThemeClass      string     `json:"themeClass,omitempty"`
+	ThemeReplyClass string     `json:"themeReplyClass,omitempty"`
+	AdUrl           string     `json:"adUrl,omitempty"`
+	AdType          string     `json:"adType,omitempty"`
+	AppSchemeUrl    string     `json:"appSchemeUrl,omitempty"`
+	VideoWebp       string     `json:"videoWebp,omitempty"`
+	VideoColor      string     `json:"videoColor,omitempty"`
+	VideoType       string     `json:"videoType,omitempty"`    // 4.7.3视频新增类型 PGC 官方 UGC 个人
+	IsCoverImage    bool       `json:"isCoverImage,omitempty"` // 4.9.1封面图
+	IsLandscape     int        `json:"isLandscape,omitempty"`  // 横屏
+	SyncMainPage    bool       `json:"syncMainPage,omitempty"` //是否同步到主页
+	AtUserList      string     `json:"atUserList,omitempty"`   //提及用户列表
+	TagList         string     `json:"tagList,omitempty"`      //标签组
+	IsFive          int        `json:"isFive,omitempty"`       //5.0版本此值为1
+	Reason          string     `json:"reason,omitempty"`       //推荐网页的理由
+	AdLocation      *Locations `json:"ad_location,omitempty"`
+	JumpType        int64              `json:"jump_type"`
+	UserType        string           `json:"user_type"`
+}
+
+type Locations struct {
+	MomentRecommend *AdLoc `json:"moment.recommend,omitempty"`
+	MomentAround    *AdLoc `json:"moment.around,omitempty"`
+}
+
+type AdLoc struct {
+	Index             int     `json:"index"`
+	ExposureThreshold float64 `json:"exposure_threshold"`
+	StartTime         int64   `json:"start_time"`
+	EndTime           int64   `json:"end_time"`
 }
 
 type MomentsExtend struct {
@@ -119,7 +145,7 @@ type MomentsProfile struct {
 	TextCnt           int                      `json:"textCnt,omitempty"`
 	MomentsTextWords  []string                 `json:"momentsTextWords,omitempty"`
 	Tags              []MomentsProfileTagScore `json:"tags,omitempty"`
-	ShuMeiLabels      []string                  `json:"shuMeiLabels,omitempty"`
+	ShuMeiLabels      []string                 `json:"shuMeiLabels,omitempty"`
 }
 
 type MomentOfflineProfile struct {
@@ -129,8 +155,8 @@ type MomentOfflineProfile struct {
 }
 
 type MomentContentProfile struct {
-	Id       int64            	`json:"moment_id"`
-	Tags     string             `json:"tags,omitempty"`
+	Id   int64  `json:"moment_id"`
+	Tags string `json:"tags,omitempty"`
 }
 type MomentsAndExtend struct {
 	Moments        *Moments        `gorm:"column:moments" json:"moments,omitempty"`
@@ -139,10 +165,10 @@ type MomentsAndExtend struct {
 }
 
 func (mae *MomentsAndExtend) CanRecommend() bool {
-	if strings.Contains(mae.Moments.MomentsType,"live"){
+	if strings.Contains(mae.Moments.MomentsType, "live") {
 		return true
 	}
-	if mae.Moments.MomentsType=="ad"{
+	if mae.Moments.MomentsType == "ad" {
 		return true
 	}
 	if mae.MomentsProfile != nil && mae.MomentsProfile.PositiveRecommend {
@@ -225,10 +251,6 @@ func (this *UserCacheModule) QueryMomentUserProfileByUserAndUsersMap(userId int6
 	return resUser, resUsersMap, err
 }
 
-
-
-
-
 //读取日志画像特征
 func (self *MomentCacheModule) QueryMomentOfflineProfileByIds(ids []int64) ([]MomentOfflineProfile, error) {
 	keyFormatter := "moment_offline_profile:%d"
@@ -249,7 +271,6 @@ func (this *MomentCacheModule) QueryMomentOfflineProfileByIdsMap(momentIds []int
 	return resMomentsMap, err
 }
 
-
 //读取日志内容画像特征
 func (self *MomentCacheModule) QueryMomentContentProfileByIds(ids []int64) ([]MomentContentProfile, error) {
 	keyFormatter := "moment_content_profile:%d"
@@ -269,9 +290,6 @@ func (this *MomentCacheModule) QueryMomentContentProfileByIdsMap(momentIds []int
 	}
 	return resMomentsMap, err
 }
-
-
-
 
 // 读取直播相关用户画像
 func (self *MomentCacheModule) QueryMomentsByIds(ids []int64) ([]MomentsAndExtend, error) {
