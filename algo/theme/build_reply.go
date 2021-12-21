@@ -321,9 +321,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				// 计算推荐类型
 				var isTop int = 0
 				var recommends []algo.RecommendItem
+				log.Infof("searchThemeMap===============::%+v",searchThemeMap[themeId])
 				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
-					log.Infof("topTypeRes=======================================:%+v",topTypeRes)
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					if topTypeRes == "RECOMMEND" {
 						recommends = append(recommends, algo.RecommendItem{
@@ -356,7 +356,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 
 					RankInfo: &algo.RankInfo{IsTop: isTop, Recommends: recommends},
 				}
-				log.Infof("info=======================================:%+v",info)
 				if replyId > 0 && replyIdOk && replyInfoOK {
 					info.ThemeReplyCache = reply.Moments
 					info.ThemeReplyExtendCache = reply.MomentsExtend
