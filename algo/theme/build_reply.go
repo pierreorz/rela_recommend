@@ -169,6 +169,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				returnedRecommend := abtest.GetBool("search_returned_recommend", true)
 				searchReplyMap, searchThemeMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
 					searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
+				log.Infof("searchThemeMap===============:%+v",searchThemeMap)
+				log.Infof("searchReplyMap===============:%+v",searchReplyMap)
 				if searchReplyMapErr == nil {
 					replyIdSet := utils.SetInt64{}
 					for _, searchRes := range searchReplyMap {
@@ -321,7 +323,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				// 计算推荐类型
 				var isTop int = 0
 				var recommends []algo.RecommendItem
-				log.Infof("searchThemeMap===============::%+v",searchThemeMap[themeId])
 				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
