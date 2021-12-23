@@ -945,36 +945,35 @@ func ThemeReplyIndexFunc(ctx algo.IContext) error {
 		rankInfo := dataInfo.GetRankInfo()
 		userItemBehavior := dataInfo.UserItemBehavior
 		if moms := dataInfo.MomentCache; moms != nil {
-			if strings.Contains(moms.MomentsType,"theme"){
-				log.Warnf("theme id is %s",moms.Id)
-			}
 			if moms.MomentsType == "themereply" && userItemBehavior == nil&&change1==0{
 				if choice<3{
 					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
 						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
 							rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+							change1+=1
 						}
 					}
 				}else if choice>2&&choice<8{
 					if !strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
 						rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+						change1+=1
 					}
 				}
-				change1+=1
 			}
 			if moms.MomentsType=="theme" && userItemBehavior==nil &&change2==0{
 				if choice<3{
 					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
 						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
 							rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+							change2+=1
 						}
 					}
 				}else if choice>2&&choice<8{
 					if !strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
 						rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+						change2+=1
 					}
 				}
-				change2+=1
 			}
 		}
 	}
