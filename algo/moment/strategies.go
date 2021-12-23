@@ -945,9 +945,6 @@ func ThemeReplyIndexFunc(ctx algo.IContext) error {
 		rankInfo := dataInfo.GetRankInfo()
 		userItemBehavior := dataInfo.UserItemBehavior
 		if moms := dataInfo.MomentCache; moms != nil {
-			if moms.MomentsType == "themereply" && rankInfo.IsTop > 0 {//有置顶话题回复盖策略不展示
-				return nil
-			}
 			if moms.MomentsType == "themereply" && userItemBehavior == nil &&rankInfo.Level>0&&change1==0{
 				if choice<3{
 					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
@@ -974,7 +971,7 @@ func ThemeReplyIndexFunc(ctx algo.IContext) error {
 						rankInfo.HopeIndex=int(RandChoiceOne(choice1))
 					}
 				}
-				change1+=1
+				change2+=1
 			}
 		}
 	}
