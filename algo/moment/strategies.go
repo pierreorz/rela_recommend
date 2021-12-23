@@ -935,49 +935,46 @@ func BussinessExposureFunc(ctx algo.IContext) error {
 	return nil
 }
 func ThemeReplyIndexFunc(ctx algo.IContext) error {
-	abtest := ctx.GetAbTest()
-	index_ := abtest.GetInt("themereply_index", 2) //指定位置间隔
-	isTop := 0
-	themeListRec := make([]int64, 0)
-	themeListHot := make([]int64, 0)
+	rand.Seed(time.Now().UnixNano())
+	var choice = rand.Intn(9)+1
+	var choice1 =[]int64{3,5}
+	var change1 = 0
+	var change2 = 0
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if rankInfo.IsTop > 0 {
-			isTop = 1
-		}
 		userItemBehavior := dataInfo.UserItemBehavior
 		if moms := dataInfo.MomentCache; moms != nil {
-			if moms.MomentsType == "themereply" && rankInfo.IsTop > 0 {
+			if moms.MomentsType == "themereply" && rankInfo.IsTop > 0 {//有置顶话题回复盖策略不展示
 				return nil
 			}
-			if moms.MomentsType == "themereply" && userItemBehavior == nil {
-				if strings.Contains(rankInfo.RecommendsString(), "RECOMMEND") {
-					if int(ctx.GetCreateTime().Sub(moms.InsertTime).Hours()) <= 24 {
-						themeListRec = append(themeListRec, moms.Id)
+			if moms.MomentsType == "themereply" && userItemBehavior == nil &&rankInfo.Level>0&&change1==0{
+				if choice<3{
+					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
+						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
+							rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+						}
 					}
-				} else {
-					themeListHot = append(themeListHot, moms.Id)
+				}else if choice>2&&choice<8{
+					if !strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
+						rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+					}
 				}
+				change1+=1
 			}
-		}
-	}
-	choice := int64(0)
-	if len(themeListRec) > 0 || len(themeListHot) > 0 {
-		if len(themeListRec) > 0 {
-			choice = RandChoiceOne(themeListRec)
-		} else {
-			choice = RandChoiceOne(themeListHot)
-		}
-	}
-	if choice != 0 {
-		for index := 0; index < ctx.GetDataLength(); index++ {
-			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-			rankInfo := dataInfo.GetRankInfo()
-			if moms := dataInfo.MomentCache; moms != nil {
-				if moms.Id == choice {
-					rankInfo.HopeIndex = index_ + isTop
+			if moms.MomentsType=="theme" && userItemBehavior==nil &&rankInfo.Level>0&&change2==0{
+				if choice<3{
+					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
+						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
+							rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+						}
+					}
+				}else if choice>2&&choice<8{
+					if !strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
+						rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+					}
 				}
+				change1+=1
 			}
 		}
 	}
