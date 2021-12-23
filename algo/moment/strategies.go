@@ -945,7 +945,10 @@ func ThemeReplyIndexFunc(ctx algo.IContext) error {
 		rankInfo := dataInfo.GetRankInfo()
 		userItemBehavior := dataInfo.UserItemBehavior
 		if moms := dataInfo.MomentCache; moms != nil {
-			if moms.MomentsType == "themereply" && userItemBehavior == nil &&rankInfo.Level>=0&&change1==0{
+			if strings.Contains(moms.MomentsType,"theme"){
+				log.Warnf("theme id is %s",moms.Id)
+			}
+			if moms.MomentsType == "themereply" && userItemBehavior == nil&&change1==0{
 				if choice<3{
 					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
 						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
@@ -959,7 +962,7 @@ func ThemeReplyIndexFunc(ctx algo.IContext) error {
 				}
 				change1+=1
 			}
-			if moms.MomentsType=="theme" && userItemBehavior==nil &&rankInfo.Level>=0&&change2==0{
+			if moms.MomentsType=="theme" && userItemBehavior==nil &&change2==0{
 				if choice<3{
 					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
 						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
