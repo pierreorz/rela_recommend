@@ -527,6 +527,7 @@ func UserMomTagInteractStrategyFunc(ctx algo.IContext) error {
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
 		if userInteract.Count > 0 {
 			momTagMap := userInteract.GetTopCountMomTagsMap(5)
+			log.Warnf("mom tag map%s",momTagMap)
 			if momTagMap != nil && len(momTagMap) > 0 {
 				var recommend = 0
 				for index := 0; index < ctx.GetDataLength(); index++ {
