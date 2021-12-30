@@ -527,7 +527,7 @@ func UserMomTagInteractStrategyFunc(ctx algo.IContext) error {
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
 		if userInteract.Count > 0 {
 			momTagMap := userInteract.GetTopCountMomTagsMap(5)
-			log.Warnf("mom tag map%s",momTagMap)
+			log.Warnf("mom tag map%s", momTagMap)
 			if momTagMap != nil && len(momTagMap) > 0 {
 				var recommend = 0
 				for index := 0; index < ctx.GetDataLength(); index++ {
@@ -540,12 +540,10 @@ func UserMomTagInteractStrategyFunc(ctx algo.IContext) error {
 						if tagList != nil && len(tagList) > 0 {
 							for _, tag := range tagList {
 								if userTag, ok := momTagMap[tag]; ok && userTag != nil {
-									if behavior.LabelConvert(tag) != "" {
-										rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
-										hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
-										score += utils.ExpLogit(rate) * math.Exp(-hour)
-										count += 1.0
-									}
+									rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
+									hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
+									score += utils.ExpLogit(rate) * math.Exp(-hour)
+									count += 1.0
 								}
 							}
 							if count > 0.0 && score > 0.0 {
