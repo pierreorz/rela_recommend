@@ -53,6 +53,9 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"user_picture_interact": &strategy.BaseRichStrategy{
 		StrategyFunc: UserPictureInteractStrategyFunc,
 	},
+	"user_mom_tag_interact": &strategy.BaseRichStrategy{
+		StrategyFunc: UserMomTagInteractStrategyFunc,
+	},
 
 	"content_weight": &strategy.BaseRichStrategy{
 		StrategyFunc: ContentAddWeight},

@@ -33,6 +33,11 @@ type PictureTag struct{
 	Count float64 `json:"count"`
 }
 
+type MomTag struct {
+	LastTime float64 `json:"last_time"`
+	Id string `json:"id"`
+	Count float64 `json:"count"`
+}
 func (self *BehaviorTag) Merge(other *BehaviorTag) *BehaviorTag {
 	self.Id = other.Id
 	self.Category = other.Category
@@ -48,9 +53,17 @@ func (self *PictureTag) Merge(other *PictureTag) *PictureTag{
 	self.Count+=other.Count
 	return self
 }
+
+func (self *MomTag) Merge(other *MomTag) *MomTag{
+	self.LastTime=math.Max(other.LastTime,self.LastTime)
+	self.Id=other.Id
+	self.Count+=other.Count
+	return self
+}
 // 排序
 type pictureTagSorter []*PictureTag
 type behaviorTagSorter []*BehaviorTag
+type momTagSorter   []*MomTag
 
 func (a behaviorTagSorter) Len() int      { return len(a) }
 func (a behaviorTagSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
@@ -79,12 +92,28 @@ func (a pictureTagSorter) Less(i, j int) bool { // 按照 Count , lastTime, Name
 		return a[i].Count > a[j].Count
 	}
 }
+
+func (a momTagSorter) Len() int      { return len(a) }
+func (a momTagSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a momTagSorter) Less(i, j int) bool { // 按照 Count , lastTime, Name 倒序
+	if a[i].Count == a[j].Count {
+		if a[i].LastTime == a[j].LastTime {
+			return a[i].Id > a[j].Id
+		} else {
+			return a[i].LastTime > a[j].LastTime
+		}
+	} else {
+		return a[i].Count > a[j].Count
+	}
+}
+
 type Behavior struct {
 	Count    float64                 `json:"count"`
 	LastTime float64                 `json:"last_time"`
 	LastList []BehaviorItemLog       `json:"last_list"` // 最后操作列表
 	CountMap map[string]*BehaviorTag `json:"count_map"` // 类别对应的标签
 	PictureMap map[string]*PictureTag `json:"picture_map"`
+	MomTagMap map[string]*MomTag   `json:"momTag_map"`
 }
 
 // 获取最后操作dataids列表
@@ -125,6 +154,20 @@ func (self *Behavior)GetTopCountPictureTags(n int)[]*PictureTag{
 	for key,tag :=range self.PictureMap{
 		if LabelConvert(tag.Name)!=""{
 			res=append(res,self.PictureMap[key])
+		}
+	}
+	sort.Sort(res)
+	if n<len(res){
+		res=res[:n]
+	}
+	return res
+}
+
+func (self *Behavior)GetTopCountMomTags(n int)[]*MomTag{
+	var res =momTagSorter{}
+	for key,tag :=range self.MomTagMap{
+		if len(tag.Id)>0{
+			res=append(res,self.MomTagMap[key])
 		}
 	}
 	sort.Sort(res)
@@ -179,12 +222,24 @@ func (self *Behavior) GetTopCountTagsMap(category string, n int) map[int64]*Beha
 	return tagMap
 }
 
+func (self *Behavior) GetTopCountMomTagsMap(n int) map[string]*MomTag{
+	tagMap :=map[string]*MomTag{}
+	tags :=self.GetTopCountMomTags(n)
+	for i,tag :=range tags {
+		tagMap[tag.Id]=tags[i]
+	}
+	return tagMap
+}
+
 func (self *Behavior) Merge(other *Behavior) *Behavior {
 	if self.CountMap == nil {
 		self.CountMap = map[string]*BehaviorTag{}
 	}
 	if self.PictureMap==nil{
 		self.PictureMap= map[string]*PictureTag{}
+	}
+	if self.MomTagMap==nil{
+		self.MomTagMap=map[string]*MomTag{}
 	}
 	if other != nil {
 		self.Count += other.Count
@@ -202,6 +257,13 @@ func (self *Behavior) Merge(other *Behavior) *Behavior {
 				self.PictureMap[label]=current.Merge(pictureTag)
 			}else{
 				self.PictureMap[label]=other.PictureMap[label]
+			}
+		}
+		for label,momTag := range other.MomTagMap{
+			if current,ok :=self.MomTagMap[label];ok{
+				self.MomTagMap[label]=current.Merge(momTag)
+			}else{
+				self.MomTagMap[label]=other.MomTagMap[label]
 			}
 		}
 	}
