@@ -982,7 +982,8 @@ func BussinessExposureFunc(ctx algo.IContext) error {
 func ThemeReplyIndexFunc(ctx algo.IContext) error {
 	rand.Seed(time.Now().UnixNano())
 	var choice = rand.Intn(9)+1
-	var choice1 =[]int64{3,5}
+	var choice1 =[]int64{5,6}
+	var choice2=[]int64{2,3}
 	var change1 = 0
 	var change2 = 0
 	for index := 0; index < ctx.GetDataLength(); index++ {
@@ -998,7 +999,7 @@ func ThemeReplyIndexFunc(ctx algo.IContext) error {
 							change1+=1
 						}
 					}
-				}else if choice>2&&choice<8{
+				}else if choice>2&&choice<9{
 					if !strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
 						rankInfo.HopeIndex=int(RandChoiceOne(choice1))
 						change1+=1
@@ -1009,13 +1010,13 @@ func ThemeReplyIndexFunc(ctx algo.IContext) error {
 				if choice<3{
 					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
 						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
-							rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+							rankInfo.HopeIndex=int(RandChoiceOne(choice2))
 							change2+=1
 						}
 					}
-				}else if choice>2&&choice<8{
+				}else if choice>2&&choice<9{
 					if !strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
-						rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+						rankInfo.HopeIndex=int(RandChoiceOne(choice2))
 						change2+=1
 					}
 				}
