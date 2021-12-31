@@ -1007,7 +1007,6 @@ func ThemeReplyIndexFunc(ctx algo.IContext) error {
 				}
 			}
 			if moms.MomentsType=="theme" && userItemBehavior==nil &&change2==0{
-				log.Warnf("theme id%s",dataInfo.MomentCache.Id)
 				if choice<3{
 					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
 						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
