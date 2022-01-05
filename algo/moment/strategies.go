@@ -938,7 +938,7 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count <= 1 {
-			if rankInfo.TopLive == 1 && rankInfo.IsTop != 1 {
+			if rankInfo.TopLive == 1 && rankInfo.IsTop != 1&&rankInfo.IsSoftTop!=1 {//不可软置顶以及硬置顶
 				rankInfo.HopeIndex = startIndex + interval*liveIndex //位置从1开始，间隔interval
 				liveIndex += 1
 			}
