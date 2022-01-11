@@ -924,7 +924,7 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error {
 func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	var startIndex = 1
-	interval := abtest.GetInt(" ", 2) //指定位置间隔
+	interval := abtest.GetInt("top_live_interval", 2) //指定位置间隔
 	var liveIndex = 0
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
