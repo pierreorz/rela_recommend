@@ -77,6 +77,12 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 	if err != nil {
 		log.Errorf("get week star error: %s", err)
 	}
+
+	monthStarUID, err := liveCacheClient.GetMonthStar()
+	if err != nil {
+		log.Errorf("get month star error: %s", err)
+	}
+
 	liveCacheList := make([]pika.LiveCache, len(lives))
 	for i, live := range lives {
 		liveCache := &liveCacheList[i]
@@ -106,6 +112,9 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 		liveCache.Live.MomentsID = live.MomentsID
 		if liveCache.Live.UserId == weekStarUID {
 			liveCache.Live.IsWeekStar = true
+		}
+		if liveCache.Live.UserId == monthStarUID {
+			liveCache.Live.IsMonthStar = true
 		}
 
 		// liveCache.ScoreStr			= live.Score
