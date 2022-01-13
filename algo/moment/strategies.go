@@ -478,7 +478,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	var abtest = ctx.GetAbTest()
-   var max =abtest.GetInt("user_picture_tag_max",2)
+    var max =abtest.GetInt("user_picture_tag_max",2)
 	var userInfo = ctx.GetUserInfo().(*UserInfo)
 	if userInfo.UserBehavior != nil {
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
@@ -509,6 +509,51 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 						}
 					}
 					if recommend>=max{
+						break
+					}
+				}
+			}
+		}
+	}
+	return err
+}
+
+func UserMomTagInteractStrategyFunc(ctx algo.IContext) error {
+	var err error
+	var currTime = float64(ctx.GetCreateTime().Unix())
+	var max = 3
+	var userInfo = ctx.GetUserInfo().(*UserInfo)
+	if userInfo.UserBehavior != nil {
+		userInteract := userInfo.UserBehavior.GetMomentListInteract()
+		if userInteract.Count > 0 {
+			momTagMap := userInteract.GetTopCountMomTagsMap(5)
+			log.Warnf("mom tag map%s", momTagMap)
+			if momTagMap != nil && len(momTagMap) > 0 {
+				var recommend = 0
+				for index := 0; index < ctx.GetDataLength(); index++ {
+					dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+					if dataInfo.MomentCache != nil {
+						rankInfo := dataInfo.GetRankInfo()
+						var score float64 = 0.0
+						var count float64 = 0.0
+						var tagList = strings.Split(dataInfo.MomentCache.MomentsExt.TagList, ",")
+						if tagList != nil && len(tagList) > 0 {
+							for _, tag := range tagList {
+								if userTag, ok := momTagMap[tag]; ok && userTag != nil {
+									rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
+									hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
+									score += utils.ExpLogit(rate) * math.Exp(-hour)
+									count += 1.0
+								}
+							}
+							if count > 0.0 && score > 0.0 {
+								var finalScore = float32(1.0 + score/count)
+								rankInfo.AddRecommend("UserMomTagInteract", finalScore)
+								recommend += 1
+							}
+						}
+					}
+					if recommend >= max {
 						break
 					}
 				}
@@ -879,7 +924,7 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error {
 func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	var startIndex = 1
-	interval := abtest.GetInt(" ", 2) //指定位置间隔
+	interval := abtest.GetInt("top_live_interval", 2) //指定位置间隔
 	var liveIndex = 0
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -893,7 +938,7 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count <= 1 {
-			if rankInfo.TopLive == 1 && rankInfo.IsTop != 1 {
+			if rankInfo.TopLive == 1 && rankInfo.IsTop != 1&&rankInfo.IsSoftTop!=1 {//不可软置顶以及硬置顶
 				rankInfo.HopeIndex = startIndex + interval*liveIndex //位置从1开始，间隔interval
 				liveIndex += 1
 			}
@@ -935,48 +980,45 @@ func BussinessExposureFunc(ctx algo.IContext) error {
 	return nil
 }
 func ThemeReplyIndexFunc(ctx algo.IContext) error {
-	abtest := ctx.GetAbTest()
-	index_ := abtest.GetInt("themereply_index", 2) //指定位置间隔
-	isTop := 0
-	themeListRec := make([]int64, 0)
-	themeListHot := make([]int64, 0)
+	rand.Seed(time.Now().UnixNano())
+	var choice = rand.Intn(9)+1
+	var choice1 =[]int64{5,6}
+	var choice2=[]int64{2,3}
+	var change1 = 0
+	var change2 = 0
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if rankInfo.IsTop > 0 {
-			isTop = 1
-		}
 		userItemBehavior := dataInfo.UserItemBehavior
 		if moms := dataInfo.MomentCache; moms != nil {
-			if moms.MomentsType == "themereply" && rankInfo.IsTop > 0 {
-				return nil
-			}
-			if moms.MomentsType == "themereply" && userItemBehavior == nil {
-				if strings.Contains(rankInfo.RecommendsString(), "RECOMMEND") {
-					if int(ctx.GetCreateTime().Sub(moms.InsertTime).Hours()) <= 24 {
-						themeListRec = append(themeListRec, moms.Id)
+			if moms.MomentsType == "themereply" && userItemBehavior == nil&&change1==0{
+				if choice<3{
+					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
+						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
+							rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+							change1+=1
+						}
 					}
-				} else {
-					themeListHot = append(themeListHot, moms.Id)
+				}else if choice>2&&choice<9{
+					if !strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
+						rankInfo.HopeIndex=int(RandChoiceOne(choice1))
+						change1+=1
+					}
 				}
 			}
-		}
-	}
-	choice := int64(0)
-	if len(themeListRec) > 0 || len(themeListHot) > 0 {
-		if len(themeListRec) > 0 {
-			choice = RandChoiceOne(themeListRec)
-		} else {
-			choice = RandChoiceOne(themeListHot)
-		}
-	}
-	if choice != 0 {
-		for index := 0; index < ctx.GetDataLength(); index++ {
-			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-			rankInfo := dataInfo.GetRankInfo()
-			if moms := dataInfo.MomentCache; moms != nil {
-				if moms.Id == choice {
-					rankInfo.HopeIndex = index_ + isTop
+			if moms.MomentsType=="theme" && userItemBehavior==nil &&change2==0{
+				if choice<3{
+					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
+						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
+							rankInfo.HopeIndex=int(RandChoiceOne(choice2))
+							change2+=1
+						}
+					}
+				}else if choice>2&&choice<9{
+					if !strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
+						rankInfo.HopeIndex=int(RandChoiceOne(choice2))
+						change2+=1
+					}
 				}
 			}
 		}

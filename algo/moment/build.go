@@ -35,8 +35,8 @@ func DoBuildData(ctx algo.IContext) error {
 	hotIdList := make([]int64, 0)
 	bussinessIdList := make([]int64, 0)
 	tagRecommendIdList := make([]int64, 0)
-	adList :=make([]int64,0)
-	adLocationList :=make([]int64,0)
+	adList := make([]int64, 0)
+	adLocationList := make([]int64, 0)
 	liveMomentIds := make([]int64, 0)
 	var recIds, topMap, recMap, bussinessMap = []int64{}, map[int64]int{}, map[int64]int{}, map[int64]int{}
 	var liveMap = map[int64]int{}
@@ -45,8 +45,7 @@ func DoBuildData(ctx algo.IContext) error {
 		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 		liveMomentIds = getMapKey(liveMap)
 	}
-	adInfo :=abtest.GetInt64("ad_moment_id",0)
-
+	adInfo := abtest.GetInt64("ad_moment_id", 0)
 
 	if adInfo != 0 { //广告类型日志
 		adList = append(adList, adInfo)
@@ -170,13 +169,13 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				return errBussiness
-			},"adLocation": func(*performs.Performs) interface{} {
+			}, "adLocation": func(*performs.Performs) interface{} {
 				var adLocationSearchErr error
-				if abtest.GetBool("adLocation_ad",true){
-					adLocationList,adLocationSearchErr = search.CallAdMomentListV1(params.UserId)
+				if abtest.GetBool("adLocation_ad", true) {
+					adLocationList, adLocationSearchErr = search.CallAdMomentListV1(params.UserId)
 				}
 				return adLocationSearchErr
-			},"better_user": func(*performs.Performs) interface{} {
+			}, "better_user": func(*performs.Performs) interface{} {
 				var errBetterUser error
 				autoKeyFormatter := "better_user_mom_yesterday:%d"
 				if abtest.GetBool("auto_recommend_switch", false) {
@@ -234,7 +233,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList,adList,bussinessIdList,adLocationList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
@@ -394,7 +393,6 @@ func DoBuildData(ctx algo.IContext) error {
 				continue
 			}
 
-
 			if statusSwitch && mom.Moments.Status != 1 { //状态不为1的过滤
 				continue
 			}
@@ -416,21 +414,21 @@ func DoBuildData(ctx algo.IContext) error {
 						isTop = 1
 					}
 				}
-				var isSoftTop =0
+				var isSoftTop = 0
 				// 处理推荐
 				var recommends = []algo.RecommendItem{}
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
-					isSoftTop=utils.GetInt(topTypeRes=="SOFT")
+					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
 					if topTypeRes == "RECOMMEND" {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
 					}
 
 				}
-				if isSoftTop==1{
-					log.Warnf("soft top moment%s",mom.Moments.Id)
-				}
+				//if isSoftTop==1{
+				//	log.Warnf("soft top moment%s",mom.Moments.Id)
+				//}
 				var liveIndex = 0
 				var isTopLiveMom = -1
 				if liveMap != nil {
@@ -471,8 +469,8 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentExtendCache:    mom.MomentsExtend,
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
-					MomentContentProfile :momContentProfileMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom,IsBussiness:isBussiness,IsSoftTop:isSoftTop},
+					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],

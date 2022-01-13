@@ -219,7 +219,7 @@ func (self *RankInfo) RecommendsString() string {
 // 将推荐理由转化为字符串, returnAll: 是否返回所有，false只返回客户端需要的内容
 func (self *RankInfo) getRecommendsString(returnAll bool, f func(string, float32) string) string {
 	var buffer bytes.Buffer
-	if self.IsTop > 0 {
+	if self.IsTop > 0&&self.IsSoftTop!=1 {//置顶且非软置顶
 		buffer.WriteString(f("TOP", 1))
 	} else if self.IsTop < 0 {
 		buffer.WriteString(f("BOTTOM", 1))
