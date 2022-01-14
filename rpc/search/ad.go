@@ -193,9 +193,11 @@ func CallFeedAdList(app string, request *algo.RecommendRequest, user *redis.User
 		Filter:        strings.Join(filters, "*"),
 		ReturnFields:  "*",
 	}
+	log.Infof("searchRequest======================%+v",filters)
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchADRes{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchAdListUrl, paramsData, searchRes); err == nil {
+			log.Infof("searchRes.Data======================%+v",searchRes.Data)
 			return searchRes.Data, err
 		} else {
 			return nil, err
