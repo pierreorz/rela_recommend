@@ -4,6 +4,8 @@ import (
 	"math"
 	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/log"
+	"rela_recommend/models/behavior"
 	rutils "rela_recommend/utils"
 )
 
@@ -36,11 +38,55 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	request := ctx.GetRequest()
 	if request.ClientVersion>= 50802 {
+		params := ctx.GetRequest()
+		behaviorCache := behavior.NewBehaviorCacheModule(ctx)
+		app := ctx.GetAppInfo()
+		var userBehavior *behavior.UserBehavior // 用户实时行为
+		var userFeedId int64
+		var userInitId int64
+		dataLen:=ctx.GetDataLength()
+		log.Infof("dataLen=================search_result_nums",dataLen)
+		realtimes, realtimeErr := behaviorCache.QueryAdBehaviorMap("ad", []int64{params.UserId})
+		if realtimeErr == nil { // 获取flink数据
+			userBehavior = realtimes[params.UserId]
+			if userBehavior != nil { //开屏广告和feed流广告id
+				userFeedList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
+				userFeedId = userFeedList[len(userFeedList)-1]
+				userInitList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
+				userInitId = userInitList[len(userFeedList)-1]
+				log.Infof("userFeedList=========================== %+v",userFeedList)
+				log.Infof("userFeedList=========================== %+v",userInitList)
+				log.Infof("userFeedId=================userInitId",userFeedId,userInitId)
+			}
+
+		}
 		dataInfo := iDataInfo.(*DataInfo)
 		sd := dataInfo.SearchData
-		rand_num := rand.Intn(5) + 1.0
-		nums := float32(rand_num) / float32(sd.Id)
-		rankInfo.AddRecommend("ad_sort", 1.0+float32(nums))
+		//		rand_num := rand.Intn(5) + 1.0
+		//		nums := float32(rand_num) / float32(sd.Id)
+		if app.Name=="ad.feed" {
+			if sd.Id != userFeedId {
+				log.Infof("userFeedId===============",userFeedId)
+				hisexpores :=dataInfo.SearchData.HistoryExposures
+				rand_num := -(rand.Intn(5) + hisexpores)/dataLen
+				nums := math.Exp(float64(rand_num))
+				log.Infof("hisexpores===============",hisexpores)
+				log.Infof("rand_nums===============",rand_num,nums)
+				rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
+			}
+		}
+		if app.Name=="ad.init"{
+			if sd.Id != userInitId {
+				log.Infof("userInitId===============",userInitId)
+				hisexpores :=dataInfo.SearchData.HistoryExposures
+				rand_num := -(rand.Intn(5) + hisexpores)/dataLen
+				nums := math.Exp(float64(rand_num))
+				log.Infof("hisexpores===============",hisexpores)
+				log.Infof("rand_nums===============",rand_num,nums)
+				rankInfo.AddRecommend("ad_sort.init", 1.0+float32(nums))
+			}
+
+		}
 	}
 	return nil
 }
