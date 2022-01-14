@@ -70,8 +70,8 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 				hisexpores :=dataInfo.SearchData.HistoryExposures
 				click :=dataInfo.SearchData.HistoryClicks
 				//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
-				rand_num := rand.Intn(dataLen)
-				ctr:=float64(click)/float64(rand.Intn(dataLen) + hisexpores)
+				rand_num := rand.Intn(dataLen*3)
+				ctr:=float64(click)/float64(rand.Intn(dataLen*3) + hisexpores)
 				nums :=float64(ctr) * math.Exp(float64(rand_num))
 				log.Infof("hisexpores===============",hisexpores)
 				log.Infof("rand_nums===============",ctr,nums)
@@ -84,8 +84,8 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 				hisexpores :=dataInfo.SearchData.HistoryExposures
 				click :=dataInfo.SearchData.HistoryClicks
 				//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
-				rand_num := rand.Intn(dataLen)
-				ctr:=float64(click)/float64(rand.Intn(dataLen) + hisexpores)
+				rand_num := rand.Intn(dataLen*3)
+				ctr:=float64(click)/float64(rand.Intn(dataLen*3) + hisexpores)
 				nums :=float64(ctr) * math.Exp(float64(rand_num))
 				log.Infof("hisexpores===============",hisexpores)
 				log.Infof("rand_nums===============",rand_num,nums)
