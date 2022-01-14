@@ -68,10 +68,13 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 			if sd.Id != userFeedId {
 				log.Infof("userFeedId===============",userFeedId)
 				hisexpores :=dataInfo.SearchData.HistoryExposures
-				rand_num := -(rand.Intn(5) + hisexpores)/dataLen
-				nums := math.Exp(float64(rand_num))
+				click :=dataInfo.SearchData.HistoryClicks
+				//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
+				rand_num := rand.Intn(dataLen)
+				ctr:=click/(rand.Intn(dataLen) + hisexpores)
+				nums :=float64(ctr) * math.Exp(float64(rand_num))
 				log.Infof("hisexpores===============",hisexpores)
-				log.Infof("rand_nums===============",rand_num,nums)
+				log.Infof("rand_nums===============",ctr,nums)
 				rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
 			}
 		}
@@ -79,8 +82,11 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 			if sd.Id != userInitId {
 				log.Infof("userInitId===============",userInitId)
 				hisexpores :=dataInfo.SearchData.HistoryExposures
-				rand_num := -(rand.Intn(5) + hisexpores)/dataLen
-				nums := math.Exp(float64(rand_num))
+				click :=dataInfo.SearchData.HistoryClicks
+				//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
+				rand_num := rand.Intn(dataLen)
+				ctr:=click/(rand.Intn(dataLen) + hisexpores)
+				nums :=float64(ctr) * math.Exp(float64(rand_num))
 				log.Infof("hisexpores===============",hisexpores)
 				log.Infof("rand_nums===============",rand_num,nums)
 				rankInfo.AddRecommend("ad_sort.init", 1.0+float32(nums))
