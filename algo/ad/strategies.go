@@ -37,7 +37,9 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 //广告分发策略
 func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	request := ctx.GetRequest()
-	if request.ClientVersion>= 50802 {
+	dataLen:=ctx.GetDataLength()
+	//召回的广告数据大于才做分发
+	if request.ClientVersion>= 50802 && dataLen>1{
 		params := ctx.GetRequest()
 		behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 		app := ctx.GetAppInfo()
@@ -70,8 +72,8 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 				hisexpores :=dataInfo.SearchData.HistoryExposures
 				click :=dataInfo.SearchData.HistoryClicks
 				//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
-				rand_num := rand.Intn(dataLen*3)
-				ctr:=float64(click+1)/float64(rand.Intn(dataLen*3) + hisexpores)
+				rand_num := rand.Intn(dataLen*3) 
+				ctr:=float64(click+1)/float64(rand.Intn(dataLen*3) + hisexpores + 1)
 				nums :=float64(ctr) * math.Exp(-float64(rand_num))
 				log.Infof("hisexpores===============",hisexpores)
 				log.Infof("rand_nums===============",ctr,nums)
@@ -85,7 +87,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 				click :=dataInfo.SearchData.HistoryClicks
 				//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
 				rand_num := rand.Intn(dataLen*3)
-				ctr:=float64(click+1)/float64(rand.Intn(dataLen*3) + hisexpores)
+				ctr:=float64(click+1)/float64(rand.Intn(dataLen*3) + hisexpores + 1)
 				nums :=float64(ctr) * math.Exp(-float64(rand_num))
 				log.Infof("hisexpores===============",hisexpores)
 				log.Infof("rand_nums===============",rand_num,nums)
