@@ -53,11 +53,15 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 			userBehavior = realtimes[params.UserId]
 			if userBehavior != nil { //开屏广告和feed流广告id
 				userFeedList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
-				userFeedId = userFeedList[len(userFeedList)-1]
 				userInitList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
-				userInitId = userInitList[len(userFeedList)-1]
-				log.Infof("userFeedList=========================== %+v",userFeedList)
-				log.Infof("userFeedList=========================== %+v",userInitList)
+				log.Infof("userFeedList=========================== %+v", userFeedList)
+				log.Infof("userInitList=========================== %+v", userInitList)
+				if len(userFeedList) > 0 {
+					userFeedId = userFeedList[len(userFeedList)-1]
+				}
+				if len(userFeedList) > 0 {
+					userInitId = userInitList[len(userFeedList)-1]
+				}
 				log.Infof("userFeedId=================userInitId",userFeedId,userInitId)
 			}
 
@@ -72,7 +76,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 				hisexpores :=dataInfo.SearchData.HistoryExposures
 				click :=dataInfo.SearchData.HistoryClicks
 				//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
-				rand_num := rand.Intn(dataLen*3) 
+				rand_num := rand.Intn(dataLen*3)
 				ctr:=float64(click+1)/float64(rand.Intn(dataLen*3) + hisexpores + 1)
 				nums :=float64(ctr) * math.Exp(-float64(rand_num))
 				log.Infof("hisexpores===============",hisexpores)
