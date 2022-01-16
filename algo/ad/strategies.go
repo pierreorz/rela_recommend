@@ -55,7 +55,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 			log.Infof("userBehavior=========================== %+v",userBehavior)
 			if userBehavior != nil { //开屏广告和feed流广告id
 				userFeedList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
-				userInitList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
+				userInitList := userBehavior.GetAdInitListExposure().GetLastAdIds()
 				log.Infof("userFeedList=========================== %+v", userFeedList)
 				log.Infof("userInitList=========================== %+v", userInitList)
 				if len(userFeedList) > 0 {
