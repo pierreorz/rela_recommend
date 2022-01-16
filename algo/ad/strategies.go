@@ -49,8 +49,10 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 		dataLen:=ctx.GetDataLength()
 		log.Infof("dataLen=================search_result_nums",dataLen)
 		realtimes, realtimeErr := behaviorCache.QueryAdBehaviorMap("ad", []int64{params.UserId})
+		log.Infof("realtimes=========================== %+v",realtimes)
 		if realtimeErr == nil { // 获取flink数据
 			userBehavior = realtimes[params.UserId]
+			log.Infof("userBehavior=========================== %+v",userBehavior)
 			if userBehavior != nil { //开屏广告和feed流广告id
 				userFeedList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
 				userInitList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
