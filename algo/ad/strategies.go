@@ -91,12 +91,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 				log.Infof("AlgoScore==============",rankInfo.AlgoScore)
 				rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
 			}else{
-				log.Infof("sdId===============",sd.Id)
-				nums := math.Exp(-float64(1))
-				log.Infof("score==============",rankInfo.Score)
-				log.Infof("AlgoScore==============",rankInfo.AlgoScore)
-				log.Infof("nums==============",nums)
-				rankInfo.AddRecommend("ad_sort.feed", 1.0-float32(nums))
+				rankInfo.AddRecommend("ad_sort_Down", 0.01)
 			}
 		}
 		if app.Name=="ad.init"{
@@ -116,10 +111,8 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 				log.Infof("rand_nums===============",rand_num,nums)
 				rankInfo.AddRecommend("ad_sort.init", 1.0+float32(nums))
 			}else{
-				nums := math.Exp(-float64(dataLen))
-				rankInfo.AddRecommend("ad_sort.feed", 1.0-float32(nums))
+				rankInfo.AddRecommend("ad_sort_Down", 0.01)
 			}
-
 		}
 	}
 	return nil
