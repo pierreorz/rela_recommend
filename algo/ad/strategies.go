@@ -87,9 +87,15 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 				nums :=float64(ctr) * math.Exp(-float64(rand_num))
 				log.Infof("hisexpores===============",hisexpores)
 				log.Infof("rand_nums===============",ctr,nums)
+				log.Infof("score==============",rankInfo.Score)
+				log.Infof("AlgoScore==============",rankInfo.AlgoScore)
 				rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
 			}else{
-				nums := math.Exp(-float64(dataLen))
+				log.Infof("sdId===============",sd.Id)
+				nums := math.Exp(-float64(1))
+				log.Infof("score==============",rankInfo.Score)
+				log.Infof("AlgoScore==============",rankInfo.AlgoScore)
+				log.Infof("nums==============",nums)
 				rankInfo.AddRecommend("ad_sort.feed", 1.0-float32(nums))
 			}
 		}
