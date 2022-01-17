@@ -35,7 +35,7 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 	return nil
 }
 //广告分发策略
-func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+func BaseFeedPrice(ctx algo.IContext, rankInfo *algo.RankInfo) error {
 	request := ctx.GetRequest()
 	dataLen:=ctx.GetDataLength()
 	//召回的广告数据大于才做分发
