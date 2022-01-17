@@ -35,7 +35,7 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 	return nil
 }
 //广告分发策略
-func BaseFeedPrice(ctx algo.IContext, rankInfo *algo.RankInfo) error {
+func BaseFeedPrice(ctx algo.IContext) error {
 	request := ctx.GetRequest()
 	dataLen:=ctx.GetDataLength()
 	//召回的广告数据大于才做分发
@@ -47,30 +47,29 @@ func BaseFeedPrice(ctx algo.IContext, rankInfo *algo.RankInfo) error {
 		var userFeedId int64
 		var userInitId int64
 		dataLen:=ctx.GetDataLength()
-		log.Infof("dataLen=================search_result_nums",dataLen)
-		realtimes, realtimeErr := behaviorCache.QueryAdBehaviorMap("ad", []int64{params.UserId})
-		log.Infof("realtimes=========================== %+v",realtimes)
-		if realtimeErr == nil { // 获取flink数据
-			userBehavior = realtimes[params.UserId]
-			log.Infof("userBehavior=========================== %+v",userBehavior)
-			if userBehavior != nil { //开屏广告和feed流广告id
-				userFeedList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
-				userInitList := userBehavior.GetAdInitListExposure().GetLastAdIds()
-				log.Infof("userFeedList=========================== %+v", userFeedList)
-				log.Infof("userInitList=========================== %+v", userInitList)
-				if len(userFeedList) > 0 {
-					userFeedId = userFeedList[len(userFeedList)-1]
-				}
-				if len(userInitList) > 0 {
-					userInitId = userInitList[len(userInitList)-1]
-				}
-				log.Infof("userFeedId=================userInitId",userFeedId,userInitId)
-			}
-
-		}
 		if ctx.GetDataLength() != 0 {
+			realtimes, realtimeErr := behaviorCache.QueryAdBehaviorMap("ad", []int64{params.UserId})
+			log.Infof("realtimes=========================== %+v",realtimes)
+			if realtimeErr == nil { // 获取flink数据
+				userBehavior = realtimes[params.UserId]
+				log.Infof("userBehavior=========================== %+v",userBehavior)
+				if userBehavior != nil { //开屏广告和feed流广告id
+					userFeedList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
+					userInitList := userBehavior.GetAdInitListExposure().GetLastAdIds()
+					log.Infof("userFeedList=========================== %+v", userFeedList)
+					log.Infof("userInitList=========================== %+v", userInitList)
+					if len(userFeedList) > 0 {
+						userFeedId = userFeedList[len(userFeedList)-1]
+					}
+					if len(userInitList) > 0 {
+						userInitId = userInitList[len(userInitList)-1]
+					}
+					log.Infof("userFeedId=================userInitId",userFeedId,userInitId)
+				}
+			}
 			for index := 0; index < ctx.GetDataLength(); index++ {
 				dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+				rankInfo := dataInfo.GetRankInfo()
 				sd := dataInfo.SearchData
 				//		rand_num := rand.Intn(5) + 1.0
 				//		nums := float32(rand_num) / float32(sd.Id)
