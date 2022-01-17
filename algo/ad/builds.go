@@ -107,7 +107,7 @@ func DoBuildData(ctx algo.IContext) error {
 		dataIds := make([]int64, 0)
 		dataList := make([]algo.IDataInfo, 0)
 		for i, searchRes := range searchResList {
-			if _, nil := userAdIdMap[searchRes.Id]; nil {
+			if _, ok := userAdIdMap[searchRes.Id]; !ok {
 				info := &DataInfo{
 					DataId:     searchRes.Id,
 					SearchData: &searchResList[i],
