@@ -85,10 +85,6 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 				log.Infof("hisexpores===============",hisexpores)
 				log.Infof("rand_nums===============",ctr,nums)
 				rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
-			}else{
-				rand_num := rand.Intn(dataLen*3)
-				nums := math.Exp(-float64(rand_num))
-				rankInfo.AddRecommend("ad_sort_down.feed", 1.0-float32(nums))
 			}
 		}
 		if app.Name=="ad.init"{
