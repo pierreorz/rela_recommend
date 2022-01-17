@@ -68,50 +68,55 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 			}
 
 		}
-		dataInfo := iDataInfo.(*DataInfo)
-		sd := dataInfo.SearchData
-		//		rand_num := rand.Intn(5) + 1.0
-		//		nums := float32(rand_num) / float32(sd.Id)
-		if app.Name=="ad.feed" {
-			if sd.Id != userFeedId {
-				log.Infof("userFeedId===============",userFeedId)
-				log.Infof("addWeigth_feed===============",sd.Id)
-				hisexpores :=dataInfo.SearchData.HistoryExposures
-				click :=dataInfo.SearchData.HistoryClicks
-				//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
-				if click>hisexpores{
-					click=hisexpores
+		if ctx.GetDataLength() != 0 {
+			for index := 0; index < ctx.GetDataLength(); index++ {
+				dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+				sd := dataInfo.SearchData
+				//		rand_num := rand.Intn(5) + 1.0
+				//		nums := float32(rand_num) / float32(sd.Id)
+				if app.Name=="ad.feed" {
+					if sd.Id != userFeedId {
+						log.Infof("userFeedId===============", userFeedId)
+						log.Infof("addWeigth_feed===============", sd.Id)
+						hisexpores := dataInfo.SearchData.HistoryExposures
+						click := dataInfo.SearchData.HistoryClicks
+						//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
+						if click > hisexpores {
+							click = hisexpores
+						}
+						rand_num := rand.Intn(dataLen)
+						ctr := float64(click+1) / float64(rand.Intn(dataLen)+hisexpores+1)
+						nums := float64(ctr) * math.Exp(-float64(rand_num))
+						log.Infof("hisexpores===============", hisexpores)
+						log.Infof("rand_nums===============", ctr, nums)
+						log.Infof("score==============", rankInfo.Score)
+						log.Infof("AlgoScore==============", rankInfo.AlgoScore)
+						rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
+					} else {
+						rankInfo.AddRecommend("ad_sort_Down", 0.01)
+					}
 				}
-				rand_num := rand.Intn(dataLen)
-				ctr:=float64(click+1)/float64(rand.Intn(dataLen) + hisexpores + 1)
-				nums :=float64(ctr) * math.Exp(-float64(rand_num))
-				log.Infof("hisexpores===============",hisexpores)
-				log.Infof("rand_nums===============",ctr,nums)
-				log.Infof("score==============",rankInfo.Score)
-				log.Infof("AlgoScore==============",rankInfo.AlgoScore)
-				rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
-			}else{
-				rankInfo.AddRecommend("ad_sort_Down", 0.01)
-			}
-		}
-		if app.Name=="ad.init"{
-			if sd.Id != userInitId {
-				log.Infof("userInitId===============",userInitId)
-				log.Infof("addWeigth_init===============",sd.Id)
-				hisexpores :=dataInfo.SearchData.HistoryExposures
-				click :=dataInfo.SearchData.HistoryClicks
-				if click>hisexpores{
-					click=hisexpores
+				if app.Name=="ad.init"{
+					if sd.Id != userInitId {
+						log.Infof("userInitId===============",userInitId)
+						log.Infof("addWeigth_init===============",sd.Id)
+						hisexpores :=dataInfo.SearchData.HistoryExposures
+						click :=dataInfo.SearchData.HistoryClicks
+						if click>hisexpores{
+							click=hisexpores
+						}
+						//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
+						rand_num := rand.Intn(dataLen)
+						ctr:=float64(click+1)/float64(rand.Intn(dataLen) + hisexpores + 1)
+						nums :=float64(ctr) * math.Exp(-float64(rand_num))
+						log.Infof("hisexpores===============",hisexpores)
+						log.Infof("rand_nums===============",rand_num,nums)
+						rankInfo.AddRecommend("ad_sort.init", 1.0+float32(nums))
+					}else{
+						rankInfo.AddRecommend("ad_sort_Down", 0.01)
+					}
+
 				}
-				//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
-				rand_num := rand.Intn(dataLen)
-				ctr:=float64(click+1)/float64(rand.Intn(dataLen) + hisexpores + 1)
-				nums :=float64(ctr) * math.Exp(-float64(rand_num))
-				log.Infof("hisexpores===============",hisexpores)
-				log.Infof("rand_nums===============",rand_num,nums)
-				rankInfo.AddRecommend("ad_sort.init", 1.0+float32(nums))
-			}else{
-				rankInfo.AddRecommend("ad_sort_Down", 0.01)
 			}
 		}
 	}
