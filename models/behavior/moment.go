@@ -85,7 +85,7 @@ func (self *UserBehavior) GetMomentListRate() float64 {
 
 //获取同类型广告"ad.feed,ad.init"
 func (self *UserBehavior) GetAdFeedListExposure() *Behavior {
-	return self.Gets("ad.feed:exposure")
+	return self.Gets("ad.feed:exposure","ad.feed_recommend:exposure")
 }
 
 func (self *UserBehavior) GetAdInitListExposure() *Behavior {
