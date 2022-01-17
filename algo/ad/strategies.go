@@ -61,8 +61,8 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 				if len(userFeedList) > 0 {
 					userFeedId = userFeedList[len(userFeedList)-1]
 				}
-				if len(userFeedList) > 0 {
-					userInitId = userInitList[len(userFeedList)-1]
+				if len(userInitList) > 0 {
+					userInitId = userInitList[len(userInitList)-1]
 				}
 				log.Infof("userFeedId=================userInitId",userFeedId,userInitId)
 			}
