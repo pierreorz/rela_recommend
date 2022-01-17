@@ -75,6 +75,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 		if app.Name=="ad.feed" {
 			if sd.Id != userFeedId {
 				log.Infof("userFeedId===============",userFeedId)
+				log.Infof("addWeigth_feed===============",sd.Id)
 				hisexpores :=dataInfo.SearchData.HistoryExposures
 				click :=dataInfo.SearchData.HistoryClicks
 				//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
@@ -89,6 +90,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 		if app.Name=="ad.init"{
 			if sd.Id != userInitId {
 				log.Infof("userInitId===============",userInitId)
+				log.Infof("addWeigth_init===============",sd.Id)
 				hisexpores :=dataInfo.SearchData.HistoryExposures
 				click :=dataInfo.SearchData.HistoryClicks
 				//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
