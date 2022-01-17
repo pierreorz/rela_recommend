@@ -4,6 +4,7 @@ import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/log"
+	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
@@ -16,6 +17,7 @@ func DoBuildData(ctx algo.IContext) error {
 	pf := ctx.GetPerforms()
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	//userData := ctx.GetUserInfo().(*UserInfo)
 	// behaviorCache := behavior.NewBehaviorCacheModule(ctx, &factory.CacheBehaviorRds)
 
@@ -33,6 +35,27 @@ func DoBuildData(ctx algo.IContext) error {
 			return userCacheErr
 		}
 	})
+	//获取用户实时行为
+	var userBehavior *behavior.UserBehavior // 用户实时行为
+	userAdIdMap := map[int64]int64{} //广告曝光数据
+	realtimes, realtimeErr := behaviorCache.QueryAdBehaviorMap("ad", []int64{params.UserId})
+	if realtimeErr == nil { // 获取flink数据
+		userBehavior = realtimes[params.UserId]
+		if userBehavior != nil { //开屏广告和feed流广告id
+			userFeedList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
+			userInitList := userBehavior.GetAdInitListExposure().GetLastAdIds()
+			log.Infof("userFeedList=========================== %+v", userFeedList)
+			log.Infof("userInitList=========================== %+v", userInitList)
+			if len(userFeedList) > 0 {
+				userFeedId := userFeedList[len(userFeedList)-1]
+				userAdIdMap[userFeedId]=1
+			}
+			if len(userInitList) > 0 {
+				userInitId := userInitList[len(userInitList)-1]
+				userAdIdMap[userInitId]=1
+			}
+		}
+	}
 	// 获取search的广告列表
 	var searchResList = []search.SearchADResDataItem{}
 	if abtest.GetBool("icp_switch", false) && (abtest.GetBool("is_icp_user", false) || user.MaybeICPUser(params.Lat, params.Lng)) {
@@ -83,13 +106,15 @@ func DoBuildData(ctx algo.IContext) error {
 		dataIds := make([]int64, 0)
 		dataList := make([]algo.IDataInfo, 0)
 		for i, searchRes := range searchResList {
-			info := &DataInfo{
-				DataId:     searchRes.Id,
-				SearchData: &searchResList[i],
-				RankInfo:   &algo.RankInfo{},
+			if _, nil := userAdIdMap[searchRes.Id]; nil {
+				info := &DataInfo{
+					DataId:     searchRes.Id,
+					SearchData: &searchResList[i],
+					RankInfo:   &algo.RankInfo{},
+				}
+				dataIds = append(dataIds, searchRes.Id)
+				dataList = append(dataList, info)
 			}
-			dataIds = append(dataIds, searchRes.Id)
-			dataList = append(dataList, info)
 		}
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(dataIds)
