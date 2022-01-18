@@ -45,7 +45,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 
 		//		rand_num := rand.Intn(5) + 1.0
 		//		nums := float32(rand_num) / float32(sd.Id)
-
+		log.Infof("dataInfo=================",dataInfo)
 		hisexpores := dataInfo.SearchData.HistoryExposures
 		click := dataInfo.SearchData.HistoryClicks
 		//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
