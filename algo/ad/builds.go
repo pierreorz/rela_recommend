@@ -66,7 +66,7 @@ func DoBuildData(ctx algo.IContext) error {
 			clientName := abtest.GetString("backend_app_name", "1") // 1: rela 2: 饭角
 			var searchErr error
 			//针对新老版本的请求过滤
-			if params.ClientVersion >= 50802 && params.Type == feedType {
+			if params.ClientVersion >= 50802 { //params.Type == feedType 不对广告类型限制
 				if searchResList, searchErr = search.CallFeedAdList(clientName, params, user); searchErr == nil {
 					return len(searchResList)
 				} else {
