@@ -44,6 +44,7 @@ func DoBuildData(ctx algo.IContext) error {
 		userBehavior = realtimes[params.UserId]
 		if userBehavior != nil { //开屏广告和feed流广告id
 			//获取用户广告的行为
+			log.Infof("userBehavior====================%+v",userBehavior.GetAdFeedListExposure())
 			userFeedList:= userBehavior.GetAdFeedListExposure().LastList
 			userInitList := userBehavior.GetAdInitListExposure().LastList
 			log.Infof("userFeedList====================%+v",userFeedList)
