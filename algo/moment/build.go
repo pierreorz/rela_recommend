@@ -30,6 +30,7 @@ func DoBuildData(ctx algo.IContext) error {
 	custom := abtest.GetString("custom_sort_type", "ai")
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
+	hourRecList :=make([]int64, 0)
 	autoRecList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
@@ -96,7 +97,15 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				return nil
-			}, "new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
+			},"hour": func(*performs.Performs) interface{}{
+				if abtest.GetBool("hour_rec_moment",false){
+					hourRecList,err =momentCache.GetInt64ListOrDefault(params.UserId,-999999999,"hour_recommend_list:%d")
+					if len(hourRecList)>500{
+						recIdList=recIdList[:100]
+					}
+					return len(hourRecList)
+				}
+			},"new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
 				newMomentLen := abtest.GetInt("new_moment_len", 1000) //不为0即推荐添加实时日志
 				if newMomentLen > 0 {
 					radiusArray := abtest.GetStrings("radius_range", "50km")
@@ -233,7 +242,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList,hourRecList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
