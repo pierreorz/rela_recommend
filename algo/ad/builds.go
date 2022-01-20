@@ -60,6 +60,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				log.Infof("usserAdTimeList====================%+v",usserAdTimeList)
 				lastTime:=sort.Float64Slice(usserAdTimeList)
+				sort.Sort(lastTime)
 				log.Infof("lastTimeList====================%+v",lastTime)
 				adId:=userAdTimeMap[lastTime[len(lastTime)-1]]
 				userAdIdMap[adId]=1
