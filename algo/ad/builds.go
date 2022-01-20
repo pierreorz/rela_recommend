@@ -9,6 +9,7 @@ import (
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	rutils "rela_recommend/utils"
+	"sort"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -47,10 +48,20 @@ func DoBuildData(ctx algo.IContext) error {
 			userInitList := userBehavior.GetAdInitListExposure().LastList
 			log.Infof("userFeedList====================%+v",userFeedList)
 			log.Infof("userInitList====================%+v",userInitList)
-
 			if len(userFeedList) > 0 {
-				userFeedId := userFeedList[len(userFeedList)-1].DataId
-				userAdIdMap[userFeedId]=1
+				userAdTimeMap := map[float64]int64{}
+				usserAdTimeList := []float64{}
+				for index := 0; index < len(userFeedList); index++ {
+					userFeedId := userFeedList[index].DataId
+					userFeedTime := userFeedList[index].LastTime
+					usserAdTimeList= append(usserAdTimeList, userFeedTime)
+					userAdTimeMap[userFeedTime]=userFeedId
+				}
+				log.Infof("usserAdTimeList====================%+v",usserAdTimeList)
+				lastTime:=sort.Float64Slice(usserAdTimeList)
+				log.Infof("lastTimeList====================%+v",lastTime)
+				adId:=userAdTimeMap[lastTime[len(lastTime)-1]]
+				userAdIdMap[adId]=1
 			}
 			if len(userInitList) > 0 {
 				userInitId := userInitList[len(userInitList)-1].DataId
