@@ -39,24 +39,21 @@ func DoBuildData(ctx algo.IContext) error {
 	var userBehavior *behavior.UserBehavior // 用户实时行为
 	userAdIdMap := map[int64]int64{} //广告曝光数据
 	realtimes, realtimeErr := behaviorCache.QueryAdBehaviorMap("ad", []int64{params.UserId})
-	log.Infof("realtimes=========================== %+v", realtimes)
 	if realtimeErr == nil { // 获取flink数据
 		userBehavior = realtimes[params.UserId]
 		if userBehavior != nil { //开屏广告和feed流广告id
-			log.Infof("lastList====================%+v",userBehavior.GetAdFeedListExposure().LastList)
-			userLastList:= userBehavior.GetAdFeedListExposure().LastList
-			log.Infof("lastList====================%+v",userLastList)
-			log.Infof("lastList=====-1====================%+v",userLastList[len(userLastList)-1])
-			userFeedList := userBehavior.GetAdFeedListExposure().GetLastAdIds()
-			userInitList := userBehavior.GetAdInitListExposure().GetLastAdIds()
-			log.Infof("userFeedList=========================== %+v", userFeedList)
-			log.Infof("userInitList=========================== %+v", userInitList)
+			//获取用户广告的行为
+			userFeedList:= userBehavior.GetAdFeedListExposure().LastList
+			userInitList := userBehavior.GetAdInitListExposure().LastList
+			log.Infof("userFeedList====================%+v",userFeedList)
+			log.Infof("userInitList====================%+v",userInitList)
+
 			if len(userFeedList) > 0 {
-				userFeedId := userFeedList[len(userFeedList)-1]
+				userFeedId := userFeedList[len(userFeedList)-1].DataId
 				userAdIdMap[userFeedId]=1
 			}
 			if len(userInitList) > 0 {
-				userInitId := userInitList[len(userInitList)-1]
+				userInitId := userInitList[len(userInitList)-1].DataId
 				userAdIdMap[userInitId]=1
 			}
 		}
