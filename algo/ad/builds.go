@@ -44,11 +44,8 @@ func DoBuildData(ctx algo.IContext) error {
 		userBehavior = realtimes[params.UserId]
 		if userBehavior != nil { //开屏广告和feed流广告id
 			//获取用户广告的行为
-			log.Infof("userBehavior====================%+v",userBehavior.GetAdFeedListExposure())
 			userFeedList:= userBehavior.GetAdFeedListExposure().LastList
 			userInitList := userBehavior.GetAdInitListExposure().LastList
-			log.Infof("userFeedList====================%+v",userFeedList)
-			log.Infof("userInitList====================%+v",userInitList)
 			if len(userFeedList) > 0 {
 				userAdTimeMap := map[float64]int64{}
 				usserAdTimeList := []float64{}
@@ -58,10 +55,8 @@ func DoBuildData(ctx algo.IContext) error {
 					usserAdTimeList= append(usserAdTimeList, userFeedTime)
 					userAdTimeMap[userFeedTime]=userFeedId
 				}
-				log.Infof("usserAdTimeList====================%+v",usserAdTimeList)
 				lastTime:=sort.Float64Slice(usserAdTimeList)
 				sort.Sort(lastTime)
-				log.Infof("lastTimeList====================%+v",lastTime)
 				adId:=userAdTimeMap[lastTime[len(lastTime)-1]]
 				userAdIdMap[adId]=1
 			}

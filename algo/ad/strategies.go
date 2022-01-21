@@ -45,7 +45,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 
 		//		rand_num := rand.Intn(5) + 1.0
 		//		nums := float32(rand_num) / float32(sd.Id)
-		log.Infof("dataLen=================",dataLen)
+		//log.Infof("dataLen=================",dataLen)
 		hisexpores := dataInfo.SearchData.HistoryExposures
 		click := dataInfo.SearchData.HistoryClicks
 		//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
@@ -56,9 +56,9 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 		ctr := float64(click+1) / float64(rand.Intn(dataLen)+hisexpores+1)
 		nums := float64(ctr) * math.Exp(-float64(rand_num))
 		log.Infof("sdId===============", sd.Id)
-		log.Infof("click===============", click)
-		log.Infof("hisexpores===============", hisexpores)
-		log.Infof("rand_nums===============", ctr, nums)
+		//log.Infof("click===============", click)
+		//log.Infof("hisexpores===============", hisexpores)
+		//log.Infof("rand_nums===============", ctr, nums)
 		rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
 
 		}
