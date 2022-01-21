@@ -105,6 +105,7 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 					return len(hourRecList)
 				}
+				return nil
 			},"new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
 				newMomentLen := abtest.GetInt("new_moment_len", 1000) //不为0即推荐添加实时日志
 				if newMomentLen > 0 {
