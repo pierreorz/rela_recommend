@@ -100,9 +100,6 @@ func DoBuildData(ctx algo.IContext) error {
 			},"hour": func(*performs.Performs) interface{}{
 				if abtest.GetBool("hour_rec_moment",false){
 					hourRecList,err =momentCache.GetInt64ListOrDefault(params.UserId,-999999999,"hour_recommend_list:%d")
-					if len(hourRecList)>500{
-						recIdList=recIdList[:100]
-					}
 					return len(hourRecList)
 				}
 				return nil
@@ -243,6 +240,9 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 
 	hotIdMap := utils.NewSetInt64FromArray(hotIdList)
+	if len(hourRecList)>500&&len(recIdList)>200{
+		recIdList=recIdList[:100]
+	}
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList,hourRecList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList).ToList()
 	// 过滤审核
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
