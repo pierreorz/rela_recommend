@@ -116,6 +116,21 @@ func DoBuildData(ctx algo.IContext) error {
 					level:  level1,
 				})
 			}
+
+			if lives[i].Live.IsMonthStar {
+				liveInfo.GetRankInfo().AddRecommendNeedReturn("MONTH_STAR", 1.0)
+				liveInfo.LiveData.AddLabel(&labelItem{
+					Style: WeekStarLabel,
+					Title: multiLanguage{
+						Chs: "王牌主播",
+						Cht: "王牌主播",
+						En:  "Ace",
+					},
+					weight: MonthStarLabelWeight,
+					level:  level1,
+				})
+			}
+
 			livesInfo = append(livesInfo, &liveInfo)
 		}
 

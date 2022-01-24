@@ -13,9 +13,12 @@ import (
 )
 
 const (
+	// https://wiki.rela.me/pages/viewpage.action?pageId=30474709
+	// 优先比较 level , level 相同则比较 weight
 	HourRankLabelWeight = iota
 	RecommendLabelWeight
 	WeekStarLabelWeight
+	MonthStarLabelWeight
 	LiveTypeLabelWeight
 	ClassifyLabelWeight
 

@@ -34,6 +34,7 @@ type LiveProfile struct {
 	Classify         int      `json:"classify"`
 	MomentsID        int64    `json:"momentsId"`
 	IsWeekStar       bool     `json:"-"`
+	IsMonthStar      bool     `json:"-"`
 }
 
 type LiveCache struct {
@@ -47,7 +48,7 @@ type LiveCache struct {
 	StarsCount     int         `json:"starsCount"`
 	TopCount       int         `json:"topCount"`
 	BottomScore    int         `json:"bottomScore"`
-	NowIncoming   float32      `json:"nowGem"`
+	NowIncoming    float32     `json:"nowGem"`
 	DayIncoming    float32     `json:"dayIncoming"`
 	MonthIncoming  float32     `json:"monthIncoming"`
 	Data4Api       interface{} `json:"data"` // 20200305专门为api接口新增的透传参数
@@ -153,6 +154,13 @@ func (lcm *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
 
 func (lcm *LiveCacheModule) GetWeekStar() (int64, error) {
 	key := "live_week_star_recommend"
+	var uid int64
+	err := help.GetStructByCache(lcm.cacheLive, key, &uid)
+	return uid, err
+}
+
+func (lcm *LiveCacheModule) GetMonthStar() (int64, error) {
+	key := "live_month_star_recommend"
 	var uid int64
 	err := help.GetStructByCache(lcm.cacheLive, key, &uid)
 	return uid, err
