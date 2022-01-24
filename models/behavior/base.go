@@ -344,13 +344,6 @@ func (self *BehaviorCacheModule) QueryUserBehaviorMap(module string, ids []int64
 	return objs, err
 }
 
-//读取user曝光广告
-func (self *BehaviorCacheModule) QueryAdBehaviorMap(module string, ids []int64) (map[int64]*UserBehavior, error) {
-	keyFormatter := fmt.Sprintf("behavior:%s:user:%%d.gz",module)
-	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
-	objs := ress.Interface().(map[int64]*UserBehavior)
-	return objs, err
-}
 
 
 func NewBehaviorCacheModule(ctx abtest.IAbTestAble) *BehaviorCacheModule {

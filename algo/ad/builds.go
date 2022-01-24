@@ -39,7 +39,7 @@ func DoBuildData(ctx algo.IContext) error {
 	//获取用户实时行为
 	var userBehavior *behavior.UserBehavior // 用户实时行为
 	userAdIdMap := map[int64]int64{} //广告曝光数据
-	realtimes, realtimeErr := behaviorCache.QueryAdBehaviorMap("ad", []int64{params.UserId})
+	realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap("ad", []int64{params.UserId})
 	if realtimeErr == nil { // 获取flink数据
 		userBehavior = realtimes[params.UserId]
 		if userBehavior != nil { //开屏广告和feed流广告id
