@@ -28,6 +28,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"base":          &strategy.BaseRichStrategy{DefaultWeight: 1, StrategyItemFunc: BaseScoreStrategyItem},
 	"test_user_top": &strategy.BaseRichStrategy{DefaultWeight: 2, StrategyItemFunc: TestUserTopStrategyItem},
 	"base_feed": &strategy.BaseRichStrategy{DefaultWeight: 2, StrategyItemFunc: BaseFeedPrice},
+	//"base_feed": &strategy.BaseRichStrategy{DefaultWeight: 2,StrategyFunc: BaseFeedPrice},
 }
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{})

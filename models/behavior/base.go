@@ -133,6 +133,14 @@ func (self *Behavior) GetLastUserIds() []int64 {
 	}
 	return ids.ToList()
 }
+//获取最后一次广告曝光数据
+func (self *Behavior) GetLastAdIds() []int64 {
+	ids := utils.SetInt64{}
+	for _, log := range self.LastList {
+		ids.Append(log.DataId)
+	}
+	return ids.ToList()
+}
 
 // 获取top n的map，返回去除前缀
 func (self *Behavior) GetTopCountTags(category string, n int) []*BehaviorTag {
@@ -335,6 +343,8 @@ func (self *BehaviorCacheModule) QueryUserBehaviorMap(module string, ids []int64
 	objs := ress.Interface().(map[int64]*UserBehavior)
 	return objs, err
 }
+
+
 
 func NewBehaviorCacheModule(ctx abtest.IAbTestAble) *BehaviorCacheModule {
 	cache := factory.CacheBehaviorRdsBackup
