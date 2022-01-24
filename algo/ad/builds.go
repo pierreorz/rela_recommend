@@ -44,25 +44,29 @@ func DoBuildData(ctx algo.IContext) error {
 		userBehavior = realtimes[params.UserId]
 		if userBehavior != nil { //开屏广告和feed流广告id
 			//获取用户广告的行为
-			userFeedList:= userBehavior.GetAdFeedListExposure().LastList
-			userInitList := userBehavior.GetAdInitListExposure().LastList
-			if len(userFeedList) > 0 {
-				userAdTimeMap := map[float64]int64{}
-				usserAdTimeList := []float64{}
-				for index := 0; index < len(userFeedList); index++ {
-					userFeedId := userFeedList[index].DataId
-					userFeedTime := userFeedList[index].LastTime
-					usserAdTimeList= append(usserAdTimeList, userFeedTime)
-					userAdTimeMap[userFeedTime]=userFeedId
+			if userBehavior.GetAdFeedListExposure().Count > 0 {
+				userFeedList := userBehavior.GetAdFeedListExposure().LastList
+				if len(userFeedList) > 0 {
+					userAdTimeMap := map[float64]int64{}
+					usserAdTimeList := []float64{}
+					for index := 0; index < len(userFeedList); index++ {
+						userFeedId := userFeedList[index].DataId
+						userFeedTime := userFeedList[index].LastTime
+						usserAdTimeList = append(usserAdTimeList, userFeedTime)
+						userAdTimeMap[userFeedTime] = userFeedId
+					}
+					lastTime := sort.Float64Slice(usserAdTimeList)
+					sort.Sort(lastTime)
+					adId := userAdTimeMap[lastTime[len(lastTime)-1]]
+					userAdIdMap[adId] = 1
 				}
-				lastTime:=sort.Float64Slice(usserAdTimeList)
-				sort.Sort(lastTime)
-				adId:=userAdTimeMap[lastTime[len(lastTime)-1]]
-				userAdIdMap[adId]=1
 			}
-			if len(userInitList) > 0 {
-				userInitId := userInitList[len(userInitList)-1].DataId
-				userAdIdMap[userInitId]=1
+			if userBehavior.GetAdInitListExposure().Count > 0 {
+				userInitList := userBehavior.GetAdInitListExposure().LastList
+				if len(userInitList) > 0 {
+					userInitId := userInitList[len(userInitList)-1].DataId
+					userAdIdMap[userInitId] = 1
+				}
 			}
 		}
 	}
