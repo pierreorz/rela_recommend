@@ -46,7 +46,7 @@ func DoBuildData(ctx algo.IContext) error {
 			//获取用户广告的行为
 			if userBehavior.GetAdFeedListExposure().Count > 0 {
 				userFeedList := userBehavior.GetAdFeedListExposure().LastList
-				if len(userFeedList) > 0 {
+				if len(userFeedList) > 1 {
 					userAdTimeMap := map[float64]int64{}
 					usserAdTimeList := []float64{}
 					for index := 0; index < len(userFeedList); index++ {
@@ -61,13 +61,13 @@ func DoBuildData(ctx algo.IContext) error {
 					userAdIdMap[adId] = 1
 				}
 			}
-			if userBehavior.GetAdInitListExposure().Count > 0 {
-				userInitList := userBehavior.GetAdInitListExposure().LastList
-				if len(userInitList) > 0 {
-					userInitId := userInitList[len(userInitList)-1].DataId
-					userAdIdMap[userInitId] = 1
-				}
-			}
+			//if userBehavior.GetAdInitListExposure().Count > 0 {
+			//	userInitList := userBehavior.GetAdInitListExposure().LastList
+			//	if len(userInitList) > 1 {
+			//		userInitId := userInitList[len(userInitList)-1].DataId
+			//		userAdIdMap[userInitId] = 1
+			//	}
+			//}
 		}
 	}
 	log.Infof("userMap=================%+v",userAdIdMap)
