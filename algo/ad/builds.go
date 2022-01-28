@@ -61,13 +61,13 @@ func DoBuildData(ctx algo.IContext) error {
 					userAdIdMap[adId] = 1
 				}
 			}
-			if userBehavior.GetAdInitListExposure().Count > 0 {
-				userInitList := userBehavior.GetAdInitListExposure().LastList
-				if len(userInitList) > 1 {
-					userInitId := userInitList[len(userInitList)-1].DataId
-					userAdIdMap[userInitId] = 1
-				}
-			}
+			//if userBehavior.GetAdInitListExposure().Count > 0 {
+			//	userInitList := userBehavior.GetAdInitListExposure().LastList
+			//	if len(userInitList) > 1 {
+			//		userInitId := userInitList[len(userInitList)-1].DataId
+			//		userAdIdMap[userInitId] = 1
+			//	}
+			//}
 		}
 	}
 	log.Infof("userMap=================%+v",userAdIdMap)
