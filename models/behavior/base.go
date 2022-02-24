@@ -355,6 +355,13 @@ func NewBehaviorCacheModule(ctx abtest.IAbTestAble) *BehaviorCacheModule {
 // *************************************** 内容行为分数
 type DataBehaviorScore struct {
 	DataId int64   `json:"dataId"` // 数据id
+	Exposure  int   `json:exposure`
+	Like       int     `json:like`
+	Comment     int     `json:comment`
+	LastTime    int     `json:lastTime`
+	FirstTime    int    `json:firstTime`
+	Share       int      `json:share`
+	Follow      int      `json:follow`
 	Score  float64 `json:"score"`  // 得分
 }
 
@@ -364,11 +371,15 @@ type DataBehaviorTopList struct {
 
 func (self *DataBehaviorTopList) GetTopIds(n int) []int64 {
 	res := []int64{}
-	for i, topItem := range self.Data {
-		if i >= n {
+	count :=0
+	for _, topItem := range self.Data {
+		if count >= n {
 			break
 		}
-		res = append(res, topItem.DataId)
+		if topItem.Comment<2{
+			res = append(res, topItem.DataId)
+			count +=1
+		}
 	}
 	return res
 }

@@ -146,7 +146,8 @@ func DoBuildData(ctx algo.IContext) error {
 			}, "hot": func(*performs.Performs) interface{} { // 热门列表
 				if abtest.GetBool("real_recommend_switched", false) {
 					if top, topErr := behaviorCache.QueryDataBehaviorTop(app.Module); topErr == nil {
-						hotIdList = top.GetTopIds(100)
+						hotIdList = top.GetTopIds(20)
+						log.Warnf("top 20 hot ids %s",hotIdList)
 						return len(hotIdList)
 					} else {
 						return topErr
