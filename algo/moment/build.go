@@ -42,6 +42,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var recIds, topMap, recMap, bussinessMap = []int64{}, map[int64]int{}, map[int64]int{}, map[int64]int{}
 	var liveMap = map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
+	topN :=abtest.GetInt("topn",5)
 	if abtest.GetBool("rec_liveMoments_switch", false) && custom != "hot" {
 		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 		liveMomentIds = getMapKey(liveMap)
@@ -146,7 +147,7 @@ func DoBuildData(ctx algo.IContext) error {
 			}, "hot": func(*performs.Performs) interface{} { // 热门列表
 				if abtest.GetBool("real_recommend_switched", false) {
 					if top, topErr := behaviorCache.QueryDataBehaviorTop(app.Module); topErr == nil {
-						hotIdList = top.GetTopIds(100)
+						hotIdList = top.GetTopIds(topN)
 						return len(hotIdList)
 					} else {
 						return topErr
@@ -363,7 +364,7 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		isVip = user.IsVip
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
-		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
+		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.1)
 		statusSwitch := abtest.GetBool("mom_status_filter", false)
 		filterLive := abtest.GetBool("fileter_live", true)
 		dataList := make([]algo.IDataInfo, 0)
