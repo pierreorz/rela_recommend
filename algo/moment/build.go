@@ -364,7 +364,7 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		isVip = user.IsVip
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
-		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.2)
+		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.1)
 		statusSwitch := abtest.GetBool("mom_status_filter", false)
 		filterLive := abtest.GetBool("fileter_live", true)
 		dataList := make([]algo.IDataInfo, 0)
@@ -470,7 +470,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				if hotIdMap != nil {
 					if isRecommend := hotIdMap.Contains(mom.Moments.Id); isRecommend {
-						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: 1.1, NeedReturn: true})
+						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true})
 					}
 				}
 				info := &DataInfo{
