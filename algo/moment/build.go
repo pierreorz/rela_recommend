@@ -42,6 +42,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var recIds, topMap, recMap, bussinessMap = []int64{}, map[int64]int{}, map[int64]int{}, map[int64]int{}
 	var liveMap = map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
+	topN :=abtest.GetInt("topn",5)
 	if abtest.GetBool("rec_liveMoments_switch", false) && custom != "hot" {
 		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 		liveMomentIds = getMapKey(liveMap)
@@ -146,8 +147,7 @@ func DoBuildData(ctx algo.IContext) error {
 			}, "hot": func(*performs.Performs) interface{} { // 热门列表
 				if abtest.GetBool("real_recommend_switched", false) {
 					if top, topErr := behaviorCache.QueryDataBehaviorTop(app.Module); topErr == nil {
-						hotIdList = top.GetTopIds(20)
-						log.Warnf("top 20 hot ids %s",hotIdList)
+						hotIdList = top.GetTopIds(topN)
 						return len(hotIdList)
 					} else {
 						return topErr
@@ -470,7 +470,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				if hotIdMap != nil {
 					if isRecommend := hotIdMap.Contains(mom.Moments.Id); isRecommend {
-						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true})
+						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: 1.1, NeedReturn: true})
 					}
 				}
 				info := &DataInfo{
