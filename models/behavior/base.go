@@ -358,8 +358,8 @@ type DataBehaviorScore struct {
 	Exposure  int   `json:"exposure"`
 	Like       int     `json:"like"`
 	Comment     int     `json:"comment"`
-	LastTime    int     `json:"lastTime"`
-	FirstTime    int    `json:"firstTime"`
+	LastTime    float64     `json:"lastTime"`
+	FirstTime    float64    `json:"firstTime"`
 	Share       int      `json:"share"`
 	Follow      int      `json:"follow"`
 	Score  float64 `json:"score"`  // 得分
