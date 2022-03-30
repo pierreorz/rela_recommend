@@ -43,6 +43,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var liveMap = map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	topN :=abtest.GetInt("topn",5)
+	topScore :=abtest.GetFloat64("top_score",0.02)
 	if abtest.GetBool("rec_liveMoments_switch", false) && custom != "hot" {
 		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 		liveMomentIds = getMapKey(liveMap)
@@ -147,7 +148,11 @@ func DoBuildData(ctx algo.IContext) error {
 			}, "hot": func(*performs.Performs) interface{} { // 热门列表
 				if abtest.GetBool("real_recommend_switched", false) {
 					if top, topErr := behaviorCache.QueryDataBehaviorTop(app.Module); topErr == nil {
-						hotIdList = top.GetTopIds(topN)
+						if abtest.GetInt("hot_method",1)==1{
+							hotIdList = top.GetTopIds(topN)
+						}else{
+							hotIdList = top.GetTopIdsV2(topScore)
+						}
 						return len(hotIdList)
 					} else {
 						return topErr
