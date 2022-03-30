@@ -164,7 +164,7 @@ type MomentsAndExtend struct {
 	MomentsProfile *MomentsProfile `gorm:"column:moments_profile" json:"momentsProfile,omitempty"`
 }
 
-func (mae *MomentsAndExtend) CanRecommend() bool {
+func (mae *MomentsAndExtend)  CanRecommend() bool {
 	if strings.Contains(mae.Moments.MomentsType, "live") {
 		return true
 	}

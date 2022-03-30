@@ -369,6 +369,16 @@ type DataBehaviorTopList struct {
 	Data []DataBehaviorScore `json:"data"` // 热门列表
 }
 
+func (self *DataBehaviorTopList) GetTopIdsV2(score float64) []int64 {
+	res := []int64{}
+	for _, topItem := range self.Data {
+		if topItem.Score>score && topItem.Comment<=2{
+			res = append(res,topItem.DataId)
+		}
+	}
+	return res
+}
+
 func (self *DataBehaviorTopList) GetTopIds(n int) []int64 {
 	res := []int64{}
 	count :=0
