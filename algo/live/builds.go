@@ -42,6 +42,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var user2 *redis.LiveProfile
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
+	var interestSet =&utils.SetInt64{}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
@@ -68,6 +69,14 @@ func DoBuildData(ctx algo.IContext) error {
 				return userBehaviorErr
 			}
 			return len(userBehaviorMap)
+		},
+		"user_interest": func(*performs.Performs) interface{}{
+			if interests, interestErr := redisTheCache.GetInt64List(params.UserId,"user_interest_offline_%d"); conErr == nil {
+				interestSet = utils.NewSetInt64FromArray(interests)
+				return interestSet.Len()
+			} else {
+				return interestErr
+			}
 		},
 		"concerns": func(*performs.Performs) interface{} { // 获取关注信息
 			if concerns, conErr := redisTheCache.QueryConcernsByUser(params.UserId); conErr == nil {
@@ -138,7 +147,8 @@ func DoBuildData(ctx algo.IContext) error {
 			UserId:       user.UserId,
 			UserCache:    user,
 			LiveProfile:  user2,
-			UserConcerns: concernsSet}
+			UserConcerns: concernsSet,
+			UserInterests:interestSet}
 
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(liveIds)

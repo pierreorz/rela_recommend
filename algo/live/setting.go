@@ -21,6 +21,7 @@ var strategyMap = map[string]algo.IStrategy{
 var richStrategyMap = map[string]algo.IRichStrategy{
 	"per_hour_top": &strategy.BaseRichStrategy{StrategyFunc: HourRankRecommendFunc, DefaultWeight: 1}, // 执行优先级在top_recommend之后，避免覆盖
 	"exposure_down": &strategy.BaseRichStrategy{StrategyItemFunc: UserBehaviorExposureDownItemFunc},
+	"interest": &strategy.BaseRichStrategy{StrategyFunc: StrategyRecommendFunc},
 }
 
 var sorterMap = map[string]algo.ISorter{
