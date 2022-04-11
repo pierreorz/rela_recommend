@@ -71,7 +71,7 @@ func DoBuildData(ctx algo.IContext) error {
 			return len(userBehaviorMap)
 		},
 		"user_interest": func(*performs.Performs) interface{}{
-			if interests, interestErr := redisTheCache.GetInt64List(params.UserId,"user_interest_offline_%d"); conErr == nil {
+			if interests, interestErr := redisTheCache.GetInt64List(params.UserId,"user_interest_offline_%d"); interestErr == nil {
 				interestSet = utils.NewSetInt64FromArray(interests)
 				return interestSet.Len()
 			} else {
