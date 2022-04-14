@@ -26,9 +26,7 @@ type AlgoBase struct {
 	FeaturesFunc func(IContext, IAlgo, IDataInfo) *utils.Features
 }
 
-type AlgoAliPai struct {
-	*AlgoBase
-}
+
 
 
 func (self *AlgoBase) Name() string {
