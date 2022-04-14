@@ -253,7 +253,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList,hourRecList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList).ToList()
 	// 过滤审核
-	paiResult,_ = api.GetPredictResult(params,dataIds)
+	paiResult,_ = api.GetPredictResult(params.Lat,params.Lng,params.UserId,params.Addr,dataIds)
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
 	searchScenery := "moment"

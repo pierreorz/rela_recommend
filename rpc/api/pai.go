@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"strconv"
+	"strings"
 )
 
 const externalPaiHomeFeedUrl = "/api/rec/home_feed"
@@ -48,24 +48,31 @@ type Features struct {
 
 
 
-func GetPredictResult(recommendRequest *algo.RecommendRequest,dataIds []int64) (map[int64]float64 ,error){
+func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds []int64) (map[int64]float64 ,error){
 	result := make(map[int64]float64,0)
+	recall_list :=make([]string,0)
+	for _,id :=range dataIds{
+		recall_list=append(recall_list,strconv.FormatInt(id,10))
+	}
+	if len(dataIds)>0{
+
+	}
 	features := Features{
-		Lat:        float64(recommendRequest.Lat),
-		Lng:        float64(recommendRequest.Lng),
+		Lat:        float64(lat),
+		Lng:        float64(lng),
 		Os:         "android",
 		Os_type:    "android 11",
 		Brand:      "xiaomi",
 		Model_type: "m2012k11ac",
 		Net:        "wifi",
 		Language:   "zh_cn_#hans",
-		Ip:         recommendRequest.Addr,
+		Ip:         addr,
 	}
 	params :=paiHomeFeedRequest{
-		Uid:         strconv.FormatInt(recommendRequest.UserId,10),
+		Uid:         strconv.FormatInt(userId,10),
 		Size:        0,
 		Scene_id:    "home_feed",
-		Recall_list: recall_list,
+		Recall_list: strings.Join(recall_list,","),
 		Features:    features,
 		Debug:       false,
 	}
