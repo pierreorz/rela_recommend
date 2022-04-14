@@ -26,6 +26,11 @@ type AlgoBase struct {
 	FeaturesFunc func(IContext, IAlgo, IDataInfo) *utils.Features
 }
 
+type AlgoAliPai struct {
+	*AlgoBase
+}
+
+
 func (self *AlgoBase) Name() string {
 	return self.AlgoName
 }
@@ -52,8 +57,12 @@ func (self *AlgoBase) doPredictSingle(ctx IContext, index int) {
 	if rankInfo.Features == nil {
 		rankInfo.Features = self.FeaturesSingle(ctx, dataInfo)
 	}
-	rankInfo.AlgoScore = self.PredictSingle(rankInfo.Features)
-	rankInfo.Score = rankInfo.AlgoScore
+	if rankInfo.PaiScore!=0{
+		rankInfo.Score = float32(rankInfo.PaiScore)
+	}else{
+		rankInfo.AlgoScore=self.PredictSingle(rankInfo.Features)
+		rankInfo.Score = rankInfo.AlgoScore
+	}
 	rankInfo.AlgoName = self.Name()
 }
 

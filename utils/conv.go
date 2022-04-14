@@ -208,7 +208,7 @@ func GetInt64sWithStrings(s []string) []int64 {
 	}
 	return ids
 }
-func GetInt64s(v interface{}) []int64 {
+func gitGetInt64s(v interface{}) []int64 {
 	if v != nil {
 		switch result := v.(type) {
 		case []int64:

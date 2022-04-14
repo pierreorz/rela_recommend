@@ -50,6 +50,8 @@ type RecommendRequest struct {
 	// required: true
 	// enum: moment,theme,user,live,match
 	App string `json:"app" form:"app"`
+
+	Addr  string  `json:"addr" form:"addr"`
 	// 子功能名
 	//
 	// required: false
@@ -174,6 +176,7 @@ type RankInfo struct {
 	Punish     float32         // 惩罚系数
 	AlgoName   string          // 算法名称
 	AlgoScore  float32         // 算法得分
+	PaiScore   float64          //Pai 算法得分
 	Score      float32         // 最终得分
 	Index      int             // 排在第几
 	LiveIndex  int             //热门直播日志的排序

@@ -14,6 +14,7 @@ const (
 	DefaultMemoryCacheSize = 1024 * 1024 * 128
 	DefaultLogLevel        = "debug"
 	DefaultLiveRpcAddr     = "http://live:3500"
+	DefaultPaiRpcAddr      ="http://34973930.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict/rela_rec"
 )
 
 var (
@@ -27,6 +28,7 @@ type rdbConfig struct {
 	SlaveAddr  string `toml:"slave_address"`
 	WinkAddr   string `toml:"wink_address"`
 	LiveAddr   string `toml:"live_address"`
+	PaiAddr    string `toml:"pai_address"`
 }
 
 type rdsConfig struct {
@@ -54,6 +56,7 @@ type rpcConfig struct {
 	ChatRoomRpcAddr string `toml:"chatroom_rpc_addr"`
 	LiveRpcAddr     string `toml:"live_rpc_addr"`
 	AiSearchRpcAddr string `toml:"ai_search_rpc_addr"`
+	PaiRpcAddr      string `toml:"pai_rpc_addr"`
 }
 
 type influxdbConfig struct {
@@ -134,5 +137,6 @@ func NewConfigDefault() *Config {
 
 	// rpc
 	cfg.Rpc.LiveRpcAddr = DefaultLiveRpcAddr
+	cfg.Rpc.PaiRpcAddr= DefaultPaiRpcAddr
 	return cfg
 }

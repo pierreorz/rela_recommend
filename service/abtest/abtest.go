@@ -70,7 +70,7 @@ type AbTest struct {
 	Lat           float32                   `json:"lat"`
 	Lng           float32                   `json:"lng"`
 	DataAttr      map[string]interface{}    `json:"data_attr"`       // user 属性
-	RankId        string                    `json:"rank_id"`         // 唯一请求id
+	RankId        string                    `json:"ds-rank_id"`         // 唯一请求id
 	CurrentTime   time.Time                 `json:"create_time"`     // abtest时间
 	SettingMap    map[string]string         `json:"setting_map"`     // 用户自定义配置
 	FactorMap     map[string]string         `json:"factor_map"`      // 返回的配置对

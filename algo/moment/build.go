@@ -11,6 +11,7 @@ import (
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/api"
 	"rela_recommend/rpc/search"
+
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
 	"time"
@@ -39,6 +40,7 @@ func DoBuildData(ctx algo.IContext) error {
 	adList := make([]int64, 0)
 	adLocationList := make([]int64, 0)
 	liveMomentIds := make([]int64, 0)
+	paiResult :=make(map[int64]float64,0)
 	var recIds, topMap, recMap, bussinessMap = []int64{}, map[int64]int{}, map[int64]int{}, map[int64]int{}
 	var liveMap = map[int64]int{}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
@@ -251,6 +253,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList,hourRecList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList).ToList()
 	// 过滤审核
+	paiResult,_ = api.GetPredictResult(params,dataIds)
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
 	searchScenery := "moment"
@@ -478,6 +481,12 @@ func DoBuildData(ctx algo.IContext) error {
 						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true})
 					}
 				}
+				var score=0.0
+				if paiResult !=nil{
+					if paiScore,isOk :=paiResult[momUser.UserId]; isOk{
+						score=paiScore
+					}
+				}
 				info := &DataInfo{
 					DataId:               mom.Moments.Id,
 					UserCache:            momUser,
@@ -486,7 +495,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop,PaiScore:score},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],
