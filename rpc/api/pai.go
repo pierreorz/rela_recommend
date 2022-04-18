@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"strconv"
 	"strings"
 )
@@ -81,6 +82,7 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 	if paramsData, err := json.Marshal(params); err == nil {
 		paiRes := &paiHomeFeedRes{}
 		if err = factory.PaiRpcClient.PaiSendPOSTJson(externalPaiHomeFeedUrl, paramsData, paiRes); err == nil {
+			log.Warnf("pai result %s",paiRes)
 			expId=paiRes.Experiment_id
 			requestId=paiRes.Request_id
 			if paiRes.Code == 200 {
