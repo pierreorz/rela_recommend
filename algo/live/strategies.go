@@ -149,18 +149,20 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 
 
 func StrategyRecommendFunc(ctx algo.IContext) error {
-	var startIndex =1
+	var startIndex =4
 	var intervar= 0
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 		userInfo := ctx.GetUserInfo().(*UserInfo)
 		rankInfo := dataInfo.GetRankInfo()
+		var change = 0
 		log.Warnf("userInfo,%s",userInfo)
 		if userInfo.UserConcerns!=nil{
 			log.Warnf("Userconcerns,%s,%s",userInfo.UserConcerns)
 			log.Warnf("userid",dataInfo.UserId)
 			if userInfo.UserConcerns.Contains(dataInfo.UserId){
-				rankInfo.HopeIndex=startIndex+intervar*2
+				rankInfo.HopeIndex=startIndex+intervar*7
+				change =1
 				dataInfo.LiveData.AddLabel(&labelItem{
 					Style: FollowLabel,
 					Title: multiLanguage{
@@ -172,20 +174,24 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 					level:  level1,
 				})
 			}
+			intervar+=1
 		}
 		if userInfo.UserInterests!=nil{
 			if userInfo.UserInterests.Contains(dataInfo.UserId){
-				rankInfo.HopeIndex=startIndex+intervar*3
-				dataInfo.LiveData.AddLabel(&labelItem{
-					Style: StrategyLabel,
-					Title: multiLanguage{
-						Chs: "猜你喜欢",
-						Cht: "猜你喜歡",
-						En:  "GUESS YOU LIKE",
-					},
-					weight: StrategyLabelWeight,
-					level:  level1,
-				})
+				rankInfo.HopeIndex=startIndex+intervar*7
+				if change==0{
+					dataInfo.LiveData.AddLabel(&labelItem{
+						Style: StrategyLabel,
+						Title: multiLanguage{
+							Chs: "猜你喜欢",
+							Cht: "猜你喜歡",
+							En:  "GUESS YOU LIKE",
+						},
+						weight: StrategyLabelWeight,
+						level:  level1,
+					})
+				}
+
 			}
 		}
 		intervar+=1
