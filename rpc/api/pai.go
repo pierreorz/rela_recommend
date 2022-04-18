@@ -90,6 +90,7 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 						result[user_id] = element.Score
 					}
 				}
+				log.Warnf("result pai%s",result)
 			}else{
 				 for _,id :=range dataIds{
 				 	result[id] = -1
