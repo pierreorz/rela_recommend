@@ -80,17 +80,17 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 	if paramsData, err := json.Marshal(params); err == nil {
 		paiRes := &paiHomeFeedRes{}
 		if err = factory.PaiRpcClient.PaiSendPOSTJson(externalPaiHomeFeedUrl, paramsData, paiRes); err == nil {
-			log.Warnf("pai result %s",paiRes.Code)
 			expId=paiRes.Experiment_id
 			requestId=paiRes.Request_id
 			if paiRes.Code == 200 {
 				for _, element := range paiRes.Items {
+					log.Warnf("pai id %s",element.ItemId)
+					log.Warnf("pai score%s",element.Score)
 					user_id, err := strconv.ParseInt(element.ItemId, 10, 64)
 					if err != nil {
 						result[user_id] = element.Score
 					}
 				}
-				log.Warnf("result pai%s",result)
 			}else{
 				 for _,id :=range dataIds{
 				 	result[id] = -1
