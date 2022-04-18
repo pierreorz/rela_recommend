@@ -258,7 +258,10 @@ func DoBuildData(ctx algo.IContext) error {
 	var paiErr error
 	var offTime =0
 	if abtest.GetBool("pai_algo_switch",false){
+		log.Warnf("paiAdrr %s",params.Addr)
 		paiResult,expId,requestId,paiErr = api.GetPredictResult(params.Lat,params.Lng,params.UserId,params.Addr,dataIds)
+		log.Warnf("PaiResult %s",paiResult)
+		log.Warnf("pai err%s",paiErr)
 		if paiErr!=nil{
 			offTime=1
 		}
