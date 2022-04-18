@@ -57,9 +57,7 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 	for _,id :=range dataIds{
 		recall_list=append(recall_list,strconv.FormatInt(id,10))
 	}
-	if len(dataIds)>0{
-
-	}
+	log.Warnf("dataid length %s",len(dataIds))
 	features := Features{
 		Lat:        float64(lat),
 		Lng:        float64(lng),
@@ -82,7 +80,7 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 	if paramsData, err := json.Marshal(params); err == nil {
 		paiRes := &paiHomeFeedRes{}
 		if err = factory.PaiRpcClient.PaiSendPOSTJson(externalPaiHomeFeedUrl, paramsData, paiRes); err == nil {
-			log.Warnf("pai result %s",paiRes)
+			log.Warnf("pai result %s",paiRes.Size)
 			expId=paiRes.Experiment_id
 			requestId=paiRes.Request_id
 			if paiRes.Code == 200 {
