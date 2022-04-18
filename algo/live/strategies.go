@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
+	"rela_recommend/log"
 )
 
 // 处理业务给出的置顶和推荐内容
@@ -154,7 +155,9 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 		userInfo := ctx.GetUserInfo().(*UserInfo)
 		rankInfo := dataInfo.GetRankInfo()
+		log.Warnf("userInfo,%s",userInfo)
 		if userInfo.UserConcerns!=nil{
+			log.Warnf("Userconcerns,%s,%s",userInfo.UserConcerns,userInfo.UserInterests)
 			if userInfo.UserConcerns.Contains(dataInfo.UserId){
 				rankInfo.HopeIndex=startIndex+intervar*2
 				dataInfo.LiveData.AddLabel(&labelItem{
