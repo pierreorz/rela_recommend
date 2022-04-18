@@ -80,7 +80,7 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 	if paramsData, err := json.Marshal(params); err == nil {
 		paiRes := &paiHomeFeedRes{}
 		if err = factory.PaiRpcClient.PaiSendPOSTJson(externalPaiHomeFeedUrl, paramsData, paiRes); err == nil {
-			log.Warnf("pai result %s",paiRes.Items)
+			log.Warnf("pai result %s",paiRes.Code)
 			expId=paiRes.Experiment_id
 			requestId=paiRes.Request_id
 			if paiRes.Code == 200 {
