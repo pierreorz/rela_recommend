@@ -12,7 +12,7 @@ const externalPaiHomeFeedUrl = "/api/rec/home_feed"
 
 type paiHomeFeedRes struct {
 	Code int  	`json:"code"`
-	Message  string  `json:"message"`
+	Message  string  `json:"msg"`
 	Request_id  string  `json:"request_id"`
 	Experiment_id  string `json:"experiment_id"`
 	Size    int  `json:"size"`
@@ -53,6 +53,7 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 	result := make(map[int64]float64,0)
 	recall_list :=make([]string,0)
 	var expId= ""
+	var requestErr error
 	var requestId= ""
 	for _,id :=range dataIds{
 		recall_list=append(recall_list,strconv.FormatInt(id,10))
@@ -79,13 +80,14 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		paiRes := &paiHomeFeedRes{}
-		if err = factory.PaiRpcClient.PaiSendPOSTJson(externalPaiHomeFeedUrl, paramsData, paiRes); err == nil {
+		if requestErr = factory.PaiRpcClient.PaiSendPOSTJson(externalPaiHomeFeedUrl, paramsData, paiRes); requestErr == nil {
 			expId=paiRes.Experiment_id
 			requestId=paiRes.Request_id
+			if expId==""{
+				expId=" ER2_L2#EG2#E4"
+			}
 			if paiRes.Code == 200 {
 				for _, element := range paiRes.Items {
-					log.Warnf("pai id %s",element.ItemId)
-					log.Warnf("pai score%s",element.Score)
 					user_id, err := strconv.ParseInt(element.ItemId, 10, 64)
 					if err != nil {
 						result[user_id] = element.Score
@@ -97,8 +99,7 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 				 }
 			}
 		}
-		return result,expId,requestId, err
-	}else{
-		return result,expId,requestId,err
 	}
+	log.Warnf("result pai%s",result)
+	return result,expId,requestId,requestErr
 }
