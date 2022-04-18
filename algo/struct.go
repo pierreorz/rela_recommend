@@ -184,6 +184,9 @@ type RankInfo struct {
 	HopeIndex  int             // 期望排在第几，排序结束后调整
 	IsBussiness int           //是否是业务日志（用户关注日志、点击头像多次未看过日志）
 	IsSoftTop int     //是否软置顶日志   1:是  0：默认
+	ExpId     string    //Pai实验Id
+	RequestId string	//Pai请求id
+
 }
 
 // 获取Features的字符串形式：1:1.0,1000:1.0,99:1.0

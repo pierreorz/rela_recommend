@@ -48,9 +48,11 @@ type Features struct {
 
 
 
-func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds []int64) (map[int64]float64 ,error){
+func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds []int64) (map[int64]float64 ,string,string,error){
 	result := make(map[int64]float64,0)
 	recall_list :=make([]string,0)
+	var expId= ""
+	var requestId= ""
 	for _,id :=range dataIds{
 		recall_list=append(recall_list,strconv.FormatInt(id,10))
 	}
@@ -70,7 +72,7 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 	}
 	params :=paiHomeFeedRequest{
 		Uid:         strconv.FormatInt(userId,10),
-		Size:        0,
+		Size:        len(dataIds),
 		Scene_id:    "home_feed",
 		Recall_list: strings.Join(recall_list,","),
 		Features:    features,
@@ -79,18 +81,23 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 	if paramsData, err := json.Marshal(params); err == nil {
 		paiRes := &paiHomeFeedRes{}
 		if err = factory.PaiRpcClient.SendPOSTJson(externalPaiHomeFeedUrl, paramsData, paiRes); err == nil {
-			for _, element := range paiRes.Items {
-				user_id, err := strconv.ParseInt(element.ItemId, 10, 64)
-				if err !=nil{
-						result[user_id]=element.Score
+			expId=paiRes.Experiment_id
+			requestId=paiRes.Request_id
+			if paiRes.Code == 200 {
+				for _, element := range paiRes.Items {
+					user_id, err := strconv.ParseInt(element.ItemId, 10, 64)
+					if err != nil {
+						result[user_id] = element.Score
 					}
-
+				}
+			}else{
+				 for _,id :=range dataIds{
+				 	result[id] = -1
+				 }
 			}
-			return result, err
-		} else {
-			return result, err
 		}
-	} else {
-		return result, err
+		return result,expId,requestId, err
+	}else{
+		return result,expId,requestId,err
 	}
 }

@@ -43,6 +43,8 @@ func DoBuildData(ctx algo.IContext) error {
 	paiResult :=make(map[int64]float64,0)
 	var recIds, topMap, recMap, bussinessMap = []int64{}, map[int64]int{}, map[int64]int{}, map[int64]int{}
 	var liveMap = map[int64]int{}
+	var expId = ""
+	var requestId = ""
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	topN :=abtest.GetInt("topn",5)
 	topScore :=abtest.GetFloat64("top_score",0.02)
@@ -253,7 +255,14 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList,hourRecList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList).ToList()
 	// 过滤审核
-	paiResult,_ = api.GetPredictResult(params.Lat,params.Lng,params.UserId,params.Addr,dataIds)
+	var paiErr error
+	var paiRequest =1
+	if abtest.GetBool("pai_algo_switch",false){
+		paiResult,expId,requestId,paiErr = api.GetPredictResult(params.Lat,params.Lng,params.UserId,params.Addr,dataIds)
+		if paiErr!=nil{
+			paiRequest=0
+		}
+	}
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
 	searchScenery := "moment"
