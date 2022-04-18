@@ -186,6 +186,7 @@ type RankInfo struct {
 	IsSoftTop int     //是否软置顶日志   1:是  0：默认
 	ExpId     string    //Pai实验Id
 	RequestId string	//Pai请求id
+	OffTime   int       //超时标记位
 
 }
 
