@@ -157,7 +157,8 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 		rankInfo := dataInfo.GetRankInfo()
 		log.Warnf("userInfo,%s",userInfo)
 		if userInfo.UserConcerns!=nil{
-			log.Warnf("Userconcerns,%s,%s",userInfo.UserConcerns,userInfo.UserInterests)
+			log.Warnf("Userconcerns,%s,%s",userInfo.UserConcerns)
+			log.Warnf("userid",dataInfo.UserId)
 			if userInfo.UserConcerns.Contains(dataInfo.UserId){
 				rankInfo.HopeIndex=startIndex+intervar*2
 				dataInfo.LiveData.AddLabel(&labelItem{
@@ -168,7 +169,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 						En:  "YOUR FOLLOW",
 					},
 					weight: FollowLabelWeight,
-					level:  level3,
+					level:  level1,
 				})
 			}
 		}
@@ -183,7 +184,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 						En:  "GUESS YOU LIKE",
 					},
 					weight: StrategyLabelWeight,
-					level:  level3,
+					level:  level1,
 				})
 			}
 		}
