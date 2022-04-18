@@ -43,6 +43,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
 	var interestSet =&utils.SetInt64{}
+	var testArray = []int64{107195122,107550803,107194021}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
@@ -95,7 +96,8 @@ func DoBuildData(ctx algo.IContext) error {
 			return hourRankErr
 		},
 	})
-
+	interestSet.AppendArray(testArray)
+	concernsSet.AppendArray(testArray)
 	pfms.Run("build", func(*performs.Performs) interface{} {
 		livesInfo := make([]algo.IDataInfo, 0)
 		for i, _ := range lives {
