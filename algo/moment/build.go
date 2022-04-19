@@ -261,9 +261,11 @@ func DoBuildData(ctx algo.IContext) error {
 		log.Warnf("paiAdrr %s",params.Addr)
 		paiResult,expId,requestId,paiErr = api.GetPredictResult(params.Lat,params.Lng,params.UserId,params.Addr,dataIds)
 		log.Warnf("PaiResult %s",paiResult)
-		log.Warnf("pai err%s",paiErr)
 		if paiErr!=nil{
 			offTime=1
+			expId="ER2_L2#EG2#E4"
+			requestId=utils.UniqueId()
+
 		}
 	}
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶

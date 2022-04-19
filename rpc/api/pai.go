@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"rela_recommend/factory"
 	"rela_recommend/log"
+	"rela_recommend/utils"
 	"strconv"
 	"strings"
 )
@@ -84,7 +85,8 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 			expId=paiRes.Experiment_id
 			requestId=paiRes.Request_id
 			if expId==""{
-				expId=" ER2_L2#EG2#E4"
+				expId="ER2_L2#EG2#E5"
+				requestId=utils.UniqueId()
 			}
 			if paiRes.Code == 200 {
 				for _, element := range paiRes.Items {
