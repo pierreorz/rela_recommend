@@ -88,13 +88,11 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 				expId="ER2_L2#EG2#E5"
 				requestId=utils.UniqueId()
 			}
-			log.Warnf("pai code %s",paiRes.Code)
 			if paiRes.Code == 200 {
 				for _, element := range paiRes.Items {
 					user_id, err := strconv.ParseInt(element.ItemId, 10, 64)
-					if err != nil {
+					if err == nil {
 						result[user_id] = element.Score
-						log.Warnf("result pai1%s",result)
 					}
 				}
 			}else{
@@ -104,6 +102,5 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 			}
 		}
 	}
-	log.Warnf("result pai%s",result)
 	return result,expId,requestId,requestErr
 }
