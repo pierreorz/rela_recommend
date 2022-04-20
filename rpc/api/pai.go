@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/utils"
 	"strconv"
 	"strings"
@@ -49,7 +50,7 @@ type Features struct {
 
 
 
-func GetPredictResult(lat float32,lng float32,os string,userId int64,addr string,dataIds []int64) (map[int64]float64 ,string,string,error){
+func GetPredictResult(lat float32,lng float32,os string,userId int64,addr string,dataIds []int64,ua string) (map[int64]float64 ,string,string,error){
 	result := make(map[int64]float64,0)
 	recall_list :=make([]string,0)
 	var expId= ""
@@ -58,17 +59,19 @@ func GetPredictResult(lat float32,lng float32,os string,userId int64,addr string
 	for _,id :=range dataIds{
 		recall_list=append(recall_list,strconv.FormatInt(id,10))
 	}
+	os_type,brand,model_type,net,language :=utils.UaAnalysis(ua)
 	features := Features{
 		Lat:        float64(lat),
 		Lng:        float64(lng),
 		Os:         os,
-		Os_type:    "android 11",
-		Brand:      "xiaomi",
-		Model_type: "m2012k11ac",
-		Net:        "wifi",
-		Language:   "zh_cn_#hans",
+		Os_type:    os_type,
+		Brand:      brand,
+		Model_type: model_type,
+		Net:        net,
+		Language:   language,
 		Ip:         addr,
 	}
+	log.Warnf("moment features%s",features)
 	params :=paiHomeFeedRequest{
 		Uid:         strconv.FormatInt(userId,10),
 		Size:        len(dataIds),

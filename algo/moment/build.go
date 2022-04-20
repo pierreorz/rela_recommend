@@ -259,7 +259,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var offTime =0
 	var os = utils.GetPlatformName(params.Ua)
 	if abtest.GetBool("pai_algo_switch",false){
-		paiResult,expId,requestId,paiErr = api.GetPredictResult(params.Lat,params.Lng,os,params.UserId,params.Addr,dataIds)
+		paiResult,expId,requestId,paiErr = api.GetPredictResult(params.Lat,params.Lng,os,params.UserId,params.Addr,dataIds,params.Ua)
 		if paiErr!=nil{
 			offTime=1
 			expId="ER2_L2#EG2#E4"
