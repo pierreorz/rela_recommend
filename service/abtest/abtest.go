@@ -273,11 +273,13 @@ func (self *AbTest) GetFloat64(key string, defVal float64) float64 {
 func (self *AbTest) GetFloat(key string, defVal float32) float32 {
 	return float32(self.GetFloat64(key, float64(defVal)))
 }
-func (self *AbTest) GetTestings() string {
+func (self *AbTest) GetTestings(expId string,requestId string) string {
 	var strMap map[string]string = map[string]string{}
 	for key, val := range self.HitTestingMap {
 		strMap[key] = val.Name
 	}
+	strMap["expId"]=expId
+	strMap["requestId"]=requestId
 	jsonStr, err := json.Marshal(strMap)
 	if err == nil {
 		res := string(jsonStr)

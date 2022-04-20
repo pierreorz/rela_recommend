@@ -57,6 +57,7 @@ func (self *AlgoBase) doPredictSingle(ctx IContext, index int) {
 	}
 	if rankInfo.ExpId!=""&&rankInfo.ExpId!="ER2_L2#EG2#E4"&&rankInfo.ExpId!="ER2_L2#EG2#E5"{
 		rankInfo.AlgoScore = float32(rankInfo.PaiScore)
+		rankInfo.AlgoName="pai"
 		rankInfo.Score=rankInfo.AlgoScore
 	}else{
 		rankInfo.AlgoScore=self.PredictSingle(rankInfo.Features)

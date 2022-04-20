@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/utils"
 	"strconv"
 	"strings"
@@ -59,7 +58,6 @@ func GetPredictResult(lat float32,lng float32,os string,userId int64,addr string
 	for _,id :=range dataIds{
 		recall_list=append(recall_list,strconv.FormatInt(id,10))
 	}
-	log.Warnf("dataid length %s",len(dataIds))
 	features := Features{
 		Lat:        float64(lat),
 		Lng:        float64(lng),
