@@ -143,10 +143,6 @@ func (self *RecommendRequest) GetVersion() int {
 	return self.version
 }
 
-func (self *RecommendRequest) UaAnalysis() (string,string,string,string,string,string){
-
-}
-
 
 type RecommendResponseItem struct {
 	DataId int64       `json:"dataId" form:"dataId"`
