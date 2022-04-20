@@ -389,7 +389,7 @@ func UaAnalysis(ua string)(string,string,string,string,string){
 	}else if GetPlatformName(ua)=="ios"{
 		if uaArr :=strings.Split(strings.ReplaceAll(ua,")",""),"(");len(uaArr)==2{
 			if itemArr :=strings.Split(uaArr[1],";");len(itemArr)==4{
-				model_type=strings.ReplaceAll(itemArr[1]," ","")
+				model_type=strings.ReplaceAll(itemArr[0]," ","")
 				os_type=strings.ReplaceAll(itemArr[1]," ","")
 				net=strings.ReplaceAll(itemArr[3]," ","")
 				brand="apple"
