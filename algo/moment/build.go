@@ -257,10 +257,10 @@ func DoBuildData(ctx algo.IContext) error {
 	// 过滤审核
 	var paiErr error
 	var offTime =0
+	var os = utils.GetPlatformName(params.Ua)
 	if abtest.GetBool("pai_algo_switch",false){
 		log.Warnf("paiAdrr %s",params.Addr)
-		paiResult,expId,requestId,paiErr = api.GetPredictResult(params.Lat,params.Lng,params.UserId,params.Addr,dataIds)
-		log.Warnf("PaiResult %s",paiResult)
+		paiResult,expId,requestId,paiErr = api.GetPredictResult(params.Lat,params.Lng,os,params.UserId,params.Addr,dataIds)
 		if paiErr!=nil{
 			offTime=1
 			expId="ER2_L2#EG2#E4"
@@ -268,6 +268,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 		}
 	}
+	log.Warnf("exp id %s",expId)
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
 	searchScenery := "moment"

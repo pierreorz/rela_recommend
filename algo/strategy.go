@@ -86,12 +86,15 @@ func (self *PagerBase) BuildResponse(ctx IContext, minIndex int, maxIndex int) (
 		returnIds = append(returnIds, currData.GetDataId())
 		rankInfo := currData.GetRankInfo()
 		rankInfo.Index = i
+		expId :=rankInfo.ExpId
+		requestId :=rankInfo.RequestId
+		reason :=expId+","+requestId+","+rankInfo.ReasonString()
 		returnObjs = append(returnObjs, RecommendResponseItem{
 			DataId: currData.GetDataId(),
 			Data:   currData.GetResponseData(ctx),
 			Index:  rankInfo.Index,
 			Score:  rankInfo.Score,
-			Reason: rankInfo.ReasonString()})
+			Reason: reason})
 	}
 	response := &RecommendResponse{RankId: ctx.GetRankId(), DataIds: returnIds, DataList: returnObjs, Status: "ok"}
 	return response, nil

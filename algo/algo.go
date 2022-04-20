@@ -55,8 +55,9 @@ func (self *AlgoBase) doPredictSingle(ctx IContext, index int) {
 	if rankInfo.Features == nil {
 		rankInfo.Features = self.FeaturesSingle(ctx, dataInfo)
 	}
-	if rankInfo.PaiScore!=0{
-		rankInfo.Score = float32(rankInfo.PaiScore)
+	if rankInfo.ExpId!=""&&rankInfo.ExpId!="ER2_L2#EG2#E4"&&rankInfo.ExpId!="ER2_L2#EG2#E5"{
+		rankInfo.AlgoScore = float32(rankInfo.PaiScore)
+		rankInfo.Score=rankInfo.AlgoScore
 	}else{
 		rankInfo.AlgoScore=self.PredictSingle(rankInfo.Features)
 		rankInfo.Score = rankInfo.AlgoScore

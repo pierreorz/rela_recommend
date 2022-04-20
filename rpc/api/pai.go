@@ -50,7 +50,7 @@ type Features struct {
 
 
 
-func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds []int64) (map[int64]float64 ,string,string,error){
+func GetPredictResult(lat float32,lng float32,os string,userId int64,addr string,dataIds []int64) (map[int64]float64 ,string,string,error){
 	result := make(map[int64]float64,0)
 	recall_list :=make([]string,0)
 	var expId= ""
@@ -63,7 +63,7 @@ func GetPredictResult(lat float32,lng float32,userId int64,addr string,dataIds [
 	features := Features{
 		Lat:        float64(lat),
 		Lng:        float64(lng),
-		Os:         "android",
+		Os:         os,
 		Os_type:    "android 11",
 		Brand:      "xiaomi",
 		Model_type: "m2012k11ac",
