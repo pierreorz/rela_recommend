@@ -267,7 +267,6 @@ func DoBuildData(ctx algo.IContext) error {
 
 		}
 	}
-	log.Warnf("result moment%s",paiResult)
 	searchMomentMap := map[int64]search.SearchMomentAuditResDataItem{} // 日志推荐，置顶
 	filteredAudit := abtest.GetBool("search_filted_audit", false)
 	searchScenery := "moment"
