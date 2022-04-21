@@ -50,6 +50,8 @@ type RecommendRequest struct {
 	// required: true
 	// enum: moment,theme,user,live,match
 	App string `json:"app" form:"app"`
+
+	Addr  string  `json:"addr" form:"addr"`
 	// 子功能名
 	//
 	// required: false
@@ -141,6 +143,7 @@ func (self *RecommendRequest) GetVersion() int {
 	return self.version
 }
 
+
 type RecommendResponseItem struct {
 	DataId int64       `json:"dataId" form:"dataId"`
 	Data   interface{} `json:"data" form:"data"`
@@ -174,6 +177,7 @@ type RankInfo struct {
 	Punish     float32         // 惩罚系数
 	AlgoName   string          // 算法名称
 	AlgoScore  float32         // 算法得分
+	PaiScore   float64          //Pai 算法得分
 	Score      float32         // 最终得分
 	Index      int             // 排在第几
 	LiveIndex  int             //热门直播日志的排序
@@ -181,6 +185,10 @@ type RankInfo struct {
 	HopeIndex  int             // 期望排在第几，排序结束后调整
 	IsBussiness int           //是否是业务日志（用户关注日志、点击头像多次未看过日志）
 	IsSoftTop int     //是否软置顶日志   1:是  0：默认
+	ExpId     string    //Pai实验Id
+	RequestId string	//Pai请求id
+	OffTime   int       //超时标记位
+
 }
 
 // 获取Features的字符串形式：1:1.0,1000:1.0,99:1.0

@@ -25,6 +25,13 @@ import (
 
 const MAX_INT64 = 9223372036854775807
 
+const   (
+	OffTime = "ER2_L2#EG2#E4"
+	RequestErr="ER2_L2#EG2#E5"
+)
+
+
+
 func FormatKeyInt64(str string, i int64) string {
 	return fmt.Sprintf("%s%d", str, i)
 }
@@ -367,6 +374,38 @@ func GetPlatformName(ua string) string {
 		return "android"
 	}
 	return "other"
+}
+
+func UaAnalysis(ua string)(string,string,string,string,string){
+	os_type :=""
+	brand :=""
+	model_type :=""
+	net :=""
+	language :=""
+	ua = strings.ToLower(ua)
+	if GetPlatformName(ua)=="android"{
+		if uaArr :=strings.Split(strings.ReplaceAll(ua,")",""),"(");len(uaArr)==2{
+			if itemArr :=strings.Split(uaArr[1],";");len(itemArr)==5{
+				model_type=strings.ReplaceAll(itemArr[0]," ","")
+				os_type=strings.ReplaceAll(itemArr[1]," ","")
+				net=strings.ReplaceAll(itemArr[3]," ","")
+				brand=strings.ReplaceAll(itemArr[4]," ","")
+				language=strings.ReplaceAll(itemArr[2]," ","")
+			}
+		}
+	}else if GetPlatformName(ua)=="ios"{
+		if uaArr :=strings.Split(strings.ReplaceAll(ua,")",""),"(");len(uaArr)==2{
+			if itemArr :=strings.Split(uaArr[1],";");len(itemArr)==4{
+				model_type=strings.ReplaceAll(itemArr[0]," ","")
+				os_type=strings.ReplaceAll(itemArr[1]," ","")
+				net=strings.ReplaceAll(itemArr[3]," ","")
+				brand="apple"
+				language=strings.ReplaceAll(itemArr[2]," ","")
+			}
+		}
+	}
+	return os_type,brand,model_type,net,language
+
 }
 
 var versionRe = regexp.MustCompile(`/(\d{1,2})\.(\d{1,2})(?:\.(\d{1,2}))?`)
