@@ -17,6 +17,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var err error
 	params := ctx.GetRequest()
 	pfms := ctx.GetPerforms()
+	abtest := ctx.GetAbTest()
 	// userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
@@ -44,7 +45,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
 	var interestSet =&utils.SetInt64{}
-	var testArray = []int64{107195122,107550803}
+	var testArray = []int64{107195122,107550803,104205904}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
@@ -81,13 +82,16 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		},
 		"concerns": func(*performs.Performs) interface{} { // 获取关注信息
-			if concerns, conErr := redisTheCache.QueryConcernsByUserV1(params.UserId); conErr == nil {
-				log.Warnf("user concerns %s",concerns)
-				concernsSet = utils.NewSetInt64FromArray(concerns)
-				return concernsSet.Len()
-			} else {
-				return conErr
+			if abtest.GetBool("live_user_concerns",true){
+				if concerns, conErr := redisTheCache.QueryConcernsByUserV1(params.UserId); conErr == nil {
+					log.Warnf("user concerns %s",concerns)
+					concernsSet = utils.NewSetInt64FromArray(concerns)
+					return concernsSet.Len()
+				} else {
+					return conErr
+				}
 			}
+			return nil
 		},
 		"hour_rank": func(*performs.Performs) interface{} { // 获取小时榜排名
 			rankMap, hourRankErr := api.GetHourRankList(params.UserId)
