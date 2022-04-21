@@ -7,7 +7,7 @@ type Cache interface {
 	Mget(keys []string) ([]interface{}, error)
 	// lrange key start end
 	LRange(key string, start int, end int) ([][]byte, error)
-	ZRange(key string, start int, end int) ([]interface{}, error)
+	ZRange(key string, start int, end int) ([][]byte, error)
 
 	SMembers(key string) ([]interface{}, error)
 	// SetMulti is a batch version of Get.

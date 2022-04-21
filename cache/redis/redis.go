@@ -72,8 +72,8 @@ func (rc *Cache) LRange(key string, start int, end int) ([][]byte, error) {
 	return rv, err
 }
 
-func (rc *Cache)ZRange(key string,start int ,end int)([]interface{},error){
-	rv,err :=redis.Values(rc.do("ZRANGE",key,start,end))
+func (rc *Cache)ZRange(key string,start int ,end int)([][]byte,error){
+	rv,err :=redis.ByteSlices(rc.do("ZRANGE",key,start,end))
 	return rv,err
 }
 
