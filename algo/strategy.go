@@ -120,6 +120,7 @@ func (self *LoggerBase) Do(ctx IContext) error {
 		for _, item := range response.DataList {
 			currData := ctx.GetDataByIndex(item.Index)
 			rankInfo := currData.GetRankInfo()
+
 			logStr := RecommendLog{Module: ctx.GetAppInfo().Name,
 				RankId: ctx.GetRankId(), Index: int64(item.Index),
 				DataId:          currData.GetDataId(),
@@ -129,7 +130,7 @@ func (self *LoggerBase) Do(ctx IContext) error {
 				Score:           rankInfo.Score,
 				RecommendScores: rankInfo.RecommendsString(),
 				Features:        rankInfo.GetFeaturesString(),
-				AbMap:           ctx.GetAbTest().GetTestings()}
+				AbMap:           ctx.GetAbTest().GetTestings(rankInfo.ExpId,rankInfo.RequestId)}
 			log.Infof("%+v\n", logStr) // 此日志格式会有实时任务解析，谨慎更改
 		}
 	}

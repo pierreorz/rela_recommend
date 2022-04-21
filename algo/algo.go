@@ -2,6 +2,7 @@ package algo
 
 import (
 	"os"
+	utils2 "rela_recommend/utils"
 	"sync"
 	"rela_recommend/algo/utils"
 )
@@ -25,6 +26,9 @@ type AlgoBase struct {
 	Words map[string][]float32		`json:"words"`
 	FeaturesFunc func(IContext, IAlgo, IDataInfo) *utils.Features
 }
+
+
+
 
 func (self *AlgoBase) Name() string {
 	return self.AlgoName
@@ -52,8 +56,14 @@ func (self *AlgoBase) doPredictSingle(ctx IContext, index int) {
 	if rankInfo.Features == nil {
 		rankInfo.Features = self.FeaturesSingle(ctx, dataInfo)
 	}
-	rankInfo.AlgoScore = self.PredictSingle(rankInfo.Features)
-	rankInfo.Score = rankInfo.AlgoScore
+	if rankInfo.ExpId!=""&&rankInfo.ExpId!=utils2.OffTime&&rankInfo.ExpId!=utils2.RequestErr{
+		rankInfo.AlgoScore = float32(rankInfo.PaiScore)
+		rankInfo.AlgoName="pai"
+		rankInfo.Score=rankInfo.AlgoScore
+	}else{
+		rankInfo.AlgoScore=self.PredictSingle(rankInfo.Features)
+		rankInfo.Score = rankInfo.AlgoScore
+	}
 	rankInfo.AlgoName = self.Name()
 }
 
