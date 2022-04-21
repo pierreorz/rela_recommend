@@ -441,7 +441,7 @@ func (this *UserCacheModule) ZmembersInt64List(userId int64, keyFormatter string
 	var startTime = time.Now()
 	key := fmt.Sprintf(keyFormatter, userId)
 	idstrs, err := this.cache.ZRange(key,0,-1)
-	log.Warnf("concerns ids %s",idstrs)
+	log.Warnf("concerns ids %s",key)
 	userIds := make([]int64, 0)
 	if err == nil {
 		for _, idstr := range idstrs {

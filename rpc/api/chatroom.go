@@ -38,6 +38,7 @@ type SimpleChatroom struct {
 	MomentsID        int64     `json:"momentsId"`
 	CreateTime       time.Time `json:"createTime"`
 	Data             string    `json:"data"`
+	is_show_add
 }
 
 type ChatRoomRes struct {
