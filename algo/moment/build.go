@@ -495,7 +495,7 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				var score=0.0
-				if paiResult !=nil{
+				if len(paiResult) >0{
 					if paiScore,isOk :=paiResult[mom.Moments.Id]; isOk{
 						score=paiScore
 					}
