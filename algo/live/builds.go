@@ -3,6 +3,7 @@ package live
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
@@ -81,6 +82,7 @@ func DoBuildData(ctx algo.IContext) error {
 		},
 		"concerns": func(*performs.Performs) interface{} { // 获取关注信息
 			if concerns, conErr := redisTheCache.QueryConcernsByUserV1(params.UserId); conErr == nil {
+				log.Warnf("user concerns %s",concerns)
 				concernsSet = utils.NewSetInt64FromArray(concerns)
 				return concernsSet.Len()
 			} else {
