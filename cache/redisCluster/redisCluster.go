@@ -59,6 +59,10 @@ func (rc *Cache) LRange(key string, start int, end int) ([][]byte, error) {
 	return rv, err
 }
 
+func (rc *Cache) ZRange(key string, start int, end int) ([]interface{}, error) {
+	rv, err := redis.Values(rc.do("ZRANGE", key, start, end))
+	return rv, err
+}
 func (rc *Cache) SMembers(key string) ([]interface{}, error) {
 	rv, err := redis.Values(rc.do("SMEMBERS", key))
 	return rv, err
