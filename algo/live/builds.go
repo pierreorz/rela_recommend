@@ -45,7 +45,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
 	var interestSet =&utils.SetInt64{}
-	var testArray = []int64{107195122,107550803,104205904}
+	var testArray = []int64{107195122,107550803,104205904,104168835}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
