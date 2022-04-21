@@ -25,6 +25,13 @@ import (
 
 const MAX_INT64 = 9223372036854775807
 
+const   (
+	OffTime = "ER2_L2#EG2#E4"
+	RequestErr="ER2_L2#EG2#E5"
+)
+
+
+
 func FormatKeyInt64(str string, i int64) string {
 	return fmt.Sprintf("%s%d", str, i)
 }

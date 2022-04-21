@@ -86,7 +86,7 @@ func GetPredictResult(lat float32,lng float32,os string,userId int64,addr string
 			expId=paiRes.Experiment_id
 			requestId=paiRes.Request_id
 			if expId==""{
-				expId="ER2_L2#EG2#E5"
+				expId=utils.RequestErr
 				requestId=utils.UniqueId()
 			}
 			if paiRes.Code == 200 {

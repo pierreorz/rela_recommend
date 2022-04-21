@@ -17,6 +17,7 @@ import (
 	"time"
 )
 
+
 func DoBuildData(ctx algo.IContext) error {
 	var err error
 	abtest := ctx.GetAbTest()
@@ -262,7 +263,7 @@ func DoBuildData(ctx algo.IContext) error {
 		paiResult,expId,requestId,paiErr = api.GetPredictResult(params.Lat,params.Lng,os,params.UserId,params.Addr,dataIds,params.Ua)
 		if paiErr!=nil{
 			offTime=1
-			expId="ER2_L2#EG2#E4"
+			expId=utils.OffTime
 			requestId=utils.UniqueId()
 
 		}
