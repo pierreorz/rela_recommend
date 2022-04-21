@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"rela_recommend/cache"
+	"rela_recommend/factory"
 	"rela_recommend/help"
 	"rela_recommend/log"
 	"rela_recommend/service/abtest"
@@ -441,11 +442,7 @@ func (this *UserCacheModule) SmembersInt64List(userId int64, keyFormatter string
 func (this *UserCacheModule) ZmembersInt64List(userId int64, keyFormatter string) ([]int64, error) {
 	var startTime = time.Now()
 	key := fmt.Sprintf(keyFormatter, userId)
-	idstrs, err := help.ZrangeInt64s(this.cache,key,0,-1)
-	log.Warnf("concerns ids %s",err)
-	log.Warnf("concerns key %s",key)
-	m,n := this.cache.ZRange(key,0,-1)
-	log.Warnf("concerns key %s，error%s",m,n)
+	idstrs, err := help.ZrangeInt64s(factory.CacheCluster,key,0,-1)
 	userIds := make([]int64, 0)
 	if err == nil {
 		for _, idstr := range idstrs {
