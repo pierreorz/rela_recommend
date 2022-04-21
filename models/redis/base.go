@@ -443,6 +443,8 @@ func (this *UserCacheModule) ZmembersInt64List(userId int64, keyFormatter string
 	key := fmt.Sprintf(keyFormatter, userId)
 	idstrs, err := help.ZrangeInt64s(this.cache,key,0,-1)
 	log.Warnf("concerns ids %s",err)
+	log.Warnf("concerns key %s",key)
+	log.Warnf("concerns key %s",this.cache)
 	userIds := make([]int64, 0)
 	if err == nil {
 		for _, idstr := range idstrs {
