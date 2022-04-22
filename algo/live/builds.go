@@ -45,7 +45,6 @@ func DoBuildData(ctx algo.IContext) error {
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
 	var interestSet =&utils.SetInt64{}
-	var testArray = []int64{107195122,107550803,104205904,104168835}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
@@ -75,6 +74,7 @@ func DoBuildData(ctx algo.IContext) error {
 		},
 		"user_interest": func(*performs.Performs) interface{}{
 			if interests, interestErr := redisTheCache.GetInt64List(params.UserId,"user_interest_offline_%d"); interestErr == nil {
+				log.Warnf("user interset %s",interests)
 				interestSet = utils.NewSetInt64FromArray(interests)
 				return interestSet.Len()
 			} else {
@@ -102,7 +102,6 @@ func DoBuildData(ctx algo.IContext) error {
 			return hourRankErr
 		},
 	})
-	interestSet.AppendArray(testArray)
 	pfms.Run("build", func(*performs.Performs) interface{} {
 		livesInfo := make([]algo.IDataInfo, 0)
 		for i, _ := range lives {

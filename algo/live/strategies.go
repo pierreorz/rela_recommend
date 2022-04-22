@@ -148,7 +148,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 
 
 func StrategyRecommendFunc(ctx algo.IContext) error {
-	var startIndex =1
+	var startIndex =4
 	var intervar= 0
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
@@ -170,7 +170,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 		}
 		if userInfo.UserInterests!=nil{
 			if userInfo.UserInterests.Contains(dataInfo.UserId){
-				rankInfo.HopeIndex=startIndex+intervar*2
+				rankInfo.HopeIndex=startIndex+intervar*7
 					dataInfo.LiveData.AddLabel(&labelItem{
 						Style: StrategyLabel,
 						Title: multiLanguage{
