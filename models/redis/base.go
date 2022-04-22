@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"reflect"
 	"rela_recommend/cache"
+	"rela_recommend/factory"
+	"rela_recommend/help"
 	"rela_recommend/log"
 	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
@@ -433,5 +435,24 @@ func (this *UserCacheModule) SmembersInt64List(userId int64, keyFormatter string
 	}
 	var endTime = time.Now()
 	log.Infof("SmembersInt64List total:%.4f:len:%d", endTime.Sub(startTime).Seconds(), len(userIds))
+	return userIds, err
+}
+
+// 从缓存中查询smembers 并转化为 int64
+func (this *UserCacheModule) ZmembersInt64List(userId int64, keyFormatter string) ([]int64, error) {
+	var startTime = time.Now()
+	key := fmt.Sprintf(keyFormatter, userId)
+	idstrs, err := help.ZrangeInt64s(factory.CacheCluster,key,0,-1)
+	userIds := make([]int64, 0)
+	if err == nil {
+		for _, idstr := range idstrs {
+			id, err := redis.Int64(idstr, err)
+			if err == nil && id > 0 {
+				userIds = append(userIds, id)
+			}
+		}
+	}
+	var endTime = time.Now()
+	log.Infof("ZmembersInt64List total:%.4f:len:%d", endTime.Sub(startTime).Seconds(), len(userIds))
 	return userIds, err
 }

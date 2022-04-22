@@ -21,6 +21,8 @@ const (
 	MonthStarLabelWeight
 	LiveTypeLabelWeight
 	ClassifyLabelWeight
+	FollowLabelWeight
+	StrategyLabelWeight
 
 	HourRankLabel  = 1
 	RecommendLabel = 2
@@ -28,6 +30,9 @@ const (
 	PkLabel        = 4
 	BeamingLabel   = 5
 	ClassifyLabel  = 6
+	StrategyLabel  = 8
+	FollowLabel    =7
+
 
 	typeRecommend     = 1
 	typeBigVideo      = 32768
@@ -60,6 +65,7 @@ type UserInfo struct {
 	UserCache    *redis.UserProfile
 	LiveProfile  *redis.LiveProfile
 	UserConcerns *rutils.SetInt64
+	UserInterests *rutils.SetInt64
 }
 
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {

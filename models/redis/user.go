@@ -177,6 +177,7 @@ type UserCacheModule struct {
 	CachePikaModule
 }
 
+
 func NewUserCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cache.Cache) *UserCacheModule {
 	return &UserCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
@@ -246,4 +247,8 @@ func (this *UserCacheModule) QueryByUserAndUsersMap(userId int64, userIds []int6
 // 查询用户关注列表，依赖缓冲，后期使用接口替换
 func (this *UserCacheModule) QueryConcernsByUser(userId int64) ([]int64, error) {
 	return this.SmembersInt64List(userId, "user_concern:%d")
+}
+
+func (this *UserCacheModule)QueryConcernsByUserV1(userId int64)([]int64 ,error){
+	return this.ZmembersInt64List(userId, "user:%d:followers")
 }

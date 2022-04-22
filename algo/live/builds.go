@@ -16,6 +16,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var err error
 	params := ctx.GetRequest()
 	pfms := ctx.GetPerforms()
+	abtest := ctx.GetAbTest()
 	// userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
@@ -42,6 +43,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var user2 *redis.LiveProfile
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
+	var interestSet =&utils.SetInt64{}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
@@ -69,13 +71,24 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			return len(userBehaviorMap)
 		},
-		"concerns": func(*performs.Performs) interface{} { // 获取关注信息
-			if concerns, conErr := redisTheCache.QueryConcernsByUser(params.UserId); conErr == nil {
-				concernsSet = utils.NewSetInt64FromArray(concerns)
-				return concernsSet.Len()
+		"user_interest": func(*performs.Performs) interface{}{
+			if interests, interestErr := rdsPikaCache.GetInt64List(params.UserId,"user_interest_offline_%d"); interestErr == nil {
+				interestSet = utils.NewSetInt64FromArray(interests)
+				return interestSet.Len()
 			} else {
-				return conErr
+				return interestErr
 			}
+		},
+		"concerns": func(*performs.Performs) interface{} { // 获取关注信息
+			if abtest.GetBool("live_user_concerns",true){
+				if concerns, conErr := redisTheCache.QueryConcernsByUserV1(params.UserId); conErr == nil {
+					concernsSet = utils.NewSetInt64FromArray(concerns)
+					return concernsSet.Len()
+				} else {
+					return conErr
+				}
+			}
+			return nil
 		},
 		"hour_rank": func(*performs.Performs) interface{} { // 获取小时榜排名
 			rankMap, hourRankErr := api.GetHourRankList(params.UserId)
@@ -86,7 +99,6 @@ func DoBuildData(ctx algo.IContext) error {
 			return hourRankErr
 		},
 	})
-
 	pfms.Run("build", func(*performs.Performs) interface{} {
 		livesInfo := make([]algo.IDataInfo, 0)
 		for i, _ := range lives {
@@ -138,7 +150,8 @@ func DoBuildData(ctx algo.IContext) error {
 			UserId:       user.UserId,
 			UserCache:    user,
 			LiveProfile:  user2,
-			UserConcerns: concernsSet}
+			UserConcerns: concernsSet,
+			UserInterests:interestSet}
 
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(liveIds)

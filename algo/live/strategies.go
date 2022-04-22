@@ -146,10 +146,50 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 	return nil
 }
 
+func StrategyRecommendFunc(ctx algo.IContext) error {
+	var startIndex = 4
+	var intervar = 0
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+		userInfo := ctx.GetUserInfo().(*UserInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if userInfo.UserConcerns != nil {
+			if userInfo.UserConcerns.Contains(dataInfo.UserId) {
+				dataInfo.LiveData.AddLabel(&labelItem{
+					Style: FollowLabel,
+					Title: multiLanguage{
+						Chs: "你的关注",
+						Cht: "你的关注",
+						En:  "YOUR FOLLOW",
+					},
+					weight: FollowLabelWeight,
+					level:  level1,
+				})
+			}
+		}
+		if userInfo.UserInterests != nil {
+			if userInfo.UserInterests.Contains(dataInfo.UserId) {
+				rankInfo.HopeIndex = startIndex + intervar*7
+				dataInfo.LiveData.AddLabel(&labelItem{
+					Style: StrategyLabel,
+					Title: multiLanguage{
+						Chs: "猜你喜欢",
+						Cht: "猜你喜歡",
+						En:  "GUESS YOU LIKE",
+					},
+					weight: StrategyLabelWeight,
+					level:  level1,
+				})
+				intervar += 1
+			}
+		}
+	}
+	return nil
+}
+
 // 曝光未点击的直播降权 曝光两次未点击降权70%，曝光三次未点击降权50%，曝光四次未点击降权权30%，曝光五次以上未点击降权10%
 func UserBehaviorExposureDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*LiveInfo)
-
 	if userBehavior := dataInfo.UserItemBehavior; userBehavior != nil {
 		exposure := userBehavior.GetLiveExposure()
 		if exposure.Count > 0 {

@@ -192,6 +192,10 @@ func (cache *Cache) LRange(key string, start int, end int) ([][]byte, error) {
 	return nil, nil
  }
 
+func (cache *Cache) ZRange(key string, start int, end int) ([]interface{}, error) {
+	return nil, nil
+}
+
 func (cache *Cache) MsetEx(keyValMap map[string]interface{}, expire int64) error {
 	return nil
  }
