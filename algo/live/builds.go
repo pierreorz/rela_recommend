@@ -3,7 +3,6 @@ package live
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
@@ -74,7 +73,6 @@ func DoBuildData(ctx algo.IContext) error {
 		},
 		"user_interest": func(*performs.Performs) interface{}{
 			if interests, interestErr := rdsPikaCache.GetInt64List(params.UserId,"user_interest_offline_%d"); interestErr == nil {
-				log.Warnf("user interset %s",interests)
 				interestSet = utils.NewSetInt64FromArray(interests)
 				return interestSet.Len()
 			} else {
@@ -84,7 +82,6 @@ func DoBuildData(ctx algo.IContext) error {
 		"concerns": func(*performs.Performs) interface{} { // 获取关注信息
 			if abtest.GetBool("live_user_concerns",true){
 				if concerns, conErr := redisTheCache.QueryConcernsByUserV1(params.UserId); conErr == nil {
-					log.Warnf("user concerns %s",concerns)
 					concernsSet = utils.NewSetInt64FromArray(concerns)
 					return concernsSet.Len()
 				} else {
