@@ -23,14 +23,18 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 }
 //
 func SortScoreItem(ctx algo.IContext) error {
-	var itemWeightMap = make(map[int64]int)
-	for index := 0; index < ctx.GetDataLength(); index++ {
-		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-		sd := dataInfo.SearchData
-		log.Infof("Map===============%+v",sd)
-		itemWeightMap[sd.Id]=sd.Weight
+	var itemWeightMap= make(map[int64]int)
+	abtest := ctx.GetAbTest()
+	abSort := abtest.GetBool("Sort_Score_Item", false)
+	if abSort {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			sd := dataInfo.SearchData
+			log.Infof("Map===============%+v", sd)
+			itemWeightMap[sd.Id] = sd.Weight
+		}
+		log.Infof("searchMap===============%+v", itemWeightMap)
 	}
-	log.Infof("searchMap===============%+v",itemWeightMap)
 	return nil
 }
 

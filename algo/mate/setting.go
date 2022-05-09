@@ -12,7 +12,7 @@ var builderMap = map[string]algo.IBuilder{
 	"base": &algo.BuilderBase{DoBuild: DoBuildData},
 }
 var strategyMap = map[string]algo.IStrategy{
-	"Sort_ScoreItem": &algo.BuilderBase{DoBuild: SortScoreItem},
+	"Sort_Score_Item": &algo.BuilderBase{DoBuild: SortScoreItem},
 }
 var sorterMap = map[string]algo.ISorter{
 	"base":     &sort.SorterBase{},
