@@ -4,6 +4,8 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/log"
+	"rela_recommend/utils"
+	"strings"
 )
 
 // 内容较短，包含关键词的内容沉底
@@ -21,16 +23,26 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 
 	return nil
 }
-//
+//多种类型的分发策略
 func SortScoreItem(ctx algo.IContext) error {
 	var itemWeightMap= make(map[int64]int)
-
+	abtest := ctx.GetAbTest()
+	//后台配置曝光权重
+	admin_weight := abtest.GetStrings("sentence_type_weight", "10:1,20:1,30:1,40:1,50:1")
+	adminMap := make(map[int64]float64)
+	for _, backtag := range admin_weight {
+		type_nums :=utils.GetInt64(strings.Split(backtag, ":")[0])
+		admin_weight_num :=utils.GetFloat64(strings.Split(backtag, ":")[0])
+		adminMap[type_nums] = admin_weight_num
+	}
+	log.Infof("adminMap===============%+v", adminMap)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-		sd := dataInfo.SearchData
+		sd := dataInfo.SearchData//SearchData缺少类型信息
 		log.Infof("Map===============%+v", sd)
 		itemWeightMap[sd.Id] = sd.Weight
 	}
+	//曝光逻辑
 	log.Infof("searchMap===============%+v", itemWeightMap)
 
 	return nil
