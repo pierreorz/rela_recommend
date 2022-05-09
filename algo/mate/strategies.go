@@ -25,7 +25,7 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 }
 //多种类型的分发策略
 func SortScoreItem(ctx algo.IContext) error {
-	var itemWeightMap= make(map[int64]int)
+	//var itemWeightMap= make(map[int64]int)
 	abtest := ctx.GetAbTest()
 	//后台配置曝光权重
 	admin_weight := abtest.GetStrings("sentence_type_weight", "10:1,20:1,30:1,40:1,50:1")
@@ -37,14 +37,17 @@ func SortScoreItem(ctx algo.IContext) error {
 	}
 	log.Infof("adminMap===============%+v", adminMap)
 	for index := 0; index < ctx.GetDataLength(); index++ {
+		randomScore := float32(rand.Intn(100)) / 100.0
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-		sd := dataInfo.SearchData//SearchData缺少类型信息
-		log.Infof("Map===============%+v", sd)
-		itemWeightMap[sd.Id] = sd.Weight
+		sd := dataInfo.SearchData//SearchData缺少类型信息,
+		//rankInfo := dataInfo.GetRankInfo()
+
+		itemScore:=randomScore*float32(sd.Weight)
+		log.Infof("itemScore===============%+v", itemScore)
+		//rankInfo.AddRecommend("sortScoreItem", itemScore)
 	}
 	//曝光逻辑
-	log.Infof("searchMap===============%+v", itemWeightMap)
-
+	//log.Infof("searchMap===============%+v", itemWeightMap)
 	return nil
 }
 
