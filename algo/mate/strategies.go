@@ -27,10 +27,10 @@ func SortScoreItem(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		sd := dataInfo.SearchData
-		log.Infof("search===============%+v",sd)
+		log.Infof("Map===============%+v",sd)
 		itemWeightMap[sd.Id]=sd.Weight
 	}
-	log.Infof("search===============%+v",itemWeightMap)
+	log.Infof("searchMap===============%+v",itemWeightMap)
 	return nil
 }
 
