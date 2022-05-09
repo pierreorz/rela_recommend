@@ -2,6 +2,7 @@ package mate
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 )
@@ -46,6 +47,8 @@ func DoBuildData(ctx algo.IContext) error {
 			dataIds = append(dataIds, searchRes.Id)
 			dataList = append(dataList, info)
 		}
+		log.Infof("search===============dataIds%+v",dataIds)
+		log.Infof("search===============dataList%+v",dataList)
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(dataIds)
 		ctx.SetDataList(dataList)
