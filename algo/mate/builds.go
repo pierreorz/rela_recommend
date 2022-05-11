@@ -84,9 +84,9 @@ func DoBuildData(ctx algo.IContext) error {
 	if _,ok:=affection_list[string(user.Affection)];ok{
 		log.Infof( "========Intro",user.Affection)
 		searchBaseMap["text_type"]="10"
-		searchBaseMap["tag_type"]="40"
+		searchBaseMap["tag_type"]="4"
 	}
-
+	log.Infof("categSearch=============%+v", searchBaseMap)
 	//获取用户话题偏好
 	userProfileMap:= map[int64]float64{}
 	userCategList:=[]int64{2}
@@ -143,7 +143,7 @@ func DoBuildData(ctx algo.IContext) error {
 			return searchErr
 		}
 	})
-
+	log.Infof("searchList=============%+v", searchResList)
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId: params.UserId,
