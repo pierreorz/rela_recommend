@@ -181,7 +181,7 @@ func (lcm *LiveCacheModule) GetModelStudents() ([]int64, error) {
 				users = append(users, uid64)
 			}
 		}
-		log.Debugf("get model student: %+v", users)
+		//log.Debugf("get model student: %+v", users)
 		return users, nil
 	}
 	return users, err

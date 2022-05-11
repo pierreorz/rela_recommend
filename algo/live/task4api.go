@@ -123,9 +123,9 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 		}
 		if len(modelStudents) >= 0 {
 			contained := utils.ContainsInt64(modelStudents, liveCache.Live.UserId)
-			if liveCache.Live.UserId == 104311999 {
-				log.Debugf("contained: %+v, %+v", contained, err)
-			}
+			//if liveCache.Live.UserId == 104311999 {
+			//	log.Debugf("contained: %+v, %+v", contained, err)
+			//}
 			if contained {
 				liveCache.Live.IsModelStudent = true
 			}
