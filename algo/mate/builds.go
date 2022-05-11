@@ -20,6 +20,10 @@ func DoBuildData(ctx algo.IContext) error {
 		params.Limit = abtest.GetInt64("default_limit", 50)
 	}
 
+	var	 role_dict=map[string]string{"0":"不想透露","1":"T","2":"P","3":"H","4":"BI","5":"其他","6":"直女","7":"腐女"}
+	var	 want_dict=map[string]string{"0":"不想透露","1":"T","2":"P","3":"H", "4":"BI","5":"其他","6":"直女","7":"腐女"}
+	var	 affection_dict=map[string]string{"-1":"未设置","0":"不想透露","1":"单身","2":"约会中","3":"稳定关系","4":"已婚","5":"开放关系","6":"交往中","7":"等一个人"}
+	var	horoscope_dict=map[string]string{"0":"摩羯座","1":"水瓶座","2":"双鱼座","3":"白羊座","4":"金牛座","5":"双子座","6":"巨蟹座","7":"狮子座","8":"处女座","9":"天平座","10":"天蝎座","11":"射手座"}
 	// 获取用户信息
 	var user *redis.UserProfile
 	pf.Run("user", func(*performs.Performs) interface{} {
@@ -28,6 +32,15 @@ func DoBuildData(ctx algo.IContext) error {
 			log.Infof("mate===============userid",user.UserId)
 			log.Infof("mate===============userOccupation",user.Occupation)//用户职业
 			log.Infof("mate===============userIntro",user.Intro)//用户标签
+			log.Infof("mate===============userIntro",user.RoleName)//RoleName
+			role_name:=role_dict[user.RoleName]
+			log.Infof("mate===============role_name",role_name)//用户标签
+			want_name:=want_dict[user.WantRole]
+			log.Infof("mate===============want_name",want_name)//用户标签
+			affection_name:=affection_dict[string(user.Affection)]
+			log.Infof("mate===============want_name",affection_name)//用户标签
+			horoscope_name:=horoscope_dict[string(user.Horoscope)]
+			log.Infof("mate===============want_name",horoscope_name)//用户标签
 			return rutils.GetInt(user != nil)
 		} else {
 			return userCacheErr
