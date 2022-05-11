@@ -27,8 +27,10 @@ func DoBuildData(ctx algo.IContext) error {
 	var user *redis.UserProfile
 	pf.Run("user", func(*performs.Performs) interface{} {
 		var userCacheErr error
+		log.Infof("get user profile===============params.UserId",params.UserId)
 		log.Infof("get user profile===============userid")
-		if user,userCacheErr = userCache.QueryUserById(params.UserId);userCacheErr!=nil{
+		if user, _, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, []int64{}); userCacheErr != nil {
+			log.Infof("==========================================")
 			log.Infof("mate===============id",user.UserId)
 			log.Infof("mate===============Occupation",user.Occupation)
 			log.Infof("mate===============Intro",user.Intro)
