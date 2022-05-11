@@ -30,7 +30,7 @@ func DoBuildData(ctx algo.IContext) error {
 		log.Infof("get user profile===============params.UserId",params.UserId)
 		log.Infof("get user profile===============userid")
 		if user, _, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, []int64{}); userCacheErr != nil {
-			log.Infof("==========================================")
+			log.Infof("==========================================user:%+v",user)
 			log.Infof("mate===============id",user.UserId)
 			log.Infof("mate===============Occupation",user.Occupation)
 			log.Infof("mate===============Intro",user.Intro)
