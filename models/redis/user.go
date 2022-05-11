@@ -48,6 +48,8 @@ type UserProfile struct {
 	Recall         int      `json:"new_recall,omitempty"`
 	ActiveDate     string   `json:"active_date"`      // 用于计算回流用户
 	LastActiveDate string   `json:"last_active_date"` // 用于计算回流用户
+	Intro          string    `json:"intro"` //用户标签
+	Occupation     string    `json:"occupation"`//用户职业
 
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`

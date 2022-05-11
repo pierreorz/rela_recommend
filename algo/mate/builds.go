@@ -2,8 +2,12 @@ package mate
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/factory"
+	"rela_recommend/log"
+	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
+	rutils "rela_recommend/utils"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -11,11 +15,24 @@ func DoBuildData(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	pf := ctx.GetPerforms()
 	params := ctx.GetRequest()
-
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	if params.Limit == 0 {
 		params.Limit = abtest.GetInt64("default_limit", 50)
 	}
 
+	// 获取用户信息
+	var user *redis.UserProfile
+	pf.Run("user", func(*performs.Performs) interface{} {
+		var userCacheErr error
+		if user, _, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, []int64{}); userCacheErr != nil {
+			log.Infof("mate===============userid",user.UserId)
+			log.Infof("mate===============userOccupation",user.Occupation)//用户职业
+			log.Infof("mate===============userIntro",user.Intro)//用户标签
+			return rutils.GetInt(user != nil)
+		} else {
+			return userCacheErr
+		}
+	})
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
 		searchLimit := abtest.GetInt64("search_limit", 50)
