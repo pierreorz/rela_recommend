@@ -72,6 +72,7 @@ func CallMateTextList(request *algo.RecommendRequest, searchLimit int64) ([]Mate
 		ReturnFields:  "*",
 		Distance:      "50km",
 	}
+	log.Infof("search=================%+v",params)
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &mateTextRes{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchMateTextListUrl, paramsData, searchRes); err == nil {

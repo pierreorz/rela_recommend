@@ -16,38 +16,23 @@ func DoBuildData(ctx algo.IContext) error {
 	pf := ctx.GetPerforms()
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	//momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+
 	if params.Limit == 0 {
 		params.Limit = abtest.GetInt64("default_limit", 50)
 	}
 
-	//var	 role_dict=map[string]string{"0":"不想透露","1":"T","2":"P","3":"H","4":"BI","5":"其他","6":"直女","7":"腐女"}
-	//var	 want_dict=map[string]string{"0":"不想透露","1":"T","2":"P","3":"H", "4":"BI","5":"其他","6":"直女","7":"腐女"}
-	//var	 affection_dict=map[string]string{"-1":"未设置","0":"不想透露","1":"单身","2":"约会中","3":"稳定关系","4":"已婚","5":"开放关系","6":"交往中","7":"等一个人"}
-	//var	horoscope_dict=map[string]string{"0":"摩羯座","1":"水瓶座","2":"双鱼座","3":"白羊座","4":"金牛座","5":"双子座","6":"巨蟹座","7":"狮子座","8":"处女座","9":"天平座","10":"天蝎座","11":"射手座"}
-	// 获取用户信息
+	var	 role_dict=map[string]string{"0":"不想透露","1":"T","2":"P","3":"H","4":"BI","5":"其他","6":"直女","7":"腐女"}
+	var	 want_dict=map[string]string{"0":"不想透露","1":"T","2":"P","3":"H", "4":"BI","5":"其他","6":"直女","7":"腐女"}
+	var	 affection_dict=map[string]string{"-1":"未设置","0":"不想透露","1":"单身","2":"约会中","3":"稳定关系","4":"已婚","5":"开放关系","6":"交往中","7":"等一个人"}
+	var	horoscope_dict=map[string]string{"0":"摩羯座","1":"水瓶座","2":"双鱼座","3":"白羊座","4":"金牛座","5":"双子座","6":"巨蟹座","7":"狮子座","8":"处女座","9":"天平座","10":"天蝎座","11":"射手座"}
+	//获取用户信息
 	var user *redis.UserProfile
 	pf.Run("user", func(*performs.Performs) interface{} {
 		var userCacheErr error
-		log.Infof("get user profile===============params.UserId",params.UserId)
-		log.Infof("get user profile===============userid")
 		if user, _, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, []int64{}); userCacheErr != nil {
 			return rutils.GetInt(user != nil)
-			//log.Infof("==========================================user:%+v",user)
-			//log.Infof("mate===============id",user.UserId)
-			//log.Infof("mate===============Occupation",user.Occupation)
-			//log.Infof("mate===============Intro",user.Intro)
-			//log.Infof("mate===============WantRole",user.WantRole)
-			//log.Infof("mate===============WantRole",user.Affection)
-			//log.Infof("mate===============WantRole",user.Horoscope)
-			//horoscope_name:=horoscope_dict[user.Horoscope]
-			//affection_name:=affection_dict[string(user.Affection)]
-			//want_name:=want_dict[user.WantRole]
-			//role_name:=role_dict[user.RoleName]
-			//log.Infof("==========================================")
-			//log.Infof("mate===============WantRole",role_name)
-			//log.Infof("mate===============WantRole",want_name)
-			//log.Infof("mate===============WantRole",affection_name)
-			//log.Infof("mate===============WantRole",horoscope_name)
 		}
 		return userCacheErr
 	})
@@ -56,8 +41,43 @@ func DoBuildData(ctx algo.IContext) error {
 	log.Infof("mate===============Occupation",user.Occupation)
 	log.Infof("mate===============Intro",user.Intro)
 	log.Infof("mate===============WantRole",user.WantRole)
-	log.Infof("mate===============WantRole",user.Affection)
-	log.Infof("mate===============WantRole",user.Horoscope)
+	log.Infof("mate===============Affection",user.Affection)
+	log.Infof("mate===============Horoscope",user.Horoscope)
+	horoscope_name:=horoscope_dict[user.Horoscope]
+	affection_name:=affection_dict[string(user.Affection)]
+	want_name:=want_dict[user.WantRole]
+	role_name:=role_dict[user.RoleName]
+	log.Infof("==========================================")
+	log.Infof("mate===============role_name",role_name)
+	log.Infof("mate===============want_name",want_name)
+	log.Infof("mate===============affection_name",affection_name)
+	log.Infof("mate===============horoscope_name",horoscope_name)
+	//用户基础信息生成文案
+
+	//获取用户话题偏好
+	UserProfileList:=[]int64{}
+	var themeProfileMap = map[int64]*redis.ThemeUserProfile{}
+	pf.Run("Theme_profile", func(*performs.Performs) interface{} {
+		var themeUserCacheErr error
+		userProfileUserIds := []int64{params.UserId}
+		themeProfileMap, themeUserCacheErr = themeUserCache.QueryThemeUserProfileMap(userProfileUserIds)
+		if themeUserCacheErr == nil {
+			return len(themeProfileMap)
+		}
+		return themeUserCacheErr
+	})
+	themeProfile:=themeProfileMap[params.UserId]
+	themeTagLongMap:=themeProfile.AiTag.UserLongTag
+	themeTagShortMap:=themeProfile.AiTag.UserShortTag
+	for k,_ := range themeTagLongMap{
+		UserProfileList=append(UserProfileList, k)
+		log.Infof("ThemeLongProfile=============%+v",UserProfileList)
+	}
+	for k,_ := range themeTagShortMap{
+		UserProfileList=append(UserProfileList, k)
+		log.Infof("ThemeShortProfile=============%+v",UserProfileList)
+	}
+
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
 		searchLimit := abtest.GetInt64("search_limit", 50)

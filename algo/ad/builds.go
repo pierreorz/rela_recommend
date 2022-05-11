@@ -30,13 +30,7 @@ func DoBuildData(ctx algo.IContext) error {
 	pf.Run("user", func(*performs.Performs) interface{} {
 		var userCacheErr error
 		if user, _, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, []int64{}); userCacheErr != nil {
-			log.Infof("aduser===============id",user.UserId)
-			log.Infof("aduser===============status",user.Status)
-			if user.Status == 7 {//青少年模式过滤广告
-				return user.UserId
-			} else {
 				return rutils.GetInt(user != nil)
-			}
 		} else {
 			return userCacheErr
 		}
@@ -84,19 +78,26 @@ func DoBuildData(ctx algo.IContext) error {
 		pf.Run("search", func(*performs.Performs) interface{} {
 			clientName := abtest.GetString("backend_app_name", "1") // 1: rela 2: 饭角
 			var searchErr error
-			//针对新老版本的请求过滤
-			if params.ClientVersion >= 50802 { //params.Type == feedType 不对广告类型限制
-				if searchResList, searchErr = search.CallFeedAdList(clientName, params, user); searchErr == nil {
-					return len(searchResList)
+			//青少年过滤
+			log.Infof("ad===========user",user.UserId)
+			log.Infof("ad===========status",user.Status)
+			if user.Status != 7 {
+				//针对新老版本的请求过滤
+				if params.ClientVersion >= 50802 { //params.Type == feedType 不对广告类型限制
+					if searchResList, searchErr = search.CallFeedAdList(clientName, params, user); searchErr == nil {
+						return len(searchResList)
+					} else {
+						return searchErr
+					}
 				} else {
-					return searchErr
+					if searchResList, searchErr = search.CallAdList(clientName, params, user); searchErr == nil {
+						return len(searchResList)
+					} else {
+						return searchErr
+					}
 				}
-			} else {
-				if searchResList, searchErr = search.CallAdList(clientName, params, user); searchErr == nil {
-					return len(searchResList)
-				} else {
-					return searchErr
-				}
+			}else{
+				return rutils.GetInt(user)
 			}
 		})
 	}
