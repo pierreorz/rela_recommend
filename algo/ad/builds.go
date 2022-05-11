@@ -25,13 +25,16 @@ func DoBuildData(ctx algo.IContext) error {
 	if params.Limit == 0 {
 		params.Limit = abtest.GetInt64("default_limit", 50)
 	}
-
 	// 获取用户信息
 	var user *redis.UserProfile
 	pf.Run("user", func(*performs.Performs) interface{} {
 		var userCacheErr error
 		if user, _, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, []int64{}); userCacheErr != nil {
-			return rutils.GetInt(user != nil)
+			if user.Status == 7 {//青少年模式过滤广告
+				return userCacheErr
+			} else {
+				return rutils.GetInt(user != nil)
+			}
 		} else {
 			return userCacheErr
 		}
