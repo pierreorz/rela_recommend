@@ -14,7 +14,6 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 	dataInfo := iDataInfo.(*DataInfo)
 	sd := dataInfo.SearchData
 
-	log.Infof("search===============%+v",sd)
 	abSwitch := abtest.GetBool("mate_text_switch", false)
 	if abSwitch {
 		randomScore := float32(rand.Intn(100)) / 100.0
@@ -35,7 +34,8 @@ func SortScoreItem(ctx algo.IContext) error {
 		admin_weight_num :=utils.GetFloat64(strings.Split(backtag, ":")[0])
 		adminMap[type_nums] = admin_weight_num
 	}
-	log.Infof("adminMap===============%+v", adminMap)
+	//log.Infof("adminMap===============%+v", adminMap)
+	//曝光逻辑
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		randomScore := float32(rand.Intn(100)) / 100.0
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -46,8 +46,6 @@ func SortScoreItem(ctx algo.IContext) error {
 		log.Infof("itemScore===============%+v", itemScore)
 		//rankInfo.AddRecommend("sortScoreItem", itemScore)
 	}
-	//曝光逻辑
-	//log.Infof("searchMap===============%+v", itemWeightMap)
 	return nil
 }
 
