@@ -30,8 +30,9 @@ func DoBuildData(ctx algo.IContext) error {
 	pf.Run("user", func(*performs.Performs) interface{} {
 		var userCacheErr error
 		if user, _, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, []int64{}); userCacheErr != nil {
+			log.Infof("aduser===============id",user.UserId)
+			log.Infof("aduser===============status",user.Status)
 			if user.Status == 7 {//青少年模式过滤广告
-				log.Infof("aduser===============id",user.UserId)
 				return user.UserId
 			} else {
 				return rutils.GetInt(user != nil)
