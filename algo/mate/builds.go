@@ -8,6 +8,8 @@ import (
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	rutils "rela_recommend/utils"
+	"strconv"
+	"strings"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -25,7 +27,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	var	 role_dict=map[string]string{"0":"不想透露","1":"T","2":"P","3":"H","4":"BI","5":"其他","6":"直女","7":"腐女"}
 	var	 want_dict=map[string]string{"0":"不想透露","1":"T","2":"P","3":"H", "4":"BI","5":"其他","6":"直女","7":"腐女"}
-	var	 affection_dict=map[string]string{"-1":"未设置","0":"不想透露","1":"单身","2":"约会中","3":"稳定关系","4":"已婚","5":"开放关系","6":"交往中","7":"等一个人"}
+	//var	 affection_dict=map[string]string{"-1":"未设置","0":"不想透露","1":"单身","2":"约会中","3":"稳定关系","4":"已婚","5":"开放关系","6":"交往中","7":"等一个人"}
 	var	horoscope_dict=map[string]string{"0":"摩羯座","1":"水瓶座","2":"双鱼座","3":"白羊座","4":"金牛座","5":"双子座","6":"巨蟹座","7":"狮子座","8":"处女座","9":"天平座","10":"天蝎座","11":"射手座"}
 	//获取用户信息
 	var user *redis.UserProfile
@@ -36,26 +38,58 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		return userCacheErr
 	})
-	log.Infof("======================user profile:%+v",user)
-	log.Infof("mate===============id",user.UserId)
-	log.Infof("mate===============Occupation",user.Occupation)
-	log.Infof("mate===============Intro",user.Intro)
-	log.Infof("mate===============WantRole",user.WantRole)
-	log.Infof("mate===============Affection",user.Affection)
-	log.Infof("mate===============Horoscope",user.Horoscope)
 	horoscope_name:=horoscope_dict[user.Horoscope]
-	affection_name:=affection_dict[string(user.Affection)]
 	want_name:=want_dict[user.WantRole]
 	role_name:=role_dict[user.RoleName]
-	log.Infof("==========================================")
-	log.Infof("mate===============role_name",role_name)
-	log.Infof("mate===============want_name",want_name)
-	log.Infof("mate===============affection_name",affection_name)
-	log.Infof("mate===============horoscope_name",horoscope_name)
+
 	//用户基础信息生成文案
+	//base文案
+	var roleMap=map[string]string{"T":"1","P":"1","H":"1"}
+	var affection_list=map[string]string{"1":"1","7":"1"}
+	var ageText string
+	var roleText string
+	var textList []string
+	var searchBaseMap map[string]string
+	userAge:=user.Age
+	if userAge>=18 && userAge<=40 {
+		ageText = strconv.Itoa(userAge)
+		textList=append(textList,ageText)
+	}
+	log.Infof("ageText==============",ageText)
+	textList=append(textList,horoscope_name)
+	//自我认同
+	if _, ok :=  roleMap[role_name];ok{
+		log.Infof("我是"+role_name+"，你呢？")
+		roleText=role_name
+		textList=append(textList,roleText)
+	}
+	//职业
+	if user.Occupation!="" && len(user.Occupation)<=6{
+		textList=append(textList,roleText)
+	}
+	//用户基本文案
+	if len(textList)>0{
+		baseText:=strings.Join(textList, "/")
+		log.Infof("baseText",baseText)
+	}
+
+	//我想找的
+	if _, ok :=  roleMap[want_name];ok{
+		log.Infof( "有"+want_name+"吗？")
+	}
+	if user.Intro!=""{
+		log.Infof( "========Intro",user.Intro)
+	}
+	//基础数据需要搜索
+	if _,ok:=affection_list[string(user.Affection)];ok{
+		log.Infof( "========Intro",user.Affection)
+		searchBaseMap["text_type"]="10"
+		searchBaseMap["tag_type"]="40"
+	}
 
 	//获取用户话题偏好
-	UserProfileList:=[]int64{}
+	userProfileMap:= map[int64]float64{}
+	userCategList:=[]int64{2}
 	var themeProfileMap = map[int64]*redis.ThemeUserProfile{}
 	pf.Run("Theme_profile", func(*performs.Performs) interface{} {
 		var themeUserCacheErr error
@@ -72,16 +106,30 @@ func DoBuildData(ctx algo.IContext) error {
 		themeTagShortMap := themeProfile.AiTag.UserShortTag
 		if len(themeTagLongMap) > 0 {
 			for k, _ := range themeTagLongMap {
-				UserProfileList = append(UserProfileList, k)
-				log.Infof("ThemeLongProfile=============%+v", UserProfileList)
+				if _, ok := userProfileMap[k]; ok {
+					userProfileMap[k] += 1.0
+				} else {
+					userProfileMap[k] = 1.0
+				}
 			}
 		}
 		if len(themeTagShortMap) > 0 {
 			for k, _ := range themeTagShortMap {
-				UserProfileList = append(UserProfileList, k)
-				log.Infof("ThemeShortProfile=============%+v", UserProfileList)
+				if _, ok := userProfileMap[k]; ok {
+					userProfileMap[k] += 1
+				} else {
+					userProfileMap[k] = 1
+				}
 			}
 		}
+		log.Infof("ThemeShortProfile=============%+v", userProfileMap)
+		resultList:=rutils.SortMapByValue(userProfileMap)
+		for i,v := range resultList{
+			if i < 2 {
+				userCategList = append(userCategList, v)
+			}
+		}
+
 	}
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
