@@ -7,7 +7,6 @@ import (
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
-	rutils "rela_recommend/utils"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -29,23 +28,24 @@ func DoBuildData(ctx algo.IContext) error {
 	pf.Run("user", func(*performs.Performs) interface{} {
 		var userCacheErr error
 		log.Infof("get user profile===============userid")
-		if user, _, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, []int64{}); userCacheErr != nil {
-			log.Infof("mate===============userid",user.UserId)
-			log.Infof("mate===============userOccupation",user.Occupation)//用户职业
-			log.Infof("mate===============userIntro",user.Intro)//用户标签
-			log.Infof("mate===============userIntro",user.RoleName)//RoleName
-			role_name:=role_dict[user.RoleName]
-			log.Infof("mate===============role_name",role_name)//用户标签
-			want_name:=want_dict[user.WantRole]
-			log.Infof("mate===============want_name",want_name)//用户标签
+		if user,userCacheErr = userCache.QueryUserById(params.UserId);userCacheErr!=nil{
+			log.Infof("mate===============id",user.UserId)
+			log.Infof("mate===============Occupation",user.Occupation)
+			log.Infof("mate===============Intro",user.Intro)
+			log.Infof("mate===============WantRole",user.WantRole)
+			log.Infof("mate===============WantRole",user.Affection)
+			log.Infof("mate===============WantRole",user.Horoscope)
+			horoscope_name:=horoscope_dict[user.Horoscope]
 			affection_name:=affection_dict[string(user.Affection)]
-			log.Infof("mate===============want_name",affection_name)//用户标签
-			horoscope_name:=horoscope_dict[string(user.Horoscope)]
-			log.Infof("mate===============want_name",horoscope_name)//用户标签
-			return rutils.GetInt(user != nil)
-		} else {
-			return userCacheErr
+			want_name:=want_dict[user.WantRole]
+			role_name:=role_dict[user.RoleName]
+			log.Infof("==========================================")
+			log.Infof("mate===============WantRole",role_name)
+			log.Infof("mate===============WantRole",want_name)
+			log.Infof("mate===============WantRole",affection_name)
+			log.Infof("mate===============WantRole",horoscope_name)
 		}
+		return userCacheErr
 	})
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
