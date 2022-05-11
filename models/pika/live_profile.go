@@ -174,12 +174,14 @@ func (lcm *LiveCacheModule) GetModelStudents() ([]int64, error) {
 	var users []int64
 	err := help.GetStructByCache(lcm.cacheLive, key, &value)
 	if err == nil {
+		value = strings.Trim(value, "\"")
 		for _, single := range strings.Split(value, ",") {
 			uid64 := utils.GetInt64(single)
 			if uid64 > 0 {
 				users = append(users, uid64)
 			}
 		}
+		log.Debugf("get model student: %+v", users)
 		return users, nil
 	}
 	return users, err
