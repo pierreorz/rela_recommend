@@ -66,19 +66,23 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		return themeUserCacheErr
 	})
-	log.Infof("ThemeProfileMap=============%+v",themeProfileMap)
-	themeProfile:=themeProfileMap[params.UserId]
-	themeTagLongMap:=themeProfile.AiTag.UserLongTag
-	themeTagShortMap:=themeProfile.AiTag.UserShortTag
-	for k,_ := range themeTagLongMap{
-		UserProfileList=append(UserProfileList, k)
-		log.Infof("ThemeLongProfile=============%+v",UserProfileList)
+	if len(themeProfileMap)>0 {
+		themeProfile := themeProfileMap[params.UserId]
+		themeTagLongMap := themeProfile.AiTag.UserLongTag
+		themeTagShortMap := themeProfile.AiTag.UserShortTag
+		if len(themeTagLongMap) > 0 {
+			for k, _ := range themeTagLongMap {
+				UserProfileList = append(UserProfileList, k)
+				log.Infof("ThemeLongProfile=============%+v", UserProfileList)
+			}
+		}
+		if len(themeTagShortMap) > 0 {
+			for k, _ := range themeTagShortMap {
+				UserProfileList = append(UserProfileList, k)
+				log.Infof("ThemeShortProfile=============%+v", UserProfileList)
+			}
+		}
 	}
-	for k,_ := range themeTagShortMap{
-		UserProfileList=append(UserProfileList, k)
-		log.Infof("ThemeShortProfile=============%+v",UserProfileList)
-	}
-
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
 		searchLimit := abtest.GetInt64("search_limit", 50)
