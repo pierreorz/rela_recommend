@@ -66,6 +66,7 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		return themeUserCacheErr
 	})
+	log.Infof("ThemeProfileMap=============%+v",themeProfileMap)
 	themeProfile:=themeProfileMap[params.UserId]
 	themeTagLongMap:=themeProfile.AiTag.UserLongTag
 	themeTagShortMap:=themeProfile.AiTag.UserShortTag
