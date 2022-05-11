@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"rela_recommend/log"
 	"strings"
 	"time"
 
@@ -236,7 +237,7 @@ func (this *UserCacheModule) QueryUsersMap(userIds []int64) (map[int64]*UserProf
 func (this *UserCacheModule) QueryByUserAndUsersMap(userId int64, userIds []int64) (*UserProfile, map[int64]*UserProfile, error) {
 	user, users, err := this.QueryByUserAndUsers(userId, userIds)
 	usersMap := make(map[int64]*UserProfile, 0)
-	// log.Infof("QueryByUserAndUsersMap: user:%+v users:%+v\n", user, users)
+	log.Infof("QueryByUserAndUsersMap: user:%+v users:%+v\n", user, users)
 	for i, u := range users {
 		if u.UserId > 0 {
 			usersMap[u.UserId] = &users[i]
