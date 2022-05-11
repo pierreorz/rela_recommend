@@ -52,6 +52,12 @@ func DoBuildData(ctx algo.IContext) error {
 		return userCacheErr
 	})
 	log.Infof("======================user profile:%+v",user)
+	log.Infof("mate===============id",user.UserId)
+	log.Infof("mate===============Occupation",user.Occupation)
+	log.Infof("mate===============Intro",user.Intro)
+	log.Infof("mate===============WantRole",user.WantRole)
+	log.Infof("mate===============WantRole",user.Affection)
+	log.Infof("mate===============WantRole",user.Horoscope)
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
 		searchLimit := abtest.GetInt64("search_limit", 50)
