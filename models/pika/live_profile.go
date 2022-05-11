@@ -6,6 +6,7 @@ import (
 	"rela_recommend/help"
 	"rela_recommend/log"
 	"rela_recommend/utils"
+	"strings"
 	"time"
 )
 
@@ -35,6 +36,7 @@ type LiveProfile struct {
 	MomentsID        int64    `json:"momentsId"`
 	IsWeekStar       bool     `json:"-"`
 	IsMonthStar      bool     `json:"-"`
+	IsModelStudent   bool     `json:"-"`
 }
 
 type LiveCache struct {
@@ -164,6 +166,23 @@ func (lcm *LiveCacheModule) GetMonthStar() (int64, error) {
 	var uid int64
 	err := help.GetStructByCache(lcm.cacheLive, key, &uid)
 	return uid, err
+}
+
+func (lcm *LiveCacheModule) GetModelStudents() ([]int64, error) {
+	key := "live_icon_model_student"
+	var value string
+	var users []int64
+	err := help.GetStructByCache(lcm.cacheLive, key, &value)
+	if err == nil {
+		for _, single := range strings.Split(value, ",") {
+			uid64 := utils.GetInt64(single)
+			if uid64 > 0 {
+				users = append(users, uid64)
+			}
+		}
+		return users, nil
+	}
+	return users, err
 }
 
 func NewLiveCacheModule(cache *cache.Cache) *LiveCacheModule {
