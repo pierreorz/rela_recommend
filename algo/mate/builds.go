@@ -49,8 +49,9 @@ func DoBuildData(ctx algo.IContext) error {
 	var ageText string
 	var roleText string
 	var textList []string
-	searchBaseMap:=make(map[string]string)
-	baseVeiwList:=[]BeasSentence{}
+	searchBaseMap := make(map[string]string)
+	//var sentenceList  []search.MateTextResDataItem
+	var baseVeiwList  []search.MateTextResDataItem
 	//var beasSentence []search.MateTextResDataItem
 	userAge:=user.Age
 	if userAge>=18 && userAge<=40 {
@@ -64,7 +65,7 @@ func DoBuildData(ctx algo.IContext) error {
 		log.Infof("我是"+role_name+"，你呢？")
 		roleText="我是"+role_name+"，你呢？"
 		textList=append(textList,role_name)
-		beasSentence:=BeasSentence{
+		beasSentence:=search.MateTextResDataItem{
 			Id: 10002,
 			Text:roleText,
 			Cities:nil,
@@ -80,7 +81,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(textList)>0{
 		baseText:=strings.Join(textList, "/")
 		log.Infof("baseText",baseText)
-		beasSentence:=BeasSentence{
+		beasSentence:=search.MateTextResDataItem{
 			Id: 10000,
 			Text:baseText,
 			Cities:nil,
@@ -94,7 +95,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if _, ok :=  roleMap[want_name];ok{
 		wantText:="有"+want_name+"吗？"
 		log.Infof( "有"+want_name+"吗？")
-		beasSentence:=BeasSentence{
+		beasSentence:=search.MateTextResDataItem{
 			Id: 10001,
 			Text:wantText,
 			Cities:nil,
@@ -104,7 +105,7 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	if user.Intro!=""{
 		log.Infof( "========Intro",user.Intro)
-		beasSentence:=BeasSentence{
+		beasSentence:=search.MateTextResDataItem{
 			Id: 10003,
 			Text:user.Intro,
 			Cities:nil,
@@ -177,6 +178,10 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	})
 	log.Infof("searchList=============%+v", searchResList)
+	//合并文案数据
+	for _, searchRes := range searchResList {
+		baseVeiwList=append(baseVeiwList,searchRes)
+	}
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId: params.UserId,
@@ -185,7 +190,7 @@ func DoBuildData(ctx algo.IContext) error {
 		// 组装被曝光者信息
 		dataIds := make([]int64, 0)
 		dataList := make([]algo.IDataInfo, 0)
-		for i, searchRes := range searchResList {
+		for i, searchRes := range baseVeiwList {
 			info := &DataInfo{
 				DataId:     searchRes.Id,
 				SearchData: &searchResList[i],
