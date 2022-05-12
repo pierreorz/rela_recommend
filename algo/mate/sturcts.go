@@ -54,11 +54,3 @@ func (self *DataInfo) GetUserBehavior() *behavior.UserBehavior {
 type RecommendResponseMateTextData struct {
 	Text string `json:"text" form:"text"`
 }
-type BeasSentence struct {
-	Id     int64         `json:"id"`
-	Text   string        `json:"text"`
-	Cities []interface{} `json:"cities"`
-	Weight int           `json:"weight"`
-}
-
-

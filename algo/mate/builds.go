@@ -50,9 +50,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var roleText string
 	var textList []string
 	searchBaseMap := make(map[string]string)
-	//var sentenceList  []search.MateTextResDataItem
 	var baseVeiwList  []search.MateTextResDataItem
-	//var beasSentence []search.MateTextResDataItem
 	userAge:=user.Age
 	if userAge>=18 && userAge<=40 {
 		ageText = strconv.Itoa(userAge)
@@ -121,6 +119,11 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	log.Infof("baseVeiwText=============%+v", baseVeiwList)
 	log.Infof("categSearch=============%+v", searchBaseMap)
+	//情感搜索
+	if len(searchBaseMap)>0{
+
+	}
+
 	//获取用户话题偏好
 	userProfileMap:= map[int64]float64{}
 	userCategList:=[]int64{2}
@@ -165,6 +168,7 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 
 	}
+	//旧版搜索结果
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
 		searchLimit := abtest.GetInt64("search_limit", 50)
