@@ -190,13 +190,13 @@ func DoBuildData(ctx algo.IContext) error {
 		// 组装被曝光者信息
 		dataIds := make([]int64, 0)
 		dataList := make([]algo.IDataInfo, 0)
-		for i, searchRes := range baseVeiwList {
+		for i, baseRes := range baseVeiwList {
 			info := &DataInfo{
-				DataId:     searchRes.Id,
-				SearchData: &searchResList[i],
+				DataId:     baseRes.Id,
+				SearchData: &baseVeiwList[i],
 				RankInfo:   &algo.RankInfo{},
 			}
-			dataIds = append(dataIds, searchRes.Id)
+			dataIds = append(dataIds, baseRes.Id)
 			dataList = append(dataList, info)
 		}
 		ctx.SetUserInfo(userInfo)
