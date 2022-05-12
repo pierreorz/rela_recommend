@@ -49,7 +49,9 @@ func DoBuildData(ctx algo.IContext) error {
 	var ageText string
 	var roleText string
 	var textList []string
-	searchBaseMap:=map[string]string{}
+	searchBaseMap:=make(map[string]string)
+	baseVeiwList:=[]BeasSentence{}
+	//var beasSentence []search.MateTextResDataItem
 	userAge:=user.Age
 	if userAge>=18 && userAge<=40 {
 		ageText = strconv.Itoa(userAge)
@@ -60,8 +62,15 @@ func DoBuildData(ctx algo.IContext) error {
 	//自我认同
 	if _, ok :=  roleMap[role_name];ok{
 		log.Infof("我是"+role_name+"，你呢？")
-		roleText=role_name
-		textList=append(textList,roleText)
+		roleText="我是"+role_name+"，你呢？"
+		textList=append(textList,role_name)
+		beasSentence:=BeasSentence{
+			Id: 10002,
+			Text:roleText,
+			Cities:nil,
+			Weight:100,
+		}
+		baseVeiwList=append(baseVeiwList,beasSentence)
 	}
 	//职业
 	if user.Occupation!="" && len(user.Occupation)<=6{
@@ -71,14 +80,37 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(textList)>0{
 		baseText:=strings.Join(textList, "/")
 		log.Infof("baseText",baseText)
+		beasSentence:=BeasSentence{
+			Id: 10000,
+			Text:baseText,
+			Cities:nil,
+			Weight:100,
+		}
+		baseVeiwList=append(baseVeiwList,beasSentence)
+
 	}
 
 	//我想找的
 	if _, ok :=  roleMap[want_name];ok{
+		wantText:="有"+want_name+"吗？"
 		log.Infof( "有"+want_name+"吗？")
+		beasSentence:=BeasSentence{
+			Id: 10001,
+			Text:wantText,
+			Cities:nil,
+			Weight:100,
+		}
+		baseVeiwList=append(baseVeiwList,beasSentence)
 	}
 	if user.Intro!=""{
 		log.Infof( "========Intro",user.Intro)
+		beasSentence:=BeasSentence{
+			Id: 10003,
+			Text:user.Intro,
+			Cities:nil,
+			Weight:100,
+		}
+		baseVeiwList=append(baseVeiwList,beasSentence)
 	}
 	//基础数据需要搜索
 	if _,ok:=affection_list[string(user.Affection)];ok{
@@ -86,6 +118,7 @@ func DoBuildData(ctx algo.IContext) error {
 		searchBaseMap["text_type"]="10"
 		searchBaseMap["tag_type"]="4"
 	}
+	log.Infof("baseVeiwText=============%+v", baseVeiwList)
 	log.Infof("categSearch=============%+v", searchBaseMap)
 	//获取用户话题偏好
 	userProfileMap:= map[int64]float64{}
