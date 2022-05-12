@@ -49,7 +49,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var ageText string
 	var roleText string
 	var textList []string
-	var searchBaseMap map[string]string
+	searchBaseMap:=map[string]string{}
 	userAge:=user.Age
 	if userAge>=18 && userAge<=40 {
 		ageText = strconv.Itoa(userAge)
