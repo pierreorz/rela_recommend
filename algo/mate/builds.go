@@ -49,11 +49,12 @@ func DoBuildData(ctx algo.IContext) error {
 	var ageText string
 	var roleText string
 	var textList []string
-	searchBaseMap := make(map[string]string)
+	searchBase := search.SearchType{}
+	searchCateg:= search.SearchType{}
 	var baseVeiwList  []search.MateTextResDataItem
 	userAge:=user.Age
 	if userAge>=18 && userAge<=40 {
-		ageText = strconv.Itoa(userAge)
+		ageText = strconv.Itoa(userAge)+"岁"
 		textList=append(textList,ageText)
 	}
 	log.Infof("ageText==============",ageText)
@@ -68,6 +69,8 @@ func DoBuildData(ctx algo.IContext) error {
 			Text:roleText,
 			Cities:nil,
 			Weight:100,
+			//TextType:"10",
+			//TagType:nil,
 		}
 		baseVeiwList=append(baseVeiwList,beasSentence)
 	}
@@ -84,11 +87,12 @@ func DoBuildData(ctx algo.IContext) error {
 			Text:baseText,
 			Cities:nil,
 			Weight:100,
+			//TextType:"10",
+			//TagType:nil,
 		}
 		baseVeiwList=append(baseVeiwList,beasSentence)
 
 	}
-
 	//我想找的
 	if _, ok :=  roleMap[want_name];ok{
 		wantText:="有"+want_name+"吗？"
@@ -98,6 +102,8 @@ func DoBuildData(ctx algo.IContext) error {
 			Text:wantText,
 			Cities:nil,
 			Weight:100,
+			//TextType:"10",
+			//TagType:nil,
 		}
 		baseVeiwList=append(baseVeiwList,beasSentence)
 	}
@@ -108,25 +114,35 @@ func DoBuildData(ctx algo.IContext) error {
 			Text:user.Intro,
 			Cities:nil,
 			Weight:100,
+			//TextType:"10",
+			//TagType:nil,
 		}
 		baseVeiwList=append(baseVeiwList,beasSentence)
 	}
 	//基础数据需要搜索
 	if _,ok:=affection_list[string(user.Affection)];ok{
 		log.Infof( "========Intro",user.Affection)
-		searchBaseMap["text_type"]="10"
-		searchBaseMap["tag_type"]="4"
+		searchBase.TextType="10"
+		searchBase.TagType=append(searchBase.TagType, "4")
 	}
 	log.Infof("baseVeiwText=============%+v", baseVeiwList)
-	log.Infof("categSearch=============%+v", searchBaseMap)
+	log.Infof("categSearch=============%+v", searchBase)
 	//情感搜索
-	if len(searchBaseMap)>0{
 
-	}
-
+	//var searchBaseList []search.MateTextResDataItem
+	//pf.Run("categ_search", func(*performs.Performs) interface{} {
+	//	searchLimit := abtest.GetInt64("search_limit", 50)
+	//	var searchErr error
+	//	params.Lng = abtest.GetFloat("mate_fake_lng", params.Lng)
+	//	params.Lat = abtest.GetFloat("mate_fake_lat", params.Lat)
+	//	if searchBaseList, searchErr = search.CategMateTextList(params,searchLimit,searchBase); searchErr == nil {
+	//		return len(searchBaseList)
+	//	} else {
+	//		return searchErr
+	//	}
+	//})
 	//获取用户话题偏好
 	userProfileMap:= map[int64]float64{}
-	userCategList:=[]int64{2}
 	var themeProfileMap = map[int64]*redis.ThemeUserProfile{}
 	pf.Run("Theme_profile", func(*performs.Performs) interface{} {
 		var themeUserCacheErr error
@@ -163,11 +179,25 @@ func DoBuildData(ctx algo.IContext) error {
 		resultList:=rutils.SortMapByValue(userProfileMap)
 		for i,v := range resultList{
 			if i < 2 {
-				userCategList = append(userCategList, v)
+				categid:= strconv.Itoa(int(v))
+				searchCateg.TagType=append(searchCateg.TagType, categid)
 			}
 		}
-
+		searchCateg.TextType="20"
 	}
+	//用户偏好搜索
+	//var searchCategList []search.MateTextResDataItem
+	//pf.Run("categ_search", func(*performs.Performs) interface{} {
+	//	searchLimit := abtest.GetInt64("search_limit", 50)
+	//	var searchErr error
+	//	params.Lng = abtest.GetFloat("mate_fake_lng", params.Lng)
+	//	params.Lat = abtest.GetFloat("mate_fake_lat", params.Lat)
+	//	if searchCategList, searchErr = search.CategMateTextList(params,searchLimit,searchBase); searchErr == nil {
+	//		return len(searchCategList)
+	//	} else {
+	//		return searchErr
+	//	}
+	//})
 	//旧版搜索结果
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {

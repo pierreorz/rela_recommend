@@ -17,6 +17,8 @@ type MateTextResDataItem struct {
 	Text   string        `json:"text"`
 	Cities []interface{} `json:"cities"`
 	Weight int           `json:"weight"`
+	//TextType string      `json:"textType" `
+	//TagType  string      `json:"tagType" `
 }
 
 type mateTextRes struct {
@@ -87,15 +89,12 @@ func CallMateTextList(request *algo.RecommendRequest, searchLimit int64) ([]Mate
 	}
 }
 
-type searchType struct {
-	TextType map[string]TypeData `json:"textType"`
-	TagType map[string]TypeData `json:"tagType"`
-}
-type TypeData struct {
-	Id string `json:"id"`
+type SearchType struct {
+	TextType string `json:"textType"`
+	TagType  []string `json:"tagType"`
 }
 
-func categMateTextList(request *algo.RecommendRequest, searchLimit int64,TagMap searchType ) ([]MateTextResDataItem, error) {
+func CategMateTextList(request *algo.RecommendRequest, searchLimit int64,TagMap SearchType ) ([]MateTextResDataItem, error) {
 	localTimeStr, ok := request.Params["local_time"]
 	if !ok {
 		return nil, nil
