@@ -37,6 +37,7 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	request := ctx.GetRequest()
 	//召回的广告数据大于才做分发
+	log.Infof("request===============",request.ClientVersion)
 	if request.ClientVersion>= 50802 {
 		//app := ctx.GetAppInfo()
 		dataLen:=ctx.GetDataLength()
