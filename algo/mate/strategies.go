@@ -41,8 +41,8 @@ func SortScoreItem(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		sd := dataInfo.SearchData//SearchData缺少类型信息,
 		//rankInfo := dataInfo.GetRankInfo()
-		log.Infof("id===============%+v", sd.Id)
-		log.Infof("Text===============%+v", sd.Text)
+		//log.Infof("id===============%+v", sd.Id)
+		//log.Infof("Text===============%+v", sd.Text)
 		itemScore:=randomScore*float32(sd.Weight)
 		log.Infof("itemScore===============%+v", itemScore)
 		//rankInfo.AddRecommend("sortScoreItem", itemScore)
