@@ -57,7 +57,7 @@ func DoBuildData(ctx algo.IContext) error {
 		ageText = strconv.Itoa(userAge)+"岁"
 		textList=append(textList,ageText)
 	}
-	log.Infof("ageText==============",ageText)
+	//log.Infof("ageText==============",ageText)
 	textList=append(textList,horoscope_name)
 	//自我认同
 	if _, ok :=  roleMap[role_name];ok{
@@ -96,7 +96,7 @@ func DoBuildData(ctx algo.IContext) error {
 	//我想找的
 	if _, ok :=  roleMap[want_name];ok{
 		wantText:="有"+want_name+"吗？"
-		log.Infof( "有"+want_name+"吗？")
+		//log.Infof( "有"+want_name+"吗？")
 		beasSentence:=search.MateTextResDataItem{
 			Id: 10001,
 			Text:wantText,
@@ -108,7 +108,7 @@ func DoBuildData(ctx algo.IContext) error {
 		baseVeiwList=append(baseVeiwList,beasSentence)
 	}
 	if user.Intro!=""{
-		log.Infof( "========Intro",user.Intro)
+		//log.Infof( "========Intro",user.Intro)
 		beasSentence:=search.MateTextResDataItem{
 			Id: 10003,
 			Text:user.Intro,
@@ -121,26 +121,13 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	//基础数据需要搜索
 	if _,ok:=affection_list[string(user.Affection)];ok{
-		log.Infof( "========Intro",user.Affection)
+		//log.Infof( "========Intro",user.Affection)
 		searchBase.TextType="10"
 		searchBase.TagType=append(searchBase.TagType, "4")
 	}
-	log.Infof("baseVeiwText=============%+v", baseVeiwList)
-	log.Infof("categSearch=============%+v", searchBase)
+	//log.Infof("baseVeiwText=============%+v", baseVeiwList)
+	//log.Infof("categSearch=============%+v", searchBase)
 	//情感搜索
-
-	//var searchBaseList []search.MateTextResDataItem
-	//pf.Run("categ_search", func(*performs.Performs) interface{} {
-	//	searchLimit := abtest.GetInt64("search_limit", 50)
-	//	var searchErr error
-	//	params.Lng = abtest.GetFloat("mate_fake_lng", params.Lng)
-	//	params.Lat = abtest.GetFloat("mate_fake_lat", params.Lat)
-	//	if searchBaseList, searchErr = search.CategMateTextList(params,searchLimit,searchBase); searchErr == nil {
-	//		return len(searchBaseList)
-	//	} else {
-	//		return searchErr
-	//	}
-	//})
 	//获取用户话题偏好
 	userProfileMap:= map[int64]float64{}
 	var themeProfileMap = map[int64]*redis.ThemeUserProfile{}
@@ -175,7 +162,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 		}
-		log.Infof("ThemeShortProfile=============%+v", userProfileMap)
+		//log.Infof("ThemeShortProfile=============%+v", userProfileMap)
 		resultList:=rutils.SortMapByValue(userProfileMap)
 		for i,v := range resultList{
 			if i < 2 {
@@ -185,19 +172,6 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		searchCateg.TextType="20"
 	}
-	//用户偏好搜索
-	//var searchCategList []search.MateTextResDataItem
-	//pf.Run("categ_search", func(*performs.Performs) interface{} {
-	//	searchLimit := abtest.GetInt64("search_limit", 50)
-	//	var searchErr error
-	//	params.Lng = abtest.GetFloat("mate_fake_lng", params.Lng)
-	//	params.Lat = abtest.GetFloat("mate_fake_lat", params.Lat)
-	//	if searchCategList, searchErr = search.CategMateTextList(params,searchLimit,searchBase); searchErr == nil {
-	//		return len(searchCategList)
-	//	} else {
-	//		return searchErr
-	//	}
-	//})
 	//旧版搜索结果
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
@@ -211,11 +185,11 @@ func DoBuildData(ctx algo.IContext) error {
 			return searchErr
 		}
 	})
-	log.Infof("searchList=============%+v", searchResList)
+	//log.Infof("searchList=============%+v", searchResList)
 	//合并文案数据
-	for _, searchRes := range searchResList {
-		baseVeiwList=append(baseVeiwList,searchRes)
-	}
+	//for _, searchRes := range searchResList {
+	//	baseVeiwList=append(baseVeiwList,searchRes)
+	//}
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId: params.UserId,
@@ -224,10 +198,10 @@ func DoBuildData(ctx algo.IContext) error {
 		// 组装被曝光者信息
 		dataIds := make([]int64, 0)
 		dataList := make([]algo.IDataInfo, 0)
-		for i, baseRes := range baseVeiwList {
+		for i, baseRes := range searchResList {
 			info := &DataInfo{
 				DataId:     baseRes.Id,
-				SearchData: &baseVeiwList[i],
+				SearchData: &searchResList[i],
 				RankInfo:   &algo.RankInfo{},
 			}
 			dataIds = append(dataIds, baseRes.Id)
