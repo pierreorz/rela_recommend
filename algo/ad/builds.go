@@ -137,7 +137,7 @@ func DoBuildData(ctx algo.IContext) error {
 					dataIds = append(dataIds, searchRes.Id)
 					dataList = append(dataList, info)
 				}
-			}else{
+			}else{//当只有一条广告时不过滤上一次广告
 				info := &DataInfo{
 					DataId:     searchRes.Id,
 					SearchData: &searchResList[i],
