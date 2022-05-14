@@ -126,6 +126,7 @@ func DoBuildData(ctx algo.IContext) error {
 		// 组装被曝光者信息
 		dataIds := make([]int64, 0)
 		dataList := make([]algo.IDataInfo, 0)
+		log.Infof("ad===========List",searchResList)
 		for i, searchRes := range searchResList {
 			if _, ok := userAdIdMap[searchRes.Id]; !ok {
 				info := &DataInfo{
