@@ -70,6 +70,9 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	}
 	log.Infof("userMap=================%+v",userAdIdMap)
+	//青少年过滤
+	log.Infof("ad===========user",user.UserId)
+	log.Infof("ad===========status",user.Status)
 	// 获取search的广告列表
 	var searchResList = []search.SearchADResDataItem{}
 	if abtest.GetBool("icp_switch", false) && (abtest.GetBool("is_icp_user", false) || user.MaybeICPUser(params.Lat, params.Lng)) {
