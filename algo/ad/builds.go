@@ -78,10 +78,11 @@ func DoBuildData(ctx algo.IContext) error {
 		pf.Run("search", func(*performs.Performs) interface{} {
 			clientName := abtest.GetString("backend_app_name", "1") // 1: rela 2: 饭角
 			var searchErr error
-			//青少年过滤
+			//青少年过滤 ,TeenActive:1为青少年模式
 			log.Infof("ad===========user",user.UserId)
 			log.Infof("ad===========status",user.Status)
-			if user.Status != 7 {
+			log.Infof("ad===========TeenActive",user.TeenActive)
+			if user.Status != 7 && user.TeenActive!=1 {
 				//针对新老版本的请求过滤
 				if params.ClientVersion >= 50802 { //params.Type == feedType 不对广告类型限制
 					if searchResList, searchErr = search.CallFeedAdList(clientName, params, user); searchErr == nil {

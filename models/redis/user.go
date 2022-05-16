@@ -50,6 +50,7 @@ type UserProfile struct {
 	LastActiveDate string   `json:"last_active_date"` // 用于计算回流用户
 	Intro          string    `json:"intro"` //用户标签
 	Occupation     string    `json:"occupation"`//用户职业
+	TeenActive     int8      `json:"teen_active,omitempty"` //是否是青少年模式
 
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
