@@ -21,6 +21,7 @@ const (
 	RecommendLabelWeight
 	WeekStarLabelWeight
 	MonthStarLabelWeight
+	ModalStudentLabelWeight
 	LiveTypeLabelWeight
 	ClassifyLabelWeight
 	FollowLabelWeight
@@ -33,8 +34,7 @@ const (
 	BeamingLabel   = 5
 	ClassifyLabel  = 6
 	StrategyLabel  = 8
-	FollowLabel    =7
-
+	FollowLabel    = 7
 
 	typeRecommend     = 1
 	typeBigVideo      = 32768
@@ -65,10 +65,10 @@ var classifyMap map[int]multiLanguage
 
 // 用户信息
 type UserInfo struct {
-	UserId       int64
-	UserCache    *redis.UserProfile
-	LiveProfile  *redis.LiveProfile
-	UserConcerns *rutils.SetInt64
+	UserId        int64
+	UserCache     *redis.UserProfile
+	LiveProfile   *redis.LiveProfile
+	UserConcerns  *rutils.SetInt64
 	UserInterests *rutils.SetInt64
 }
 

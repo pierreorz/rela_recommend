@@ -43,7 +43,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var user2 *redis.LiveProfile
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
-	var interestSet =&utils.SetInt64{}
+	var interestSet = &utils.SetInt64{}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
@@ -71,8 +71,8 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			return len(userBehaviorMap)
 		},
-		"user_interest": func(*performs.Performs) interface{}{
-			if interests, interestErr := rdsPikaCache.GetInt64List(params.UserId,"user_interest_offline_%d"); interestErr == nil {
+		"user_interest": func(*performs.Performs) interface{} {
+			if interests, interestErr := rdsPikaCache.GetInt64List(params.UserId, "user_interest_offline_%d"); interestErr == nil {
 				interestSet = utils.NewSetInt64FromArray(interests)
 				return interestSet.Len()
 			} else {
@@ -80,7 +80,7 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		},
 		"concerns": func(*performs.Performs) interface{} { // 获取关注信息
-			if abtest.GetBool("live_user_concerns",true){
+			if abtest.GetBool("live_user_concerns", true) {
 				if concerns, conErr := redisTheCache.QueryConcernsByUserV1(params.UserId); conErr == nil {
 					concernsSet = utils.NewSetInt64FromArray(concerns)
 					return concernsSet.Len()
@@ -143,15 +143,29 @@ func DoBuildData(ctx algo.IContext) error {
 				})
 			}
 
+			if lives[i].Live.IsModelStudent {
+				liveInfo.GetRankInfo().AddRecommendNeedReturn("MODEL_STUDENT", 1.0)
+				liveInfo.LiveData.AddLabel(&labelItem{
+					Style: WeekStarLabel,
+					Title: multiLanguage{
+						Chs: "模范生",
+						Cht: "模範生",
+						En:  "Model Girl",
+					},
+					weight: ModalStudentLabelWeight,
+					level:  level1,
+				})
+			}
+
 			livesInfo = append(livesInfo, &liveInfo)
 		}
 
 		userInfo := &UserInfo{
-			UserId:       user.UserId,
-			UserCache:    user,
-			LiveProfile:  user2,
-			UserConcerns: concernsSet,
-			UserInterests:interestSet}
+			UserId:        user.UserId,
+			UserCache:     user,
+			LiveProfile:   user2,
+			UserConcerns:  concernsSet,
+			UserInterests: interestSet}
 
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(liveIds)
