@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
+	"rela_recommend/factory"
+	"rela_recommend/help"
 	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
@@ -41,6 +43,8 @@ const (
 	level1 = 1
 	level2 = 2
 	level3 = 3
+
+	LabelExpire = 86400
 )
 
 const (
@@ -201,6 +205,8 @@ func (self *LiveInfo) GetDataId() int64 {
 }
 
 func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
+	params := ctx.GetRequest()
+	userId :=params.UserId
 	if self.LiveCache != nil {
 		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
 
@@ -273,7 +279,10 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				}
 
 				data.LabelList = self.LiveData.ToLabelList()
-
+				key :=string(self.UserId)+":"+string(userId)
+				if err := help.SetExStructByCache(factory.CacheRds, key, data.LabelList, LabelExpire); err != nil {
+					log.Error(err.Error())
+				}
 				dataJson, err := json.Marshal(data)
 				if err == nil {
 					return string(dataJson)
