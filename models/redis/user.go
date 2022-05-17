@@ -48,6 +48,9 @@ type UserProfile struct {
 	Recall         int      `json:"new_recall,omitempty"`
 	ActiveDate     string   `json:"active_date"`      // 用于计算回流用户
 	LastActiveDate string   `json:"last_active_date"` // 用于计算回流用户
+	Intro          string    `json:"intro"` //用户标签
+	Occupation     string    `json:"occupation"`//用户职业
+	TeenActive     int8      `json:"teen_active,omitempty"` //是否是青少年模式
 
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
@@ -235,7 +238,7 @@ func (this *UserCacheModule) QueryUsersMap(userIds []int64) (map[int64]*UserProf
 func (this *UserCacheModule) QueryByUserAndUsersMap(userId int64, userIds []int64) (*UserProfile, map[int64]*UserProfile, error) {
 	user, users, err := this.QueryByUserAndUsers(userId, userIds)
 	usersMap := make(map[int64]*UserProfile, 0)
-	// log.Infof("QueryByUserAndUsersMap: user:%+v users:%+v\n", user, users)
+	//log.Infof("QueryByUserAndUsersMap: user:%+v users:%+v\n", user, users)
 	for i, u := range users {
 		if u.UserId > 0 {
 			usersMap[u.UserId] = &users[i]

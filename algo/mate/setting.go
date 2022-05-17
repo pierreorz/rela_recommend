@@ -26,6 +26,7 @@ var loggerMap = map[string]algo.ILogger{
 
 var richStrategyMap = map[string]algo.IRichStrategy{
 	"base": &strategy.BaseRichStrategy{DefaultWeight: 1, StrategyItemFunc: BaseScoreStrategyItem},
+	"sentence_sort": &strategy.BaseRichStrategy{StrategyFunc: SortScoreItem},
 }
 
 var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{})
