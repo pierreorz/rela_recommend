@@ -79,9 +79,6 @@ func DoBuildData(ctx algo.IContext) error {
 			clientName := abtest.GetString("backend_app_name", "1") // 1: rela 2: 饭角
 			var searchErr error
 			//青少年过滤 ,TeenActive:1为青少年模式
-			log.Infof("ad===========user",user.UserId)
-			log.Infof("ad===========status",user.Status)
-			log.Infof("ad===========TeenActive",user.TeenActive)
 			if user.Status != 7 && user.TeenActive!=1 {
 				//针对新老版本的请求过滤
 				if params.ClientVersion >= 50802 { //params.Type == feedType 不对广告类型限制
@@ -123,12 +120,11 @@ func DoBuildData(ctx algo.IContext) error {
 			UserId:    params.UserId,
 			UserCache: user,
 		}
-
 		// 组装被曝光者信息
 		dataIds := make([]int64, 0)
 		dataList := make([]algo.IDataInfo, 0)
-		for i, searchRes := range searchResList {
-			if len(searchResList) != 1 {
+		if len(searchResList) != 1 {
+			for i, searchRes := range searchResList {
 				if _, ok := userAdIdMap[searchRes.Id]; !ok {
 					info := &DataInfo{
 						DataId:     searchRes.Id,
@@ -138,7 +134,9 @@ func DoBuildData(ctx algo.IContext) error {
 					dataIds = append(dataIds, searchRes.Id)
 					dataList = append(dataList, info)
 				}
-			}else{//当只有一条广告时不过滤上一次广告
+			}
+		} else{ //当只有一条广告时不过滤上一次广告
+			for i, searchRes := range searchResList {
 				info := &DataInfo{
 					DataId:     searchRes.Id,
 					SearchData: &searchResList[i],
