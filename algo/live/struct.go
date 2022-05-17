@@ -45,6 +45,8 @@ const (
 	level3 = 3
 
 	LabelExpire = 86400
+
+	prefix = "liveLabelList"
 )
 
 const (
@@ -279,7 +281,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				}
 
 				data.LabelList = self.LiveData.ToLabelList()
-				key :=string(self.UserId)+":"+string(userId)
+				key :=prefix+":"+string(self.UserId)+":"+string(userId)
 				if err := help.SetExStructByCache(factory.CacheRds, key, data.LabelList, LabelExpire); err != nil {
 					log.Error(err.Error())
 				}
