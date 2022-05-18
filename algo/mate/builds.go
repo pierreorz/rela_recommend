@@ -40,6 +40,10 @@ func DoBuildData(ctx algo.IContext) error {
 	wantName := WantDict[user.WantRole]
 	roleName := RoleDict[user.RoleName]
 
+	log.Infof("user.Horoscope=============%+v", user.Horoscope)
+	log.Infof("user.WantRole=============%+v", user.WantRole)
+	log.Infof("user.RoleName=============%+v", user.RoleName)
+
 	log.Infof("horoscope_name=============%+v", horoscopeName)
 	log.Infof("want_name=============%+v", wantName)
 	log.Infof("role_name=============%+v", roleName)
@@ -143,7 +147,7 @@ func DoBuildData(ctx algo.IContext) error {
 		userBehavior = realtimes[params.UserId]
 		log.Infof("userBehavior=============%+v", userBehavior)
 		if userBehavior != nil { //
-			countMap := userBehavior.BehaviorMap["BehaviorMap"]
+			countMap := userBehavior.BehaviorMap["moment.recommend:exposure"]
 			log.Infof("countMap=============%+v", countMap)
 			if countMap != nil {
 				tagMap := countMap.CountMap
