@@ -36,9 +36,9 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		return userCacheErr
 	})
-	horoscope_name := horoscope_dict[user.Horoscope]
-	want_name := want_dict[user.WantRole]
-	role_name := role_dict[user.RoleName]
+	horoscope_name := HoroscopeDict[user.Horoscope]
+	want_name := WantDict[user.WantRole]
+	role_name := RoleDict[user.RoleName]
 
 	//用户基础信息生成文案
 	//base文案
@@ -138,8 +138,10 @@ func DoBuildData(ctx algo.IContext) error {
 	realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap("moment", []int64{params.UserId})
 	if realtimeErr == nil { // 获取flink数据
 		userBehavior = realtimes[params.UserId]
+		log.Infof("userBehavior=============%+v", userBehavior)
 		if userBehavior != nil { //
 			countMap := userBehavior.BehaviorMap["behavior_map"]
+			log.Infof("countMap=============%+v", countMap)
 			if countMap != nil {
 				tagMap := countMap.CountMap
 				log.Infof("momentTagMap=============%+v", tagMap)
