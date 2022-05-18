@@ -36,10 +36,13 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		return userCacheErr
 	})
-	horoscope_name := HoroscopeDict[user.Horoscope]
-	want_name := WantDict[user.WantRole]
-	role_name := RoleDict[user.RoleName]
+	horoscopeName := HoroscopeDict[user.Horoscope]
+	wantName := WantDict[user.WantRole]
+	roleName := RoleDict[user.RoleName]
 
+	log.Infof("horoscope_name=============%+v", horoscopeName)
+	log.Infof("want_name=============%+v", wantName)
+	log.Infof("role_name=============%+v", roleName)
 	//用户基础信息生成文案
 	//base文案
 	var roleMap = map[string]string{"T": "1", "P": "1", "H": "1"}
@@ -55,12 +58,12 @@ func DoBuildData(ctx algo.IContext) error {
 		ageText = strconv.Itoa(userAge) + "岁"
 		textList = append(textList, ageText)
 	}
-	textList = append(textList, horoscope_name)
+	textList = append(textList, horoscopeName)
 	//自我认同
-	if _, ok := roleMap[role_name]; ok {
-		log.Infof("我是" + role_name + "，你呢？")
-		roleText = "我是" + role_name + "，你呢？"
-		textList = append(textList, role_name)
+	if _, ok := roleMap[roleName]; ok {
+		log.Infof("我是" + roleName + "，你呢？")
+		roleText = "我是" + roleName + "，你呢？"
+		textList = append(textList, roleName)
 		beasSentence := GetSentenceData(10002,roleText,nil,100)
 
 		baseVeiwList = append(baseVeiwList, beasSentence)
@@ -77,8 +80,8 @@ func DoBuildData(ctx algo.IContext) error {
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
 	//我想找的
-	if _, ok := roleMap[want_name]; ok {
-		wantText := "有" + want_name + "吗？"
+	if _, ok := roleMap[wantName]; ok {
+		wantText := "有" + wantName + "吗？"
 		beasSentence := GetSentenceData(10001,wantText,nil,100)
 
 		baseVeiwList = append(baseVeiwList, beasSentence)
@@ -140,7 +143,7 @@ func DoBuildData(ctx algo.IContext) error {
 		userBehavior = realtimes[params.UserId]
 		log.Infof("userBehavior=============%+v", userBehavior)
 		if userBehavior != nil { //
-			countMap := userBehavior.BehaviorMap["behavior_map"]
+			countMap := userBehavior.BehaviorMap["BehaviorMap"]
 			log.Infof("countMap=============%+v", countMap)
 			if countMap != nil {
 				tagMap := countMap.CountMap
