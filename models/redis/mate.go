@@ -3,8 +3,8 @@ package redis
 import (
 	"encoding/json"
 	"rela_recommend/cache"
+	"rela_recommend/factory"
 	"rela_recommend/log"
-	"rela_recommend/service/abtest"
 )
 
 type PretendLoveUser struct{
@@ -14,19 +14,19 @@ type PretendLoveUser struct{
 }
 
 type PretendLoveUserModule struct {
-	CachePikaModule
+	cacheCluster cache.Cache
+	storeCluster cache.Cache
 }
 
-
-func NewMateCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cache.Cache) *PretendLoveUserModule {
-	return &PretendLoveUserModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
+func NewMateCacheModule(cache *cache.Cache, store *cache.Cache) *PretendLoveUserModule {
+	return &PretendLoveUserModule{cacheCluster: *cache, storeCluster: *store}
 }
 
 
 // 读取假装情侣在线用户
 func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,error) {
 	keyFormatter := "chat:waiting_users"
-	user_bytes, err := self.CachePikaModule.cache.LRange(keyFormatter, 0, -1)
+	user_bytes, err := factory.AwsCluster.LRange(keyFormatter, 0, -1)
 	users := []PretendLoveUser{}
 	if err != nil {
 		log.Infof("user_bytes=====================%+v", user_bytes)
