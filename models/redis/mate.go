@@ -42,7 +42,7 @@ func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,er
 				userLine:=string(user_byte)
 				userList:=strings.Split(userLine, ",")
 				if len(userList)==3{
-					userPretend:=SetPretendLoveUser(userList[0],userList[1],userList[3])
+					userPretend:=SetPretendLoveUser(userList[0],userList[1],userList[2])
 					users=append(users, userPretend)
 				}
 			}
