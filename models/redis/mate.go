@@ -36,6 +36,8 @@ func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,er
 			log.Infof("user_byte=====================%+v", user_byte)
 			if user_byte != nil && len(user_byte) > 0 {
 				user:=PretendLoveUser{}
+				userLine:=string(user_byte)
+				log.Infof("userLine=====================%+v", userLine)
 				if err := json.Unmarshal(user_byte, &user); err != nil {
 					log.Error(err.Error(), string(user_byte))
 				}else{
