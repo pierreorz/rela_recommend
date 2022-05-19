@@ -29,7 +29,7 @@ func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,er
 	user_bytes, err := factory.AwsCluster.LRange(keyFormatter, 0, -1)
 	log.Infof("user_bytes=====================%+v", user_bytes)
 	users := []PretendLoveUser{}
-	if err != nil {
+	if len(user_bytes)>0 {
 		log.Infof("user_bytes=====================%+v", user_bytes)
 		for i := 0; i < len(user_bytes); i++ {
 			user_byte := user_bytes[i]
