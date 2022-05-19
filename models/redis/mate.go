@@ -26,7 +26,7 @@ func NewMateCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cache
 // 读取假装情侣在线用户
 func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,error) {
 	keyFormatter := "chat:waiting_users"
-	user_bytes, err := self.cache.LRange(keyFormatter, 0, -1)
+	user_bytes, err := self.CachePikaModule.cache.LRange(keyFormatter, 0, -1)
 	users := []PretendLoveUser{}
 	if err != nil {
 		log.Infof("user_bytes=====================%+v", user_bytes)
