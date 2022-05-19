@@ -179,8 +179,8 @@ func initCache(cfg *conf.Config) {
 	if err != nil {
 		log.Error(err.Error())
 	}
-	log.Infof("INIT AwsAddr: %s ....", cfg.Rds.AwsAddr)
-	AwsRds, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.AwsAddr, "", 0)
+	log.Infof("INIT AwsAddr: %s ....", cfg.Rds.AwsRedisAddr)
+	AwsRds, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.AwsRedisAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}
