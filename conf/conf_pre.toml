@@ -21,7 +21,7 @@ redis_live_addr = "r-8vbe0r7y7ns5newg40.redis.zhangbei.rds.aliyuncs.com:6379"
 redis_cluster_addr = "r-8vb5c335ea2d2c04.redis.zhangbei.rds.aliyuncs.com:6379"
 pika_addr = "172.16.14.1:9221"
 behavior_addr = "r-8vbswhyzljf7ddhi6i.redis.zhangbei.rds.aliyuncs.com:6379"
-aws_addr = "r-8vbsugldgjvq7jcrh3.redis.zhangbei.rds.aliyuncs.com:6379"
+aws_redis_addr == "r-8vbsugldgjvq7jcrh3.redis.zhangbei.rds.aliyuncs.com:6379"
 
 #mysql
 [rdb]

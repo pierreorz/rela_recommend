@@ -61,9 +61,6 @@ func main() {
 	}
 
 	cfg, err = conf.NewConfigWithFile(*configFile)
-	log.Infof("cfg===========%+v", cfg)
-	log.Infof("cfgRds===========%+v", cfg.Rds)
-	log.Infof("cfg.Rds.AwsRedisAddr===========%+v", cfg.Rds.AwsRedisAddr)
 	if err != nil {
 		log.Error(err.Error())
 		return
