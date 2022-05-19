@@ -77,7 +77,7 @@ func DoBuildData(ctx algo.IContext) error {
 		textList = append(textList, roleText)
 	}
 	//用户基本文案
-	if len(textList) > 0 {
+	if len(textList) > 1 {
 		baseText := strings.Join(textList, "/")
 		log.Infof("baseText", baseText)
 		beasSentence := GetSentenceData(10000,baseText,nil,100)
