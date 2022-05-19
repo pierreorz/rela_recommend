@@ -2,10 +2,8 @@ package conf
 
 import (
 	"flag"
-	"io/ioutil"
-	"rela_recommend/log"
-
 	"github.com/BurntSushi/toml"
+	"io/ioutil"
 )
 
 const (
@@ -103,7 +101,6 @@ func NewConfigWithFile(fileName string) (*Config, error) {
 	}
 
 	if cfg, err := NewConfigWithData(data); err != nil {
-		log.Infof("cfg========+++++=======%+v",cfg)
 		return nil, err
 	} else {
 		cfg.FileName = fileName
