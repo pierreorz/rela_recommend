@@ -1,10 +1,10 @@
 package redis
 
 import (
-	"encoding/json"
 	"rela_recommend/cache"
 	"rela_recommend/factory"
 	"rela_recommend/log"
+	"strings"
 )
 
 type PretendLoveUser struct{
@@ -21,7 +21,11 @@ type PretendLoveUserModule struct {
 func NewMateCacheModule(cache *cache.Cache, store *cache.Cache) *PretendLoveUserModule {
 	return &PretendLoveUserModule{cacheCluster: *cache, storeCluster: *store}
 }
-
+func SetPretendLoveUser(Userid string,Socketid string,Roleid string ) PretendLoveUser{
+	return PretendLoveUser{
+		Userid ,Socketid,Roleid,
+	}
+}
 
 // 读取假装情侣在线用户
 func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,error) {
@@ -35,14 +39,11 @@ func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,er
 			user_byte := user_bytes[i]
 			log.Infof("user_byte=====================%+v", user_byte)
 			if user_byte != nil && len(user_byte) > 0 {
-				user:=PretendLoveUser{}
 				userLine:=string(user_byte)
-				log.Infof("userLine=====================%+v", userLine)
-				if err := json.Unmarshal(user_byte, &user); err != nil {
-					log.Error(err.Error(), string(user_byte))
-				}else{
-					log.Infof("user=====================%+v", user)
-					users = append(users, user)
+				userList:=strings.Split(userLine, ",")
+				if len(userList)==3{
+					userPretend:=SetPretendLoveUser(userList[0],userList[1],userList[3])
+					users=append(users, userPretend)
 				}
 			}
 		}
