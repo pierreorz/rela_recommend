@@ -27,6 +27,7 @@ func NewMateCacheModule(cache *cache.Cache, store *cache.Cache) *PretendLoveUser
 func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,error) {
 	keyFormatter := "chat:waiting_users"
 	user_bytes, err := factory.AwsCluster.LRange(keyFormatter, 0, -1)
+	log.Infof("user_bytes=====================%+v", user_bytes)
 	users := []PretendLoveUser{}
 	if err != nil {
 		log.Infof("user_bytes=====================%+v", user_bytes)
