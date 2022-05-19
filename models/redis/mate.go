@@ -3,7 +3,6 @@ package redis
 import (
 	"rela_recommend/cache"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"strings"
 )
 
@@ -31,13 +30,10 @@ func SetPretendLoveUser(Userid string,Socketid string,Roleid string ) PretendLov
 func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,error) {
 	keyFormatter := "chat:waiting_users"
 	user_bytes, err := factory.AwsCluster.LRange(keyFormatter, 0, -1)
-	log.Infof("user_bytes=====================%+v", user_bytes)
 	users := []PretendLoveUser{}
 	if len(user_bytes)>0 {
-		log.Infof("user_bytes=====================%+v", user_bytes)
 		for i := 0; i < len(user_bytes); i++ {
 			user_byte := user_bytes[i]
-			log.Infof("user_byte=====================%+v", user_byte)
 			if user_byte != nil && len(user_byte) > 0 {
 				userLine:=string(user_byte)
 				userList:=strings.Split(userLine, ",")
@@ -47,7 +43,7 @@ func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,er
 				}
 			}
 		}
-		log.Infof("pretend======%+v",users)
+		//log.Infof("pretend======%+v",users)
 		return users, err
 	}
 	return users, err
