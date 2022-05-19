@@ -47,6 +47,9 @@ var CacheLoc cache.Cache
 // pika
 var PikaCluster cache.Cache
 
+//Aws
+var AwsRds cache.Cache
+
 // cassandra client
 var CassandraClient *gocql.Session
 
@@ -176,6 +179,11 @@ func initCache(cfg *conf.Config) {
 	if err != nil {
 		log.Error(err.Error())
 	}
+	log.Infof("INIT AwsAddr: %s ....", cfg.Rds.AwsAddr)
+	AwsRds, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.AwsAddr, "", 0)
+	if err != nil {
+		log.Error(err.Error())
+	}
 
 	memoryCacheSize := 1024 * 1024 * 1024 // 1GB
 	log.Infof("INIT CacheLocal: %d ....", memoryCacheSize)
@@ -224,4 +232,5 @@ func Close() {
 	CacheCluster.Close()
 	PikaCluster.Close()
 	CacheBehaviorRdsBackup.Close()
+	AwsRds.Close()
 }

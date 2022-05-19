@@ -42,6 +42,7 @@ type rdsConfig struct {
 	RedisPushAddr      string `toml:"redis_push_addr"`
 	BehaviorAddr       string `toml:"behavior_addr"`
 	BehaviorBackupAddr string `toml:"behavior_backup_addr"`
+	AwsAddr            string `toml:"aws_addr"`
 }
 
 type cassandraConfig struct {

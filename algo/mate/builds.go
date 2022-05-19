@@ -22,7 +22,11 @@ func DoBuildData(ctx algo.IContext) error {
 	//momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
-
+	awsCache := redis.NewMateCacheModule(ctx, &factory.CacheCluster, &factory.AwsRds)
+	pretendList, err := awsCache.QueryPretendLoveList()
+	if err == nil {
+		log.Infof("pretendList=====================%+v", pretendList)
+	}
 	if params.Limit == 0 {
 		params.Limit = abtest.GetInt64("default_limit", 50)
 	}
