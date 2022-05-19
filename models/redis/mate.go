@@ -23,11 +23,15 @@ func NewMateCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cache
 // 读取假装情侣在线用户
 func (self *PretendLoveUserModule) QueryPretendLoveList()  (PretendLoveUser,error) {
 	keyFormatter := "chat:waiting_user"
+	var users PretendLoveUser
 	awsList, err := self.Get(keyFormatter)
-	log.Infof("awsList=====================%+v",awsList)
-	obj:=awsList.(PretendLoveUser)
-	return obj, err
-
+	log.Infof("awsList=====================%+v", awsList)
+	if err != nil {
+		users = awsList.(PretendLoveUser)
+		return users, err
+	}else{
+		return users,err
+	}
 }
 
 
