@@ -19,7 +19,7 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	//momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	//themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
 	pretendList, err := awsCache.QueryPretendLoveList()
@@ -71,11 +71,11 @@ func DoBuildData(ctx algo.IContext) error {
 	var userThemeMap  map[int64]float64
 	var onlineUserThemeMap map[int64]float64
 	userProfileUserIds := []int64{params.UserId}
-	userThemeMap=GetThemeProfileData(userProfileUserIds)
+	userThemeMap=themeUserCache.QueryMatThemeProfileData(userProfileUserIds)
 	if userThemeMap!=nil{
 		log.Infof("userThemeMap=======================================%+v", userThemeMap)
 	}
-	onlineUserThemeMap =GetThemeProfileData(onlineUserList)
+	onlineUserThemeMap =themeUserCache.QueryMatThemeProfileData(onlineUserList)
 	if onlineUserThemeMap!=nil{
 		log.Infof("onlineUserThemeMap=======================================%+v", onlineUserThemeMap)
 	}
