@@ -138,7 +138,7 @@ func GetBaseSentenceDatabyId(user *redis.UserProfile) []search.MateTextResDataIt
 
 func GetBaseSentenceDataMap(userMap map[int64]*redis.UserProfile) []search.MateTextResDataItem {
 	var onlineUserBaseMap []search.MateTextResDataItem
-	var sentenceMap map[string]int64
+	var sentenceMap=make(map[string]int64)
 	if len(userMap)>0 {
 		for _, user := range userMap {
 			age := user.Age
