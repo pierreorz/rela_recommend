@@ -27,9 +27,9 @@ func DoBuildData(ctx algo.IContext) error {
 	var onlineUserList []int64
 	if err == nil {
 		log.Infof("pretendList=====================%+v", pretendList)
-		for _,v := range pretendList{
+		for _, v := range pretendList {
 			userId, err := strconv.ParseInt(v.Userid, 10, 64)
-			if err==nil {
+			if err == nil {
 				onlineUserList = append(onlineUserList, userId)
 			}
 		}
@@ -50,21 +50,15 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 	//用户基础信息生成文案
 	//base文案
-	var affection_list = map[string]string{"1": "1", "7": "1"}
+	var affection_list= map[string]string{"1": "1", "7": "1"}
 	searchBase := search.SearchType{}
 	searchCateg := search.SearchType{}
 
 	//请求用户基础文案
-	reqUserBaseSentence:=GetBaseSentenceDatabyId(user)
-	log.Infof( "reqUserBaseSentence=======================================%+v",reqUserBaseSentence)
+	reqUserBaseSentence := GetBaseSentenceDatabyId(user)
+	log.Infof("reqUserBaseSentence=======================================%+v", reqUserBaseSentence)
 	//在线用户基础文案
-	onlineUserBaseSentenceList:=GetBaseSentenceDataMap(onlineUserMap)
-	if onlineUserBaseSentenceList!=nil{
-		log.Infof( "onlineUserBaseSentenceList=======================================%+v",onlineUserBaseSentenceList)
-		//for _,v := range onlineUserBaseSentenceList{
-		//	log.Infof( "reqUserBaseSentence=======================================%+v",v)
-		//}
-	}
+	onlineUserBaseSentenceList := GetBaseSentenceDataMap(onlineUserMap)
 
 	//基础数据需要搜索
 	if _, ok := affection_list[string(user.Affection)]; ok {
@@ -74,13 +68,13 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 
 	//情感搜索
-	//获取用户话题偏好
+	//获取假装情侣池话题偏好
 	userThemeMap := map[int64]float64{}
-	var themeProfileMap= map[int64]*redis.ThemeUserProfile{}
+	var themeProfileMap = map[int64]*redis.ThemeUserProfile{}
 	pf.Run("Theme_profile", func(*performs.Performs) interface{} {
 		var themeUserCacheErr error
-		userProfileUserIds := []int64{params.UserId}
-		themeProfileMap, themeUserCacheErr = themeUserCache.QueryThemeUserProfileMap(userProfileUserIds)
+		//userProfileUserIds := []int64{params.UserId}
+		themeProfileMap, themeUserCacheErr = themeUserCache.QueryThemeUserProfileMap(onlineUserList)
 		if themeUserCacheErr == nil {
 			return len(themeProfileMap)
 		}
@@ -109,10 +103,10 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		}
 	}
-	//获取moment偏好
+	//获取假装情侣用户moment偏好
 	var userBehavior *behavior.UserBehavior
 	userMomMap := map[int64]float64{}
-	realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap("moment", []int64{params.UserId})
+	realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap("moment", onlineUserList)
 	if realtimeErr == nil { // 获取flink数据
 		userBehavior = realtimes[params.UserId]
 		log.Infof("userBehavior=============%+v", userBehavior)
@@ -131,11 +125,11 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	}
 	//合并用户偏好
-	userProfile:=MergeMap(userThemeMap,userMomMap)
+	userProfile := MergeMap(userThemeMap, userMomMap)
 	log.Infof("themeMap=============%+v", userThemeMap)
 	log.Infof("momMap=============%+v", userMomMap)
-	log.Infof("userProfile=======%+v",userProfile)
-	if len(userProfile)>0{
+	log.Infof("userProfile=======%+v", userProfile)
+	if len(userProfile) > 0 {
 		resultList := rutils.SortMapByValue(userProfile)
 		for i, v := range resultList {
 			if i < 2 {
@@ -161,9 +155,15 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 	//log.Infof("searchList=============%+v", searchResList)
 	//合并文案数据
-	//for _, searchRes := range searchResList {
-	//	baseVeiwList=append(baseVeiwList,searchRes)
-	//}
+	var allSentenceList []search.MateTextResDataItem
+	if onlineUserBaseSentenceList != nil {
+
+		allSentenceList = append(onlineUserBaseSentenceList, searchResList...)
+
+	}else{
+		allSentenceList = append(reqUserBaseSentence,searchResList...)
+	}
+	log.Infof("allSentenceList=============%+v", searchResList)
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId: params.UserId,
@@ -172,10 +172,10 @@ func DoBuildData(ctx algo.IContext) error {
 		// 组装被曝光者信息
 		dataIds := make([]int64, 0)
 		dataList := make([]algo.IDataInfo, 0)
-		for i, baseRes := range searchResList {
+		for i, baseRes := range allSentenceList {
 			info := &DataInfo{
 				DataId:     baseRes.Id,
-				SearchData: &searchResList[i],
+				SearchData: &allSentenceList[i],
 				RankInfo:   &algo.RankInfo{},
 			}
 			dataIds = append(dataIds, baseRes.Id)
