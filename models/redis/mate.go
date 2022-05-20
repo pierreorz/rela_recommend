@@ -48,7 +48,17 @@ func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,er
 	}
 	return users, err
 }
-
+//获取假装情侣在线用户信息
+func(this *UserCacheModule) QuserUserBaseMap(userId int64,userIds []int64) (*UserProfile,map[int64]*UserProfile, error){
+	var user *UserProfile
+	var userMap map[int64]*UserProfile
+	user,userMap,userCacheErr:=this.QueryByUserAndUsersMap(userId,userIds)
+	if userCacheErr==nil{
+		return user,userMap,nil
+	}
+	return user,userMap,nil
+}
+//获取假装情侣在线用户话题偏好
 
 
 

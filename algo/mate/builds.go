@@ -10,7 +10,6 @@ import (
 	"rela_recommend/service/performs"
 	rutils "rela_recommend/utils"
 	"strconv"
-	"strings"
 )
 
 func DoBuildData(ctx algo.IContext) error {
@@ -24,89 +23,56 @@ func DoBuildData(ctx algo.IContext) error {
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
 	pretendList, err := awsCache.QueryPretendLoveList()
+	//获取假装情侣在线用户id
+	var onlineUserList []int64
 	if err == nil {
 		log.Infof("pretendList=====================%+v", pretendList)
+		for _,v := range pretendList{
+			userId, err := strconv.ParseInt(v.Userid, 10, 64)
+			if err==nil {
+				onlineUserList = append(onlineUserList, userId)
+			}
+		}
 	}
 	if params.Limit == 0 {
 		params.Limit = abtest.GetInt64("default_limit", 50)
 	}
 
-	//获取用户信息
+	//获取用户信息，在线用户信息
 	var user *redis.UserProfile
+	var onlineUserMap map[int64]*redis.UserProfile
 	pf.Run("user", func(*performs.Performs) interface{} {
 		var userCacheErr error
-		if user, _, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, []int64{}); userCacheErr != nil {
+		if user, onlineUserMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, onlineUserList); userCacheErr != nil {
 			return rutils.GetInt(user != nil)
 		}
 		return userCacheErr
 	})
-	horoscopeName := HoroscopeDict[user.Horoscope]
-	wantName := WantDict[user.WantRole]
-	roleName := RoleDict[user.RoleName]
-
-	log.Infof("user.Horoscope=============%+v", user.Horoscope)
-	log.Infof("user.WantRole=============%+v", user.WantRole)
-	log.Infof("user.RoleName=============%+v", user.RoleName)
-
-	log.Infof("horoscope_name=============%+v", horoscopeName)
-	log.Infof("want_name=============%+v", wantName)
-	log.Infof("role_name=============%+v", roleName)
 	//用户基础信息生成文案
 	//base文案
-	var roleMap = map[string]string{"T": "1", "P": "1", "H": "1"}
 	var affection_list = map[string]string{"1": "1", "7": "1"}
-	var ageText string
-	var roleText string
-	var textList []string
 	searchBase := search.SearchType{}
 	searchCateg := search.SearchType{}
-	var baseVeiwList []search.MateTextResDataItem
-	userAge := user.Age
-	if userAge >= 18 && userAge <= 40 {
-		ageText = strconv.Itoa(userAge) + "岁"
-		textList = append(textList, ageText)
-	}
-	textList = append(textList, horoscopeName)
-	//自我认同
-	if _, ok := roleMap[roleName]; ok {
-		log.Infof("我是" + roleName + "，你呢？")
-		roleText = "我是" + roleName + "，你呢？"
-		textList = append(textList, roleName)
-		beasSentence := GetSentenceData(10002,roleText,nil,100)
 
-		baseVeiwList = append(baseVeiwList, beasSentence)
+	//请求用户基础文案
+	reqUserBaseSentence:=GetBaseSentenceDatabyId(user)
+	log.Infof( "reqUserBaseSentence=======================================%+v",reqUserBaseSentence)
+	//在线用户基础文案
+	onlineUserBaseSentenceMap:=GetBaseSentenceDataMap(onlineUserMap)
+	if onlineUserBaseSentenceMap!=nil{
+		log.Infof( "reqUserBaseSentence=======================================%+v",reqUserBaseSentence)
+		for k,_ := range onlineUserBaseSentenceMap{
+			log.Infof( "reqUserBaseSentence=======================================%+v",k)
+		}
 	}
-	//职业
-	if user.Occupation != "" && len(user.Occupation) <= 6 {
-		textList = append(textList, roleText)
-	}
-	//用户基本文案
-	if len(textList) > 1 {
-		baseText := strings.Join(textList, "/")
-		log.Infof("baseText", baseText)
-		beasSentence := GetSentenceData(10000,baseText,nil,100)
-		baseVeiwList = append(baseVeiwList, beasSentence)
-	}
-	//我想找的
-	if _, ok := roleMap[wantName]; ok {
-		wantText := "有" + wantName + "吗？"
-		beasSentence := GetSentenceData(10001,wantText,nil,100)
 
-		baseVeiwList = append(baseVeiwList, beasSentence)
-	}
-	if user.Intro != "" {
-		//log.Infof( "========Intro",user.Intro)
-		beasSentence := GetSentenceData(10003,user.Intro,nil,100)
-		baseVeiwList = append(baseVeiwList, beasSentence)
-	}
 	//基础数据需要搜索
 	if _, ok := affection_list[string(user.Affection)]; ok {
 		//log.Infof( "========Intro",user.Affection)
 		searchBase.TextType = "10"
 		searchBase.TagType = append(searchBase.TagType, "4")
 	}
-	log.Infof("baseVeiwText=============%+v", baseVeiwList)
-	log.Infof("categSearch=============%+v", searchBase)
+
 	//情感搜索
 	//获取用户话题偏好
 	userThemeMap := map[int64]float64{}

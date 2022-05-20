@@ -5,6 +5,8 @@ import (
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
+	"strconv"
+	"strings"
 )
 
 // 用户信息
@@ -78,4 +80,101 @@ func MergeMap(mObj ...map[int64]float64) map[int64]float64 {
 		}
 	}
 	return newObj
+}
+//基础文案生成
+var roleMap = map[string]string{"T": "1", "P": "1", "H": "1"}
+var affection_list = map[string]string{"1": "1", "7": "1"}
+func GetSentence(age int,horoscopeName string ,roleName string,occupation string,wantName string,intro string) []search.MateTextResDataItem{
+	var baseVeiwList []search.MateTextResDataItem
+	var textList []string
+	if age >= 18 && age <= 40 {
+		ageText := strconv.Itoa(age) + "岁"
+		textList = append(textList, ageText)
+	}
+	textList = append(textList, horoscopeName)
+	//自我认同
+	if _, ok := roleMap[roleName]; ok {
+		roleText := "我是" + roleName + "，你呢？"
+		beasSentence := GetSentenceData(10002,roleText,nil,100)
+		textList = append(textList, roleName)
+		baseVeiwList = append(baseVeiwList, beasSentence)
+	}
+	//职业
+	if occupation != "" && len(occupation) <= 6 {
+		textList = append(textList, occupation)
+	}
+	//我想找的
+	if _, ok := roleMap[wantName]; ok {
+		wantText := "有" + wantName + "吗？"
+		beasSentence := GetSentenceData(10001,wantText,nil,100)
+		baseVeiwList = append(baseVeiwList, beasSentence)
+	}
+	//标签
+	if intro != "" {
+		beasSentence := GetSentenceData(10003,intro,nil,100)
+		baseVeiwList = append(baseVeiwList, beasSentence)
+	}
+	//用户基本文案
+	if len(textList) > 1 {
+		baseText := strings.Join(textList, "/")
+		beasSentence := GetSentenceData(10000,baseText,nil,100)
+		baseVeiwList = append(baseVeiwList, beasSentence)
+	}
+	return baseVeiwList
+}
+func GetBaseSentenceDatabyId(user *redis.UserProfile) []search.MateTextResDataItem {
+	age:=user.Age
+	horoscopeName:=HoroscopeDict[user.Horoscope]
+	wantName := WantDict[user.WantRole]
+	roleName := RoleDict[user.RoleName]
+	occupation :=user.Occupation
+	intro:=user.Intro
+	baseSenten:=GetSentence(age,horoscopeName,wantName,roleName,occupation,intro)
+	if baseSenten!=nil{
+		return baseSenten
+	}
+	return nil
+}
+
+func GetBaseSentenceDataMap(userMap map[int64]*redis.UserProfile) []search.MateTextResDataItem {
+	var onlineUserBaseMap []search.MateTextResDataItem
+	var sentenceMap map[string]int64
+	if len(userMap)>0 {
+		for _, user := range userMap {
+			age := user.Age
+			horoscopeName := HoroscopeDict[user.Horoscope]
+			wantName := WantDict[user.WantRole]
+			roleName := RoleDict[user.RoleName]
+			occupation := user.Occupation
+			intro := user.Intro
+			baseSenten := GetSentence(age, horoscopeName, wantName, roleName, occupation, intro)
+			if len(baseSenten) > 0 {
+				//文案去重
+				for _, v := range baseSenten {
+					id := strconv.FormatInt(v.Id, 10)
+					text := v.Text
+					weight := strconv.Itoa(v.Weight)
+					cities := ""
+					sentence := id + "," + text + "," + weight + "," + cities
+					sentenceMap[sentence] = 1
+				}
+			}
+		}
+		//重新组装
+		if len(sentenceMap) > 0 {
+			for k, _ := range sentenceMap {
+				id := strings.Split(k, ",")[0]
+				text := strings.Split(k, ",")[1]
+				weight := strings.Split(k, ",")[2]
+				int_id, err := strconv.ParseInt(id, 10, 64)
+				int_weight, err := strconv.Atoi(weight)
+				if err == nil {
+					resultSenten:=GetSentenceData(int_id,text,nil,int_weight)
+					onlineUserBaseMap=append(onlineUserBaseMap,resultSenten)
+				}
+			}
+		}
+		return onlineUserBaseMap
+	}
+	return nil
 }
