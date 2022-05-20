@@ -115,7 +115,10 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 		beasSentence := GetSentenceData(10003,intro,nil,100)
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
-	log.Infof("baseSentence============+++++++========%+v",age,horoscopeName,roleName,occupation)
+	log.Infof("baseSentence============+++++++========%+v",age)
+	log.Infof("baseSentence============+++++++========%+v",horoscopeName)
+	log.Infof("baseSentence============+++++++========%+v",roleName)
+	log.Infof("baseSentence============+++++++========%+v",occupation)
 	//用户基本文案
 	log.Infof("baseSentence============+++++++========%+v",textList)
 	log.Infof("len(textList)============+++++++========%+v",len(textList))
