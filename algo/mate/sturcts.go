@@ -2,6 +2,7 @@ package mate
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/factory"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -83,7 +84,7 @@ func MergeMap(mObj ...map[int64]float64) map[int64]float64 {
 }
 //基础文案生成
 var roleMap = map[string]string{"T": "1", "P": "1", "H": "1"}
-var affection_list = map[string]string{"1": "1", "7": "1"}
+//var affection_list = map[string]string{"1": "1", "7": "1"}
 func GetSentence(age int,horoscopeName string ,roleName string,occupation string,wantName string,intro string) []search.MateTextResDataItem{
 	var baseVeiwList []search.MateTextResDataItem
 	var textList []string
@@ -122,7 +123,7 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	}
 	return baseVeiwList
 }
-func GetBaseSentenceDatabyId(user *redis.UserProfile) []search.MateTextResDataItem {
+func GetBaseSentenceDataById(user *redis.UserProfile) []search.MateTextResDataItem {
 	age:=user.Age
 	horoscopeName:=HoroscopeDict[user.Horoscope]
 	wantName := WantDict[user.WantRole]
@@ -177,4 +178,42 @@ func GetBaseSentenceDataMap(userMap map[int64]*redis.UserProfile) []search.MateT
 		return onlineUserBaseMap
 	}
 	return nil
+}
+
+func GetThemeProfileData(userId []int64) map[int64]float64 {
+	userProfileUserIds := userId
+	var themeProfileMap= map[int64]*redis.ThemeUserProfile{}
+	var themeUserCacheErr error
+	userThemeMap := map[int64]float64{}
+	themeUserCache := redis.MateThemeCacheModule(&factory.CacheCluster, &factory.PikaCluster)
+	themeProfileMap, themeUserCacheErr = themeUserCache.QueryThemeUserProfileMap(userProfileUserIds)
+	if themeUserCacheErr == nil {
+		for _,profile := range themeProfileMap{
+			if profile!=nil{
+				tagMap:=profile.AiTag
+				themeTagLongMap:=tagMap.UserShortTag
+				themeTagShortMap:=tagMap.UserShortTag
+				if len(themeTagLongMap) > 0 {
+					for k, _ := range themeTagLongMap {
+						if _, ok := userThemeMap[k]; ok {
+							userThemeMap[k] += 1.0
+						} else {
+							userThemeMap[k] = 1.0
+						}
+					}
+				}
+				if len(themeTagShortMap) > 0 {
+					for k, _ := range themeTagShortMap {
+						if _, ok := userThemeMap[k]; ok {
+							userThemeMap[k] += 1
+						} else {
+							userThemeMap[k] = 1
+						}
+					}
+				}
+			}
+		}
+		return userThemeMap
+	}
+	return userThemeMap
 }

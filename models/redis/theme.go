@@ -93,6 +93,11 @@ func NewThemeCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cach
 	return &ThemeUserProfileModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
 
+func MateThemeCacheModule(cache *cache.Cache, store *cache.Cache) *ThemeUserProfileModule {
+	return &ThemeUserProfileModule{CachePikaModule{cache: *cache, store: *store}}
+}
+
+
 // 读取话题相关用户行为
 func (self *ThemeBehaviorCacheModule) QueryUserBehaviorMap(userId int64, ids []int64) (map[int64]*ThemeUserBehavior, error) {
 	keyFormatter := fmt.Sprintf("behavior:theme:%d:%%d", userId)

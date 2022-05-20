@@ -58,8 +58,3 @@ func(this *UserCacheModule) QuserUserBaseMap(userId int64,userIds []int64) (*Use
 	}
 	return user,userMap,nil
 }
-//获取假装情侣在线用户话题偏好
-
-
-
-

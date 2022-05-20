@@ -19,7 +19,7 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	//momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	//themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
 	pretendList, err := awsCache.QueryPretendLoveList()
@@ -55,7 +55,7 @@ func DoBuildData(ctx algo.IContext) error {
 	searchCateg := search.SearchType{}
 
 	//请求用户基础文案
-	reqUserBaseSentence := GetBaseSentenceDatabyId(user)
+	reqUserBaseSentence := GetBaseSentenceDataById(user)
 	log.Infof("reqUserBaseSentence=======================================%+v", reqUserBaseSentence)
 	//在线用户基础文案
 	onlineUserBaseSentenceList := GetBaseSentenceDataMap(onlineUserMap)
@@ -66,45 +66,54 @@ func DoBuildData(ctx algo.IContext) error {
 		searchBase.TextType = "10"
 		searchBase.TagType = append(searchBase.TagType, "4")
 	}
-
 	//情感搜索
 	//获取假装情侣池话题偏好
-	userThemeMap := map[int64]float64{}
-	var themeProfileMap = map[int64]*redis.ThemeUserProfile{}
-	pf.Run("Theme_profile", func(*performs.Performs) interface{} {
-		var themeUserCacheErr error
-		//userProfileUserIds := []int64{params.UserId}
-		themeProfileMap, themeUserCacheErr = themeUserCache.QueryThemeUserProfileMap(onlineUserList)
-		if themeUserCacheErr == nil {
-			return len(themeProfileMap)
-		}
-		return themeUserCacheErr
-	})
-	if len(themeProfileMap) > 0 {
-		themeProfile := themeProfileMap[params.UserId]
-		if themeProfile != nil {
-			themeTagLongMap := themeProfile.AiTag.UserLongTag
-			themeTagShortMap := themeProfile.AiTag.UserShortTag
-			if len(themeTagLongMap) > 0 {
-				for k, _ := range themeTagLongMap {
-					if _, ok := userThemeMap[k]; ok {
-						userThemeMap[k] += 1.0
-					} else {
-						userThemeMap[k] = 1.0
-					}
-				}
-			}
-			if len(themeTagShortMap) > 0 {
-				for k, _ := range themeTagShortMap {
-					if _, ok := userThemeMap[k]; ok {
-						userThemeMap[k] += 1
-					} else {
-						userThemeMap[k] = 1
-					}
-				}
-			}
-		}
+	var userThemeMap  map[int64]float64
+	var onlineUserThemeMap map[int64]float64
+	userProfileUserIds := []int64{params.UserId}
+	userThemeMap=GetThemeProfileData(userProfileUserIds)
+	if userThemeMap!=nil{
+		log.Infof("userThemeMap=======================================%+v", userThemeMap)
 	}
+	onlineUserThemeMap =GetThemeProfileData(onlineUserList)
+	if onlineUserThemeMap!=nil{
+		log.Infof("onlineUserThemeMap=======================================%+v", onlineUserThemeMap)
+	}
+	//var themeProfileMap = map[int64]*redis.ThemeUserProfile{}
+	//pf.Run("Theme_profile", func(*performs.Performs) interface{} {
+	//	var themeUserCacheErr error
+	//	//userProfileUserIds := []int64{params.UserId}
+	//	themeProfileMap, themeUserCacheErr = themeUserCache.QueryThemeUserProfileMap(onlineUserList)
+	//	if themeUserCacheErr == nil {
+	//		return len(themeProfileMap)
+	//	}
+	//	return themeUserCacheErr
+	//})
+	//if len(themeProfileMap) > 0 {
+	//	themeProfile := themeProfileMap[params.UserId]
+	//	if themeProfile != nil {
+	//		themeTagLongMap := themeProfile.AiTag.UserLongTag
+	//		themeTagShortMap := themeProfile.AiTag.UserShortTag
+	//		if len(themeTagLongMap) > 0 {
+	//			for k, _ := range themeTagLongMap {
+	//				if _, ok := userThemeMap[k]; ok {
+	//					userThemeMap[k] += 1.0
+	//				} else {
+	//					userThemeMap[k] = 1.0
+	//				}
+	//			}
+	//		}
+	//		if len(themeTagShortMap) > 0 {
+	//			for k, _ := range themeTagShortMap {
+	//				if _, ok := userThemeMap[k]; ok {
+	//					userThemeMap[k] += 1
+	//				} else {
+	//					userThemeMap[k] = 1
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 	//获取假装情侣用户moment偏好
 	var userBehavior *behavior.UserBehavior
 	userMomMap := map[int64]float64{}
