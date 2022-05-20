@@ -91,26 +91,6 @@ func DoBuildData(ctx algo.IContext) error {
 	if onlineUserMomMap!=nil{
 		log.Infof("onlineUserMomMap=======================================%+v", onlineUserMomMap)
 	}
-	//var userBehavior *behavior.UserBehavior
-	//userMomMap := map[int64]float64{}
-	//realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap("moment", onlineUserList)
-	//if realtimeErr == nil { // 获取flink数据
-	//	userBehavior = realtimes[params.UserId]
-	//	log.Infof("userBehavior=============%+v", userBehavior)
-	//	if userBehavior != nil { //
-	//		countMap := userBehavior.BehaviorMap["moment.recommend:exposure"]
-	//		log.Infof("countMap=============%+v", countMap)
-	//		if countMap != nil {
-	//			tagMap := countMap.CountMap
-	//			log.Infof("momentTagMap=============%+v", tagMap)
-	//			if tagMap != nil {
-	//				for _, v := range tagMap {
-	//					userMomMap[v.Id] = 1.0
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
 	//合并用户偏好(请求)
 	reqUserProfile := MergeMap(reqUserThemeMap, reqUserMomMap)
 	if len(reqUserProfile) > 0 {
