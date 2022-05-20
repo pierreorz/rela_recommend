@@ -60,10 +60,10 @@ func DoBuildData(ctx algo.IContext) error {
 	//在线用户基础文案
 	onlineUserBaseSentenceList:=GetBaseSentenceDataMap(onlineUserMap)
 	if onlineUserBaseSentenceList!=nil{
-		log.Infof( "reqUserBaseSentence=======================================%+v",onlineUserBaseSentenceList)
-		for _,v := range onlineUserBaseSentenceList{
-			log.Infof( "reqUserBaseSentence=======================================%+v",v)
-		}
+		log.Infof( "onlineUserBaseSentenceList=======================================%+v",onlineUserBaseSentenceList)
+		//for _,v := range onlineUserBaseSentenceList{
+		//	log.Infof( "reqUserBaseSentence=======================================%+v",v)
+		//}
 	}
 
 	//基础数据需要搜索

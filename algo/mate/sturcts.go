@@ -2,6 +2,7 @@ package mate
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -115,6 +116,8 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
 	//用户基本文案
+	log.Infof("baseSentence============+++++++========%+v",textList)
+	log.Infof("len(textList)============+++++++========%+v",len(textList))
 	if len(textList) > 1 {
 		baseText := strings.Join(textList, "/")
 		beasSentence := GetSentenceData(10000,baseText,nil,100)
