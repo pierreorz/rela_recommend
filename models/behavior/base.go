@@ -384,3 +384,26 @@ func (self *BehaviorCacheModule) QueryDataBehaviorTop(module string) (*DataBehav
 		return nil, errors.New("context is nil")
 	}
 }
+
+func (self *BehaviorCacheModule)QueryMateMomUserData (userId []int64) map[int64]float64 {
+	userProfileUserIds := userId
+	var userMomMap = map[int64]float64{}
+	realtimes, realtimeErr := self.QueryUserBehaviorMap("moment", userProfileUserIds)
+	if realtimeErr == nil {
+		for _,momProfile:=range realtimes {
+			if momProfile != nil {
+				countMap := momProfile.BehaviorMap["moment.recommend:exposure"]
+				if countMap != nil {
+					tagMap := countMap.CountMap
+					if tagMap!=nil{
+						for _,v:=range tagMap{
+							userMomMap[v.Id] = 1.0
+						}
+					}
+				}
+			}
+		}
+		return userMomMap
+	}
+	return userMomMap
+}

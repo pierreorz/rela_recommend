@@ -52,8 +52,8 @@ func DoBuildData(ctx algo.IContext) error {
 	//base文案
 	var affection_list= map[string]string{"1": "1", "7": "1"}
 	searchBase := search.SearchType{}
-	searchCateg := search.SearchType{}
-
+	reqSearchCateg := search.SearchType{}
+	onlineSearchCateg := search.SearchType{}
 	//请求用户基础文案
 	reqUserBaseSentence := GetBaseSentenceDataById(user)
 	log.Infof("reqUserBaseSentence=======================================%+v", reqUserBaseSentence)
@@ -68,89 +68,73 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	//情感搜索
 	//获取假装情侣池话题偏好
-	var userThemeMap  map[int64]float64
-	var onlineUserThemeMap map[int64]float64
+	var reqUserThemeMap  map[int64]float64 //请求者
+	var onlineUserThemeMap map[int64]float64 //假装情侣池
 	userProfileUserIds := []int64{params.UserId}
-	userThemeMap=themeUserCache.QueryMatThemeProfileData(userProfileUserIds)
-	if userThemeMap!=nil{
-		log.Infof("userThemeMap=======================================%+v", userThemeMap)
+	reqUserThemeMap=themeUserCache.QueryMatThemeProfileData(userProfileUserIds)
+	if reqUserThemeMap!=nil{
+		log.Infof("userThemeMap=======================================%+v", reqUserThemeMap)
 	}
 	onlineUserThemeMap =themeUserCache.QueryMatThemeProfileData(onlineUserList)
 	if onlineUserThemeMap!=nil{
 		log.Infof("onlineUserThemeMap=======================================%+v", onlineUserThemeMap)
 	}
-	//var themeProfileMap = map[int64]*redis.ThemeUserProfile{}
-	//pf.Run("Theme_profile", func(*performs.Performs) interface{} {
-	//	var themeUserCacheErr error
-	//	//userProfileUserIds := []int64{params.UserId}
-	//	themeProfileMap, themeUserCacheErr = themeUserCache.QueryThemeUserProfileMap(onlineUserList)
-	//	if themeUserCacheErr == nil {
-	//		return len(themeProfileMap)
-	//	}
-	//	return themeUserCacheErr
-	//})
-	//if len(themeProfileMap) > 0 {
-	//	themeProfile := themeProfileMap[params.UserId]
-	//	if themeProfile != nil {
-	//		themeTagLongMap := themeProfile.AiTag.UserLongTag
-	//		themeTagShortMap := themeProfile.AiTag.UserShortTag
-	//		if len(themeTagLongMap) > 0 {
-	//			for k, _ := range themeTagLongMap {
-	//				if _, ok := userThemeMap[k]; ok {
-	//					userThemeMap[k] += 1.0
-	//				} else {
-	//					userThemeMap[k] = 1.0
-	//				}
-	//			}
-	//		}
-	//		if len(themeTagShortMap) > 0 {
-	//			for k, _ := range themeTagShortMap {
-	//				if _, ok := userThemeMap[k]; ok {
-	//					userThemeMap[k] += 1
-	//				} else {
-	//					userThemeMap[k] = 1
+	//获取假装情侣用户moment偏好
+
+	var reqUserMomMap  map[int64]float64 //请求者
+	var onlineUserMomMap map[int64]float64 //假装情侣池
+	reqUserMomMap=behaviorCache.QueryMateMomUserData(userProfileUserIds)
+	if reqUserMomMap!=nil{
+		log.Infof("reqUserMomMap=======================================%+v", reqUserMomMap)
+	}
+	onlineUserMomMap=behaviorCache.QueryMateMomUserData(onlineUserList)
+	if onlineUserMomMap!=nil{
+		log.Infof("onlineUserMomMap=======================================%+v", onlineUserMomMap)
+	}
+	//var userBehavior *behavior.UserBehavior
+	//userMomMap := map[int64]float64{}
+	//realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap("moment", onlineUserList)
+	//if realtimeErr == nil { // 获取flink数据
+	//	userBehavior = realtimes[params.UserId]
+	//	log.Infof("userBehavior=============%+v", userBehavior)
+	//	if userBehavior != nil { //
+	//		countMap := userBehavior.BehaviorMap["moment.recommend:exposure"]
+	//		log.Infof("countMap=============%+v", countMap)
+	//		if countMap != nil {
+	//			tagMap := countMap.CountMap
+	//			log.Infof("momentTagMap=============%+v", tagMap)
+	//			if tagMap != nil {
+	//				for _, v := range tagMap {
+	//					userMomMap[v.Id] = 1.0
 	//				}
 	//			}
 	//		}
 	//	}
 	//}
-	//获取假装情侣用户moment偏好
-	var userBehavior *behavior.UserBehavior
-	userMomMap := map[int64]float64{}
-	realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap("moment", onlineUserList)
-	if realtimeErr == nil { // 获取flink数据
-		userBehavior = realtimes[params.UserId]
-		log.Infof("userBehavior=============%+v", userBehavior)
-		if userBehavior != nil { //
-			countMap := userBehavior.BehaviorMap["moment.recommend:exposure"]
-			log.Infof("countMap=============%+v", countMap)
-			if countMap != nil {
-				tagMap := countMap.CountMap
-				log.Infof("momentTagMap=============%+v", tagMap)
-				if tagMap != nil {
-					for _, v := range tagMap {
-						userMomMap[v.Id] = 1.0
-					}
-				}
-			}
-		}
-	}
-	//合并用户偏好
-	userProfile := MergeMap(userThemeMap, userMomMap)
-	log.Infof("themeMap=============%+v", userThemeMap)
-	log.Infof("momMap=============%+v", userMomMap)
-	log.Infof("userProfile=======%+v", userProfile)
-	if len(userProfile) > 0 {
-		resultList := rutils.SortMapByValue(userProfile)
+	//合并用户偏好(请求)
+	reqUserProfile := MergeMap(reqUserThemeMap, reqUserMomMap)
+	if len(reqUserProfile) > 0 {
+		resultList := rutils.SortMapByValue(reqUserProfile)
 		for i, v := range resultList {
 			if i < 2 {
 				categid := strconv.Itoa(int(v))
-				searchCateg.TagType = append(searchCateg.TagType, categid)
+				reqSearchCateg.TagType = append(reqSearchCateg.TagType, categid)
 			}
 		}
-		searchCateg.TextType = "20"
+		reqSearchCateg.TextType = "20"
 	}
-
+	//合并用户偏好(假装情侣池)
+	onlineUserProfile := MergeMap(onlineUserThemeMap,onlineUserMomMap)
+	if len(onlineUserProfile) > 0 {
+		resultList := rutils.SortMapByValue(onlineUserProfile)
+		for i, v := range resultList {
+			if i < 2 {
+				categid := strconv.Itoa(int(v))
+				onlineSearchCateg.TagType = append(onlineSearchCateg.TagType, categid)
+			}
+		}
+		onlineSearchCateg.TextType = "20"
+	}
 	//旧版搜索结果
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
