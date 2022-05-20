@@ -82,23 +82,25 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 	if len(themeProfileMap) > 0 {
 		themeProfile := themeProfileMap[params.UserId]
-		themeTagLongMap := themeProfile.AiTag.UserLongTag
-		themeTagShortMap := themeProfile.AiTag.UserShortTag
-		if len(themeTagLongMap) > 0 {
-			for k, _ := range themeTagLongMap {
-				if _, ok := userThemeMap[k]; ok {
-					userThemeMap[k] += 1.0
-				} else {
-					userThemeMap[k] = 1.0
+		if themeProfile != nil {
+			themeTagLongMap := themeProfile.AiTag.UserLongTag
+			themeTagShortMap := themeProfile.AiTag.UserShortTag
+			if len(themeTagLongMap) > 0 {
+				for k, _ := range themeTagLongMap {
+					if _, ok := userThemeMap[k]; ok {
+						userThemeMap[k] += 1.0
+					} else {
+						userThemeMap[k] = 1.0
+					}
 				}
 			}
-		}
-		if len(themeTagShortMap) > 0 {
-			for k, _ := range themeTagShortMap {
-				if _, ok := userThemeMap[k]; ok {
-					userThemeMap[k] += 1
-				} else {
-					userThemeMap[k] = 1
+			if len(themeTagShortMap) > 0 {
+				for k, _ := range themeTagShortMap {
+					if _, ok := userThemeMap[k]; ok {
+						userThemeMap[k] += 1
+					} else {
+						userThemeMap[k] = 1
+					}
 				}
 			}
 		}
