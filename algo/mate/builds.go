@@ -73,7 +73,9 @@ func DoBuildData(ctx algo.IContext) error {
 		var baseCateg redis.TextTypeCategText
 		baseCateg,err=mateCategCache.QueryMateUserCategTextList(textType,categType)
 		if err==nil{
+			log.Infof("baseCateg=======================================%+v", baseCateg)
 			baseCategText=GetCategSentenceData(baseCateg.TextLine,int64(textType),4)
+			log.Infof("baseCategText=======================================%+v", baseCategText)
 
 		}
 	}
@@ -112,16 +114,20 @@ func DoBuildData(ctx algo.IContext) error {
 			for i, v := range resultList {
 				if i<=2 {
 					reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
+					log.Infof("reqCateg=======================================%+v", reqCateg)
 					if err==nil{
 						reqCategText=GetCategSentenceData(reqCateg.TextLine,int64(textType),4)
+						log.Infof("reqCategText=======================================%+v", reqCategText)
 					}
 				}
 			}
 		}else{
 			for _, v := range resultList {
 				reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
+				log.Infof("reqCateg=======================================%+v", reqCateg)
 				if err==nil{
 					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
+					log.Infof("reqCategText=======================================%+v", reqCategText)
 				}
 			}
 		}
@@ -138,16 +144,20 @@ func DoBuildData(ctx algo.IContext) error {
 			for i, v := range resultList {
 				if i<=2 {
 					olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
+					log.Infof("olineCateg=======================================%+v", olineCateg)
 					if err==nil{
 						onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
+						log.Infof("olineCateg=======================================%+v", olineCateg)
 					}
 				}
 			}
 		}else{
 			for _, v := range resultList {
 				olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
+				log.Infof("olineCateg=======================================%+v", olineCateg)
 				if err==nil{
 					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
+					log.Infof("olineCateg=======================================%+v", olineCateg)
 				}
 			}
 		}
