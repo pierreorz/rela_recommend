@@ -178,3 +178,20 @@ func GetBaseSentenceDataMap(userMap map[int64]*redis.UserProfile) []search.MateT
 	}
 	return nil
 }
+
+func GetCategSentenceData(text string,textType int64 ,categType int64) []search.MateTextResDataItem {
+	var categSentceList []search.MateTextResDataItem
+	if len(text) > 0 {
+		textList := strings.Split(text, "|$|")
+		for i, v := range textList {
+			id := textType*1000 + categType*100 + int64(i)
+			text := v
+			categSenten := GetSentenceData(id, text, nil, 100)
+			categSentceList = append(categSentceList, categSenten)
+		}
+		return categSentceList
+	}
+	return categSentceList
+}
+
+

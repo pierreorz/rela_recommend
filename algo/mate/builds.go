@@ -22,6 +22,7 @@ func DoBuildData(ctx algo.IContext) error {
 	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
+	mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	pretendList, err := awsCache.QueryPretendLoveList()
 	//获取假装情侣在线用户id
 	var onlineUserList []int64
@@ -51,9 +52,9 @@ func DoBuildData(ctx algo.IContext) error {
 	//用户基础信息生成文案
 	//base文案
 	var affection_list= map[string]string{"1": "1", "7": "1"}
-	searchBase := search.SearchType{}
-	reqSearchCateg := search.SearchType{}
-	onlineSearchCateg := search.SearchType{}
+	//searchBase := search.SearchType{}
+	//reqSearchCateg := search.SearchType{}
+	//onlineSearchCateg := search.SearchType{}
 	//请求用户基础文案
 	reqUserBaseSentence := GetBaseSentenceDataById(user)
 	log.Infof("reqUserBaseSentence=======================================%+v", reqUserBaseSentence)
@@ -61,12 +62,20 @@ func DoBuildData(ctx algo.IContext) error {
 	onlineUserBaseSentenceList := GetBaseSentenceDataMap(onlineUserMap)
 
 	//基础数据需要搜索
+	var baseCategText []search.MateTextResDataItem
 	if _, ok := affection_list[string(user.Affection)]; ok {
 		//log.Infof( "========Intro",user.Affection)
-		searchBase.TextType = "10"
-		searchBase.TagType = append(searchBase.TagType, "4")
+		//searchBase.TextType = 10
+		//searchBase.TagType = append(searchBase.TagType, 4)
+		//情感搜索
+		textType:=10
+		categList:=[]int64{4}
+		var baseCateg redis.TextTypeCategText
+		baseCateg,err=mateCategCache.QueryMateUserCategTextList(textType,categList)
+		if err==nil{
+			baseCategText=GetCategSentenceData(baseCateg.TextLine,int64(textType),4)
+		}
 	}
-	//情感搜索
 	//获取假装情侣池话题偏好
 	var reqUserThemeMap  map[int64]float64 //请求者
 	var onlineUserThemeMap map[int64]float64 //假装情侣池
@@ -93,28 +102,62 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	//合并用户偏好(请求)
 	reqUserProfile := MergeMap(reqUserThemeMap, reqUserMomMap)
+	var reqCategText []search.MateTextResDataItem
 	if len(reqUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(reqUserProfile)
-		for i, v := range resultList {
-			if i < 2 {
-				categid := strconv.Itoa(int(v))
-				reqSearchCateg.TagType = append(reqSearchCateg.TagType, categid)
+		textType:=20
+		var reqCateg redis.TextTypeCategText
+		if len(resultList)>=2{
+			for i, v := range resultList {
+				if i<=2 {
+					categList := []int64{int64(v)}
+					reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
+					if err==nil{
+						reqCategText=GetCategSentenceData(reqCateg.TextLine,int64(textType),4)
+					}
+				}
+			}
+		}else{
+			for _, v := range resultList {
+				categList := []int64{int64(v)}
+				reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
+				if err==nil{
+					reqCategText=GetCategSentenceData(reqCateg.TextLine,int64(textType),4)
+				}
 			}
 		}
-		reqSearchCateg.TextType = "20"
+
 	}
 	//合并用户偏好(假装情侣池)
 	onlineUserProfile := MergeMap(onlineUserThemeMap,onlineUserMomMap)
+	var onlineCategText []search.MateTextResDataItem
 	if len(onlineUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(onlineUserProfile)
-		for i, v := range resultList {
-			if i < 2 {
-				categid := strconv.Itoa(int(v))
-				onlineSearchCateg.TagType = append(onlineSearchCateg.TagType, categid)
+		textType:=20
+		var olineCateg redis.TextTypeCategText
+		if len(resultList)>=2{
+			for i, v := range resultList {
+				if i<=2 {
+					categList := []int64{int64(v)}
+					olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
+					if err==nil{
+						onlineCategText=GetCategSentenceData(olineCateg.TextLine,int64(textType),4)
+					}
+				}
+			}
+		}else{
+			for _, v := range resultList {
+				categList := []int64{int64(v)}
+				olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
+				if err==nil{
+					onlineCategText=GetCategSentenceData(olineCateg.TextLine,int64(textType),4)
+				}
 			}
 		}
-		onlineSearchCateg.TextType = "20"
+
 	}
+	log.Infof("reqCategText=============%+v", reqCategText)
+	log.Infof("onlineCategText=============%+v", onlineCategText)
 	//旧版搜索结果
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
@@ -132,13 +175,15 @@ func DoBuildData(ctx algo.IContext) error {
 	//合并文案数据
 	var allSentenceList []search.MateTextResDataItem
 	if onlineUserBaseSentenceList != nil {
-
-		allSentenceList = append(onlineUserBaseSentenceList, searchResList...)
-
+		allSentenceList = append(onlineUserBaseSentenceList,searchResList...)
+		allSentenceList = append(allSentenceList,baseCategText...)
+		allSentenceList = append(allSentenceList,reqCategText...)
 	}else{
 		allSentenceList = append(reqUserBaseSentence,searchResList...)
+		allSentenceList = append(allSentenceList,baseCategText...)
+		allSentenceList = append(allSentenceList,onlineCategText...)
 	}
-	log.Infof("allSentenceList=============%+v", searchResList)
+	log.Infof("allSentenceList=============%+v", allSentenceList)
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId: params.UserId,

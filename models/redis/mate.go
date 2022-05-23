@@ -1,8 +1,11 @@
 package redis
 
 import (
+	"fmt"
 	"rela_recommend/cache"
 	"rela_recommend/factory"
+	"rela_recommend/log"
+	"rela_recommend/service/abtest"
 	"strings"
 )
 
@@ -17,9 +20,30 @@ type PretendLoveUserModule struct {
 	storeCluster cache.Cache
 }
 
+type TextTypeCategText struct{
+	TextTypeid int64  `json:"text_type_id"`
+	TextTypeName string  `json:"text_type_name"`
+	CategTypeid int64 `json:"categ_type_id"`
+	CategTypeName int64 `json:"categ_type_name"`
+	TextLine string `json:"text_line"`
+}
+
+type MataCategTextModule struct{
+	CachePikaModule
+}
+
 func NewMateCacheModule(cache *cache.Cache, store *cache.Cache) *PretendLoveUserModule {
 	return &PretendLoveUserModule{cacheCluster: *cache, storeCluster: *store}
 }
+
+
+func NewMateCaegtCacheModule(ctx abtest.IAbTestAble,cache *cache.Cache, store *cache.Cache) *MataCategTextModule {
+	return &MataCategTextModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
+}
+
+
+
+
 func SetPretendLoveUser(Userid string,Socketid string,Roleid string ) PretendLoveUser{
 	return PretendLoveUser{
 		Userid ,Socketid,Roleid,
@@ -57,4 +81,12 @@ func(this *UserCacheModule) QueryUserBaseMap(userId int64,userIds []int64) (*Use
 		return user,userMap,nil
 	}
 	return user,userMap,nil
+}
+//获取文案信息
+func (this *MataCategTextModule) QueryMateUserCategTextList(textType int,categType []int64) (TextTypeCategText,error){
+	keyFormatter := fmt.Sprintf("mate_text:text_type:%d:categ_type:%d", textType)
+	ress, err := this.MGetStructsMap(&ThemeUserProfile{}, categType, keyFormatter, 24*60*60, 1*60*60)
+	objs := ress.Interface().(TextTypeCategText)
+	log.Infof("mateCateg======%+v",objs)
+	return objs, err
 }
