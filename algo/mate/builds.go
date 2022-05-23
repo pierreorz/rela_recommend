@@ -69,13 +69,12 @@ func DoBuildData(ctx algo.IContext) error {
 		//searchBase.TagType = append(searchBase.TagType, 4)
 		//情感搜索
 		textType:=10
-		categList:=[]int64{4}
-		var baseCateg  map[int64]*redis.TextTypeCategText
-		baseCateg,err=mateCategCache.QueryMateUserCategTextList(textType,categList)
+		categType:=int64(4)
+		var baseCateg redis.TextTypeCategText
+		baseCateg,err=mateCategCache.QueryMateUserCategTextList(textType,categType)
 		if err==nil{
-			for _,v := range baseCateg{
-				baseCategText=GetCategSentenceData(v.TextLine,int64(textType),4)
-			}
+			baseCategText=GetCategSentenceData(baseCateg.TextLine,int64(textType),4)
+
 		}
 	}
 	//获取假装情侣池话题偏好
@@ -108,27 +107,21 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(reqUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(reqUserProfile)
 		textType:=20
-		var reqCateg map[int64]*redis.TextTypeCategText
+		var reqCateg redis.TextTypeCategText
 		if len(resultList)>=2{
 			for i, v := range resultList {
 				if i<=2 {
-					categList := []int64{int64(v)}
-					reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
+					reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
 					if err==nil{
-						for _,v := range reqCateg{
-							reqCategText=GetCategSentenceData(v.TextLine,int64(textType),4)
-						}
+						reqCategText=GetCategSentenceData(reqCateg.TextLine,int64(textType),4)
 					}
 				}
 			}
 		}else{
 			for _, v := range resultList {
-				categList := []int64{int64(v)}
-				reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
+				reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
 				if err==nil{
-					for _,v := range reqCateg {
-						reqCategText = GetCategSentenceData(v.TextLine, int64(textType), 4)
-					}
+					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
 				}
 			}
 		}
@@ -140,27 +133,21 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(onlineUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(onlineUserProfile)
 		textType:=20
-		var olineCateg map[int64]*redis.TextTypeCategText
+		var olineCateg redis.TextTypeCategText
 		if len(resultList)>=2{
 			for i, v := range resultList {
 				if i<=2 {
-					categList := []int64{int64(v)}
-					olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
+					olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
 					if err==nil{
-						for _,v := range olineCateg {
-							onlineCategText = GetCategSentenceData(v.TextLine, int64(textType), 4)
-						}
+						onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
 					}
 				}
 			}
 		}else{
 			for _, v := range resultList {
-				categList := []int64{int64(v)}
-				olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
+				olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
 				if err==nil{
-					for _,v := range olineCateg {
-						onlineCategText = GetCategSentenceData(v.TextLine, int64(textType), 4)
-					}
+					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
 				}
 			}
 		}
