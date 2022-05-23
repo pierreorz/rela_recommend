@@ -92,7 +92,6 @@ func DoBuildData(ctx algo.IContext) error {
 		log.Infof("onlineUserThemeMap=======================================%+v", onlineUserThemeMap)
 	}
 	//获取假装情侣用户moment偏好
-
 	var reqUserMomMap  map[int64]float64 //请求者
 	var onlineUserMomMap map[int64]float64 //假装情侣池
 	reqUserMomMap=behaviorCache.QueryMateMomUserData(userProfileUserIds)
@@ -103,6 +102,8 @@ func DoBuildData(ctx algo.IContext) error {
 	if onlineUserMomMap!=nil{
 		log.Infof("onlineUserMomMap=======================================%+v", onlineUserMomMap)
 	}
+
+
 	//合并用户偏好(请求)
 	reqUserProfile := MergeMap(reqUserThemeMap, reqUserMomMap)
 	var reqCategText []search.MateTextResDataItem
@@ -113,21 +114,25 @@ func DoBuildData(ctx algo.IContext) error {
 		if len(resultList)>=2{
 			for i, v := range resultList {
 				if i<=2 {
-					reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-					log.Infof("reqCateg=======================================%+v", reqCateg)
-					if len(reqCateg.TextLine)!=0{
-						reqCategText=GetCategSentenceData(reqCateg.TextLine,int64(textType),4)
-						log.Infof("reqCategText=======================================%+v", reqCategText)
+					if _, ok := CategNumsList[v]; ok {
+						reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
+						log.Infof("reqCateg=======================================%+v", reqCateg)
+						if len(reqCateg.TextLine) != 0 {
+							reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
+							log.Infof("reqCategText=======================================%+v", reqCategText)
+						}
 					}
 				}
 			}
 		}else{
 			for _, v := range resultList {
-				reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-				log.Infof("reqCateg=======================================%+v", reqCateg)
-				if len(reqCateg.TextLine)!=0{
-					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
-					log.Infof("reqCategText=======================================%+v", reqCategText)
+				if _, ok := CategNumsList[v]; ok {
+					reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
+					log.Infof("reqCateg=======================================%+v", reqCateg)
+					if len(reqCateg.TextLine) != 0 {
+						reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
+						log.Infof("reqCategText=======================================%+v", reqCategText)
+					}
 				}
 			}
 		}
@@ -143,21 +148,25 @@ func DoBuildData(ctx algo.IContext) error {
 		if len(resultList)>=2{
 			for i, v := range resultList {
 				if i<=2 {
-					olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-					log.Infof("olineCateg=======================================%+v", olineCateg)
-					if len(olineCateg.TextLine)!=0{
-						onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
-						log.Infof("onlineCategText=======================================%+v", onlineCategText)
+					if _, ok := CategNumsList[v]; ok {
+						olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
+						log.Infof("olineCateg=======================================%+v", olineCateg)
+						if len(olineCateg.TextLine) != 0 {
+							onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
+							log.Infof("onlineCategText=======================================%+v", onlineCategText)
+						}
 					}
 				}
 			}
 		}else{
 			for _, v := range resultList {
-				olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-				log.Infof("olineCateg=======================================%+v", olineCateg)
-				if len(olineCateg.TextLine)!=0{
-					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
-					log.Infof("onlineCategText=======================================%+v", onlineCategText)
+				if _, ok := CategNumsList[v]; ok {
+					olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
+					log.Infof("olineCateg=======================================%+v", olineCateg)
+					if len(olineCateg.TextLine) != 0 {
+						onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
+						log.Infof("onlineCategText=======================================%+v", onlineCategText)
+					}
 				}
 			}
 		}

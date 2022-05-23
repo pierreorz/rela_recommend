@@ -35,6 +35,7 @@ func SortScoreItem(ctx algo.IContext) error {
 		adminMap[type_nums] = admin_weight_num
 	}
 
+	log.Infof("================%+v",ctx.GetDataList())
 	//曝光逻辑
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		randomScore := float32(rand.Intn(100)) / 100.0
