@@ -71,7 +71,7 @@ func DoBuildData(ctx algo.IContext) error {
 		textType:=10
 		categType:=int64(4)
 		var baseCateg redis.TextTypeCategText
-		baseCateg,err=mateCategCache.QueryMateUserCategTextList(textType,categType)
+		baseCateg,err=mateCategCache.QueryMateUserCategTextList(int64(textType),categType)
 		if len(baseCateg.TextLine)!=0{
 			log.Infof("baseCateg=======================================%+v", baseCateg)
 			baseCategText=GetCategSentenceData(baseCateg.TextLine,int64(textType),4)
@@ -113,7 +113,7 @@ func DoBuildData(ctx algo.IContext) error {
 		if len(resultList)>=2{
 			for i, v := range resultList {
 				if i<=2 {
-					reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
+					reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
 					log.Infof("reqCateg=======================================%+v", reqCateg)
 					if len(reqCateg.TextLine)!=0{
 						reqCategText=GetCategSentenceData(reqCateg.TextLine,int64(textType),4)
@@ -123,7 +123,7 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		}else{
 			for _, v := range resultList {
-				reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
+				reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
 				log.Infof("reqCateg=======================================%+v", reqCateg)
 				if len(reqCateg.TextLine)!=0{
 					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
@@ -143,7 +143,7 @@ func DoBuildData(ctx algo.IContext) error {
 		if len(resultList)>=2{
 			for i, v := range resultList {
 				if i<=2 {
-					olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
+					olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
 					log.Infof("olineCateg=======================================%+v", olineCateg)
 					if len(olineCateg.TextLine)!=0{
 						onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
@@ -153,7 +153,7 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		}else{
 			for _, v := range resultList {
-				olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, v)
+				olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
 				log.Infof("olineCateg=======================================%+v", olineCateg)
 				if len(olineCateg.TextLine)!=0{
 					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
