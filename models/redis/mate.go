@@ -87,7 +87,7 @@ func (this *MataCategTextModule) QueryMateUserCategTextList(textType int,categTy
 	keyFormatter := fmt.Sprintf("mate_text:text_type:%d:categ_type:%d", textType,categType)
 	log.Infof("keyFormatter==========================",keyFormatter)
 	var categText TextTypeCategText
-	err := this.GetStruct(keyFormatter,categText)
-	log.Infof("categText==========================%+v",categText)
+	err := this.GetSetStruct(keyFormatter,&categText,6*60*60, 1*60*60)
+	log.Infof("categText==========================%+v",&categText)
 	return categText, err
 }
