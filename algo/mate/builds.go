@@ -70,10 +70,12 @@ func DoBuildData(ctx algo.IContext) error {
 		//情感搜索
 		textType:=10
 		categList:=[]int64{4}
-		var baseCateg  *redis.TextTypeCategText
+		var baseCateg  map[int64]*redis.TextTypeCategText
 		baseCateg,err=mateCategCache.QueryMateUserCategTextList(textType,categList)
 		if err==nil{
-			baseCategText=GetCategSentenceData(baseCateg.TextLine,int64(textType),4)
+			for _,v := range baseCateg{
+				baseCategText=GetCategSentenceData(v.TextLine,int64(textType),4)
+			}
 		}
 	}
 	//获取假装情侣池话题偏好
@@ -106,14 +108,16 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(reqUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(reqUserProfile)
 		textType:=20
-		var reqCateg *redis.TextTypeCategText
+		var reqCateg map[int64]*redis.TextTypeCategText
 		if len(resultList)>=2{
 			for i, v := range resultList {
 				if i<=2 {
 					categList := []int64{int64(v)}
 					reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
 					if err==nil{
-						reqCategText=GetCategSentenceData(reqCateg.TextLine,int64(textType),4)
+						for _,v := range reqCateg{
+							reqCategText=GetCategSentenceData(v.TextLine,int64(textType),4)
+						}
 					}
 				}
 			}
@@ -122,7 +126,9 @@ func DoBuildData(ctx algo.IContext) error {
 				categList := []int64{int64(v)}
 				reqCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
 				if err==nil{
-					reqCategText=GetCategSentenceData(reqCateg.TextLine,int64(textType),4)
+					for _,v := range reqCateg {
+						reqCategText = GetCategSentenceData(v.TextLine, int64(textType), 4)
+					}
 				}
 			}
 		}
@@ -134,14 +140,16 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(onlineUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(onlineUserProfile)
 		textType:=20
-		var olineCateg *redis.TextTypeCategText
+		var olineCateg map[int64]*redis.TextTypeCategText
 		if len(resultList)>=2{
 			for i, v := range resultList {
 				if i<=2 {
 					categList := []int64{int64(v)}
 					olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
 					if err==nil{
-						onlineCategText=GetCategSentenceData(olineCateg.TextLine,int64(textType),4)
+						for _,v := range olineCateg {
+							onlineCategText = GetCategSentenceData(v.TextLine, int64(textType), 4)
+						}
 					}
 				}
 			}
@@ -150,7 +158,9 @@ func DoBuildData(ctx algo.IContext) error {
 				categList := []int64{int64(v)}
 				olineCateg, err = mateCategCache.QueryMateUserCategTextList(textType, categList)
 				if err==nil{
-					onlineCategText=GetCategSentenceData(olineCateg.TextLine,int64(textType),4)
+					for _,v := range olineCateg {
+						onlineCategText = GetCategSentenceData(v.TextLine, int64(textType), 4)
+					}
 				}
 			}
 		}
