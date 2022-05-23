@@ -84,8 +84,10 @@ func(this *UserCacheModule) QueryUserBaseMap(userId int64,userIds []int64) (*Use
 }
 //获取文案信息
 func (this *MataCategTextModule) QueryMateUserCategTextList(textType int,categType []int64) (map[int64]*TextTypeCategText,error){
-	keyFormatter := fmt.Sprintf("mate_text:text_type:%d:categ_type:%d", textType)
+	keyFormatter := fmt.Sprintf("mate_text:text_type:%d:categ_type:%%d", textType)
+	log.Infof("keyFormatter==========================",textType)
 	ress, err := this.MGetStructsMap(&TextTypeCategText{}, categType, keyFormatter, 24*60*60, 1*60*60)
+	log.Infof("ress==============%+v",ress)
 	objs := ress.Interface().(map[int64]*TextTypeCategText)
 	log.Infof("mateCateg======%+v",objs)
 	return objs, err
