@@ -147,7 +147,7 @@ func DoBuildData(ctx algo.IContext) error {
 					log.Infof("olineCateg=======================================%+v", olineCateg)
 					if len(olineCateg.TextLine)!=0{
 						onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
-						log.Infof("olineCateg=======================================%+v", olineCateg)
+						log.Infof("onlineCategText=======================================%+v", onlineCategText)
 					}
 				}
 			}
@@ -157,7 +157,7 @@ func DoBuildData(ctx algo.IContext) error {
 				log.Infof("olineCateg=======================================%+v", olineCateg)
 				if len(olineCateg.TextLine)!=0{
 					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
-					log.Infof("olineCateg=======================================%+v", olineCateg)
+					log.Infof("onlineCategText=======================================%+v", onlineCategText)
 				}
 			}
 		}
@@ -178,17 +178,18 @@ func DoBuildData(ctx algo.IContext) error {
 			return searchErr
 		}
 	})
-	//log.Infof("searchList=============%+v", searchResList)
+
 	//合并文案数据
 	var allSentenceList []search.MateTextResDataItem
 	if onlineUserBaseSentenceList != nil {
-		allSentenceList = append(onlineUserBaseSentenceList,searchResList...)
+		allSentenceList = append(allSentenceList,searchResList...)
+		allSentenceList = append(allSentenceList,onlineUserBaseSentenceList...)
+		allSentenceList = append(allSentenceList,onlineCategText...)
+	}else{
+		allSentenceList = append(allSentenceList,searchResList...)
+		allSentenceList = append(allSentenceList,reqUserBaseSentence...)
 		allSentenceList = append(allSentenceList,baseCategText...)
 		allSentenceList = append(allSentenceList,reqCategText...)
-	}else{
-		allSentenceList = append(reqUserBaseSentence,searchResList...)
-		allSentenceList = append(allSentenceList,baseCategText...)
-		allSentenceList = append(allSentenceList,onlineCategText...)
 	}
 	log.Infof("allSentenceList=============%+v", allSentenceList)
 	pf.Run("build", func(*performs.Performs) interface{} {
