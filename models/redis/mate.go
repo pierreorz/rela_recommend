@@ -24,7 +24,7 @@ type TextTypeCategText struct{
 	TextTypeid int64  `json:"text_type_id"`
 	TextTypeName string  `json:"text_type_name"`
 	CategTypeid int64 `json:"categ_type_id"`
-	CategTypeName int64 `json:"categ_type_name"`
+	CategTypeName string `json:"categ_type_name"`
 	TextLine string `json:"text_line"`
 }
 
