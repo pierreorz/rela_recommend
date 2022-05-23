@@ -2,6 +2,7 @@ package mate
 
 import (
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -189,6 +190,7 @@ func GetCategSentenceData(text string,textType int64 ,categType int64) []search.
 			categSenten := GetSentenceData(id, text, nil, 100)
 			categSentceList = append(categSentceList, categSenten)
 		}
+		log.Infof("categSentceList======================%+v",categSentceList)
 		return categSentceList
 	}
 	return categSentceList
