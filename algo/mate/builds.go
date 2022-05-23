@@ -70,7 +70,7 @@ func DoBuildData(ctx algo.IContext) error {
 		//情感搜索
 		textType:=10
 		categList:=[]int64{4}
-		var baseCateg redis.TextTypeCategText
+		var baseCateg  *redis.TextTypeCategText
 		baseCateg,err=mateCategCache.QueryMateUserCategTextList(textType,categList)
 		if err==nil{
 			baseCategText=GetCategSentenceData(baseCateg.TextLine,int64(textType),4)
@@ -106,7 +106,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(reqUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(reqUserProfile)
 		textType:=20
-		var reqCateg redis.TextTypeCategText
+		var reqCateg *redis.TextTypeCategText
 		if len(resultList)>=2{
 			for i, v := range resultList {
 				if i<=2 {
@@ -134,7 +134,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(onlineUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(onlineUserProfile)
 		textType:=20
-		var olineCateg redis.TextTypeCategText
+		var olineCateg *redis.TextTypeCategText
 		if len(resultList)>=2{
 			for i, v := range resultList {
 				if i<=2 {
