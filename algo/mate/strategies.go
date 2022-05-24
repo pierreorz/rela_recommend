@@ -34,17 +34,18 @@ func SortScoreItem(ctx algo.IContext) error {
 		admin_weight_num :=utils.GetFloat64(strings.Split(backtag, ":")[0])
 		adminMap[type_nums] = admin_weight_num
 	}
-
-	log.Infof("================%+v",ctx.GetDataList())
-	log.Infof("================%+v",ctx.GetDataIds())
+	log.Infof("adminMap===============%+v", adminMap)
 	//曝光逻辑
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		randomScore := float32(rand.Intn(100)) / 100.0
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		sd := dataInfo.SearchData//SearchData缺少类型信息,
 		//rankInfo := dataInfo.GetRankInfo()
-		//log.Infof("id===============%+v", sd.Id)
-		//log.Infof("Text===============%+v", sd.Text)
+		log.Infof("id===============%+v", sd.Id)
+		log.Infof("Text===============%+v", sd.Text)
+		log.Infof("weight===============%+v", sd.Weight)
+		log.Infof("TagType===============%+v", sd.TagType)
+		log.Infof("TextType===============%+v", sd.TextType)
 		itemScore:=randomScore*float32(sd.Weight)
 		log.Infof("itemScore===============%+v", itemScore)
 		//rankInfo.AddRecommend("sortScoreItem", itemScore)
