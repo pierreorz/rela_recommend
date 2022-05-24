@@ -56,10 +56,11 @@ func DoBuildData(ctx algo.IContext) error {
 	//reqSearchCateg := search.SearchType{}
 	//onlineSearchCateg := search.SearchType{}
 	//请求用户基础文案
-	reqUserBaseSentence := GetBaseSentenceDataById(user)
+	textType:=10
+	reqUserBaseSentence := GetBaseSentenceDataById(user,int64(textType))
 	log.Infof("reqUserBaseSentence=======================================%+v", reqUserBaseSentence)
 	//在线用户基础文案
-	onlineUserBaseSentenceList := GetBaseSentenceDataMap(onlineUserMap)
+	onlineUserBaseSentenceList := GetBaseSentenceDataMap(onlineUserMap,int64(textType))
 
 	//基础数据需要搜索
 	var baseCategText []search.MateTextResDataItem
@@ -68,7 +69,6 @@ func DoBuildData(ctx algo.IContext) error {
 		//searchBase.TextType = 10
 		//searchBase.TagType = append(searchBase.TagType, 4)
 		//情感搜索
-		textType:=10
 		categType:=int64(4)
 		var baseCateg redis.TextTypeCategText
 		baseCateg,err=mateCategCache.QueryMateUserCategTextList(int64(textType),categType)
