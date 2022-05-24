@@ -52,10 +52,7 @@ func DoBuildData(ctx algo.IContext) error {
 	//用户基础信息生成文案
 	//base文案
 	var affection_list= map[string]string{"1": "1", "7": "1"}
-	//searchBase := search.SearchType{}
-	//reqSearchCateg := search.SearchType{}
-	//onlineSearchCateg := search.SearchType{}
-	//请求用户基础文案
+	//请求者用户基础文案
 	textType:=10
 	reqUserBaseSentence := GetBaseSentenceDataById(user,int64(textType))
 	log.Infof("reqUserBaseSentence=======================================%+v", reqUserBaseSentence)
@@ -65,9 +62,6 @@ func DoBuildData(ctx algo.IContext) error {
 	//基础数据需要搜索
 	var baseCategText []search.MateTextResDataItem
 	if _, ok := affection_list[string(user.Affection)]; ok {
-		//log.Infof( "========Intro",user.Affection)
-		//searchBase.TextType = 10
-		//searchBase.TagType = append(searchBase.TagType, 4)
 		//情感搜索
 		categType:=int64(4)
 		var baseCateg redis.TextTypeCategText
@@ -104,16 +98,16 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 
 
-	//合并用户偏好(请求)
+	//合并用户偏好(请求者)
 	reqUserProfile := MergeMap(reqUserThemeMap, reqUserMomMap)
 	var reqCategText []search.MateTextResDataItem
 	if len(reqUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(reqUserProfile)
 		textType:=20
 		var reqCateg redis.TextTypeCategText
-		if len(resultList)>=2{
+		if len(resultList)>=3{
 			for i, v := range resultList {
-				if i<=2 {
+				if i<=3 {
 					if _, ok := CategNumsList[v]; ok {
 						reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
 						log.Infof("reqCateg=======================================%+v", reqCateg)
@@ -145,9 +139,9 @@ func DoBuildData(ctx algo.IContext) error {
 		resultList := rutils.SortMapByValue(onlineUserProfile)
 		textType:=20
 		var olineCateg redis.TextTypeCategText
-		if len(resultList)>=2{
+		if len(resultList)>=3{
 			for i, v := range resultList {
-				if i<=2 {
+				if i<=3 {
 					if _, ok := CategNumsList[v]; ok {
 						olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
 						log.Infof("olineCateg=======================================%+v", olineCateg)

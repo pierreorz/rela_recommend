@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"rela_recommend/cache"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/service/abtest"
 	"strings"
 )
@@ -85,9 +84,7 @@ func(this *UserCacheModule) QueryUserBaseMap(userId int64,userIds []int64) (*Use
 //获取文案信息
 func (this *MataCategTextModule) QueryMateUserCategTextList(textType int64,categType int64) (TextTypeCategText,error){
 	keyFormatter := fmt.Sprintf("mate_text:text_type:%d:categ_type:%d", textType,categType)
-	log.Infof("keyFormatter==========================",keyFormatter)
 	var categText TextTypeCategText
 	err := this.GetSetStruct(keyFormatter,&categText,6*60*60, 1*60*60)
-	log.Infof("categText==========================%+v",&categText)
 	return categText, err
 }

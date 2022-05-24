@@ -34,7 +34,6 @@ func SortScoreItem(ctx algo.IContext) error {
 		admin_weight_num :=utils.GetFloat64(strings.Split(backtag, ":")[1])
 		adminMap[type_nums] = admin_weight_num
 	}
-	log.Infof("adminMap===============%+v", adminMap)
 	//曝光逻辑
 	var sdWeight float64
 	for index := 0; index < ctx.GetDataLength(); index++ {
@@ -47,7 +46,7 @@ func SortScoreItem(ctx algo.IContext) error {
 		}else {
 			sdWeight = 1.0
 		}
-		log.Infof("sdWeight===============%+v", sdWeight)
+		log.Infof("sdWeight===============%+v", sd.Id)
 		itemScore:=randomScore*float32(sdWeight)*float32(sd.Weight)
 		log.Infof("itemScore===============%+v", itemScore)
 		rankInfo.AddRecommend("sortScoreItem", itemScore)
