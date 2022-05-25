@@ -136,6 +136,10 @@ func DoBuildData(ctx algo.IContext) error {
 							newIdList, errSearch = search.CallNearMomentListV1(params.UserId, params.Lat, params.Lng, 0, int64(newMomentLen),
 								momentTypes, newMomentStartTime, radius, recommended)
 							//附近日志数量大于10即停止寻找
+							if errSearch!=nil{
+								recListKeyFormatter := abtest.GetString("around_list_key", "moment.around_list_data:%s")
+								newIdList, errSearch = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
+							}
 							if len(newIdList) > 10 {
 								break
 							}
