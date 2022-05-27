@@ -10,6 +10,7 @@ import (
 )
 
 const externalPaiHomeFeedUrl = "/api/rec/home_feed"
+const externalPaiHomeFeedRecallUrl = "/api/rec/home_feed_recall"
 
 type paiHomeFeedRes struct {
 	Code int  	`json:"code"`
@@ -104,4 +105,29 @@ func GetPredictResult(lat float32,lng float32,os string,userId int64,addr string
 		}
 	}
 	return result,expId,requestId,requestErr
+}
+
+
+type paiHomeFeedRecallRes struct {
+	Code int  	`json:"code"`
+	Message  string  `json:"msg"`
+	Request_id  string  `json:"request_id"`
+	Experiment_id  string `json:"experiment_id"`
+	Size    int  `json:"size"`
+	Items  []PaiResRecallDataItem  `json:"items"`
+}
+
+type PaiResRecallDataItem struct {
+	ItemId   string  `json:"item_id"`
+	Score    float64  `json:"score"`
+}
+
+type paiHomeFeedRecallRequest struct {
+	Uid   string   `json:"uid"`
+	Size   int   `json:"size"`
+	Scene_id    string   `json:"scene_id"`
+	Request_id string  `json:"request_id"`
+	Recall_list      string  `json:"recall_list" `
+	Features      Features `json:"features"`
+	Debug   bool  `json:"debug"`
 }
