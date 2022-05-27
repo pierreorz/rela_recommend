@@ -55,7 +55,7 @@ func CallLiveMomentList(userIdList []int64) ([]int64, error) {
 
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchMomentRes{}
-		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchLiveMomentListUrl, paramsData, searchRes); err == nil {
+		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLiveMomentListUrl, paramsData, searchRes); err == nil {
 			for _, element := range searchRes.Data {
 				idlist = append(idlist, element.Id)
 			}
@@ -85,7 +85,7 @@ func CallAdMomentListV1(userId int64) ([]int64, error) {
 
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchMomentRes{}
-		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchNearMomentListUrlV1, paramsData, searchRes); err == nil {
+		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchNearMomentListUrlV1, paramsData, searchRes); err == nil {
 			for _, element := range searchRes.Data {
 				idlist = append(idlist, element.Id)
 			}
@@ -119,7 +119,7 @@ func CallNearMomentListV1(userId int64, lat, lng float32, offset, limit int64, m
 
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchMomentRes{}
-		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchNearMomentListUrlV1, paramsData, searchRes); err == nil {
+		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchNearMomentListUrlV1, paramsData, searchRes); err == nil {
 			for _, element := range searchRes.Data {
 				idlist = append(idlist, element.Id)
 			}
@@ -243,7 +243,7 @@ func CallMomentAuditMap(userId int64, moments []int64, scenery string, momentTyp
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchMomentAuditRes{}
 		internalSearchAuditUrl := fmt.Sprintf(internalSearchAuditUrlFormatter, scenery)
-		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchAuditUrl, paramsData, searchRes); err == nil {
+		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchAuditUrl, paramsData, searchRes); err == nil {
 			for i, element := range searchRes.Data {
 				if element.Id > 0 {
 					resMap[element.Id] = searchRes.Data[i]
@@ -290,7 +290,7 @@ func CallMomentTopMap(userId int64, scenery string) (map[int64]SearchMomentAudit
 	resMap := map[int64]SearchMomentAuditResDataItem{}
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchMomentAuditRes{}
-		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchTopUrlFormatter, paramsData, searchRes); err == nil {
+		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchTopUrlFormatter, paramsData, searchRes); err == nil {
 			for i, element := range searchRes.Data {
 				resMap[element.Id] = searchRes.Data[i]
 			}
