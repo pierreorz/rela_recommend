@@ -142,7 +142,8 @@ func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		paiRes := &paiHomeFeedRecallRes{}
-		if requestErr = factory.PaiRpcClient.PaiPreSendPOSTJson(externalPaiHomeFeedUrl, paramsData, paiRes); requestErr == nil {
+		if requestErr = factory.PaiRpcClient.PaiPreSendPOSTJson(externalPaiHomeFeedRecallUrl, paramsData, paiRes); requestErr == nil {
+			log.Warnf("paires",paiRes)
 			if paiRes.Code == 200 {
 				for _, element := range paiRes.Items {
 					item, err := strconv.ParseInt(element.ItemId, 10, 64)
@@ -153,5 +154,6 @@ func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
 			}
 		}
 	}
+	log.Warnf("request err",requestErr)
 	return result,"","",requestErr
 }
