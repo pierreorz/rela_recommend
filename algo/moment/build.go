@@ -145,6 +145,9 @@ func DoBuildData(ctx algo.IContext) error {
 								break
 							}
 						}
+					}else{
+						recListKeyFormatter := abtest.GetString("around_list_key", "moment.around_list_data:%s")
+						newIdList, errSearch = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
 					}
 					return len(newIdList)
 				}
