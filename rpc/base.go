@@ -64,6 +64,15 @@ func (cli *HttpClient) PaiSendPOSTJson(url string, body []byte, internalClientRe
 	return cli.doRequest(req, internalClientRes)
 }
 
+func (cli *HttpClient) PaiPreSendPOSTJson(url string, body []byte, internalClientRes interface{}) error {
+	finalUrl := cli.api_host + url
+	req, _ := http.NewRequest(http.MethodPost, finalUrl, bytes.NewBuffer(body))
+	req.Header.Set("Authorization","ZTdlM2IwM2Y3ZDllODVkNDViNDFlOGY4YTE5YmI2NjIzMjdmNGMzNw==")
+	req.Header.Set("Content-Type", "application/json")
+	return cli.doRequest(req, internalClientRes)
+}
+
+
 func (cli *HttpClient) SendGETForm(url, params string, internalClientRes interface{}) error {
 	finalUrl := cli.api_host + url + "?" + params
 	req, _ := http.NewRequest(http.MethodGet, finalUrl, nil)

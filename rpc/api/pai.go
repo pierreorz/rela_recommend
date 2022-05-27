@@ -127,7 +127,31 @@ type paiHomeFeedRecallRequest struct {
 	Size   int   `json:"size"`
 	Scene_id    string   `json:"scene_id"`
 	Request_id string  `json:"request_id"`
-	Recall_list      string  `json:"recall_list" `
-	Features      Features `json:"features"`
 	Debug   bool  `json:"debug"`
+}
+
+
+func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
+	result := make([]int64,0)
+	var requestErr error
+	params :=paiHomeFeedRecallRequest{
+		Uid:         strconv.FormatInt(userId,10),
+		Size:        size,
+		Scene_id:    "home_feed_recall",
+		Debug:       false,
+	}
+	if paramsData, err := json.Marshal(params); err == nil {
+		paiRes := &paiHomeFeedRecallRes{}
+		if requestErr = factory.PaiRpcClient.PaiPreSendPOSTJson(externalPaiHomeFeedUrl, paramsData, paiRes); requestErr == nil {
+			if paiRes.Code == 200 {
+				for _, element := range paiRes.Items {
+					item, err := strconv.ParseInt(element.ItemId, 10, 64)
+					if err == nil {
+						result=append(result,item)
+					}
+				}
+			}
+		}
+	}
+	return result,"","",requestErr
 }

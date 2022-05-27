@@ -100,8 +100,10 @@ func DoBuildData(ctx algo.IContext) error {
 							userId = -999999999
 						}
 						recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
-						return len(recIdList)
+					}else{
+						recIdList,_,_,err= api.GetRecallResult(params.UserId,1500)
 					}
+					return len(recIdList)
 				}
 				return nil
 			},"hour": func(*performs.Performs) interface{}{
