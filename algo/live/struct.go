@@ -11,6 +11,7 @@ import (
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	rutils "rela_recommend/utils"
+	"strconv"
 	"time"
 )
 
@@ -281,9 +282,8 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				}
 
 				data.LabelList = self.LiveData.ToLabelList()
-				key :=prefix+":"+string(self.UserId)+":"+string(userId)
-				log.Warnf("label list key%s",key)
-				log.Warnf("label list userid%s",self.UserId)
+				key :=prefix+":"+ strconv.FormatInt(self.UserId, 10)+":"+ strconv.FormatInt(userId, 10)
+				log.Warnf("label list key,%s",key)
 				if err := help.SetExStructByCache(factory.CacheCluster, key, data.LabelList, LabelExpire); err != nil {
 					log.Warnf("read label list eerr %s",err)
 				}
