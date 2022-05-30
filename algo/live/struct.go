@@ -211,7 +211,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 	params := ctx.GetRequest()
 	userId :=params.UserId
 	if self.LiveCache != nil {
-		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", true)
+		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
 
 		params := ctx.GetRequest()
 
