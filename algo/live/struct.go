@@ -210,7 +210,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 	params := ctx.GetRequest()
 	userId :=params.UserId
 	if self.LiveCache != nil {
-		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
+		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", true)
 
 		params := ctx.GetRequest()
 
@@ -282,10 +282,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 
 				data.LabelList = self.LiveData.ToLabelList()
 				key :=prefix+":"+string(self.UserId)+":"+string(userId)
+				log.Warnf("label list key%s",key)
+				log.Warnf("label list userid%s",self.UserId)
 				if err := help.SetExStructByCache(factory.CacheCluster, key, data.LabelList, LabelExpire); err != nil {
 					log.Warnf("read label list eerr %s",err)
 				}
-				log.Warnf("label list key%s",key)
 				dataJson, err := json.Marshal(data)
 				if err == nil {
 					return string(dataJson)
