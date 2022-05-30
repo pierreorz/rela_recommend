@@ -283,8 +283,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				data.LabelList = self.LiveData.ToLabelList()
 				key :=prefix+":"+string(self.UserId)+":"+string(userId)
 				if err := help.SetExStructByCache(factory.CacheCluster, key, data.LabelList, LabelExpire); err != nil {
-					log.Error(err.Error())
+					log.Warnf("read label list eerr %s",err)
 				}
+				log.Warnf("label list key%s",key)
 				dataJson, err := json.Marshal(data)
 				if err == nil {
 					return string(dataJson)
