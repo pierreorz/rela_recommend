@@ -10,6 +10,7 @@ import (
 )
 
 const externalPaiHomeFeedUrl = "/api/rec/home_feed"
+const externalPaiHomeFeedRecallUrl = "/api/rec/home_feed_recall"
 
 type paiHomeFeedRes struct {
 	Code int  	`json:"code"`
@@ -103,5 +104,62 @@ func GetPredictResult(lat float32,lng float32,os string,userId int64,addr string
 			}
 		}
 	}
+	return result,expId,requestId,requestErr
+}
+
+
+type paiHomeFeedRecallRes struct {
+	Code int  	`json:"code"`
+	Message  string  `json:"msg"`
+	Request_id  string  `json:"request_id"`
+	Experiment_id  string `json:"experiment_id"`
+	Size    int  `json:"size"`
+	Items  []PaiResRecallDataItem  `json:"items"`
+}
+
+type PaiResRecallDataItem struct {
+	ItemId   string  `json:"item_id"`
+	Score    float64  `json:"score"`
+}
+
+type paiHomeFeedRecallRequest struct {
+	Uid   string   `json:"uid"`
+	Size   int   `json:"size"`
+	Scene_id    string   `json:"scene_id"`
+	Request_id string  `json:"request_id"`
+	Debug   bool  `json:"debug"`
+}
+
+
+func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
+	result := make([]int64,0)
+	expId :=""
+	requestId :=""
+	var requestErr error
+	params :=paiHomeFeedRecallRequest{
+		Uid:         strconv.FormatInt(userId,10),
+		Size:        size,
+		Scene_id:    "home_feed_recall",
+		Debug:       false,
+	}
+	if paramsData, err := json.Marshal(params); err == nil {
+		paiRes := &paiHomeFeedRecallRes{}
+		if requestErr = factory.PaiRpcRecallClient.PaiRecallSendPOSTJson(externalPaiHomeFeedRecallUrl, paramsData, paiRes); requestErr == nil {
+			if paiRes.Code == 200 {
+				for _, element := range paiRes.Items {
+					item, err := strconv.ParseInt(element.ItemId, 10, 64)
+					if err == nil {
+						result=append(result,item)
+					}
+				}
+			}
+			if expArr :=strings.Split(paiRes.Experiment_id,"_");len(expArr)==2{
+				expId = expArr[1]
+			}
+		}else{
+			expId = utils.RecallOffTime
+		}
+	}
+	log.Warnf("request err,%s",requestErr)
 	return result,expId,requestId,requestErr
 }

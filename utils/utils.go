@@ -28,6 +28,8 @@ const MAX_INT64 = 9223372036854775807
 const (
 	OffTime    = "ER2_L2#EG2#E4"
 	RequestErr = "ER2_L2#EG2#E5"
+	RecallOffTime = "L7#EG6#E21"
+	RecallOwn = "LxEGyEz'"
 )
 
 func FormatKeyInt64(str string, i int64) string {
@@ -41,6 +43,15 @@ func FormatKeyInt64s(keyFormater string, ids []int64) []string {
 		keys[i] = fmt.Sprintf(keyFormater, id)
 	}
 	return keys
+}
+
+func ConvertExpId(expId string,recall_expId string) string{
+	result :=""
+	expArr := strings.Split(expId,"_")
+	if len(expArr)==2{
+		return expArr[0]+"_"+recall_expId+"_"+expArr[1]
+	}
+	return result
 }
 
 func EarthDistance(lng1, lat1, lng2, lat2 float64) float64 {

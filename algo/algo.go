@@ -3,6 +3,7 @@ package algo
 import (
 	"os"
 	utils2 "rela_recommend/utils"
+	"strings"
 	"sync"
 	"rela_recommend/algo/utils"
 )
@@ -56,7 +57,7 @@ func (self *AlgoBase) doPredictSingle(ctx IContext, index int) {
 	if rankInfo.Features == nil {
 		rankInfo.Features = self.FeaturesSingle(ctx, dataInfo)
 	}
-	if rankInfo.ExpId!=""&&rankInfo.ExpId!=utils2.OffTime&&rankInfo.ExpId!=utils2.RequestErr{
+	if rankInfo.ExpId!=""&&!strings.Contains(rankInfo.ExpId,utils2.OffTime)&&!strings.Contains(rankInfo.ExpId,utils2.RequestErr){
 		rankInfo.AlgoScore = float32(rankInfo.PaiScore)
 		rankInfo.AlgoName="pai"
 		rankInfo.Score=rankInfo.AlgoScore

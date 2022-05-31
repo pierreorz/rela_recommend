@@ -15,7 +15,10 @@ const (
 	DefaultLogLevel        = "debug"
 	DefaultLiveRpcAddr     = "http://live:3500"
 	DefaultPaiRpcAddr      ="http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict/rela_rec"
+	DefaultPaiRpcRecallAddr   ="http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict/rela_rec"
 )
+
+
 
 var (
 	port         = flag.Int("port", 3100, "监听端口")
@@ -57,6 +60,7 @@ type rpcConfig struct {
 	LiveRpcAddr     string `toml:"live_rpc_addr"`
 	AiSearchRpcAddr string `toml:"ai_search_rpc_addr"`
 	PaiRpcAddr      string `toml:"pai_rpc_addr"`
+	PaiRpcRecallAddr   string  `toml:"pai_rpc_pre_addr"`
 }
 
 type influxdbConfig struct {
@@ -65,6 +69,7 @@ type influxdbConfig struct {
 	Org    string `toml:"org"`
 	Bucket string `toml:"bucket"`
 }
+
 
 type Config struct {
 	FileName string `toml:"-"`
@@ -138,5 +143,6 @@ func NewConfigDefault() *Config {
 	// rpc
 	cfg.Rpc.LiveRpcAddr = DefaultLiveRpcAddr
 	cfg.Rpc.PaiRpcAddr= DefaultPaiRpcAddr
+	cfg.Rpc.PaiRpcRecallAddr = DefaultPaiRpcRecallAddr
 	return cfg
 }
