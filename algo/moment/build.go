@@ -24,7 +24,7 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	preforms := ctx.GetPerforms()
 	app := ctx.GetAppInfo()
-
+	recallSwitch :=abtest.GetBool("recallSwitch",false)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
@@ -96,7 +96,7 @@ func DoBuildData(ctx algo.IContext) error {
 			"recommend": func(*performs.Performs) interface{} { // 获取推荐日志
 				if dataIdList == nil || len(dataIdList) == 0 {
 					recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
-					if len(recListKeyFormatter) > 5 {
+					if len(recListKeyFormatter) > 5 &&!recallSwitch{
 						var userId = params.UserId
 						if custom == "hot" {
 							userId = -999999999
@@ -105,6 +105,9 @@ func DoBuildData(ctx algo.IContext) error {
 						recall_expId=utils.RecallOwn
 					}else{
 						recIdList,recall_expId,_,err= api.GetRecallResult(params.UserId,recall_length)
+						if len(recIdList)<1000{
+							recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
+						}
 					}
 					return len(recIdList)
 				}
