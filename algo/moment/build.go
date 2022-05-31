@@ -46,6 +46,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var liveMap = map[int64]int{}
 	var expId = ""
 	var requestId = ""
+	var recall_expId = ""
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	topN :=abtest.GetInt("topn",5)
 	topScore :=abtest.GetFloat64("top_score",0.02)
@@ -100,8 +101,9 @@ func DoBuildData(ctx algo.IContext) error {
 							userId = -999999999
 						}
 						recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
+						recall_expId=utils.RecallOwn
 					}else{
-						recIdList,_,_,err= api.GetRecallResult(params.UserId,1500)
+						recIdList,recall_expId,_,err= api.GetRecallResult(params.UserId,1500)
 					}
 					return len(recIdList)
 				}
@@ -511,7 +513,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop,PaiScore:score,ExpId:expId,RequestId:requestId,OffTime:offTime},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop,PaiScore:score,ExpId:utils.ConvertExpId(expId,recall_expId),RequestId:requestId,OffTime:offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],

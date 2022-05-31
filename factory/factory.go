@@ -59,7 +59,7 @@ var ChatRoomRpcClient *rpc.HttpClient
 var LiveRpcClient *rpc.HttpClient
 var AiSearchRpcClient *rpc.HttpClient
 var PaiRpcClient *rpc.HttpClient
-var PaiRpcPreClient *rpc.HttpClient
+var PaiRpcRecallClient *rpc.HttpClient
 // influxdb
 var InfluxdbClient influxdb2.Client
 
@@ -201,7 +201,7 @@ func initRpc(cfg *conf.Config) {
 	ChatRoomRpcClient = rpc.NewHttpClient(cfg.Rpc.ChatRoomRpcAddr, time.Millisecond*1000)
 	AiSearchRpcClient = rpc.NewHttpClient(cfg.Rpc.AiSearchRpcAddr, time.Millisecond*1000)
 	PaiRpcClient =rpc.NewHttpClient(cfg.Rpc.PaiRpcAddr,time.Millisecond*300)
-	PaiRpcPreClient =rpc.NewHttpClient(cfg.Rpc.PaiRpcPreAddr,time.Millisecond*50)
+	PaiRpcRecallClient =rpc.NewHttpClient(cfg.Rpc.PaiRpcPreAddr,time.Millisecond*100)
 	LiveRpcClient = rpc.NewHttpClient(cfg.Rpc.LiveRpcAddr, time.Millisecond*2000)
 }
 

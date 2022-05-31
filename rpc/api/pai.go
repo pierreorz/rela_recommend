@@ -133,6 +133,8 @@ type paiHomeFeedRecallRequest struct {
 
 func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
 	result := make([]int64,0)
+	expId :=""
+	requestId :=""
 	var requestErr error
 	params :=paiHomeFeedRecallRequest{
 		Uid:         strconv.FormatInt(userId,10),
@@ -142,7 +144,7 @@ func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		paiRes := &paiHomeFeedRecallRes{}
-		if requestErr = factory.PaiRpcPreClient.PaiPreSendPOSTJson(externalPaiHomeFeedRecallUrl, paramsData, paiRes); requestErr == nil {
+		if requestErr = factory.PaiRpcRecallClient.PaiRecallSendPOSTJson(externalPaiHomeFeedRecallUrl, paramsData, paiRes); requestErr == nil {
 			log.Warnf("paires",paiRes)
 			if paiRes.Code == 200 {
 				for _, element := range paiRes.Items {
@@ -152,8 +154,13 @@ func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
 					}
 				}
 			}
+			log.Warnf("expId recall%s",paiRes.Experiment_id)
+			if expArr :=strings.Split(paiRes.Experiment_id,"_");len(expArr)==2{
+				expId = expArr[1]
+			}
+		}else{
+			expId = utils.RecallOffTime
 		}
 	}
-	log.Warnf("request err",requestErr)
-	return result,"","",requestErr
+	return result,expId,requestId,requestErr
 }
