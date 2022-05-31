@@ -95,26 +95,29 @@ func DoBuildData(ctx algo.IContext) error {
 		preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
 			"recommend": func(*performs.Performs) interface{} { // 获取推荐日志
 				if dataIdList == nil || len(dataIdList) == 0 {
-					recListKeyFormatter := abtest.GetString("recommend_list_key", "") // moment_recommend_list:%d
-					if len(recListKeyFormatter) > 5 &&!recallSwitch{
-						var userId = params.UserId
-						if custom == "hot" {
-							userId = -999999999
+					recListKeyFormatter := abtest.GetString("recommend_list_key", "")
+					// moment_recommend_list:%d
+					if app.Name == "moment" {
+						if len(recListKeyFormatter) > 5 && !recallSwitch {
+							var userId = params.UserId
+							if custom == "hot" {
+								userId = -999999999
+							}
+							recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
+							recall_expId = utils.RecallOwn
+						} else {
+							recIdList, recall_expId, _, err = api.GetRecallResult(params.UserId, recall_length)
+							if len(recIdList) < 1000 {
+								recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
+							}
 						}
-						recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
-						recall_expId=utils.RecallOwn
-					}else{
-						recIdList,recall_expId,_,err= api.GetRecallResult(params.UserId,recall_length)
-						if len(recIdList)<1000{
-							recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
-						}
+						return len(recIdList)
 					}
-					return len(recIdList)
 				}
 				return nil
-			},"hour": func(*performs.Performs) interface{}{
-				if abtest.GetBool("hour_rec_moment",false){
-					hourRecList,err =momentCache.GetInt64ListOrDefault(params.UserId,-999999999,"hour_recommend_list:%d")
+			}, "hour": func(*performs.Performs) interface{} {
+				if abtest.GetBool("hour_rec_moment", false) {
+					hourRecList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, "hour_recommend_list:%d")
 					return len(hourRecList)
 				}
 				return nil
