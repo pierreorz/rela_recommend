@@ -153,7 +153,6 @@ func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
 					}
 				}
 			}
-			log.Warnf("expId recall%s",paiRes.Experiment_id)
 			if expArr :=strings.Split(paiRes.Experiment_id,"_");len(expArr)==2{
 				expId = expArr[1]
 			}
