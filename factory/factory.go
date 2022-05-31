@@ -35,6 +35,9 @@ var CacheRds cache.Cache
 var CacheLiveRds cache.Cache
 var CacheInternalRds cache.Cache
 
+//common redis cache
+var CacheCommonRds cache.Cache
+
 // redis cache
 var CacheCluster cache.Cache
 
@@ -161,6 +164,12 @@ func initCache(cfg *conf.Config) {
 
 	log.Infof("INIT ClusterAddr: %s ....", cfg.Rds.ClusterAddr)
 	CacheCluster, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.ClusterAddr, "", 0)
+	if err != nil {
+		log.Error(err.Error())
+	}
+
+	log.Infof("INIT CommonRedisAddr: %s ....", cfg.Rds.CommonAddr)
+	CacheCommonRds, err = cacheUtils.NewRedisOrClusterCache(cfg.Rds.CommonAddr, "", 0)
 	if err != nil {
 		log.Error(err.Error())
 	}

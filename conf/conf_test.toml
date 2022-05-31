@@ -19,6 +19,7 @@ redis_addr = "192.168.31.168:6379,192.168.31.169:6379,192.168.31.170:6379"
 # redis_live_addr = "r-8vb6b3c35b002464.redis.zhangbei.rds.aliyuncs.com:6379"
 redis_live_addr = "192.168.31.164:6379"
 redis_cluster_addr = "192.168.31.164:6379"
+common_redis_addr = "192.168.16.27:6379"
 pika_addr = "192.168.31.164:9221"
 behavior_addr = "192.168.31.164:6379"
 
