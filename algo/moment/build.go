@@ -49,7 +49,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var recall_expId = ""
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	topN :=abtest.GetInt("topn",5)
-	recall_length :=abtest.GetInt("recall_length",10)
+	recall_length :=abtest.GetInt("recall_length",1500)
 	topScore :=abtest.GetFloat64("top_score",0.02)
 	if abtest.GetBool("rec_liveMoments_switch", false) && custom != "hot" {
 		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
@@ -105,7 +105,6 @@ func DoBuildData(ctx algo.IContext) error {
 						recall_expId=utils.RecallOwn
 					}else{
 						recIdList,recall_expId,_,err= api.GetRecallResult(params.UserId,recall_length)
-						log.Warnf("recall err%s",err)
 					}
 					return len(recIdList)
 				}

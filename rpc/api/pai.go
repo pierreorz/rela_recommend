@@ -160,7 +160,6 @@ func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
 		}else{
 			expId = utils.RecallOffTime
 		}
-		log.Warnf("paires",paiRes)
 	}
 	log.Warnf("request err,%s",requestErr)
 	return result,expId,requestId,requestErr
