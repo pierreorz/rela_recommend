@@ -105,6 +105,7 @@ func DoBuildData(ctx algo.IContext) error {
 						recall_expId=utils.RecallOwn
 					}else{
 						recIdList,recall_expId,_,err= api.GetRecallResult(params.UserId,recall_length)
+						log.Warnf("recall err%s",err)
 					}
 					return len(recIdList)
 				}
