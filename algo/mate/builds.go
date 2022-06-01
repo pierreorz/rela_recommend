@@ -27,7 +27,6 @@ func DoBuildData(ctx algo.IContext) error {
 	//获取假装情侣在线用户id
 	var onlineUserList []int64
 	if err == nil {
-		log.Infof("pretendList=====================%+v", pretendList)
 		for _, v := range pretendList {
 			userId, err := strconv.ParseInt(v.Userid, 10, 64)
 			if err == nil {
@@ -55,7 +54,6 @@ func DoBuildData(ctx algo.IContext) error {
 	//请求者用户基础文案
 	textType:=10
 	reqUserBaseSentence := GetBaseSentenceDataById(user,int64(textType))
-	log.Infof("reqUserBaseSentence=======================================%+v", reqUserBaseSentence)
 	//在线用户基础文案
 	onlineUserBaseSentenceList := GetBaseSentenceDataMap(onlineUserMap,int64(textType))
 
@@ -68,11 +66,8 @@ func DoBuildData(ctx algo.IContext) error {
 		categType:=int64(4)
 		var baseCateg redis.TextTypeCategText
 		baseCateg,err=mateCategCache.QueryMateUserCategTextList(int64(textType),categType)
-		log.Infof("baseCateg==================================%+v",baseCateg)
 		if len(baseCateg.TextLine)!=0{
-			log.Infof("baseCateg=======================================%+v", baseCateg)
 			baseCategText=GetCategSentenceData(baseCateg.TextLine,int64(textType),4)
-			log.Infof("baseCategText=======================================%+v", baseCategText)
 
 		}
 	}
@@ -91,9 +86,7 @@ func DoBuildData(ctx algo.IContext) error {
 		var onlineBaseCateg redis.TextTypeCategText
 		onlineBaseCateg,err=mateCategCache.QueryMateUserCategTextList(int64(textType),categType)
 		if len(onlineBaseCateg.TextLine)!=0{
-			log.Infof("onlineBaseCateg=======================================%+v", onlineBaseCateg)
 			onlineBaseCategText=GetCategSentenceData(onlineBaseCateg.TextLine,int64(textType),4)
-			log.Infof("onlineBaseCategText=======================================%+v", onlineBaseCategText)
 		}
 	}
 	//获取假装情侣池话题偏好
@@ -133,10 +126,8 @@ func DoBuildData(ctx algo.IContext) error {
 				if i<=3 {
 					if _, ok := CategNumsList[v]; ok {
 						reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-						log.Infof("reqCateg=======================================%+v", reqCateg)
 						if len(reqCateg.TextLine) != 0 {
 							reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
-							log.Infof("reqCategText=======================================%+v", reqCategText)
 						}
 					}
 				}
@@ -145,10 +136,8 @@ func DoBuildData(ctx algo.IContext) error {
 			for _, v := range resultList {
 				if _, ok := CategNumsList[v]; ok {
 					reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-					log.Infof("reqCateg=======================================%+v", reqCateg)
 					if len(reqCateg.TextLine) != 0 {
 						reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
-						log.Infof("reqCategText=======================================%+v", reqCategText)
 					}
 				}
 			}
@@ -167,10 +156,8 @@ func DoBuildData(ctx algo.IContext) error {
 				if i<=3 {
 					if _, ok := CategNumsList[v]; ok {
 						olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-						log.Infof("olineCateg=======================================%+v", olineCateg)
 						if len(olineCateg.TextLine) != 0 {
 							onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
-							log.Infof("onlineCategText=======================================%+v", onlineCategText)
 						}
 					}
 				}
@@ -179,18 +166,14 @@ func DoBuildData(ctx algo.IContext) error {
 			for _, v := range resultList {
 				if _, ok := CategNumsList[v]; ok {
 					olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-					log.Infof("olineCateg=======================================%+v", olineCateg)
 					if len(olineCateg.TextLine) != 0 {
 						onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
-						log.Infof("onlineCategText=======================================%+v", onlineCategText)
 					}
 				}
 			}
 		}
 
 	}
-	log.Infof("reqCategText=============%+v", reqCategText)
-	log.Infof("onlineCategText=============%+v", onlineCategText)
 	//旧版搜索结果
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
