@@ -41,6 +41,7 @@ type rdsConfig struct {
 	ClusterAddr        string `toml:"redis_cluster_addr"`
 	LedisAddr          string `toml:"ledis_addr"`
 	PikaAddr           string `toml:"pika_addr"`
+	CommonAddr         string `toml:"common_redis_addr"`
 	LedisViewAddr      string `toml:"ledis_view_addr"`
 	LedisDataAddr      string `toml:"ledis_data_addr"`
 	RedisComAddr       string `toml:"redis_com_addr"`

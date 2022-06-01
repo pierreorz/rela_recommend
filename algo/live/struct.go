@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
+	"rela_recommend/factory"
+	"rela_recommend/help"
 	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
 	rutils "rela_recommend/utils"
+	"strconv"
 	"time"
 )
 
@@ -41,6 +44,10 @@ const (
 	level1 = 1
 	level2 = 2
 	level3 = 3
+
+	LabelExpire = 86400
+
+	prefix = "liveLabelList"
 )
 
 const (
@@ -201,6 +208,8 @@ func (self *LiveInfo) GetDataId() int64 {
 }
 
 func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
+	params := ctx.GetRequest()
+	userId :=params.UserId
 	if self.LiveCache != nil {
 		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
 
@@ -273,7 +282,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				}
 
 				data.LabelList = self.LiveData.ToLabelList()
-
+				key :=prefix+":"+ strconv.FormatInt(self.UserId, 10)+":"+ strconv.FormatInt(userId, 10)
+				log.Warnf("label list key,%s",key)
+				if err := help.SetExStructByCache(factory.CacheCommonRds, key, data.LabelList, LabelExpire); err != nil {
+					log.Warnf("read label list err %s",err)
+				}
 				dataJson, err := json.Marshal(data)
 				if err == nil {
 					return string(dataJson)
