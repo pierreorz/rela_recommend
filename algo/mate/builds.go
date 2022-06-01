@@ -61,8 +61,9 @@ func DoBuildData(ctx algo.IContext) error {
 
 	//基础数据需要搜索
 	var baseCategText []search.MateTextResDataItem
+	stringAffection := strconv.Itoa(user.Affection)
 	log.Infof("request.Affection==========================",user.Affection)
-	if _, ok := affection_map[string(user.Affection)]; ok {
+	if _, ok := affection_map[stringAffection]; ok {
 		//情感搜索
 		categType:=int64(4)
 		var baseCateg redis.TextTypeCategText
