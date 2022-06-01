@@ -112,8 +112,6 @@ func DoBuildData(ctx algo.IContext) error {
 	if onlineUserMomMap!=nil{
 		log.Infof("onlineUserMomMap=======================================%+v", onlineUserMomMap)
 	}
-
-
 	//合并用户偏好(请求者)
 	reqUserProfile := MergeMap(reqUserThemeMap, reqUserMomMap)
 	var reqCategText []search.MateTextResDataItem

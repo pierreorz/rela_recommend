@@ -3,7 +3,6 @@ package mate
 import (
 	"math/rand"
 	"rela_recommend/algo"
-	"rela_recommend/log"
 	"rela_recommend/utils"
 	"strings"
 )
@@ -46,9 +45,7 @@ func SortScoreItem(ctx algo.IContext) error {
 		}else {
 			sdWeight = 1.0
 		}
-		log.Infof("sdWeight===============%+v", sd.Id)
 		itemScore:=randomScore*float32(sdWeight)*float32(sd.Weight)
-		log.Infof("itemScore===============%+v", itemScore)
 		rankInfo.AddRecommend("sortScoreItem", itemScore)
 	}
 	return nil
