@@ -62,9 +62,9 @@ func DoBuildData(ctx algo.IContext) error {
 	//基础数据需要搜索
 	var baseCategText []search.MateTextResDataItem
 	stringAffection := strconv.Itoa(user.Affection)
-	log.Infof("request.Affection==========================",user.Affection)
 	if _, ok := affection_map[stringAffection]; ok {
 		//情感搜索
+		textType:=10
 		categType:=int64(4)
 		var baseCateg redis.TextTypeCategText
 		baseCateg,err=mateCategCache.QueryMateUserCategTextList(int64(textType),categType)
@@ -74,6 +74,26 @@ func DoBuildData(ctx algo.IContext) error {
 			baseCategText=GetCategSentenceData(baseCateg.TextLine,int64(textType),4)
 			log.Infof("baseCategText=======================================%+v", baseCategText)
 
+		}
+	}
+	//获取在线用户情感状态
+	affectionNums:=0
+	var onlineBaseCategText []search.MateTextResDataItem
+	for _,userView:=range onlineUserMap{
+		stringAffection := strconv.Itoa(userView.Affection)
+		if _, ok := affection_map[stringAffection]; ok {
+			affectionNums+=1
+		}
+	}
+	if affectionNums>0{
+		textType:=10
+		categType:=int64(4)
+		var onlineBaseCateg redis.TextTypeCategText
+		onlineBaseCateg,err=mateCategCache.QueryMateUserCategTextList(int64(textType),categType)
+		if len(onlineBaseCateg.TextLine)!=0{
+			log.Infof("onlineBaseCateg=======================================%+v", onlineBaseCateg)
+			onlineBaseCategText=GetCategSentenceData(onlineBaseCateg.TextLine,int64(textType),4)
+			log.Infof("onlineBaseCategText=======================================%+v", onlineBaseCategText)
 		}
 	}
 	//获取假装情侣池话题偏好
@@ -189,6 +209,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var allSentenceList []search.MateTextResDataItem
 	if onlineUserBaseSentenceList != nil {
 		allSentenceList = append(allSentenceList,searchResList...)
+		allSentenceList = append(allSentenceList,onlineBaseCategText...)
 		allSentenceList = append(allSentenceList,onlineUserBaseSentenceList...)
 		allSentenceList = append(allSentenceList,onlineCategText...)
 	}else{
