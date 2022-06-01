@@ -51,7 +51,7 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 	//用户基础信息生成文案
 	//base文案
-	var affection_list= map[string]string{"1": "1", "7": "1"}
+	var affection_map= map[string]string{"1": "1", "7": "1"}
 	//请求者用户基础文案
 	textType:=10
 	reqUserBaseSentence := GetBaseSentenceDataById(user,int64(textType))
@@ -61,10 +61,10 @@ func DoBuildData(ctx algo.IContext) error {
 
 	//基础数据需要搜索
 	var baseCategText []search.MateTextResDataItem
-	if _, ok := affection_list[string(user.Affection)]; ok {
+	log.Infof("request.Affection==========================",user.Affection)
+	if _, ok := affection_map[string(user.Affection)]; ok {
 		//情感搜索
 		categType:=int64(4)
-		log.Infof("Affection==========================",categType)
 		var baseCateg redis.TextTypeCategText
 		baseCateg,err=mateCategCache.QueryMateUserCategTextList(int64(textType),categType)
 		log.Infof("baseCateg==================================%+v",baseCateg)
