@@ -29,7 +29,7 @@ const (
 	OffTime    = "ER2_L2#EG2#E4"
 	RequestErr = "ER2_L2#EG2#E5"
 	RecallOffTime = "L7#EG6#E21"
-	RecallOwn = "LxEGyEz'"
+	RecallOwn = "L7#EG6#E22"
 )
 
 func FormatKeyInt64(str string, i int64) string {

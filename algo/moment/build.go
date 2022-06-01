@@ -40,6 +40,7 @@ func DoBuildData(ctx algo.IContext) error {
 	tagRecommendIdList := make([]int64, 0)
 	adList := make([]int64, 0)
 	adLocationList := make([]int64, 0)
+	paiRecallList :=make([]int64,0)
 	liveMomentIds := make([]int64, 0)
 	paiResult :=make(map[int64]float64,0)
 	var recIds, topMap, recMap, bussinessMap = []int64{}, map[int64]int{}, map[int64]int{}, map[int64]int{}
@@ -49,7 +50,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var recall_expId = ""
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	topN :=abtest.GetInt("topn",5)
-	recall_length :=abtest.GetInt("recall_length",1500)
+	recall_length :=abtest.GetInt("recall_length",300)
 	topScore :=abtest.GetFloat64("top_score",0.02)
 	if abtest.GetBool("rec_liveMoments_switch", false) && custom != "hot" {
 		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
@@ -106,10 +107,7 @@ func DoBuildData(ctx algo.IContext) error {
 							recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
 							recall_expId = utils.RecallOwn
 						} else {
-							recIdList, recall_expId, _, err = api.GetRecallResult(params.UserId, recall_length)
-							if len(recIdList) < 1000 {
-								recIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, recListKeyFormatter)
-							}
+							paiRecallList, recall_expId, _, err = api.GetRecallResult(params.UserId, recall_length)
 						}
 						return len(recIdList)
 					}
@@ -265,7 +263,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(hourRecList)>500&&len(recIdList)>200{
 		recIdList=recIdList[:100]
 	}
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList,hourRecList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList,hourRecList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList,paiRecallList).ToList()
 	// 过滤审核
 	var paiErr error
 	var offTime =0
