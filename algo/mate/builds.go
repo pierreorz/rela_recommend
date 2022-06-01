@@ -64,8 +64,10 @@ func DoBuildData(ctx algo.IContext) error {
 	if _, ok := affection_list[string(user.Affection)]; ok {
 		//情感搜索
 		categType:=int64(4)
+		log.Infof("Affection==========================",categType)
 		var baseCateg redis.TextTypeCategText
 		baseCateg,err=mateCategCache.QueryMateUserCategTextList(int64(textType),categType)
+		log.Infof("baseCateg==================================%+v",baseCateg)
 		if len(baseCateg.TextLine)!=0{
 			log.Infof("baseCateg=======================================%+v", baseCateg)
 			baseCategText=GetCategSentenceData(baseCateg.TextLine,int64(textType),4)
