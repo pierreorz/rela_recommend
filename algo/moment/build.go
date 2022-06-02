@@ -99,12 +99,12 @@ func DoBuildData(ctx algo.IContext) error {
 					recListKeyFormatter := abtest.GetString("recommend_list_key", "")
 					// moment_recommend_list:%d
 					if app.Name == "moment" {
+						var userId = params.UserId
+						if custom == "hot" {
+							userId = -999999999
+						}
+						recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
 						if len(recListKeyFormatter) > 5 && !recallSwitch {
-							var userId = params.UserId
-							if custom == "hot" {
-								userId = -999999999
-							}
-							recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
 							recall_expId = utils.RecallOwn
 						} else {
 							paiRecallList, recall_expId, _, err = api.GetRecallResult(params.UserId, recall_length)
@@ -112,7 +112,7 @@ func DoBuildData(ctx algo.IContext) error {
 						return len(recIdList)
 					}
 				}
-				return err
+				return nil
 			}, "hour": func(*performs.Performs) interface{} {
 				if abtest.GetBool("hour_rec_moment", false) {
 					hourRecList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, "hour_recommend_list:%d")
