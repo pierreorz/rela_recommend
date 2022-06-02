@@ -2,9 +2,8 @@ package conf
 
 import (
 	"flag"
-	"io/ioutil"
-
 	"github.com/BurntSushi/toml"
+	"io/ioutil"
 )
 
 const (
@@ -48,6 +47,7 @@ type rdsConfig struct {
 	RedisPushAddr      string `toml:"redis_push_addr"`
 	BehaviorAddr       string `toml:"behavior_addr"`
 	BehaviorBackupAddr string `toml:"behavior_backup_addr"`
+	AwsRedisAddr       string `toml:"aws_redis_addr"`
 }
 
 type cassandraConfig struct {

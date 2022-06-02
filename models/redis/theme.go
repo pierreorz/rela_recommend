@@ -93,6 +93,7 @@ func NewThemeCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cach
 	return &ThemeUserProfileModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
 
+
 // 读取话题相关用户行为
 func (self *ThemeBehaviorCacheModule) QueryUserBehaviorMap(userId int64, ids []int64) (map[int64]*ThemeUserBehavior, error) {
 	keyFormatter := fmt.Sprintf("behavior:theme:%d:%%d", userId)
@@ -138,3 +139,40 @@ func (self *MomentCacheModule) GetThemeRelpyListOrDefault(id int64, defaultId in
 	return resList, err
 }
 
+
+func (this *ThemeUserProfileModule)QueryMatThemeProfileData(userId []int64) map[int64]float64 {
+	userProfileUserIds := userId
+	var themeProfileMap = map[int64]*ThemeUserProfile{}
+	var themeUserCacheErr error
+	userThemeMap := map[int64]float64{}
+	themeProfileMap, themeUserCacheErr = this.QueryThemeUserProfileMap(userProfileUserIds)
+	if themeUserCacheErr == nil {
+		for _,profile := range themeProfileMap{
+			if profile!=nil{
+				tagMap:=profile.AiTag
+				themeTagLongMap:=tagMap.UserShortTag
+				themeTagShortMap:=tagMap.UserShortTag
+				if len(themeTagLongMap) > 0 {
+					for k, _ := range themeTagLongMap {
+						if _, ok := userThemeMap[k]; ok {
+							userThemeMap[k] += 1.0
+						} else {
+							userThemeMap[k] = 1.0
+						}
+					}
+				}
+				if len(themeTagShortMap) > 0 {
+					for k, _ := range themeTagShortMap {
+						if _, ok := userThemeMap[k]; ok {
+							userThemeMap[k] += 1
+						} else {
+							userThemeMap[k] = 1
+						}
+					}
+				}
+			}
+		}
+		return userThemeMap
+	}
+	return userThemeMap
+}
