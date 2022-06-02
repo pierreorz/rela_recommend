@@ -125,8 +125,6 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	return baseVeiwList
 }
 func GetBaseSentenceDataById(user *redis.UserProfile,textType int64) []search.MateTextResDataItem {
-	log.Infof("baseuserId========================",user.UserId)
-	log.Infof("baseuserIdIntro========================",user.Intro)
 	age:=user.Age
 	horoscopeName:=HoroscopeDict[user.Horoscope]
 	wantName := WantDict[user.WantRole]
@@ -145,8 +143,6 @@ func GetBaseSentenceDataMap(userMap map[int64]*redis.UserProfile,textType int64)
 	var sentenceMap=make(map[string]int64)
 	if len(userMap)>0 {
 		for _, user := range userMap {
-			log.Infof("DatauserId========================",user.UserId)
-			log.Infof("DatauserIdIntro========================",user.Intro)
 			age := user.Age
 			horoscopeName := HoroscopeDict[user.Horoscope]
 			wantName := WantDict[user.WantRole]
