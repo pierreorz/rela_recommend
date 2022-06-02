@@ -112,7 +112,7 @@ func DoBuildData(ctx algo.IContext) error {
 						return len(recIdList)
 					}
 				}
-				return nil
+				return err
 			}, "hour": func(*performs.Performs) interface{} {
 				if abtest.GetBool("hour_rec_moment", false) {
 					hourRecList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, "hour_recommend_list:%d")
