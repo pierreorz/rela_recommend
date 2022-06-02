@@ -111,11 +111,11 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 		beasSentence := GetSentenceData(10001,wantText,nil,100,textType,1)
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
-	//标签
-	if intro != "" {
-		beasSentence := GetSentenceData(10003,intro,nil,100,textType,3)
-		baseVeiwList = append(baseVeiwList, beasSentence)
-	}
+	//签名
+	//if intro != "" {
+	//	beasSentence := GetSentenceData(10003,intro,nil,100,textType,3)
+	//	baseVeiwList = append(baseVeiwList, beasSentence)
+	//}
 	//用户基本文案
 	if len(textList) > 1 {
 		baseText := strings.Join(textList, "/")
