@@ -123,7 +123,6 @@ func DoBuildData(ctx algo.IContext) error {
 		if len(randomList) > 0 {
 			for _, v := range randomList {
 				reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-				log.Infof("reqCategErr=======================================%+v", err)
 				if err == nil {
 					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
 				}
@@ -142,7 +141,6 @@ func DoBuildData(ctx algo.IContext) error {
 		if len(randomList) > 0 {
 			for _, v := range randomList {
 				olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-				log.Infof("olineCategErr=======================================%+v", err)
 				if err == nil {
 					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
 				}
