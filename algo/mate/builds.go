@@ -50,66 +50,66 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 	//用户基础信息生成文案
 	//base文案
-	var affection_map= map[string]string{"1": "1", "7": "1"}
+	var affection_map = map[string]string{"1": "1", "7": "1"}
 	//请求者用户基础文案
-	textType:=10
-	reqUserBaseSentence := GetBaseSentenceDataById(user,int64(textType))
+	textType := 10
+	reqUserBaseSentence := GetBaseSentenceDataById(user, int64(textType))
 	//在线用户基础文案
-	onlineUserBaseSentenceList := GetBaseSentenceDataMap(onlineUserMap,int64(textType))
+	onlineUserBaseSentenceList := GetBaseSentenceDataMap(onlineUserMap, int64(textType))
 
 	//基础数据需要搜索
 	var baseCategText []search.MateTextResDataItem
 	stringAffection := strconv.Itoa(user.Affection)
 	if _, ok := affection_map[stringAffection]; ok {
 		//情感搜索
-		textType:=10
-		categType:=int64(4)
+		textType := 10
+		categType := int64(4)
 		var baseCateg redis.TextTypeCategText
-		baseCateg,err=mateCategCache.QueryMateUserCategTextList(int64(textType),categType)
-		if len(baseCateg.TextLine)!=0{
-			baseCategText=GetCategSentenceData(baseCateg.TextLine,int64(textType),4)
+		baseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
+		if len(baseCateg.TextLine) != 0 {
+			baseCategText = GetCategSentenceData(baseCateg.TextLine, int64(textType), 4)
 
 		}
 	}
 	//获取在线用户情感状态
-	affectionNums:=0
+	affectionNums := 0
 	var onlineBaseCategText []search.MateTextResDataItem
-	for _,userView:=range onlineUserMap{
+	for _, userView := range onlineUserMap {
 		stringAffection := strconv.Itoa(userView.Affection)
 		if _, ok := affection_map[stringAffection]; ok {
-			affectionNums+=1
+			affectionNums += 1
 		}
 	}
-	if affectionNums>0{
-		textType:=10
-		categType:=int64(4)
+	if affectionNums > 0 {
+		textType := 10
+		categType := int64(4)
 		var onlineBaseCateg redis.TextTypeCategText
-		onlineBaseCateg,err=mateCategCache.QueryMateUserCategTextList(int64(textType),categType)
-		if len(onlineBaseCateg.TextLine)!=0{
-			onlineBaseCategText=GetCategSentenceData(onlineBaseCateg.TextLine,int64(textType),4)
+		onlineBaseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
+		if len(onlineBaseCateg.TextLine) != 0 {
+			onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, int64(textType), 4)
 		}
 	}
 	//获取假装情侣池话题偏好
-	var reqUserThemeMap  map[int64]float64 //请求者
+	var reqUserThemeMap map[int64]float64    //请求者
 	var onlineUserThemeMap map[int64]float64 //假装情侣池
 	userProfileUserIds := []int64{params.UserId}
-	reqUserThemeMap=themeUserCache.QueryMatThemeProfileData(userProfileUserIds)
-	if reqUserThemeMap!=nil{
+	reqUserThemeMap = themeUserCache.QueryMatThemeProfileData(userProfileUserIds)
+	if reqUserThemeMap != nil {
 		log.Infof("userThemeMap=======================================%+v", reqUserThemeMap)
 	}
-	onlineUserThemeMap =themeUserCache.QueryMatThemeProfileData(onlineUserList)
-	if onlineUserThemeMap!=nil{
+	onlineUserThemeMap = themeUserCache.QueryMatThemeProfileData(onlineUserList)
+	if onlineUserThemeMap != nil {
 		log.Infof("onlineUserThemeMap=======================================%+v", onlineUserThemeMap)
 	}
 	//获取假装情侣用户moment偏好
-	var reqUserMomMap  map[int64]float64 //请求者
+	var reqUserMomMap map[int64]float64    //请求者
 	var onlineUserMomMap map[int64]float64 //假装情侣池
-	reqUserMomMap=behaviorCache.QueryMateMomUserData(userProfileUserIds)
-	if reqUserMomMap!=nil{
+	reqUserMomMap = behaviorCache.QueryMateMomUserData(userProfileUserIds)
+	if reqUserMomMap != nil {
 		log.Infof("reqUserMomMap=======================================%+v", reqUserMomMap)
 	}
-	onlineUserMomMap=behaviorCache.QueryMateMomUserData(onlineUserList)
-	if onlineUserMomMap!=nil{
+	onlineUserMomMap = behaviorCache.QueryMateMomUserData(onlineUserList)
+	if onlineUserMomMap != nil {
 		log.Infof("onlineUserMomMap=======================================%+v", onlineUserMomMap)
 	}
 	//合并用户偏好(请求者)
@@ -117,20 +117,14 @@ func DoBuildData(ctx algo.IContext) error {
 	var reqCategText []search.MateTextResDataItem
 	if len(reqUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(reqUserProfile)
-		textType:=20
+		textType := 20
 		var reqCateg redis.TextTypeCategText
-		randomList:=GetRandomData(len(resultList),resultList)
-		if len(randomList)>0{
+		randomList := GetRandomData(len(resultList), resultList)
+		if len(randomList) > 0 {
 			for _, v := range randomList {
 				reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-				if len(reqCateg.TextLine) != 0 {
-					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
-					}
-				}
-		}else{
-			for _, v := range randomList {
-				reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-				if len(reqCateg.TextLine) != 0 {
+				log.Infof("reqCategErr=======================================%+v", err)
+				if err == nil {
 					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
 				}
 			}
@@ -138,29 +132,23 @@ func DoBuildData(ctx algo.IContext) error {
 
 	}
 	//合并用户偏好(假装情侣池)
-	onlineUserProfile := MergeMap(onlineUserThemeMap,onlineUserMomMap)
+	onlineUserProfile := MergeMap(onlineUserThemeMap, onlineUserMomMap)
 	var onlineCategText []search.MateTextResDataItem
 	if len(onlineUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(onlineUserProfile)
-		textType:=20
+		textType := 20
 		var olineCateg redis.TextTypeCategText
-		randomList:=GetRandomData(len(resultList),resultList)
-		if len(randomList)>0{
+		randomList := GetRandomData(len(resultList), resultList)
+		if len(randomList) > 0 {
 			for _, v := range randomList {
 				olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-				if len(olineCateg.TextLine) != 0 {
+				log.Infof("olineCategErr=======================================%+v", err)
+				if err == nil {
 					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
-					}
-				}
-		} else{
-			for _, v := range randomList {
-				olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-				if len(olineCateg.TextLine) != 0 {
-					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
-					}
 				}
 			}
 		}
+	}
 	//旧版搜索结果
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
