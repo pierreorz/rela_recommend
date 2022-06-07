@@ -56,7 +56,6 @@ func DoBuildData(ctx algo.IContext) error {
 	reqUserBaseSentence := GetBaseSentenceDataById(user, int64(textType))
 	//在线用户基础文案
 	onlineUserBaseSentenceList := GetBaseSentenceDataMap(onlineUserMap, int64(textType))
-
 	//基础数据需要搜索
 	var baseCategText []search.MateTextResDataItem
 	stringAffection := strconv.Itoa(user.Affection)
@@ -67,7 +66,6 @@ func DoBuildData(ctx algo.IContext) error {
 		var baseCateg redis.TextTypeCategText
 		baseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
 		if err==nil{
-			log.Infof("baseCateg=============%+v", baseCateg)
 			baseCategText = GetCategSentenceData(baseCateg.TextLine, int64(textType), 4)
 		}
 	}
@@ -86,7 +84,6 @@ func DoBuildData(ctx algo.IContext) error {
 		var onlineBaseCateg redis.TextTypeCategText
 		onlineBaseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
 		if err == nil {
-			log.Infof("onlineBaseCateg=============%+v", onlineBaseCateg)
 			onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, int64(textType), 4)
 		}
 	}
