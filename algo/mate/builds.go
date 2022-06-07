@@ -148,6 +148,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(onlineUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(onlineUserProfile)
 		textType:=20
+		log.Infof("resultList=======================================%+v", resultList)
 		var olineCateg redis.TextTypeCategText
 		if len(resultList)>=3{
 			for i, v := range resultList {
