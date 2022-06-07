@@ -66,12 +66,9 @@ func DoBuildData(ctx algo.IContext) error {
 		categType := int64(4)
 		var baseCateg redis.TextTypeCategText
 		baseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
-		log.Infof("baseCategErr====",err)
-		log.Infof("baseCateg=============%+v",baseCateg)
 		if err==nil{
-
+			log.Infof("baseCateg=============%+v", baseCateg)
 			baseCategText = GetCategSentenceData(baseCateg.TextLine, int64(textType), 4)
-
 		}
 	}
 	//获取在线用户情感状态
@@ -88,9 +85,8 @@ func DoBuildData(ctx algo.IContext) error {
 		categType := int64(4)
 		var onlineBaseCateg redis.TextTypeCategText
 		onlineBaseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
-		log.Infof("baseCategErr====",err)
-		log.Infof("onlineBaseCateg=============%+v",onlineBaseCateg)
 		if err == nil {
+			log.Infof("onlineBaseCateg=============%+v", onlineBaseCateg)
 			onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, int64(textType), 4)
 		}
 	}
