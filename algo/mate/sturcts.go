@@ -99,7 +99,8 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//自我认同
 	if _, ok := roleMap[roleName]; ok {
 		roleText := "我是" + roleName + "，你呢？"
-		beasSentence := GetSentenceData(10002,roleText,nil,100,textType,2,userId)
+		idNum:=userId*10000+10002
+		beasSentence := GetSentenceData(idNum,roleText,nil,100,textType,2,userId)
 		textList = append(textList, roleName)
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
@@ -110,7 +111,8 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//我想找的
 	if _, ok := roleMap[wantName]; ok {
 		wantText := "有" + wantName + "吗？"
-		beasSentence := GetSentenceData(10001,wantText,nil,100,textType,1,userId)
+		idNum:=userId*10000+10001
+		beasSentence := GetSentenceData(idNum,wantText,nil,100,textType,1,userId)
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
 	//签名
@@ -121,7 +123,8 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//用户基本文案
 	if len(textList) > 1 {
 		baseText := strings.Join(textList, "/")
-		beasSentence := GetSentenceData(10000,baseText,nil,100,textType,0,userId)
+		idNum:=userId*10000+10000
+		beasSentence := GetSentenceData(idNum,baseText,nil,100,textType,0,userId)
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
 	return baseVeiwList
