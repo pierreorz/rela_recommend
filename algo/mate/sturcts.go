@@ -219,8 +219,8 @@ func GetRandomData(listLength int,categList [] int64) []int64 {
 				}
 			}
 		}else{
-			for i := 0; i <int(listLength); i++ {
-				randomIndex := rand.Intn(int(listLength) - 1)
+			for i := 0; i <= listLength; i++ {
+				randomIndex := rand.Intn(listLength - 1)
 				categNum:=categList[randomIndex]
 				if _, ok := CategNumsList[categNum]; ok {
 					randomNum=append(randomNum, categNum)
