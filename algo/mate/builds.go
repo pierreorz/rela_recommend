@@ -161,8 +161,6 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 		}
-	log.Infof("reqCategText=======================================%+v", reqCategText)
-	log.Infof("onlineCategText=======================================%+v", onlineCategText)
 	//旧版搜索结果
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {

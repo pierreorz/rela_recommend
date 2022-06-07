@@ -3,7 +3,6 @@ package mate
 import (
 	"math/rand"
 	"rela_recommend/algo"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -207,8 +206,6 @@ func GetCategSentenceData(text string,textType int64 ,categType int64) []search.
 
 func GetRandomData(listLength int,categList [] int64) []int64 {
 	var randomNum []int64
-	log.Infof("listLength======================",listLength)
-	log.Infof("categList======================%+v",categList)
 	if listLength > 0 {
 		if listLength > 5{
 			for i := 0; i <= 5; i++ {
