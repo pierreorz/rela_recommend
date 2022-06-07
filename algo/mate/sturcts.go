@@ -1,8 +1,8 @@
 package mate
 
 import (
+	"math/rand"
 	"rela_recommend/algo"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -197,10 +197,34 @@ func GetCategSentenceData(text string,textType int64 ,categType int64) []search.
 			categSenten := GetSentenceData(id, text, nil, 100,textType,categType)
 			categSentceList = append(categSentceList, categSenten)
 		}
-		log.Infof("categSentceList======================%+v",categSentceList)
+		//log.Infof("categSentceList======================%+v",categSentceList)
 		return categSentceList
 	}
 	return categSentceList
 }
 
 
+func GetRandomData(listLength int,categList [] int64) []int64 {
+	var randomNum []int64
+	if listLength > 0 {
+		if listLength > 5{
+			for i := 0; i <= 5; i++ {
+				randomIndex := rand.Intn(listLength - 1)
+				categNum:=categList[randomIndex]
+				if _, ok := CategNumsList[categNum]; ok {
+					randomNum=append(randomNum, categNum)
+				}
+			}
+		}else{
+			for i := 0; i <= listLength-1; i++ {
+				randomIndex := rand.Intn(listLength - 1)
+				categNum:=categList[randomIndex]
+				if _, ok := CategNumsList[categNum]; ok {
+					randomNum=append(randomNum, categNum)
+				}
+			}
+		}
+		return randomNum
+	}
+	return randomNum
+}

@@ -119,24 +119,19 @@ func DoBuildData(ctx algo.IContext) error {
 		resultList := rutils.SortMapByValue(reqUserProfile)
 		textType:=20
 		var reqCateg redis.TextTypeCategText
-		if len(resultList)>=3{
-			for i, v := range resultList {
-				if i<=3 {
-					if _, ok := CategNumsList[v]; ok {
-						reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-						if len(reqCateg.TextLine) != 0 {
-							reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
-						}
+		randomList:=GetRandomData(len(resultList),resultList)
+		if len(randomList)>0{
+			for _, v := range randomList {
+				reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
+				if len(reqCateg.TextLine) != 0 {
+					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
 					}
 				}
-			}
 		}else{
-			for _, v := range resultList {
-				if _, ok := CategNumsList[v]; ok {
-					reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-					if len(reqCateg.TextLine) != 0 {
-						reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
-					}
+			for _, v := range randomList {
+				reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
+				if len(reqCateg.TextLine) != 0 {
+					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
 				}
 			}
 		}
@@ -148,31 +143,26 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(onlineUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(onlineUserProfile)
 		textType:=20
-		log.Infof("resultList=======================================%+v", resultList)
 		var olineCateg redis.TextTypeCategText
-		if len(resultList)>=3{
-			for i, v := range resultList {
-				if i<=3 {
-					if _, ok := CategNumsList[v]; ok {
-						olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-						if len(olineCateg.TextLine) != 0 {
-							onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
-						}
+		randomList:=GetRandomData(len(resultList),resultList)
+		if len(randomList)>0{
+			for _, v := range randomList {
+				olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
+				if len(olineCateg.TextLine) != 0 {
+					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
 					}
 				}
-			}
-		}else{
-			for _, v := range resultList {
-				if _, ok := CategNumsList[v]; ok {
-					olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
-					if len(olineCateg.TextLine) != 0 {
-						onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
+		} else{
+			for _, v := range randomList {
+				olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
+				if len(olineCateg.TextLine) != 0 {
+					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
 					}
 				}
 			}
 		}
-
-	}
+	log.Infof("reqCategText=======================================%+v", reqCategText)
+	log.Infof("onlineCategText=======================================%+v", onlineCategText)
 	//旧版搜索结果
 	var searchResList []search.MateTextResDataItem
 	pf.Run("search", func(*performs.Performs) interface{} {
