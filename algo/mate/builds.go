@@ -66,7 +66,10 @@ func DoBuildData(ctx algo.IContext) error {
 		categType := int64(4)
 		var baseCateg redis.TextTypeCategText
 		baseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
-		if len(baseCateg.TextLine) != 0 {
+		log.Infof("baseCategErr====",err)
+		log.Infof("baseCateg=============%+v",baseCateg)
+		if err==nil{
+
 			baseCategText = GetCategSentenceData(baseCateg.TextLine, int64(textType), 4)
 
 		}
@@ -85,7 +88,9 @@ func DoBuildData(ctx algo.IContext) error {
 		categType := int64(4)
 		var onlineBaseCateg redis.TextTypeCategText
 		onlineBaseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
-		if len(onlineBaseCateg.TextLine) != 0 {
+		log.Infof("baseCategErr====",err)
+		log.Infof("onlineBaseCateg=============%+v",onlineBaseCateg)
+		if err == nil {
 			onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, int64(textType), 4)
 		}
 	}
@@ -94,24 +99,12 @@ func DoBuildData(ctx algo.IContext) error {
 	var onlineUserThemeMap map[int64]float64 //假装情侣池
 	userProfileUserIds := []int64{params.UserId}
 	reqUserThemeMap = themeUserCache.QueryMatThemeProfileData(userProfileUserIds)
-	if reqUserThemeMap != nil {
-		log.Infof("userThemeMap=======================================%+v", reqUserThemeMap)
-	}
 	onlineUserThemeMap = themeUserCache.QueryMatThemeProfileData(onlineUserList)
-	if onlineUserThemeMap != nil {
-		log.Infof("onlineUserThemeMap=======================================%+v", onlineUserThemeMap)
-	}
 	//获取假装情侣用户moment偏好
 	var reqUserMomMap map[int64]float64    //请求者
 	var onlineUserMomMap map[int64]float64 //假装情侣池
 	reqUserMomMap = behaviorCache.QueryMateMomUserData(userProfileUserIds)
-	if reqUserMomMap != nil {
-		log.Infof("reqUserMomMap=======================================%+v", reqUserMomMap)
-	}
 	onlineUserMomMap = behaviorCache.QueryMateMomUserData(onlineUserList)
-	if onlineUserMomMap != nil {
-		log.Infof("onlineUserMomMap=======================================%+v", onlineUserMomMap)
-	}
 	//合并用户偏好(请求者)
 	reqUserProfile := MergeMap(reqUserThemeMap, reqUserMomMap)
 	var reqCategText []search.MateTextResDataItem
