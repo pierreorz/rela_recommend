@@ -66,7 +66,7 @@ func DoBuildData(ctx algo.IContext) error {
 		var baseCateg redis.TextTypeCategText
 		baseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
 		if err==nil{
-			baseCategText = GetCategSentenceData(baseCateg.TextLine, int64(textType), 4)
+			baseCategText = GetCategSentenceData(baseCateg.TextLine, int64(textType), 4,3568)
 		}
 	}
 	//获取在线用户情感状态
@@ -84,7 +84,7 @@ func DoBuildData(ctx algo.IContext) error {
 		var onlineBaseCateg redis.TextTypeCategText
 		onlineBaseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
 		if err == nil {
-			onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, int64(textType), 4)
+			onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, int64(textType), 4,3568)
 		}
 	}
 	//获取假装情侣池话题偏好
@@ -110,7 +110,7 @@ func DoBuildData(ctx algo.IContext) error {
 			for _, v := range randomList {
 				reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
 				if err == nil {
-					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4)
+					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4,3568)
 				}
 			}
 		}
@@ -128,7 +128,7 @@ func DoBuildData(ctx algo.IContext) error {
 			for _, v := range randomList {
 				olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
 				if err == nil {
-					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4)
+					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4,3568)
 				}
 			}
 		}
@@ -174,6 +174,7 @@ func DoBuildData(ctx algo.IContext) error {
 				DataId:     baseRes.Id,
 				SearchData: &allSentenceList[i],
 				RankInfo:   &algo.RankInfo{},
+				UserId:     baseRes.UserId,
 			}
 			dataIds = append(dataIds, baseRes.Id)
 			dataList = append(dataList, info)

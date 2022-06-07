@@ -25,6 +25,7 @@ type DataInfo struct {
 	DataId     int64
 	SearchData *search.MateTextResDataItem
 	RankInfo   *algo.RankInfo
+	UserId     int64
 }
 
 func (self *DataInfo) GetDataId() int64 {
@@ -64,7 +65,7 @@ var WantDict = map[string]string{"0": "不想透露", "1": "T", "2": "P", "3": "
 var HoroscopeDict = map[string]string{"0": "摩羯座", "1": "水瓶座", "2": "双鱼座", "3": "白羊座", "4": "金牛座", "5": "双子座", "6": "巨蟹座", "7": "狮子座", "8": "处女座", "9": "天平座", "10": "天蝎座", "11": "射手座"}
 var CategNumsList=map[int64]int64{1:1,2:1,3:1,4:1,5:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,17:1,18:1,19:1,20:1,21:1,22:1,24:1,25:1}
 
-func GetSentenceData(id int64, text string, city []interface{},weight int,TextType int64,TagType int64) search.MateTextResDataItem {
+func GetSentenceData(id int64, text string, city []interface{},weight int,TextType int64,TagType int64,UserId int64) search.MateTextResDataItem {
 	return search.MateTextResDataItem{
 		Id:     id,
 		Text:   text,
@@ -72,6 +73,7 @@ func GetSentenceData(id int64, text string, city []interface{},weight int,TextTy
 		Weight: weight,
 		TextType:TextType,
 		TagType:TagType,
+		UserId:UserId,
 	}
 }
 func MergeMap(mObj ...map[int64]float64) map[int64]float64 {
@@ -86,7 +88,7 @@ func MergeMap(mObj ...map[int64]float64) map[int64]float64 {
 //基础文案生成
 var roleMap = map[string]string{"T": "1", "P": "1", "H": "1"}
 //var affection_list = map[string]string{"1": "1", "7": "1"}
-func GetSentence(age int,horoscopeName string ,roleName string,occupation string,wantName string,intro string,textType int64) []search.MateTextResDataItem{
+func GetSentence(age int,horoscopeName string ,roleName string,occupation string,wantName string,intro string,textType int64,userId int64) []search.MateTextResDataItem{
 	var baseVeiwList []search.MateTextResDataItem
 	var textList []string
 	if age >= 18 && age <= 40 {
@@ -97,7 +99,7 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//自我认同
 	if _, ok := roleMap[roleName]; ok {
 		roleText := "我是" + roleName + "，你呢？"
-		beasSentence := GetSentenceData(10002,roleText,nil,100,textType,2)
+		beasSentence := GetSentenceData(10002,roleText,nil,100,textType,2,userId)
 		textList = append(textList, roleName)
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
@@ -108,7 +110,7 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//我想找的
 	if _, ok := roleMap[wantName]; ok {
 		wantText := "有" + wantName + "吗？"
-		beasSentence := GetSentenceData(10001,wantText,nil,100,textType,1)
+		beasSentence := GetSentenceData(10001,wantText,nil,100,textType,1,userId)
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
 	//签名
@@ -119,7 +121,7 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//用户基本文案
 	if len(textList) > 1 {
 		baseText := strings.Join(textList, "/")
-		beasSentence := GetSentenceData(10000,baseText,nil,100,textType,0)
+		beasSentence := GetSentenceData(10000,baseText,nil,100,textType,0,userId)
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
 	return baseVeiwList
@@ -131,7 +133,8 @@ func GetBaseSentenceDataById(user *redis.UserProfile,textType int64) []search.Ma
 	roleName := RoleDict[user.RoleName]
 	occupation :=user.Occupation
 	intro:=user.Intro
-	baseSenten:=GetSentence(age,horoscopeName,wantName,roleName,occupation,intro,textType)
+	userId:=user.UserId
+	baseSenten:=GetSentence(age,horoscopeName,wantName,roleName,occupation,intro,textType,userId)
 	if baseSenten!=nil{
 		return baseSenten
 	}
@@ -149,7 +152,8 @@ func GetBaseSentenceDataMap(userMap map[int64]*redis.UserProfile,textType int64)
 			roleName := RoleDict[user.RoleName]
 			occupation := user.Occupation
 			intro := user.Intro
-			baseSenten := GetSentence(age, horoscopeName, wantName, roleName, occupation, intro,textType)
+			userId:=user.UserId
+			baseSenten := GetSentence(age, horoscopeName, wantName, roleName, occupation, intro,textType,userId)
 			if len(baseSenten) > 0 {
 				//文案去重
 				for _, v := range baseSenten {
@@ -159,7 +163,8 @@ func GetBaseSentenceDataMap(userMap map[int64]*redis.UserProfile,textType int64)
 					cities := ""
 					textType :=strconv.FormatInt(v.TextType, 10)
 					tagType  :=strconv.FormatInt(v.TagType, 10)
-					sentence := id + "|$|" + text + "|$|" + weight + "|$|" + cities+"|$|"+textType+"|$|"+tagType
+					userId  :=strconv.FormatInt(v.UserId, 10)
+					sentence := id + "|$|" + text + "|$|" + weight + "|$|" + cities+"|$|"+textType+"|$|"+tagType+"|$|"+userId
 					sentenceMap[sentence] = 1
 				}
 			}
@@ -171,13 +176,15 @@ func GetBaseSentenceDataMap(userMap map[int64]*redis.UserProfile,textType int64)
 				text := strings.Split(k, "|$|")[1]
 				weight := strings.Split(k, "|$|")[2]
 				textType := strings.Split(k, "|$|")[4]
-				tagType := strings.Split(k, "|$|")[4]
+				tagType := strings.Split(k, "|$|")[5]
+				userId := strings.Split(k, "|$|")[6]
 				int_id, err := strconv.ParseInt(id, 10, 64)
 				int_weight, err := strconv.Atoi(weight)
 				int_textType,err:=strconv.ParseInt(textType, 10, 64)
 				int_tagType,err:=strconv.ParseInt(tagType, 10, 64)
+				int_userId,err:=strconv.ParseInt(userId, 10, 64)
 				if err == nil {
-					resultSenten:=GetSentenceData(int_id,text,nil,int_weight,int_textType,int_tagType)
+					resultSenten:=GetSentenceData(int_id,text,nil,int_weight,int_textType,int_tagType,int_userId)
 					onlineUserBaseMap=append(onlineUserBaseMap,resultSenten)
 				}
 			}
@@ -187,14 +194,14 @@ func GetBaseSentenceDataMap(userMap map[int64]*redis.UserProfile,textType int64)
 	return nil
 }
 
-func GetCategSentenceData(text string,textType int64 ,categType int64) []search.MateTextResDataItem {
+func GetCategSentenceData(text string,textType int64 ,categType int64,userId int64) []search.MateTextResDataItem {
 	var categSentceList []search.MateTextResDataItem
 	if len(text) > 0 {
 		textList := strings.Split(text, "|$|")
 		for i, v := range textList {
 			id := textType*1000 + categType*100 + int64(i)
 			text := v
-			categSenten := GetSentenceData(id, text, nil, 100,textType,categType)
+			categSenten := GetSentenceData(id, text, nil, 100,textType,categType,userId)
 			categSentceList = append(categSentceList, categSenten)
 		}
 		//log.Infof("categSentceList======================%+v",categSentceList)
