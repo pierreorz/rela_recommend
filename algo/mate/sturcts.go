@@ -97,23 +97,31 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	}
 	textList = append(textList, horoscopeName)
 	//自我认同
-	if _, ok := roleMap[roleName]; ok {
+	if _, ok := roleMap[roleName]; ok {//10002
 		roleText := "我是" + roleName + "，你呢？"
-		idNum:=userId*10000+10002
-		beasSentence := GetSentenceData(idNum,roleText,nil,100,textType,2,userId)
+		userIdStr:=strconv.FormatInt(userId, 10)
+		idNum:=userIdStr+"010002"
+		int_idNum,err:=strconv.ParseInt(idNum, 10, 64)
+		if err==nil {
+			beasSentence := GetSentenceData(int_idNum, roleText, nil, 100, textType, 2, userId)
+			baseVeiwList = append(baseVeiwList, beasSentence)
+		}
 		textList = append(textList, roleName)
-		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
 	//职业
 	if occupation != "" && len(occupation) <= 6 {
 		textList = append(textList, occupation)
 	}
 	//我想找的
-	if _, ok := roleMap[wantName]; ok {
+	if _, ok := roleMap[wantName]; ok { //10001
 		wantText := "有" + wantName + "吗？"
-		idNum:=userId*10000+10001
-		beasSentence := GetSentenceData(idNum,wantText,nil,100,textType,1,userId)
-		baseVeiwList = append(baseVeiwList, beasSentence)
+		userIdStr := strconv.FormatInt(userId, 10)
+		idNum := userIdStr + "010001"
+		int_idNum, err := strconv.ParseInt(idNum, 10, 64)
+		if err == nil {
+			beasSentence := GetSentenceData(int_idNum, wantText, nil, 100, textType, 1, userId)
+			baseVeiwList = append(baseVeiwList, beasSentence)
+		}
 	}
 	//签名
 	//if intro != "" {
@@ -121,11 +129,15 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//	baseVeiwList = append(baseVeiwList, beasSentence)
 	//}
 	//用户基本文案
-	if len(textList) > 1 {
+	if len(textList) > 1 { //10000
 		baseText := strings.Join(textList, "/")
-		idNum:=userId*10000+10000
-		beasSentence := GetSentenceData(idNum,baseText,nil,100,textType,0,userId)
-		baseVeiwList = append(baseVeiwList, beasSentence)
+		userIdStr := strconv.FormatInt(userId, 10)
+		idNum := userIdStr + "010000"
+		int_idNum, err := strconv.ParseInt(idNum, 10, 64)
+		if err == nil {
+			beasSentence := GetSentenceData(int_idNum, baseText, nil, 100, textType, 0, userId)
+			baseVeiwList = append(baseVeiwList, beasSentence)
+		}
 	}
 	return baseVeiwList
 }
