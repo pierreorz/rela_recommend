@@ -36,6 +36,7 @@ func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
 	sData := self.SearchData
 	return RecommendResponseMateTextData{
 		Text: sData.Text,
+		UserId: sData.UserId,
 	}
 }
 
@@ -57,6 +58,7 @@ func (self *DataInfo) GetUserBehavior() *behavior.UserBehavior {
 
 type RecommendResponseMateTextData struct {
 	Text string `json:"text" form:"text"`
+	UserId int64 `json:"userId" form:"userId"`
 }
 
 var RoleDict = map[string]string{"0": "不想透露", "1": "T", "2": "P", "3": "H", "4": "BI", "5": "其他", "6": "直女", "7": "腐女"}
@@ -99,13 +101,8 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//自我认同
 	if _, ok := roleMap[roleName]; ok {//10002
 		roleText := "我是" + roleName + "，你呢？"
-		userIdStr:=strconv.FormatInt(userId, 10)
-		idNum:=userIdStr+"010002"
-		int_idNum,err:=strconv.ParseInt(idNum, 10, 64)
-		if err==nil {
-			beasSentence := GetSentenceData(int_idNum, roleText, nil, 100, textType, 2, userId)
-			baseVeiwList = append(baseVeiwList, beasSentence)
-		}
+		beasSentence := GetSentenceData(10002, roleText, nil, 100, textType, 2, userId)
+		baseVeiwList = append(baseVeiwList, beasSentence)
 		textList = append(textList, roleName)
 	}
 	//职业
@@ -115,13 +112,8 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//我想找的
 	if _, ok := roleMap[wantName]; ok { //10001
 		wantText := "有" + wantName + "吗？"
-		userIdStr := strconv.FormatInt(userId, 10)
-		idNum := userIdStr + "010001"
-		int_idNum, err := strconv.ParseInt(idNum, 10, 64)
-		if err == nil {
-			beasSentence := GetSentenceData(int_idNum, wantText, nil, 100, textType, 1, userId)
-			baseVeiwList = append(baseVeiwList, beasSentence)
-		}
+		beasSentence := GetSentenceData(10001, wantText, nil, 100, textType, 1, userId)
+		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
 	//签名
 	//if intro != "" {
@@ -131,13 +123,9 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//用户基本文案
 	if len(textList) > 1 { //10000
 		baseText := strings.Join(textList, "/")
-		userIdStr := strconv.FormatInt(userId, 10)
-		idNum := userIdStr + "010000"
-		int_idNum, err := strconv.ParseInt(idNum, 10, 64)
-		if err == nil {
-			beasSentence := GetSentenceData(int_idNum, baseText, nil, 100, textType, 0, userId)
-			baseVeiwList = append(baseVeiwList, beasSentence)
-		}
+		beasSentence := GetSentenceData(10000, baseText, nil, 100, textType, 0, userId)
+		baseVeiwList = append(baseVeiwList, beasSentence)
+
 	}
 	return baseVeiwList
 }
