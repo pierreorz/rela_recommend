@@ -174,7 +174,6 @@ func DoBuildData(ctx algo.IContext) error {
 				DataId:     baseRes.Id,
 				SearchData: &allSentenceList[i],
 				RankInfo:   &algo.RankInfo{},
-				UserId:     baseRes.UserId,
 			}
 			dataIds = append(dataIds, baseRes.Id)
 			dataList = append(dataList, info)

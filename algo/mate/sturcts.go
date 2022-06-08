@@ -25,7 +25,6 @@ type DataInfo struct {
 	DataId     int64
 	SearchData *search.MateTextResDataItem
 	RankInfo   *algo.RankInfo
-	UserId     int64
 }
 
 func (self *DataInfo) GetDataId() int64 {
@@ -89,6 +88,7 @@ func MergeMap(mObj ...map[int64]float64) map[int64]float64 {
 }
 //基础文案生成
 var roleMap = map[string]string{"T": "1", "P": "1", "H": "1"}
+
 //var affection_list = map[string]string{"1": "1", "7": "1"}
 func GetSentence(age int,horoscopeName string ,roleName string,occupation string,wantName string,intro string,textType int64,userId int64) []search.MateTextResDataItem{
 	var baseVeiwList []search.MateTextResDataItem
