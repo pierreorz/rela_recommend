@@ -19,6 +19,7 @@ type MateTextResDataItem struct {
 	Weight int           `json:"weight"`
 	TextType int64      `json:"textType" `
 	TagType  int64      `json:"tagType" `
+	UserId int64 		`json:"userId"`
 }
 
 type mateTextRes struct {
