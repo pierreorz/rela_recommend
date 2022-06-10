@@ -119,10 +119,6 @@ func (lcm *LiveCacheModule) MgetByLiveIds(allList []LiveCache, liveIds []int64) 
 // 获取所有直播列表
 func (lcm *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
 	var initialTime = time.Now()
-	weekStarUID, err := lcm.GetWeekStar()
-	if err != nil {
-		log.Errorf("get week star error: %s", err)
-	}
 	var startTime = time.Now()
 	list_key := "{cluster1}hotlives_with_recommend_v2"
 	live_bytes, err := lcm.cacheLive.LRange(list_key, 0, -1)
@@ -137,9 +133,6 @@ func (lcm *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
 			} else {
 				live.CheckDataType()
 				if live.Live.UserId > 0 {
-					if live.Live.UserId == weekStarUID {
-						live.Live.IsWeekStar = true
-					}
 					lives = append(lives, live)
 				}
 			}
@@ -154,11 +147,23 @@ func (lcm *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
 	return lives, err
 }
 
-func (lcm *LiveCacheModule) GetWeekStar() (int64, error) {
+func (lcm *LiveCacheModule) GetWeekStars() ([]int64, error) {
 	key := "live_week_star_recommend"
-	var uid int64
-	err := help.GetStructByCache(lcm.cacheLive, key, &uid)
-	return uid, err
+	var value string
+	var users []int64
+	err := help.GetStructByCache(lcm.cacheLive, key, &value)
+	if err == nil {
+		value = strings.Trim(value, "\"")
+		for _, single := range strings.Split(value, ",") {
+			uid64 := utils.GetInt64(single)
+			if uid64 > 0 {
+				users = append(users, uid64)
+			}
+		}
+		//log.Debugf("get model student: %+v", users)
+		return users, nil
+	}
+	return users, err
 }
 
 func (lcm *LiveCacheModule) GetMonthStar() (int64, error) {
