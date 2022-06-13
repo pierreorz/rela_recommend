@@ -237,3 +237,15 @@ func GetRandomData(listLength int,categList [] int64) []int64 {
 	}
 	return randomNum
 }
+
+func min(l []float64) (min float64) {
+	min = l[0]
+	for _, v := range l {
+		if v < min {
+			min = v
+		}
+	}
+	return
+}
+
+

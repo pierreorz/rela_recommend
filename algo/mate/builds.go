@@ -1,6 +1,7 @@
 package mate
 
 import (
+	"fmt"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/log"
@@ -49,16 +50,22 @@ func DoBuildData(ctx algo.IContext) error {
 		return userCacheErr
 	})
 	//获取距离文案
-	reqUser:=user.Location
-	for _,v:=range onlineUserMap{
-		onlineLocation:=v.Location
-		log.Infof("locatin=======================%+v",reqUser,onlineLocation)
+	var distanceList []float64
+	reqUser := user.Location
+	for _, v := range onlineUserMap {
+		onlineLocation := v.Location
+		log.Infof("locatin=======================%+v", reqUser, onlineLocation)
 		distance := rutils.EarthDistance(float64(reqUser.Lon), float64(reqUser.Lat), onlineLocation.Lon, onlineLocation.Lat)
-		log.Infof("distance=================",distance)
-		if distance<50{
-			log.Infof("distance=================",distance)
+		log.Infof("distance=================", distance)
+		if distance < 50.0 {
+			log.Infof("distance=================", distance)
+			distanceList = append(distanceList, distance)
 		}
-
+	}
+	if len(distanceList) != 0 {
+		minDistance := min(distanceList)
+		strKm := fmt.Sprintf("%.5f", minDistance)
+		log.Infof("离你最近仅"+strKm+"公里=================", minDistance)
 	}
 	//用户基础信息生成文案
 	//base文案
