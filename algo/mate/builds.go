@@ -63,8 +63,8 @@ func DoBuildData(ctx algo.IContext) error {
 	}
 	log.Infof("distanceList=================", distanceList)
 	if len(distanceList) != 0 {
-		minDistance := min(distanceList)
-		strKm := fmt.Sprintf("%.5f", minDistance)
+		minDistance := min(distanceList)/1000.0
+		strKm := fmt.Sprintf("%f", minDistance)
 		log.Infof("离你最近仅"+strKm+"公里=================", minDistance)
 	}
 	//用户基础信息生成文案
