@@ -1,11 +1,13 @@
 package mate
 
 import (
+	"fmt"
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
+	"rela_recommend/utils"
 	"strconv"
 	"strings"
 )
@@ -248,4 +250,26 @@ func min(l []float64) (min float64) {
 	return
 }
 
+func GetDistanceSenten(kmMap map[int64]float64 ,textType int64 )[]search.MateTextResDataItem { //地理位置信息 textType:60
+	var distanceList []search.MateTextResDataItem
+	if len(kmMap) > 0{
+		minUser := utils.SortMapByValue(kmMap)[0]
+		minDistance := int(kmMap[minUser] / 1000.0)
+		strKm := fmt.Sprintf("%d", minDistance)
+		distanceText := "离你最近仅" + strKm + "公里"
+		distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser)
+		distanceList = append(distanceList, distanceSentence)
+		return distanceList
+	}
+	return distanceList
+}
+
+func GetLikeSenten(nums int,textType int64)[]search.MateTextResDataItem {
+	var likeList []search.MateTextResDataItem
+	strNum:=strconv.Itoa(nums)
+	likeText:="又有" + strNum +"喜欢了你！"
+	likeSentence := GetSentenceData(70101, likeText, nil, 100, textType, 1, 3568)
+	likeList=append(likeList,likeSentence)
+	return likeList
+}
 

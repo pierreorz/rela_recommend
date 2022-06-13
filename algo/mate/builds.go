@@ -1,7 +1,6 @@
 package mate
 
 import (
-	"fmt"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
 	"rela_recommend/log"
@@ -50,23 +49,31 @@ func DoBuildData(ctx algo.IContext) error {
 		return userCacheErr
 	})
 	//获取距离文案
-	var distanceList []float64
+	var distanceMap map[int64]float64
+	var distanceText []search.MateTextResDataItem
 	reqUser := user.Location
 	for _, v := range onlineUserMap {
 		onlineLocation := v.Location
 		distance := rutils.EarthDistance(float64(reqUser.Lon), float64(reqUser.Lat), onlineLocation.Lon, onlineLocation.Lat)
-		log.Infof("distance=================", distance)
 		if distance < 50000 {
-			log.Infof("distance=================", distance)
-			distanceList = append(distanceList, distance)
+			distanceMap[v.UserId]=distance
 		}
 	}
-	log.Infof("distanceList=================", distanceList)
-	if len(distanceList) != 0 {
-		minDistance := min(distanceList)/1000.0
-		strKm := fmt.Sprintf("%f", minDistance)
-		log.Infof("离你最近仅"+strKm+"公里=================", minDistance)
+	log.Infof("distanceList=================", distanceMap)
+	if len(distanceMap) != 0 {
+		textType := 60
+		distanceText=GetDistanceSenten(distanceMap,int64(textType))
+		log.Infof("distanceText=================", distanceText)
+
 	}
+	//获取假装情侣池
+	var likeText []search.MateTextResDataItem
+	if len(onlineUserList)>0{
+		textType := 70
+		likeText=GetLikeSenten(len(onlineUserList),int64(textType))
+		log.Infof("likeText=================", likeText)
+	}
+
 	//用户基础信息生成文案
 	//base文案
 	var affection_map = map[string]string{"1": "1", "7": "1"}
@@ -173,6 +180,8 @@ func DoBuildData(ctx algo.IContext) error {
 		allSentenceList = append(allSentenceList,onlineBaseCategText...)
 		allSentenceList = append(allSentenceList,onlineUserBaseSentenceList...)
 		allSentenceList = append(allSentenceList,onlineCategText...)
+		allSentenceList = append(allSentenceList,distanceText...)
+		allSentenceList = append(allSentenceList,likeText...)
 	}else{
 		allSentenceList = append(allSentenceList,searchResList...)
 		allSentenceList = append(allSentenceList,reqUserBaseSentence...)
