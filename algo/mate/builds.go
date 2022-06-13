@@ -48,6 +48,18 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		return userCacheErr
 	})
+	//获取距离文案
+	reqUser:=user.Location
+	for _,v:=range onlineUserMap{
+		onlineLocation:=v.Location
+		log.Infof("locatin=======================%+v",reqUser,onlineLocation)
+		distance := rutils.EarthDistance(float64(reqUser.Lon), float64(reqUser.Lat), onlineLocation.Lon, onlineLocation.Lat)
+		log.Infof("distance=================",distance)
+		if distance<50{
+			log.Infof("distance=================",distance)
+		}
+
+	}
 	//用户基础信息生成文案
 	//base文案
 	var affection_map = map[string]string{"1": "1", "7": "1"}
