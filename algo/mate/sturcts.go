@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -254,6 +255,9 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64 )[]search.MateTex
 	var distanceList []search.MateTextResDataItem
 	if len(kmMap) > 0{
 		minUser := utils.SortMapByValue(kmMap)[0]
+		log.Infof("minUser=================", minUser)
+		log.Infof("kmMap[minUser]=================", kmMap[minUser])
+		log.Infof("kmMap[minUser]=================", kmMap[minUser] / 1000.0)
 		minDistance := int(kmMap[minUser] / 1000.0)
 		strKm := fmt.Sprintf("%d", minDistance)
 		distanceText := "离你最近仅" + strKm + "公里"
