@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"rela_recommend/cache"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/service/abtest"
 	"strings"
 )
@@ -56,7 +55,6 @@ func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,er
 	user_bytes, err := factory.AwsCluster.LRange(keyFormatter, 0, -1)
 	users := []PretendLoveUser{}
 	if err==nil{
-		log.Infof("user_bytes================%+v",user_bytes)
 		for i := 0; i < len(user_bytes); i++ {
 			user_byte := user_bytes[i]
 			if user_byte != nil && len(user_byte) > 0 {
