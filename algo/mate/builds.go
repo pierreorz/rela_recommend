@@ -49,18 +49,20 @@ func DoBuildData(ctx algo.IContext) error {
 		return userCacheErr
 	})
 	//获取距离文案
-	var distanceMap map[int64]float64
+	var distanceMap = map[int64]float64{}
 	var distanceText []search.MateTextResDataItem
 	reqUser := user.Location
-	for _, v := range onlineUserMap {
-		onlineLocation := v.Location
-		distance := rutils.EarthDistance(float64(reqUser.Lon), float64(reqUser.Lat), onlineLocation.Lon, onlineLocation.Lat)
-		if distance < 50000 {
-			distanceMap[v.UserId]=distance
+	if len(onlineUserMap) > 0{
+		for _, v := range onlineUserMap {
+			onlineLocation := v.Location
+			distance := rutils.EarthDistance(float64(reqUser.Lon), float64(reqUser.Lat), onlineLocation.Lon, onlineLocation.Lat)
+			if distance < 50000 {
+				distanceMap[v.UserId] = distance
+			}
 		}
 	}
 	log.Infof("distanceList=================", distanceMap)
-	if len(distanceMap) != 0 {
+	if len(distanceMap) > 0 {
 		textType := 60
 		distanceText=GetDistanceSenten(distanceMap,int64(textType))
 		log.Infof("distanceText=================", distanceText)
