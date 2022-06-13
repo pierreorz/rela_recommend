@@ -254,14 +254,18 @@ func min(l []float64) (min float64) {
 func GetDistanceSenten(kmMap map[int64]float64 ,textType int64 )[]search.MateTextResDataItem { //地理位置信息 textType:60
 	var distanceList []search.MateTextResDataItem
 	if len(kmMap) > 0{
-		minUser := utils.SortMapByValue(kmMap)[0]
+		copyDict := make(map[int64]float64)
+		for k,v:=range kmMap{
+			copyDict[k]=v
+		}
+		minUser := utils.SortMapByValue(kmMap)
 		log.Infof("minUser=================", minUser)
-		log.Infof("kmMap[minUser]=================", kmMap[minUser])
-		log.Infof("kmMap[minUser]=================", kmMap[minUser] / 1000.0)
-		minDistance := int(kmMap[minUser] / 1000.0)
+		log.Infof("kmMap[minUser]=================", copyDict[minUser[len(minUser)-1]])
+		log.Infof("kmMap[minUser]=================", copyDict[minUser[len(minUser)-1]] / 1000.0)
+		minDistance := int(copyDict[minUser[len(minUser)-1]] / 1000.0)
 		strKm := fmt.Sprintf("%d", minDistance)
 		distanceText := "离你最近仅" + strKm + "公里"
-		distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser)
+		distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser[len(minUser)-1])
 		distanceList = append(distanceList, distanceSentence)
 		return distanceList
 	}
