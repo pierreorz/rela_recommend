@@ -61,7 +61,6 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		}
 	}
-	log.Infof("distanceList=================", distanceMap)
 	if len(distanceMap) > 0 {
 		textType := 60
 		distanceText=GetDistanceSenten(distanceMap,int64(textType))
@@ -69,12 +68,12 @@ func DoBuildData(ctx algo.IContext) error {
 
 	}
 	//获取假装情侣池
-	var likeText []search.MateTextResDataItem
-	if len(onlineUserList)>0{
-		textType := 70
-		likeText=GetLikeSenten(len(onlineUserList),int64(textType))
-		log.Infof("likeText=================", likeText)
-	}
+	//var likeText []search.MateTextResDataItem
+	//if len(onlineUserList)>0{
+	//	textType := 70
+	//	likeText=GetLikeSenten(len(onlineUserList),int64(textType))
+	//	log.Infof("likeText=================", likeText)
+	//}
 
 	//用户基础信息生成文案
 	//base文案
@@ -183,7 +182,6 @@ func DoBuildData(ctx algo.IContext) error {
 		allSentenceList = append(allSentenceList,onlineUserBaseSentenceList...)
 		allSentenceList = append(allSentenceList,onlineCategText...)
 		allSentenceList = append(allSentenceList,distanceText...)
-		allSentenceList = append(allSentenceList,likeText...)
 	}else{
 		allSentenceList = append(allSentenceList,searchResList...)
 		allSentenceList = append(allSentenceList,reqUserBaseSentence...)

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"rela_recommend/algo"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -259,12 +258,9 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64 )[]search.MateTex
 			copyDict[k]=v
 		}
 		minUser := utils.SortMapByValue(kmMap)
-		log.Infof("minUser=================", minUser)
-		log.Infof("kmMap[minUser]=================", copyDict[minUser[len(minUser)-1]])
-		log.Infof("kmMap[minUser]=================", copyDict[minUser[len(minUser)-1]] / 1000.0)
 		minDistance := int(copyDict[minUser[len(minUser)-1]] / 1000.0)
 		strKm := fmt.Sprintf("%d", minDistance)
-		distanceText := "离你最近仅" + strKm + "公里"
+		distanceText := "她距离你仅" + strKm + "公里"
 		distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser[len(minUser)-1])
 		distanceList = append(distanceList, distanceSentence)
 		return distanceList
