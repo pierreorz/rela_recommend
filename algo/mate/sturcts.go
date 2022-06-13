@@ -267,7 +267,7 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64 )[]search.MateTex
 func GetLikeSenten(nums int,textType int64)[]search.MateTextResDataItem {
 	var likeList []search.MateTextResDataItem
 	strNum:=strconv.Itoa(nums)
-	likeText:="又有" + strNum +"喜欢了你！"
+	likeText:="又有" + strNum +"人喜欢了你！"
 	likeSentence := GetSentenceData(70101, likeText, nil, 100, textType, 1, 3568)
 	likeList=append(likeList,likeSentence)
 	return likeList
