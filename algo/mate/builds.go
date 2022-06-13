@@ -55,7 +55,8 @@ func DoBuildData(ctx algo.IContext) error {
 	for _, v := range onlineUserMap {
 		onlineLocation := v.Location
 		distance := rutils.EarthDistance(float64(reqUser.Lon), float64(reqUser.Lat), onlineLocation.Lon, onlineLocation.Lat)
-		if distance < 50.0 {
+		log.Infof("distance=================", distance)
+		if distance < 50000 {
 			log.Infof("distance=================", distance)
 			distanceList = append(distanceList, distance)
 		}
