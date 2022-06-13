@@ -260,7 +260,7 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64 )[]search.MateTex
 		minUser := utils.SortMapByValue(kmMap)
 		minDistance := int(copyDict[minUser[len(minUser)-1]] / 1000.0)
 		strKm := fmt.Sprintf("%d", minDistance)
-		distanceText := "她距离你仅" + strKm + "公里"
+		distanceText := "她距离你" + strKm + "公里"
 		distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser[len(minUser)-1])
 		distanceList = append(distanceList, distanceSentence)
 		return distanceList
