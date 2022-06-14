@@ -26,7 +26,7 @@ func SortScoreItem(ctx algo.IContext) error {
 	//var itemWeightMap= make(map[int64]int)
 	abtest := ctx.GetAbTest()
 	//后台配置曝光权重
-	admin_weight := abtest.GetStrings("sentence_type_weight", "10:1.01,20:1.03,30:1,40:1,50:1")
+	admin_weight := abtest.GetStrings("sentence_type_weight", "10:1,20:1.05,30:1,40:1,50:1,60:1.05,70:1.05")
 	adminMap := make(map[int64]float64)
 	for _, backtag := range admin_weight {
 		type_nums :=utils.GetInt64(strings.Split(backtag, ":")[0])

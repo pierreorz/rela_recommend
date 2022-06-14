@@ -1,13 +1,22 @@
 package mate
 
 import (
+	"fmt"
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
+	"rela_recommend/utils"
 	"strconv"
 	"strings"
+)
+
+const (
+	distanceTextType int64 = 60
+	baseTextType int64 =10
+	categTextType int64 =20
+	adminUserid int64 =3568
 )
 
 // 用户信息
@@ -237,3 +246,39 @@ func GetRandomData(listLength int,categList [] int64) []int64 {
 	}
 	return randomNum
 }
+
+
+func GetDistanceSenten(kmMap map[int64]float64 ,textType int64 )[]search.MateTextResDataItem { //地理位置信息 textType:60
+	var distanceList []search.MateTextResDataItem
+	if len(kmMap) > 0 {
+		copyDict := make(map[int64]float64)
+		for k, v := range kmMap {
+			copyDict[k] = v
+		}
+		minUser := utils.SortMapByValue(kmMap)
+		minDistance := copyDict[minUser[len(minUser)-1]] / 1000.0
+		if minDistance < 1.0{
+			strKm := fmt.Sprintf("%d", int(minDistance*1000))
+			distanceText := "她距离你" + strKm + "米"
+			distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser[len(minUser)-1])
+			distanceList = append(distanceList, distanceSentence)
+		}else{
+			strKm := fmt.Sprintf("%d", int(minDistance))
+			distanceText := "她距离你" + strKm + "公里"
+			distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser[len(minUser)-1])
+			distanceList = append(distanceList, distanceSentence)
+		}
+		return distanceList
+	}
+	return distanceList
+}
+
+func GetLikeSenten(nums int,textType int64)[]search.MateTextResDataItem {
+	var likeList []search.MateTextResDataItem
+	strNum:=strconv.Itoa(nums)
+	likeText:="又有" + strNum +"人喜欢了你！"
+	likeSentence := GetSentenceData(70101, likeText, nil, 100, textType, 1, 3568)
+	likeList=append(likeList,likeSentence)
+	return likeList
+}
+

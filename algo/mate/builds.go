@@ -48,25 +48,50 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		return userCacheErr
 	})
+	//获取距离文案
+	var distanceMap = map[int64]float64{}
+	var distanceText []search.MateTextResDataItem
+	reqUser := user.Location
+	if len(onlineUserMap) > 0{
+		for _, v := range onlineUserMap {
+			onlineLocation := v.Location
+			distance := rutils.EarthDistance(float64(reqUser.Lon), float64(reqUser.Lat), onlineLocation.Lon, onlineLocation.Lat)
+			if distance < 50000 {
+				distanceMap[v.UserId] = distance
+			}
+		}
+	}
+	log.Infof("distanceMap=================", distanceMap)
+	if len(distanceMap) > 0 {
+		distanceText=GetDistanceSenten(distanceMap,distanceTextType)
+		log.Infof("distanceText=================", distanceText)
+
+	}
+	//获取假装情侣池
+	//var likeText []search.MateTextResDataItem
+	//if len(onlineUserList)>0{
+	//	textType := 70
+	//	likeText=GetLikeSenten(len(onlineUserList),int64(textType))
+	//	log.Infof("likeText=================", likeText)
+	//}
+
 	//用户基础信息生成文案
 	//base文案
 	var affection_map = map[string]string{"1": "1", "7": "1"}
 	//请求者用户基础文案
-	textType := 10
-	reqUserBaseSentence := GetBaseSentenceDataById(user, int64(textType))
+	reqUserBaseSentence := GetBaseSentenceDataById(user, baseTextType)
 	//在线用户基础文案
-	onlineUserBaseSentenceList := GetBaseSentenceDataMap(onlineUserMap, int64(textType))
+	onlineUserBaseSentenceList := GetBaseSentenceDataMap(onlineUserMap, baseTextType)
 	//基础数据需要搜索
 	var baseCategText []search.MateTextResDataItem
 	stringAffection := strconv.Itoa(user.Affection)
 	if _, ok := affection_map[stringAffection]; ok {
 		//情感搜索
-		textType := 10
 		categType := int64(4)
 		var baseCateg redis.TextTypeCategText
-		baseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
+		baseCateg, err = mateCategCache.QueryMateUserCategTextList(baseTextType, categType)
 		if err==nil{
-			baseCategText = GetCategSentenceData(baseCateg.TextLine, int64(textType), 4,3568)
+			baseCategText = GetCategSentenceData(baseCateg.TextLine, baseTextType, 4,adminUserid)
 		}
 	}
 	//获取在线用户情感状态
@@ -79,12 +104,11 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 	}
 	if affectionNums > 0 {
-		textType := 10
 		categType := int64(4)
 		var onlineBaseCateg redis.TextTypeCategText
-		onlineBaseCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), categType)
+		onlineBaseCateg, err = mateCategCache.QueryMateUserCategTextList(baseTextType, categType)
 		if err == nil {
-			onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, int64(textType), 4,3568)
+			onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, baseTextType, 4,adminUserid)
 		}
 	}
 	//获取假装情侣池话题偏好
@@ -103,14 +127,13 @@ func DoBuildData(ctx algo.IContext) error {
 	var reqCategText []search.MateTextResDataItem
 	if len(reqUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(reqUserProfile)
-		textType := 20
 		var reqCateg redis.TextTypeCategText
 		randomList := GetRandomData(len(resultList), resultList)
 		if len(randomList) > 0 {
 			for _, v := range randomList {
-				reqCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
+				reqCateg, err = mateCategCache.QueryMateUserCategTextList(categTextType, v)
 				if err == nil {
-					reqCategText = GetCategSentenceData(reqCateg.TextLine, int64(textType), 4,3568)
+					reqCategText = GetCategSentenceData(reqCateg.TextLine, categTextType, 4,adminUserid)
 				}
 			}
 		}
@@ -121,14 +144,13 @@ func DoBuildData(ctx algo.IContext) error {
 	var onlineCategText []search.MateTextResDataItem
 	if len(onlineUserProfile) > 0 {
 		resultList := rutils.SortMapByValue(onlineUserProfile)
-		textType := 20
 		var olineCateg redis.TextTypeCategText
 		randomList := GetRandomData(len(resultList), resultList)
 		if len(randomList) > 0 {
 			for _, v := range randomList {
-				olineCateg, err = mateCategCache.QueryMateUserCategTextList(int64(textType), v)
+				olineCateg, err = mateCategCache.QueryMateUserCategTextList(categTextType, v)
 				if err == nil {
-					onlineCategText = GetCategSentenceData(olineCateg.TextLine, int64(textType), 4,3568)
+					onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType, 4,adminUserid)
 				}
 			}
 		}
@@ -154,6 +176,7 @@ func DoBuildData(ctx algo.IContext) error {
 		allSentenceList = append(allSentenceList,onlineBaseCategText...)
 		allSentenceList = append(allSentenceList,onlineUserBaseSentenceList...)
 		allSentenceList = append(allSentenceList,onlineCategText...)
+		allSentenceList = append(allSentenceList,distanceText...)
 	}else{
 		allSentenceList = append(allSentenceList,searchResList...)
 		allSentenceList = append(allSentenceList,reqUserBaseSentence...)
