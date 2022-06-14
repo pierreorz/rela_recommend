@@ -12,6 +12,13 @@ import (
 	"strings"
 )
 
+const (
+	distanceTextType int64 = 60
+	baseTextType int64 =10
+	categTextType int64 =20
+	adminUserid int64 =3568
+)
+
 // 用户信息
 type UserInfo struct {
 	UserId    int64
@@ -240,15 +247,6 @@ func GetRandomData(listLength int,categList [] int64) []int64 {
 	return randomNum
 }
 
-func min(l []float64) (min float64) {
-	min = l[0]
-	for _, v := range l {
-		if v < min {
-			min = v
-		}
-	}
-	return
-}
 
 func GetDistanceSenten(kmMap map[int64]float64 ,textType int64 )[]search.MateTextResDataItem { //地理位置信息 textType:60
 	var distanceList []search.MateTextResDataItem
