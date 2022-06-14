@@ -253,20 +253,26 @@ func min(l []float64) (min float64) {
 
 func GetDistanceSenten(kmMap map[int64]float64 ,textType int64 )[]search.MateTextResDataItem { //地理位置信息 textType:60
 	var distanceList []search.MateTextResDataItem
-	if len(kmMap) > 0{
+	if len(kmMap) > 0 {
 		copyDict := make(map[int64]float64)
-		//for k,v:=range kmMap{
-		//	copyDict[k]=v
-		//}
-		copyDict=kmMap
+		for k, v := range kmMap {
+			copyDict[k] = v
+		}
 		minUser := utils.SortMapByValue(kmMap)
-		log.Infof("copyDict=================================",copyDict)
-		log.Infof("copyDict[minUser[len(minUser)-1]]=================================",copyDict[minUser[len(minUser)-1]])
-		minDistance := int(copyDict[minUser[len(minUser)-1]] / 1000.0)
-		strKm := fmt.Sprintf("%d", minDistance)
-		distanceText := "她距离你" + strKm + "公里"
-		distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser[len(minUser)-1])
-		distanceList = append(distanceList, distanceSentence)
+		log.Infof("copyDict=================================", copyDict)
+		log.Infof("copyDict[minUser[len(minUser)-1]]=================================", copyDict[minUser[len(minUser)-1]])
+		minDistance := copyDict[minUser[len(minUser)-1]] / 1000.0
+		if minDistance < 1.0{
+			strKm := fmt.Sprintf("%d", int(minDistance*1000))
+			distanceText := "她距离你" + strKm + "米"
+			distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser[len(minUser)-1])
+			distanceList = append(distanceList, distanceSentence)
+		}else{
+			strKm := fmt.Sprintf("%d", int(minDistance))
+			distanceText := "她距离你" + strKm + "公里"
+			distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser[len(minUser)-1])
+			distanceList = append(distanceList, distanceSentence)
+		}
 		return distanceList
 	}
 	return distanceList
