@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -254,10 +255,13 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64 )[]search.MateTex
 	var distanceList []search.MateTextResDataItem
 	if len(kmMap) > 0{
 		copyDict := make(map[int64]float64)
-		for k,v:=range kmMap{
-			copyDict[k]=v
-		}
+		//for k,v:=range kmMap{
+		//	copyDict[k]=v
+		//}
+		copyDict=kmMap
 		minUser := utils.SortMapByValue(kmMap)
+		log.Infof("copyDict=================================",copyDict)
+		log.Infof("copyDict[minUser[len(minUser)-1]]=================================",copyDict[minUser[len(minUser)-1]])
 		minDistance := int(copyDict[minUser[len(minUser)-1]] / 1000.0)
 		strKm := fmt.Sprintf("%d", minDistance)
 		distanceText := "她距离你" + strKm + "公里"
