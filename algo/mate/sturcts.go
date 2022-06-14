@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"rela_recommend/algo"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -259,8 +258,6 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64 )[]search.MateTex
 			copyDict[k] = v
 		}
 		minUser := utils.SortMapByValue(kmMap)
-		log.Infof("copyDict=================================", copyDict)
-		log.Infof("copyDict[minUser[len(minUser)-1]]=================================", copyDict[minUser[len(minUser)-1]])
 		minDistance := copyDict[minUser[len(minUser)-1]] / 1000.0
 		if minDistance < 1.0{
 			strKm := fmt.Sprintf("%d", int(minDistance*1000))
