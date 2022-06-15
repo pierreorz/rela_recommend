@@ -496,6 +496,9 @@ func DoBuildData(ctx algo.IContext) error {
 						}
 					}
 				}
+				if mom.Moments.Id==165502373912510000{
+					log.Warnf("itemofflinedata %s",itemOfflineBehaviorMap[mom.Moments.Id])
+				}
 				var isBussiness = 0
 				if bussinessMap != nil {
 					if _, isOk := bussinessMap[mom.Moments.Id]; isOk {
