@@ -157,6 +157,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 		userInfo := ctx.GetUserInfo().(*UserInfo)
 		rankInfo := dataInfo.GetRankInfo()
+		log.Warnf("liveCache.IsShowAdd%s",dataInfo.LiveCache.IsShowAdd)
 		if dataInfo.LiveCache.IsShowAdd == 1 {
 			distance := rutils.EarthDistance(float64(params.Lng), float64(params.Lat), float64(dataInfo.LiveCache.Lng), float64(dataInfo.LiveCache.Lat))
 			log.Info("live user distance%s",distance)
