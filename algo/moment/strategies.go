@@ -747,7 +747,7 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
 
 func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 	var isTop = 0                     //判断是否有置顶日志
-	var isSoftTop = 0                 //判断是否有软置顶
+	var isSoftTop = 0                 //判断是否有软置顶非直播日志
 	var softTopId int64               //最先日志id
 	var ua = ctx.GetRequest().GetUa() //ios,android,other
 	userInfo := ctx.GetUserInfo().(*UserInfo)
@@ -755,9 +755,6 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 	if userInfo != nil {
 		isVip = userInfo.UserCache.IsVip
 	}
-	log.Warnf("vip type %s",ctx.GetRequest().GetUa())
-	log.Warnf("version %s",ctx.GetRequest().GetVersion())
-
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -766,8 +763,10 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 		}
 		if rankInfo.IsSoftTop == 1 {
 			if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetRecExposure().Count < 1 {
-				softTopId = dataInfo.MomentCache.Id
-				isSoftTop = 1
+				if !strings.Contains(dataInfo.MomentCache.MomentsType,"live"){//过滤直播日志
+					softTopId = dataInfo.MomentCache.Id
+					isSoftTop = 1
+				}
 			}
 		}
 	}
@@ -792,7 +791,6 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 					if userBehavior != nil {
 						count = userBehavior.GetRecExposure().Count
 					}
-					log.Warnf("can exposure %s",AdCanExposure(ctx, recAd, count,jumpType))
 					if AdCanExposure(ctx, recAd, count,jumpType) {
 						if recAd.Index < isTop+isSoftTop {
 							rankInfo.HopeIndex = isSoftTop + isTop
@@ -941,7 +939,7 @@ func editRecommendStrategyFunc(ctx algo.IContext) error {
 			if strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.TopLive==1&&rankInfo.IsTop==0&&rankInfo.IsSoftTop==0{//直播日志且为头部主播且不置顶且不为软置顶
 					topLiveArr = append(topLiveArr,dataInfo.DataId)
 			}
-			if strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.TopLive==1&&rankInfo.IsSoftTop==1{//软置顶直播日志
+			if strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.IsTop==0&&rankInfo.IsSoftTop==1{//软置顶直播日志非置顶
 				if dataInfo.ItemOfflineBehavior!=nil&&getFeedRecExposure(dataInfo.ItemOfflineBehavior.PageMap)>liveExpectExposure{
 					softTopLiveArr = append(softTopLiveArr,dataInfo.DataId)
 				}
