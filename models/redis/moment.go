@@ -257,7 +257,7 @@ func (this *UserCacheModule) QueryMomentUserProfileByUserAndUsersMap(userId int6
 
 //读取日志离线行为数据
 func(self *MomentCacheModule) QueryMomentOfflineBehavior(ids []int64)([]MomOfflinePageMap ,error){
-	keyFormatter :="hour_page_activity_mom_data:%d"
+	keyFormatter :="hour_page_map_mom_data:%d"
 	ress, err :=self.MGetStructs(MomOfflinePageMap{}, ids, keyFormatter, 24*60*60, 60*60*1)
 	objs :=ress.Interface().([]MomOfflinePageMap)
 	return objs,err

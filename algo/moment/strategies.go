@@ -949,9 +949,6 @@ func editRecommendStrategyFunc(ctx algo.IContext) error {
 		}
 	}
 	//对每个数组打散
-	log.Warnf("recommendArr%s",recommendArr)
-	log.Warnf("topLivaAee%s",topLiveArr)
-	log.Warnf("softLiveArr%s",softTopLiveArr)
 	recommendArrMap = Shuffle(recommendArr)
 	topLiveArrMap = Shuffle(topLiveArr)
 	softTopLiveArrMap =Shuffle(softTopLiveArr)
