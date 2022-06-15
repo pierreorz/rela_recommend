@@ -73,7 +73,7 @@ func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) map[int64]i
 
 func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 	liveCacheClient := pika.NewLiveCacheModule(&factory.CacheLiveRds)
-	weekStarUID, err := liveCacheClient.GetWeekStar()
+	weekStars, err := liveCacheClient.GetWeekStars()
 	if err != nil {
 		log.Errorf("get week star error: %s", err)
 	}
@@ -115,8 +115,11 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 		liveCache.Live.IsMulti = live.IsMulti
 		liveCache.Live.Classify = live.Classify
 		liveCache.Live.MomentsID = live.MomentsID
-		if liveCache.Live.UserId == weekStarUID {
-			liveCache.Live.IsWeekStar = true
+		if len(weekStars) > 0 {
+			contained := utils.ContainsInt64(weekStars, liveCache.Live.UserId)
+			if contained {
+				liveCache.Live.IsWeekStar = true
+			}
 		}
 		if liveCache.Live.UserId == monthStarUID {
 			liveCache.Live.IsMonthStar = true
