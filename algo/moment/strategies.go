@@ -920,6 +920,10 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
+func contentEditRecommendExposureFunc(ctx algo.IContext) error {
+
+}
+
 //头部主播上线即指定位置曝光推荐页
 func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()

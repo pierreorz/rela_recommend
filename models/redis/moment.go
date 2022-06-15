@@ -251,6 +251,25 @@ func (this *UserCacheModule) QueryMomentUserProfileByUserAndUsersMap(userId int6
 	return resUser, resUsersMap, err
 }
 
+//读取日志离线行为数据
+func(self *MomentCacheModule) QueryMomentOfflineBehavior(ids []int64)([]map[string]int ,error){
+	keyFormatter :="hour_page_acitvity_mom_data:%d"
+	ress, err :=self.MGetStructs(map[string]int{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs :=ress.Interface().([]map[string]int)
+	return objs,err
+}
+
+
+func(self *MomentCacheModule) QueryMomentOfflineBehaviorMap(ids []int64)(map[int64]map[string]int ,error){
+	moments, err := self.QueryMomentOfflineBehavior(ids)
+	var resMomentsMap = make(map[int64]map[string]int, 0)
+	if err == nil {
+		for i, moment := range moments {
+			resMomentsMap[ids[i]] = moment
+		}
+	}
+	return resMomentsMap, err
+}
 //读取日志画像特征
 func (self *MomentCacheModule) QueryMomentOfflineProfileByIds(ids []int64) ([]MomentOfflineProfile, error) {
 	keyFormatter := "moment_offline_profile:%d"

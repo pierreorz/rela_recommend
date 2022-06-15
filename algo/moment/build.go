@@ -305,6 +305,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var userIds = make([]int64, 0)
 	var momOfflineProfileMap = map[int64]*redis.MomentOfflineProfile{} // 获取日志离线画像
 	var momContentProfileMap = map[int64]*redis.MomentContentProfile{}
+	var itemOfflineBehaviorMap =map[int64]map[string]int{}
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"item_behavior": func(*performs.Performs) interface{} { // 获取日志行为
@@ -314,6 +315,11 @@ func DoBuildData(ctx algo.IContext) error {
 				return len(itemBehaviorMap)
 			}
 			return itemBehaviorErr
+		},
+		"item_offline_behavior": func(*performs.Performs) interface{} {
+			var itemOfflineBehaviorErr error
+			itemOfflineBehaviorMap,itemOfflineBehaviorErr =momentCache.QueryMomentOfflineBehaviorMap(dataIds)
+			return itemOfflineBehaviorErr
 		}, "useritem_behavior": func(*performs.Performs) interface{} {
 			var userItemBehaviorErr error
 			userItemBehaviorMap, userItemBehaviorErr = behaviorCache.QueryUserItemBehaviorMap(behaviorModuleName, params.UserId, dataIds)
@@ -480,7 +486,7 @@ func DoBuildData(ctx algo.IContext) error {
 						liveIndex = rank
 						momUser, _ := usersMap[mom.Moments.UserId]
 						if momUser != nil {
-							if isTopLive(ctx, momUser) {
+							if isTopLive(ctx, momUser) {//头部主播日志
 								isTopLiveMom = 1
 							} else {
 								if isTop != 1 && filterLive { //非头部主播且非置顶直播日志进行过滤
@@ -523,6 +529,7 @@ func DoBuildData(ctx algo.IContext) error {
 					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop,PaiScore:score,ExpId:utils.ConvertExpId(expId,recall_expId),RequestId:requestId,OffTime:offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
+					ItemOfflineBehavior:   itemOfflineBehaviorMap[mom.Moments.Id],
 					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],
 				}
 				dataList = append(dataList, info)
