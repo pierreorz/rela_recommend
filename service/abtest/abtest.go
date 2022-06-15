@@ -250,6 +250,16 @@ func (self *AbTest) GetInt64s(key string, defVals string) []int64 {
 	return res
 }
 
+func (self *AbTest) GetMapInts(key string,defVals string) map[int64]int{
+	strs :=self.GetStrings(key,defVals)
+	res :=make(map[int64]int,0)
+	for _,str :=range strs{
+		if vali,err :=strconv.ParseInt(str,10,64);err == nil{
+			res[vali]=1
+		}
+	}
+	return res
+}
 func (self *AbTest) GetInt64Set(key string, defVals string) *utils.SetInt64 {
 	int64s := self.GetInt64s(key, defVals)
 	return utils.NewSetInt64FromArray(int64s)

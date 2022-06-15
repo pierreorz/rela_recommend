@@ -51,6 +51,9 @@ type LiveCache struct {
 	TopCount       int         `json:"topCount"`
 	BottomScore    int         `json:"bottomScore"`
 	NowIncoming    float32     `json:"nowGem"`
+	Lat              float32   `json:"lat"`
+	Lng              float32   `json:"lng"`
+	IsShowAdd      int          `json:"is_show_add"`
 	DayIncoming    float32     `json:"dayIncoming"`
 	MonthIncoming  float32     `json:"monthIncoming"`
 	Data4Api       interface{} `json:"data"` // 20200305专门为api接口新增的透传参数

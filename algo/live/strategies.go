@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
+	rutils "rela_recommend/utils"
+
 )
 
 // 处理业务给出的置顶和推荐内容
@@ -147,12 +149,40 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 }
 
 func StrategyRecommendFunc(ctx algo.IContext) error {
-	var startIndex = 4
+	var startIndex = 5
 	var intervar = 0
+	params := ctx.GetRequest()
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 		userInfo := ctx.GetUserInfo().(*UserInfo)
 		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.LiveCache.IsShowAdd == 1 {
+			distance := rutils.EarthDistance(float64(params.Lng), float64(params.Lat), float64(dataInfo.LiveCache.Lng), float64(dataInfo.LiveCache.Lat))
+			switch {
+			case distance < 300000.0:
+				dataInfo.LiveData.AddLabel(&labelItem{
+					Style: AroundLabel,
+					Title: multiLanguage{
+						Chs: "在你附近",
+						Cht: "在你附近",
+						En:  "NEAR YOU",
+					},
+					weight: AroundWeight,
+					level:  level1,
+				})
+			case distance >= 300000 && distance < 500000:
+				dataInfo.LiveData.AddLabel(&labelItem{
+					Style: CityLabel,
+					Title: multiLanguage{
+						Chs: "同城",
+						Cht: "同城",
+						En:  "THE SAME CITY",
+					},
+					weight: CityWeight,
+					level:  level1,
+				})
+			}
+		}
 		if userInfo.UserConcerns != nil {
 			if userInfo.UserConcerns.Contains(dataInfo.UserId) {
 				dataInfo.LiveData.AddLabel(&labelItem{
