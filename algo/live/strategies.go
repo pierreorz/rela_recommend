@@ -157,12 +157,10 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 		userInfo := ctx.GetUserInfo().(*UserInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		log.Warnf("liveCache.IsShowAdd%s",dataInfo.LiveCache.IsShowAdd)
 		if dataInfo.LiveCache.IsShowAdd == 1 {
 			distance := rutils.EarthDistance(float64(params.Lng), float64(params.Lat), float64(dataInfo.LiveCache.Lng), float64(dataInfo.LiveCache.Lat))
-			log.Info("live user distance%s",distance)
 			switch {
-			case distance < 300000.0:
+			case distance < 30000:
 				dataInfo.LiveData.AddLabel(&labelItem{
 					Style: AroundLabel,
 					Title: multiLanguage{
@@ -173,7 +171,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 					weight: AroundWeight,
 					level:  level1,
 				})
-			case distance >= 300000 && distance < 500000:
+			case distance >= 30000 && distance < 50000:
 				dataInfo.LiveData.AddLabel(&labelItem{
 					Style: CityLabel,
 					Title: multiLanguage{
