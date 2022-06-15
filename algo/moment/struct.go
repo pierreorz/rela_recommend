@@ -37,7 +37,7 @@ type DataInfo struct {
 	RankInfo             *algo.RankInfo
 	Features             *utils.Features
 	ItemBehavior         *behavior.UserBehavior
-	ItemOfflineBehavior  map[string]int
+	ItemOfflineBehavior  *redis.MomOfflinePageMap
 	UserItemBehavior     *behavior.UserBehavior //用户对该发布日志的行为数据
 }
 

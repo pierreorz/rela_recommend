@@ -154,6 +154,10 @@ type MomentOfflineProfile struct {
 	AiTag           []*TagScore `json:"ai_tags,omitempty"`
 }
 
+type MomOfflinePageMap struct {
+	Id         int64   `json:"moment_id"`
+	PageMap    map[string]int  `json:"page_map"`
+}
 type MomentContentProfile struct {
 	Id   int64  `json:"moment_id"`
 	Tags string `json:"tags,omitempty"`
@@ -252,20 +256,20 @@ func (this *UserCacheModule) QueryMomentUserProfileByUserAndUsersMap(userId int6
 }
 
 //读取日志离线行为数据
-func(self *MomentCacheModule) QueryMomentOfflineBehavior(ids []int64)([]map[string]int ,error){
-	keyFormatter :="hour_page_acitvity_mom_data:%d"
-	ress, err :=self.MGetStructs(map[string]int{}, ids, keyFormatter, 24*60*60, 60*60*1)
-	objs :=ress.Interface().([]map[string]int)
+func(self *MomentCacheModule) QueryMomentOfflineBehavior(ids []int64)([]MomOfflinePageMap ,error){
+	keyFormatter :="hour_page_activity_mom_data:%d"
+	ress, err :=self.MGetStructs(MomOfflinePageMap{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs :=ress.Interface().([]MomOfflinePageMap)
 	return objs,err
 }
 
 
-func(self *MomentCacheModule) QueryMomentOfflineBehaviorMap(ids []int64)(map[int64]map[string]int ,error){
+func(self *MomentCacheModule) QueryMomentOfflineBehaviorMap(ids []int64)(map[int64]*MomOfflinePageMap ,error){
 	moments, err := self.QueryMomentOfflineBehavior(ids)
-	var resMomentsMap = make(map[int64]map[string]int, 0)
+	var resMomentsMap = make(map[int64]*MomOfflinePageMap, 0)
 	if err == nil {
 		for i, moment := range moments {
-			resMomentsMap[ids[i]] = moment
+			resMomentsMap[moment.Id] = &moments[i]
 		}
 	}
 	return resMomentsMap, err

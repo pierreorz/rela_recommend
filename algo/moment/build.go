@@ -305,7 +305,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var userIds = make([]int64, 0)
 	var momOfflineProfileMap = map[int64]*redis.MomentOfflineProfile{} // 获取日志离线画像
 	var momContentProfileMap = map[int64]*redis.MomentContentProfile{}
-	var itemOfflineBehaviorMap =map[int64]map[string]int{}
+	var itemOfflineBehaviorMap =map[int64]*redis.MomOfflinePageMap{}
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"item_behavior": func(*performs.Performs) interface{} { // 获取日志行为
