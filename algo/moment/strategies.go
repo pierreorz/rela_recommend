@@ -19,6 +19,7 @@ const(
 	NotVip = "not_vip"
 	IsVip = "is_vip"
 	Ios = "is_ios"
+	FeedRecPage = "moment.recommend"
 )
 // 按照6小时优先策略
 func DoTimeLevel(ctx algo.IContext, index int) error {
@@ -478,7 +479,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	var abtest = ctx.GetAbTest()
-    var max =abtest.GetInt("user_picture_tag_max",2)
+	var max =abtest.GetInt("user_picture_tag_max",2)
 	var userInfo = ctx.GetUserInfo().(*UserInfo)
 	if userInfo.UserBehavior != nil {
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
@@ -746,7 +747,7 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
 
 func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 	var isTop = 0                     //判断是否有置顶日志
-	var isSoftTop = 0                 //判断是否有软置顶
+	var isSoftTop = 0                 //判断是否有软置顶非直播日志
 	var softTopId int64               //最先日志id
 	var ua = ctx.GetRequest().GetUa() //ios,android,other
 	userInfo := ctx.GetUserInfo().(*UserInfo)
@@ -754,9 +755,6 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 	if userInfo != nil {
 		isVip = userInfo.UserCache.IsVip
 	}
-	log.Warnf("vip type %s",ctx.GetRequest().GetUa())
-	log.Warnf("version %s",ctx.GetRequest().GetVersion())
-
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -765,8 +763,10 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 		}
 		if rankInfo.IsSoftTop == 1 {
 			if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetRecExposure().Count < 1 {
-				softTopId = dataInfo.MomentCache.Id
-				isSoftTop = 1
+				if !strings.Contains(dataInfo.MomentCache.MomentsType,"live"){//过滤直播日志
+					softTopId = dataInfo.MomentCache.Id
+					isSoftTop = 1
+				}
 			}
 		}
 	}
@@ -791,7 +791,6 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 					if userBehavior != nil {
 						count = userBehavior.GetRecExposure().Count
 					}
-					log.Warnf("can exposure %s",AdCanExposure(ctx, recAd, count,jumpType))
 					if AdCanExposure(ctx, recAd, count,jumpType) {
 						if recAd.Index < isTop+isSoftTop {
 							rankInfo.HopeIndex = isSoftTop + isTop
@@ -915,6 +914,53 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error {
 					}
 				}
 			}
+		}
+	}
+	return nil
+}
+
+
+func editRecommendStrategyFunc(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
+	recommendArr :=make([]int64,0)
+	liveExpectExposure :=abtest.GetInt("live_expect_exposure",50000)
+	recommendArrMap :=make(map[int64]int,0)
+	topLiveArr :=make([]int64,0)
+	topLiveArrMap :=make(map[int64]int,0)
+	softTopLiveArr :=make([]int64,0)
+	softTopLiveArrMap :=make(map[int64]int,0)
+	for index :=0;index<ctx.GetDataLength(); index++{
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {//没有看过的日志
+			if strings.Contains(rankInfo.ReasonString(),"RECOMMEND")&&! strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.IsSoftTop==0&&rankInfo.IsTop==0{////如果是运营推荐且不为直播日志且非置顶日志且非软置顶日志
+				recommendArr=append(recommendArr,dataInfo.DataId)
+			}
+			if strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.TopLive==1&&rankInfo.IsTop==0&&rankInfo.IsSoftTop==0{//直播日志且为头部主播且不置顶且不为软置顶
+					topLiveArr = append(topLiveArr,dataInfo.DataId)
+			}
+			if strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.IsTop==0&&rankInfo.IsSoftTop==1{//软置顶直播日志非置顶
+				if dataInfo.ItemOfflineBehavior!=nil&&getFeedRecExposure(dataInfo.ItemOfflineBehavior.PageMap)>liveExpectExposure{
+					softTopLiveArr = append(softTopLiveArr,dataInfo.DataId)
+				}
+			}
+		}
+	}
+	//对每个数组打散
+	recommendArrMap = Shuffle(recommendArr)
+	topLiveArrMap = Shuffle(topLiveArr)
+	softTopLiveArrMap =Shuffle(softTopLiveArr)
+	for index :=0;index<ctx.GetDataLength();index++{
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if sortIndex,ok :=recommendArrMap[dataInfo.DataId];ok{//运营推荐主播每隔5位随机进行展示
+			rankInfo.HopeIndex=sortIndex*5+GenerateRangeNum(1,6)
+		}
+		if sortIndex,ok :=topLiveArrMap[dataInfo.DataId];ok{
+			rankInfo.HopeIndex=sortIndex*7+GenerateRangeNum(1,8)//头部主播每隔7位随机进行展示
+		}
+		if sortIndex,ok :=softTopLiveArrMap[dataInfo.DataId];ok{
+			rankInfo.HopeIndex=sortIndex*10+GenerateRangeNum(1,11)//软置顶定直播每隔10位进行展示
 		}
 	}
 	return nil
@@ -1055,4 +1101,31 @@ func RandChoiceOne(list []int64) int64 {
 		return list[0]
 	}
 	return 0
+}
+
+func Shuffle(list []int64) map[int64]int{
+	result :=make(map[int64]int,0)
+	if list != nil && len(list) > 0 {
+		rand.Seed(time.Now().UnixNano())
+		rand.Shuffle(len(list), func(i, j int) { list[i], list[j] = list[j], list[i] })
+		for index,item :=range list{
+			result[item]=index
+		}
+	}
+	return result
+}
+
+func GenerateRangeNum(min, max int) int {
+	rand.Seed(time.Now().Unix())
+	randNum := rand.Intn(max - min) + min
+	return randNum
+}
+
+
+func getFeedRecExposure(pageMap map[string]int) int{
+	result :=0
+	if count,ok :=pageMap[FeedRecPage];ok{
+		result = count
+	}
+	return result
 }

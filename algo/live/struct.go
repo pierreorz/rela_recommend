@@ -25,6 +25,8 @@ const (
 	ModalStudentLabelWeight
 	LiveTypeLabelWeight
 	ClassifyLabelWeight
+	AroundWeight
+	CityWeight
 	FollowLabelWeight
 	StrategyLabelWeight
 
@@ -34,8 +36,10 @@ const (
 	PkLabel        = 4
 	BeamingLabel   = 5
 	ClassifyLabel  = 6
-	StrategyLabel  = 8
-	FollowLabel    = 7
+	StrategyLabel  = 9
+	FollowLabel    = 8
+	AroundLabel    = 7
+	CityLabel      = 7
 
 	typeRecommend     = 1
 	typeBigVideo      = 32768
