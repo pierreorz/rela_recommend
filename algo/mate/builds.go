@@ -61,7 +61,7 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		}
 	}
-	//log.Infof("distanceMap=================", distanceMap)
+	log.Infof("distanceMap=================", distanceMap)
 	if len(distanceMap) > 0 {
 		distanceText=GetDistanceSenten(distanceMap,distanceTextType)
 		log.Infof("distanceText=================", distanceText)
