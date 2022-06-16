@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
-	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 
 )
