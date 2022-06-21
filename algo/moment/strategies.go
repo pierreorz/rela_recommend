@@ -566,13 +566,11 @@ func UserMomTagInteractStrategyFunc(ctx algo.IContext) error {
 // 根据用户实时行为偏好，进行的策略
 func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
-	var abtest = ctx.GetAbTest()
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	var userInfo = ctx.GetUserInfo().(*UserInfo)
 	if userInfo.UserBehavior != nil {
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
 		if userInteract.Count > 0 {
-			weight := abtest.GetFloat64("user_behavior_interact_weight", 1.0)
 			tagMap := userInteract.GetTopCountTagsMap("item_tag", 5)
 			// todo 用户实时偏好
 			for index := 0; index < ctx.GetDataLength(); index++ {
