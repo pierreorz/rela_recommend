@@ -7,7 +7,6 @@ import (
 	"rela_recommend/algo/utils"
 	"rela_recommend/log"
 	rutils "rela_recommend/utils"
-
 )
 
 // 处理业务给出的置顶和推荐内容
@@ -159,8 +158,13 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.LiveCache.IsShowAdd == 0 {
 			distance := rutils.EarthDistance(float64(params.Lng), float64(params.Lat), float64(dataInfo.LiveCache.Lng), float64(dataInfo.LiveCache.Lat))
-			log.Warnf("distance %s",distance)
-			log.Warnf("live id %s",dataInfo.UserId)
+			if dataInfo.UserId==101868887{
+				log.Warnf("lng%s,lat%s,lng%s,lat%s",params.Lng,params.Lat,dataInfo.LiveCache.Lng,dataInfo.LiveCache.Lat)
+			}
+			if distance==0{
+				log.Warnf("lng%s,lat%s,lng%s,lat%s 000",params.Lng,params.Lat,dataInfo.LiveCache.Lng,dataInfo.LiveCache.Lat)
+				log.Warnf("user_id %s",dataInfo.UserId)
+			}
 			switch {
 			case distance < 30000:
 				dataInfo.LiveData.AddLabel(&labelItem{
