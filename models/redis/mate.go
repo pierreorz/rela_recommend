@@ -27,6 +27,18 @@ type TextTypeCategText struct{
 	TextLine string `json:"text_line"`
 }
 
+type BehaviorMate struct {
+	ReqUserID int64 `json:"reqUserId"`
+	Data      []struct {
+		ID       int64 `json:"id"`
+		TagType  int64 `json:"tagType"`
+		TextType int64 `json:"textType"`
+		UserID   int64 `json:"userId"`
+	} `json:"data"`
+}
+
+
+
 type MataCategTextModule struct{
 	CachePikaModule
 }
@@ -88,3 +100,11 @@ func (this *MataCategTextModule) QueryMateUserCategTextList(textType int64,categ
 	err := this.GetSetStruct(keyFormatter,&categText,6*60*60, 1*60*60)
 	return categText, err
 }
+//获取redis
+func (this *MataCategTextModule) QueryMatebehaviorMap(userId int64)(BehaviorMate,error){
+	keyFormatter := fmt.Sprintf("mate_behavior:%d", userId)
+	var behaviorMap BehaviorMate
+	err := this.GetSetStruct(keyFormatter,&behaviorMap,6*60*60, 1*60*60)
+	return behaviorMap,err
+}
+

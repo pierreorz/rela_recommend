@@ -37,6 +37,16 @@ func DoBuildData(ctx algo.IContext) error {
 	if params.Limit == 0 {
 		params.Limit = abtest.GetInt64("default_limit", 50)
 	}
+	//获取用户实时行为
+	var userBehavior redis.BehaviorMate // 用户实时行为
+	berhaviorMap := map[int64]int64{} //用户近1小时曝光情况
+	userBehavior,err = mateCategCache.QueryMatebehaviorMap(params.UserId)
+	if err==nil{
+		for _,v:= range userBehavior.Data{
+			mateID:=v.ID
+			berhaviorMap[mateID]=1
+		}
+	}
 
 	//获取用户信息，在线用户信息
 	var user *redis.UserProfile
@@ -193,13 +203,15 @@ func DoBuildData(ctx algo.IContext) error {
 		dataIds := make([]int64, 0)
 		dataList := make([]algo.IDataInfo, 0)
 		for i, baseRes := range allSentenceList {
-			info := &DataInfo{
-				DataId:     baseRes.Id,
-				SearchData: &allSentenceList[i],
-				RankInfo:   &algo.RankInfo{},
+			if _, ok := berhaviorMap[baseRes.Id]; !ok {
+				info := &DataInfo{
+					DataId:     baseRes.Id,
+					SearchData: &allSentenceList[i],
+					RankInfo:   &algo.RankInfo{},
+				}
+				dataIds = append(dataIds, baseRes.Id)
+				dataList = append(dataList, info)
 			}
-			dataIds = append(dataIds, baseRes.Id)
-			dataList = append(dataList, info)
 		}
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(dataIds)

@@ -45,6 +45,9 @@ func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
 	return RecommendResponseMateTextData{
 		Text: sData.Text,
 		UserId: sData.UserId,
+		TagId: sData.TagType,
+		TypeId: sData.TextType,
+		Id:sData.Id,
 	}
 }
 
@@ -67,6 +70,9 @@ func (self *DataInfo) GetUserBehavior() *behavior.UserBehavior {
 type RecommendResponseMateTextData struct {
 	Text string `json:"text" form:"text"`
 	UserId int64 `json:"userId" form:"userId"`
+	TagId int64 `json:"tagId" form:"tagId"`
+	TypeId int64 `json:"typeId" form:"typeId"`
+	Id int64 `json:"typeId" form:"typeId"`
 }
 
 var RoleDict = map[string]string{"0": "不想透露", "1": "T", "2": "P", "3": "H", "4": "BI", "5": "其他", "6": "直女", "7": "腐女"}
@@ -225,21 +231,12 @@ func GetCategSentenceData(text string,textType int64 ,categType int64,userId int
 
 func GetRandomData(listLength int,categList [] int64) []int64 {
 	var randomNum []int64
-	if listLength > 0 {
-		if listLength > 5{
-			for i := 0; i <= 5; i++ {
-				randomIndex := rand.Intn(listLength - 1)
-				categNum:=categList[randomIndex]
-				if _, ok := CategNumsList[categNum]; ok {
-					randomNum=append(randomNum, categNum)
-				}
-			}
-		}else{
-			for i := 0; i < listLength; i++ {
-				categNum:=categList[i]
-				if _, ok := CategNumsList[categNum]; ok {
-					randomNum=append(randomNum, categNum)
-				}
+	if listLength > 0 {//对于偏好不做限制，原来限制最多有5个偏好出现。
+		for i := 0; i <= listLength; i++ {
+			randomIndex := rand.Intn(listLength - 1)
+			categNum:=categList[randomIndex]
+			if _, ok := CategNumsList[categNum]; ok {
+				randomNum=append(randomNum, categNum)
 			}
 		}
 		return randomNum
