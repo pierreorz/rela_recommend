@@ -14,6 +14,10 @@ func ExpLogit(score float64) float64 {
 	return 2.0 / (1.0 + math.Exp(-math.Log(score)))
 }
 
+//将得分映射到0-max之间
+func Norm(score float64,max float64) float64{
+	return float64(Expit(float32(score))-0.5)*max*2
+}
 type ArrayMetric = func(arr1, arr2 []float32) float32
 
 // 数组相乘的和
