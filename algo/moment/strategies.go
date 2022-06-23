@@ -923,10 +923,12 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		//没有看过的日志
-		if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsSoftTop == 0 && rankInfo.IsTop == 0 { ////直播日志且非置顶日志且非软置顶日志
-			liveArr = append(liveArr, dataInfo.DataId)
-		}
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
+			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsSoftTop == 0 && rankInfo.IsTop == 0 { ////直播日志且非置顶日志且非软置顶日志
+				liveArr = append(liveArr, dataInfo.DataId)
+			}
 
+		}
 	}
 	//对每个数组打散
 	liveArrMap = Shuffle(liveArr)
