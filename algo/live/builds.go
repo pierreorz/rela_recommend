@@ -3,6 +3,7 @@ package live
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
@@ -37,7 +38,7 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		return len(lives)
 	})
-
+	log.Warnf("parms lng%s,lat%s",params.Lng,params.Lat)
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
 	var user2 *redis.LiveProfile
