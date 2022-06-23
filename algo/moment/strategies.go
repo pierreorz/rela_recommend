@@ -931,12 +931,14 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 		}
 	}
 	//对每个数组打散
-	liveArrMap = Shuffle(liveArr)
-	for index := 0; index < ctx.GetDataLength(); index++ {
-		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo := dataInfo.GetRankInfo()
-		if sortIndex, ok := liveArrMap[dataInfo.DataId]; ok { //运营推荐主播每隔5位随机进行展示
-			rankInfo.HopeIndex = sortIndex*6 + GenerateRangeNum(1, 7)
+	if len(liveArr)>0{
+		liveArrMap = Shuffle(liveArr)
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if sortIndex, ok := liveArrMap[dataInfo.DataId]; ok { //运营推荐主播每隔5位随机进行展示
+				rankInfo.HopeIndex = sortIndex*6 + GenerateRangeNum(1, 7)
+			}
 		}
 	}
 	return nil
