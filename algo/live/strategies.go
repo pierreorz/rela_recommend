@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
-	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 )
 
@@ -156,15 +155,8 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 		userInfo := ctx.GetUserInfo().(*UserInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.LiveCache.IsShowAdd == 0 {
+		if dataInfo.LiveCache.IsShowAdd == 1 {
 			distance := rutils.EarthDistance(float64(params.Lng), float64(params.Lat), float64(dataInfo.LiveCache.Lng), float64(dataInfo.LiveCache.Lat))
-			if dataInfo.UserId==101868887{
-				log.Warnf("lng%s,lat%s,lng%s,lat%s",params.Lng,params.Lat,dataInfo.LiveCache.Lng,dataInfo.LiveCache.Lat)
-			}
-			if distance==0{
-				log.Warnf("lng%s,lat%s,lng%s,lat%s 000",params.Lng,params.Lat,dataInfo.LiveCache.Lng,dataInfo.LiveCache.Lat)
-				log.Warnf("user_id %s",dataInfo.UserId)
-			}
 			switch {
 			case distance < 30000:
 				dataInfo.LiveData.AddLabel(&labelItem{
