@@ -55,7 +55,7 @@ func SortScoreItem(ctx algo.IContext) error {
 		}else {
 			itemScore = randomScore * float32(sdWeight) * float32(sd.Weight)
 		}
-		log.Infof("mate_text=====itemScore",itemScore)
+		log.Infof("mate_text=====itemScore",sd.Id,itemScore)
 		rankInfo.AddRecommend("sortScoreItem", itemScore)
 	}
 	return nil
