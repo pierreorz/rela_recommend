@@ -41,13 +41,14 @@ func DoBuildData(ctx algo.IContext) error {
 	var userBehavior redis.BehaviorMate // 用户实时行为
 	berhaviorMap := map[int64]int64{} //用户近1小时曝光情况
 	userBehavior,err = mateCategCache.QueryMatebehaviorMap(params.UserId)
+	log.Infof("userBehavior============================%+v",userBehavior)
 	if err==nil{
 		for _,v:= range userBehavior.Data{
 			mateID:=v.ID
 			berhaviorMap[mateID]=1
 		}
 	}
-
+	log.Infof("berhaviorMap============================%+v",berhaviorMap)
 	//获取用户信息，在线用户信息
 	var user *redis.UserProfile
 	var onlineUserMap map[int64]*redis.UserProfile
