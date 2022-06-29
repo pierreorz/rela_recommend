@@ -2,7 +2,6 @@ package mate
 
 import (
 	"fmt"
-	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
@@ -232,9 +231,8 @@ func GetCategSentenceData(text string,textType int64 ,categType int64,userId int
 func GetRandomData(listLength int,categList [] int64) []int64 {
 	var randomNum []int64
 	if listLength > 0 {//对于偏好不做限制，原来限制最多有5个偏好出现。
-		for i := 0; i <= listLength; i++ {
-			randomIndex := rand.Intn(listLength - 1)
-			categNum:=categList[randomIndex]
+		for i := 0; i < listLength; i++ {
+			categNum:=categList[i]
 			if _, ok := CategNumsList[categNum]; ok {
 				randomNum=append(randomNum, categNum)
 			}
