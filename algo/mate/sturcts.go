@@ -72,7 +72,7 @@ type RecommendResponseMateTextData struct {
 	UserId int64 `json:"userId" form:"userId"`
 	TagId int64 `json:"tagId" form:"tagId"`
 	TypeId int64 `json:"typeId" form:"typeId"`
-	Id int64 `json:"id" form:"Id"`
+	Id int64 `json:"id" form:"id"`
 }
 
 var RoleDict = map[string]string{"0": "不想透露", "1": "T", "2": "P", "3": "H", "4": "BI", "5": "其他", "6": "直女", "7": "腐女"}
