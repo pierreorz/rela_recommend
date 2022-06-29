@@ -47,7 +47,7 @@ func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
 		UserId: sData.UserId,
 		TagId: sData.TagType,
 		TypeId: sData.TextType,
-		Id:sData.Id,
+		DataId:sData.Id,
 	}
 }
 
@@ -72,7 +72,7 @@ type RecommendResponseMateTextData struct {
 	UserId int64 `json:"userId" form:"userId"`
 	TagId int64 `json:"tagId" form:"tagId"`
 	TypeId int64 `json:"typeId" form:"typeId"`
-	Id int64 `json:"id" form:"id"`
+	DataId int64 `json:"data_id" form:"data_id"`
 }
 
 var RoleDict = map[string]string{"0": "不想透露", "1": "T", "2": "P", "3": "H", "4": "BI", "5": "其他", "6": "直女", "7": "腐女"}
