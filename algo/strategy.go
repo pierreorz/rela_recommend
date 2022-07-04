@@ -87,11 +87,13 @@ func (self *PagerBase) BuildResponse(ctx IContext, minIndex int, maxIndex int) (
 		rankInfo := currData.GetRankInfo()
 		rankInfo.Index = i
 		returnObjs = append(returnObjs, RecommendResponseItem{
-			DataId: currData.GetDataId(),
-			Data:   currData.GetResponseData(ctx),
-			Index:  rankInfo.Index,
-			Score:  rankInfo.Score,
-			Reason: rankInfo.ReasonString()})
+			DataId:         currData.GetDataId(),
+			Data:           currData.GetResponseData(ctx),
+			Index:          rankInfo.Index,
+			Score:          rankInfo.Score,
+			Reason:         rankInfo.ReasonString(),
+			ReasonMultiple: rankInfo.ClientReasonString(),
+		})
 	}
 	response := &RecommendResponse{RankId: ctx.GetRankId(), DataIds: returnIds, DataList: returnObjs, Status: "ok"}
 	return response, nil
@@ -130,7 +132,7 @@ func (self *LoggerBase) Do(ctx IContext) error {
 				Score:           rankInfo.Score,
 				RecommendScores: rankInfo.RecommendsString(),
 				Features:        rankInfo.GetFeaturesString(),
-				AbMap:           ctx.GetAbTest().GetTestings(rankInfo.ExpId,rankInfo.RequestId)}
+				AbMap:           ctx.GetAbTest().GetTestings(rankInfo.ExpId, rankInfo.RequestId)}
 			log.Infof("%+v\n", logStr) // 此日志格式会有实时任务解析，谨慎更改
 		}
 	}

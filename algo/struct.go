@@ -10,37 +10,41 @@ import (
 )
 
 const (
-	TypeEmpty = iota
-	TypeYouMayLike
-	TypeHot
+	TypeEmpty = iota // 推荐理由等级，默认情况下值越小越优先展示
 	TypeYouFollow
 	TypeNearby
+	TypeHot
+	TypeYouMayLike
 )
 
 type ReasonType int8
 
 var allReasonTypes = map[ReasonType]clientReason{
+	TypeEmpty: {
+		Type: TypeEmpty,
+		Text: nil,
+	},
 	TypeYouMayLike: {
 		Type: TypeYouMayLike,
-		Text: multiLanguage{
+		Text: &MultiLanguage{
 			Cht: "你可能感兴趣",
 		},
 	},
 	TypeHot: {
 		Type: TypeHot,
-		Text: multiLanguage{
+		Text: &MultiLanguage{
 			Cht: "热门推荐",
 		},
 	},
 	TypeYouFollow: {
 		Type: TypeYouFollow,
-		Text: multiLanguage{
+		Text: &MultiLanguage{
 			Cht: "你的关注",
 		},
 	},
 	TypeNearby: {
 		Type: TypeNearby,
-		Text: multiLanguage{
+		Text: &MultiLanguage{
 			Cht: "在你附近",
 		},
 	},
@@ -181,11 +185,12 @@ func (self *RecommendRequest) GetVersion() int {
 }
 
 type RecommendResponseItem struct {
-	DataId int64       `json:"dataId" form:"dataId"`
-	Data   interface{} `json:"data" form:"data"`
-	Index  int         `json:"index" form:"index"`
-	Reason string      `json:"reason" form:"reason"`
-	Score  float32     `json:"score" form:"score"`
+	DataId         int64          `json:"dataId" form:"dataId"`
+	Data           interface{}    `json:"data" form:"data"`
+	Index          int            `json:"index" form:"index"`
+	Reason         string         `json:"reason" form:"reason"`
+	ReasonMultiple *MultiLanguage `json:"reason_multiple"`
+	Score          float32        `json:"score" form:"score"`
 }
 
 // 返回参数
@@ -199,10 +204,10 @@ type RecommendResponse struct {
 }
 
 type RecommendItem struct {
-	Reason       string       // 推荐理由
-	Score        float32      // 推荐分数
-	NeedReturn   bool         // 是否返回给前端
-	ClientReason clientReason // 客户端显示的推荐理由
+	Reason       string     // 推荐理由
+	Score        float32    // 推荐分数
+	NeedReturn   bool       // 是否返回给前端
+	ClientReason ReasonType // 客户端显示的推荐理由
 }
 
 type RankInfo struct {
@@ -227,15 +232,15 @@ type RankInfo struct {
 	OffTime     int             //超时标记位
 }
 
-type multiLanguage struct {
+type MultiLanguage struct {
 	Chs string `json:"chs"`
 	Cht string `json:"cht"`
 	En  string `json:"en"`
 }
 
 type clientReason struct {
-	Type int8          `json:"type"`
-	Text multiLanguage `json:"text"`
+	Type int8           `json:"type"`
+	Text *MultiLanguage `json:"text"`
 }
 
 // 获取Features的字符串形式：1:1.0,1000:1.0,99:1.0
@@ -253,14 +258,34 @@ func (self *RankInfo) AddRecommend(reason string, score float32) {
 }
 
 func (self *RankInfo) AddRecommendWithType(reason string, score float32, reasonType ReasonType) {
-	clientReason := allReasonTypes[reasonType]
-	item := RecommendItem{Reason: reason, Score: score, NeedReturn: true, ClientReason: clientReason}
+	item := RecommendItem{Reason: reason, Score: score, NeedReturn: true, ClientReason: reasonType}
 	self.Recommends = append(self.Recommends, item)
 }
 
 func (self *RankInfo) AddRecommendNeedReturn(reason string, score float32) {
 	item := RecommendItem{Reason: reason, Score: score, NeedReturn: true}
 	self.Recommends = append(self.Recommends, item)
+}
+
+func (self *RankInfo) ClientReasonString() *MultiLanguage {
+	var reason *clientReason
+	for _, rd := range self.Recommends {
+		current, ok := allReasonTypes[rd.ClientReason]
+		if ok {
+			if reason == nil {
+				reason = &current
+			}
+			if reason.Type > current.Type {
+				reason = &current
+			}
+		}
+	}
+
+	if reason == nil {
+		return nil
+	}
+
+	return reason.Text
 }
 
 // 增加推荐理由，以,隔开：TOP,RECOMMEND
