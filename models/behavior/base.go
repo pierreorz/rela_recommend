@@ -287,6 +287,7 @@ func MergeBehaviors(behaviors ...*Behavior) *Behavior {
 	return res
 }
 
+
 type UserBehavior struct {
 	CacheTime   float64              `json:"cache_time"`   // 缓存时间
 	LastTime    float64              `json:"last_time"`    // 最后动作时间

@@ -37,7 +37,6 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		return len(lives)
 	})
-
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
 	var user2 *redis.LiveProfile
