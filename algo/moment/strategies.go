@@ -964,7 +964,7 @@ func editRecommendStrategyFunc(ctx algo.IContext) error {
 					topLiveArr = append(topLiveArr,dataInfo.DataId)
 			}
 			if strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.IsTop==0&&rankInfo.IsSoftTop==1{//软置顶直播日志非置顶
-				if dataInfo.ItemOfflineBehavior!=nil&&getFeedRecExposure(dataInfo.ItemOfflineBehavior.PageMap)>liveExpectExposure{
+				if (dataInfo.ItemOfflineBehavior!=nil&&getFeedRecExposure(dataInfo.ItemOfflineBehavior.PageMap)>liveExpectExposure)||dataInfo.ItemOfflineBehavior==nil{
 					softTopLiveArr = append(softTopLiveArr,dataInfo.DataId)
 				}
 			}
