@@ -518,6 +518,9 @@ func DoBuildData(ctx algo.IContext) error {
 						score=paiScore
 					}
 				}
+				if mom.Moments.Id==165707505000710036{
+					log.Warnf("topinfo%s,%s",isTop,isSoftTop)
+				}
 				info := &DataInfo{
 					DataId:               mom.Moments.Id,
 					UserCache:            momUser,
