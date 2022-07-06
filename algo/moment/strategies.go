@@ -956,6 +956,9 @@ func editRecommendStrategyFunc(ctx algo.IContext) error {
 	for index :=0;index<ctx.GetDataLength(); index++{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.DataId==165707505000710036{
+			log.Warnf("itembehavior%s",dataInfo.ItemOfflineBehavior)
+		}
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {//没有看过的日志
 			if strings.Contains(rankInfo.ReasonString(),"RECOMMEND")&&! strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.IsSoftTop==0&&rankInfo.IsTop==0{////如果是运营推荐且不为直播日志且非置顶日志且非软置顶日志
 				recommendArr=append(recommendArr,dataInfo.DataId)
@@ -964,7 +967,7 @@ func editRecommendStrategyFunc(ctx algo.IContext) error {
 					topLiveArr = append(topLiveArr,dataInfo.DataId)
 			}
 			if strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.IsTop==0&&rankInfo.IsSoftTop==1{//软置顶直播日志非置顶
-				if dataInfo.ItemOfflineBehavior!=nil&&getFeedRecExposure(dataInfo.ItemOfflineBehavior.PageMap)>liveExpectExposure{
+				if (dataInfo.ItemOfflineBehavior!=nil&&getFeedRecExposure(dataInfo.ItemOfflineBehavior.PageMap)>liveExpectExposure)||dataInfo.ItemOfflineBehavior==nil{
 					softTopLiveArr = append(softTopLiveArr,dataInfo.DataId)
 				}
 			}
