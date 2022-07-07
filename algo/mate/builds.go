@@ -234,8 +234,6 @@ func DoBuildData(ctx algo.IContext) error {
 				dataIds = append(dataIds, baseRes.Id)
 				dataList = append(dataList, info)
 			}
-			log.Infof("dataIds=============%+v", dataIds)
-			log.Infof("dataList=============%+v", dataList)
 		}
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(dataIds)
