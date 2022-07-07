@@ -20,6 +20,7 @@ type MateTextResDataItem struct {
 	TextType int64      `json:"textType" `
 	TagType  int64      `json:"tagType" `
 	UserId int64 		`json:"userId"`
+	ImageUrl string     `json:"imageUrl"`
 }
 
 type mateTextRes struct {
