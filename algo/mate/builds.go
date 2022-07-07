@@ -199,6 +199,11 @@ func DoBuildData(ctx algo.IContext) error {
 	var searchImageResult []search.MateTextResDataItem
 	searchImageResult=GetSearchIamge(searchResList)
 
+	log.Infof("searchImageResult=============%+v", searchImageResult)
+	log.Infof("onlineBaseCategText=============%+v", onlineBaseCategText)
+	log.Infof("onlineUserBaseSentenceList=============%+v", onlineUserBaseSentenceList)
+	log.Infof("onlineCategText=============%+v", onlineCategText)
+	log.Infof("distanceText=============%+v", distanceText)
 	//合并文案数据
 	var allSentenceList []search.MateTextResDataItem
 	if onlineUserBaseSentenceList != nil {
