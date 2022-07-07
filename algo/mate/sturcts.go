@@ -9,6 +9,7 @@ import (
 	"rela_recommend/utils"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -48,7 +49,8 @@ func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
 		TagId: sData.TagType,
 		TypeId: sData.TextType,
 		DataId:sData.Id,
-		ImageUrl:sData.ImageUrl,
+		MyAvatar:sData.MyAvatar,
+		MatchAvatar:sData.MatchAvatar,
 	}
 }
 
@@ -74,7 +76,8 @@ type RecommendResponseMateTextData struct {
 	TagId int64 `json:"tagId" form:"tagId"`
 	TypeId int64 `json:"typeId" form:"typeId"`
 	DataId int64 `json:"data_id" form:"data_id"`
-	ImageUrl string `json:"imageUrl" form:"imageUrl"`
+	MyAvatar string `json:"myAvatar" form:"myAvatar"`
+	MatchAvatar string `json:"matchAvatar" form:"matchAvatar"`
 }
 
 var RoleDict = map[string]string{"0": "不想透露", "1": "T", "2": "P", "3": "H", "4": "BI", "5": "其他", "6": "直女", "7": "腐女"}
@@ -83,7 +86,30 @@ var WantDict = map[string]string{"0": "不想透露", "1": "T", "2": "P", "3": "
 var HoroscopeDict = map[string]string{"0": "摩羯座", "1": "水瓶座", "2": "双鱼座", "3": "白羊座", "4": "金牛座", "5": "双子座", "6": "巨蟹座", "7": "狮子座", "8": "处女座", "9": "天平座", "10": "天蝎座", "11": "射手座"}
 var CategNumsList=map[int64]int64{1:1,2:1,3:1,4:1,5:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,17:1,18:1,19:1,20:1,21:1,22:1,24:1,25:1}
 
-func GetSentenceData(id int64, text string, weight int,textType int64,tagType int64,userId int64,imageUrl string) search.MateTextResDataItem {
+var imageList =[]string{
+	"http://static.rela.me/game/avatar/1?imageslim",
+	"http://static.rela.me/game/avatar/2?imageslim",
+	"http://static.rela.me/game/avatar/3?imageslim",
+	"http://static.rela.me/game/avatar/4?imageslim",
+	"http://static.rela.me/game/avatar/5?imageslim",
+	"http://static.rela.me/game/avatar/6?imageslim",
+}
+//根据时间戳随机到2个不同url
+func GetRandomImage()[]string{
+	var randomImageList []string
+	timeSecond :=time.Now().Unix()
+	randomNum:=timeSecond%4+1
+	fmt.Println(randomNum)
+	youSecond:=timeSecond+randomNum
+	myIndex:=timeSecond%6
+	matchIndex:=youSecond%6
+	randomImageList=append(randomImageList,imageList[myIndex])
+	randomImageList=append(randomImageList,imageList[matchIndex])
+	return randomImageList
+}
+
+//获取返回数据
+func GetSentenceData(id int64, text string, weight int,textType int64,tagType int64,userId int64,myAvatar string,matchAvatar string) search.MateTextResDataItem {
 	return search.MateTextResDataItem{
 		Id:     id,
 		Text:   text,
@@ -91,7 +117,8 @@ func GetSentenceData(id int64, text string, weight int,textType int64,tagType in
 		TextType:textType,
 		TagType:tagType,
 		UserId:userId,
-		ImageUrl:imageUrl,
+		MyAvatar:myAvatar,
+		MatchAvatar:matchAvatar,
 	}
 }
 func MergeMap(mObj ...map[int64]float64) map[int64]float64 {
@@ -110,6 +137,8 @@ var roleMap = map[string]string{"T": "1", "P": "1", "H": "1"}
 func GetSentence(age int,horoscopeName string ,roleName string,occupation string,wantName string,intro string,textType int64,userId int64,imageUrl string) []search.MateTextResDataItem{
 	var baseVeiwList []search.MateTextResDataItem
 	var textList []string
+	//增加随机图片
+	IamgeList:=GetRandomImage()
 	if age >= 18 && age <= 40 {
 		ageText := strconv.Itoa(age) + "岁"
 		textList = append(textList, ageText)
@@ -118,7 +147,7 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//自我认同
 	if _, ok := roleMap[roleName]; ok {//10002
 		roleText := "我是" + roleName + "，你呢？"
-		beasSentence := GetSentenceData(10002, roleText, 100, 100, textType, userId,imageUrl)
+		beasSentence := GetSentenceData(10002, roleText, 100, 100, textType, userId,IamgeList[0],IamgeList[1])
 		baseVeiwList = append(baseVeiwList, beasSentence)
 		textList = append(textList, roleName)
 	}
@@ -129,7 +158,7 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//我想找的
 	if _, ok := roleMap[wantName]; ok { //10001
 		wantText := "有" + wantName + "吗？"
-		beasSentence := GetSentenceData(10001, wantText, 100, 100, textType, userId,imageUrl)
+		beasSentence := GetSentenceData(10001, wantText, 100, 100, textType, userId,IamgeList[0],IamgeList[1])
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
 	//签名
@@ -140,7 +169,7 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//用户基本文案
 	if len(textList) > 1 { //10000
 		baseText := strings.Join(textList, "/")
-		beasSentence := GetSentenceData(10000, baseText, 100, 100, textType,  userId,imageUrl)
+		beasSentence := GetSentenceData(10000, baseText, 100, 100, textType,  userId,IamgeList[0],IamgeList[1])
 		baseVeiwList = append(baseVeiwList, beasSentence)
 
 	}
@@ -187,11 +216,13 @@ func GetBaseSentenceDataMap(userMap map[int64]*redis.UserProfile,textType int64)
 func GetCategSentenceData(text string,textType int64 ,categType int64,userId int64,imageUrl string) []search.MateTextResDataItem {
 	var categSentceList []search.MateTextResDataItem
 	if len(text) > 0 {
+		//增加随机图片
+		IamgeList:=GetRandomImage()
 		textList := strings.Split(text, "|$|")
 		for i, v := range textList {
 			id := textType*1000 + categType*100 + int64(i)
 			text := v
-			categSenten := GetSentenceData(id, text, 100,textType,categType,userId,imageUrl)
+			categSenten := GetSentenceData(id, text, 100,textType,categType,userId,IamgeList[0],IamgeList[1])
 			categSentceList = append(categSentceList, categSenten)
 		}
 		//log.Infof("categSentceList======================%+v",categSentceList)
@@ -223,18 +254,19 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64,IamgeMap map[int6
 		for k, v := range kmMap {
 			copyDict[k] = v
 		}
+		//增加随机图片
+		IamgeList:=GetRandomImage()
 		minUser := utils.SortMapByValue(kmMap)
 		minDistance := copyDict[minUser[len(minUser)-1]] / 1000.0
-		iamgeUrl :=IamgeMap[minUser[len(minUser)-1]]
 		if minDistance < 1.0{
 			strKm := fmt.Sprintf("%d", int(minDistance*1000))
 			distanceText := "她距离你" + strKm + "米"
-			distanceSentence := GetSentenceData(60101, distanceText, 100, textType, 1, minUser[len(minUser)-1],iamgeUrl)
+			distanceSentence := GetSentenceData(60101, distanceText, 100, textType, 1, minUser[len(minUser)-1],IamgeList[0],IamgeList[1])
 			distanceList = append(distanceList, distanceSentence)
 		}else{
 			strKm := fmt.Sprintf("%d", int(minDistance))
 			distanceText := "她距离你" + strKm + "公里"
-			distanceSentence := GetSentenceData(60101, distanceText, 100,textType, 1, minUser[len(minUser)-1],iamgeUrl)
+			distanceSentence := GetSentenceData(60101, distanceText, 100,textType, 1, minUser[len(minUser)-1],IamgeList[0],IamgeList[1])
 			distanceList = append(distanceList, distanceSentence)
 		}
 		return distanceList
@@ -245,7 +277,9 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64,IamgeMap map[int6
 func GetSearchIamge( searchResult []search.MateTextResDataItem) []search.MateTextResDataItem{
 	var searchImageResult []search.MateTextResDataItem
 	for _,v:=range searchResult{
-		imageResult:=GetSentenceData(v.Id,v.Text,v.Weight,v.TextType,v.TagType,v.UserId,defaultImage)
+		//增加随机图片
+		IamgeList:=GetRandomImage()
+		imageResult:=GetSentenceData(v.Id,v.Text,v.Weight,v.TextType,v.TagType,v.UserId,IamgeList[0],IamgeList[1])
 		searchImageResult=append(searchImageResult,imageResult)
 	}
 

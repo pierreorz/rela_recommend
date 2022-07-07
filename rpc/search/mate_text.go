@@ -16,10 +16,11 @@ type MateTextResDataItem struct {
 	Id     int64         `json:"id"`
 	Text   string        `json:"text"`
 	Weight int           `json:"weight"`
-	TextType int64      `json:"textType" `
-	TagType  int64      `json:"tagType" `
-	UserId int64 		`json:"userId"`
-	ImageUrl string     `json:"imageUrl"`
+	TextType int64       `json:"textType" `
+	TagType  int64       `json:"tagType" `
+	UserId int64 		 `json:"userId"`
+	MyAvatar string      `json:"myAvatar"`
+	MatchAvatar string   `json:"matchAvatar" `
 }
 
 type mateTextRes struct {
@@ -74,7 +75,7 @@ func CallMateTextList(request *algo.RecommendRequest, searchLimit int64) ([]Mate
 		MobileOS:      request.MobileOS,
 		ClientVersion: request.ClientVersion,
 		Filter:        strings.Join(filters, "*"),
-		ReturnFields:  "id,text,tag_type,text_type,weight",
+		ReturnFields:  "id,text,Weight,text_type,TagType",
 		Distance:      "50km",
 	}
 	log.Infof("search=================%+v",params)
