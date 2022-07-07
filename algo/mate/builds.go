@@ -221,7 +221,6 @@ func DoBuildData(ctx algo.IContext) error {
 		userInfo := &UserInfo{
 			UserId: params.UserId,
 		}
-
 		// 组装被曝光者信息
 		dataIds := make([]int64, 0)
 		dataList := make([]algo.IDataInfo, 0)
@@ -235,6 +234,8 @@ func DoBuildData(ctx algo.IContext) error {
 				dataIds = append(dataIds, baseRes.Id)
 				dataList = append(dataList, info)
 			}
+			log.Infof("dataIds=============%+v", dataIds)
+			log.Infof("dataList=============%+v", dataList)
 		}
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(dataIds)
