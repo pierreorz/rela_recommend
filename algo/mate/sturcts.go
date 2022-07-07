@@ -83,11 +83,10 @@ var WantDict = map[string]string{"0": "不想透露", "1": "T", "2": "P", "3": "
 var HoroscopeDict = map[string]string{"0": "摩羯座", "1": "水瓶座", "2": "双鱼座", "3": "白羊座", "4": "金牛座", "5": "双子座", "6": "巨蟹座", "7": "狮子座", "8": "处女座", "9": "天平座", "10": "天蝎座", "11": "射手座"}
 var CategNumsList=map[int64]int64{1:1,2:1,3:1,4:1,5:1,7:1,8:1,9:1,10:1,11:1,12:1,13:1,14:1,15:1,17:1,18:1,19:1,20:1,21:1,22:1,24:1,25:1}
 
-func GetSentenceData(id int64, text string, city []interface{},weight int,textType int64,tagType int64,userId int64,imageUrl string) search.MateTextResDataItem {
+func GetSentenceData(id int64, text string, weight int,textType int64,tagType int64,userId int64,imageUrl string) search.MateTextResDataItem {
 	return search.MateTextResDataItem{
 		Id:     id,
 		Text:   text,
-		Cities: city,
 		Weight: weight,
 		TextType:textType,
 		TagType:tagType,
@@ -119,7 +118,7 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//自我认同
 	if _, ok := roleMap[roleName]; ok {//10002
 		roleText := "我是" + roleName + "，你呢？"
-		beasSentence := GetSentenceData(10002, roleText, nil, 100, textType, 2, userId,imageUrl)
+		beasSentence := GetSentenceData(10002, roleText, 100, 100, textType, userId,imageUrl)
 		baseVeiwList = append(baseVeiwList, beasSentence)
 		textList = append(textList, roleName)
 	}
@@ -130,7 +129,7 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//我想找的
 	if _, ok := roleMap[wantName]; ok { //10001
 		wantText := "有" + wantName + "吗？"
-		beasSentence := GetSentenceData(10001, wantText, nil, 100, textType, 1, userId,imageUrl)
+		beasSentence := GetSentenceData(10001, wantText, 100, 100, textType, userId,imageUrl)
 		baseVeiwList = append(baseVeiwList, beasSentence)
 	}
 	//签名
@@ -141,7 +140,7 @@ func GetSentence(age int,horoscopeName string ,roleName string,occupation string
 	//用户基本文案
 	if len(textList) > 1 { //10000
 		baseText := strings.Join(textList, "/")
-		beasSentence := GetSentenceData(10000, baseText, nil, 100, textType, 0, userId,imageUrl)
+		beasSentence := GetSentenceData(10000, baseText, 100, 100, textType,  userId,imageUrl)
 		baseVeiwList = append(baseVeiwList, beasSentence)
 
 	}
@@ -192,7 +191,7 @@ func GetCategSentenceData(text string,textType int64 ,categType int64,userId int
 		for i, v := range textList {
 			id := textType*1000 + categType*100 + int64(i)
 			text := v
-			categSenten := GetSentenceData(id, text, nil, 100,textType,categType,userId,imageUrl)
+			categSenten := GetSentenceData(id, text, 100,textType,categType,userId,imageUrl)
 			categSentceList = append(categSentceList, categSenten)
 		}
 		//log.Infof("categSentceList======================%+v",categSentceList)
@@ -230,12 +229,12 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64,IamgeMap map[int6
 		if minDistance < 1.0{
 			strKm := fmt.Sprintf("%d", int(minDistance*1000))
 			distanceText := "她距离你" + strKm + "米"
-			distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser[len(minUser)-1],iamgeUrl)
+			distanceSentence := GetSentenceData(60101, distanceText, 100, textType, 1, minUser[len(minUser)-1],iamgeUrl)
 			distanceList = append(distanceList, distanceSentence)
 		}else{
 			strKm := fmt.Sprintf("%d", int(minDistance))
 			distanceText := "她距离你" + strKm + "公里"
-			distanceSentence := GetSentenceData(60101, distanceText, nil, 100, textType, 1, minUser[len(minUser)-1],iamgeUrl)
+			distanceSentence := GetSentenceData(60101, distanceText, 100,textType, 1, minUser[len(minUser)-1],iamgeUrl)
 			distanceList = append(distanceList, distanceSentence)
 		}
 		return distanceList
@@ -246,7 +245,7 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64,IamgeMap map[int6
 func GetSearchIamge( searchResult []search.MateTextResDataItem) []search.MateTextResDataItem{
 	var searchImageResult []search.MateTextResDataItem
 	for _,v:=range searchResult{
-		imageResult:=GetSentenceData(v.Id,v.Text,v.Cities,v.Weight,v.TextType,v.TagType,v.UserId,defaultImage)
+		imageResult:=GetSentenceData(v.Id,v.Text,v.Weight,v.TextType,v.TagType,v.UserId,defaultImage)
 		searchImageResult=append(searchImageResult,imageResult)
 	}
 
