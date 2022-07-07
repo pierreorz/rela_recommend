@@ -61,7 +61,7 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 	//获取距离文案(增加了用户头像)
 	var distanceMap = map[int64]float64{}
-	var userIamgeMap =  map[int64]string{}
+	var userImageMap =  map[int64]string{}
 	var distanceText []search.MateTextResDataItem
 	reqUser := user.Location
 	if len(onlineUserMap) > 0{
@@ -71,13 +71,13 @@ func DoBuildData(ctx algo.IContext) error {
 			distance := rutils.EarthDistance(float64(reqUser.Lon), float64(reqUser.Lat), onlineLocation.Lon, onlineLocation.Lat)
 			if distance < 50000 {
 				distanceMap[v.UserId] = distance
-				userIamgeMap[v.UserId] = imageUrl
+				userImageMap[v.UserId] = imageUrl
 			}
 		}
 	}
 	log.Infof("distanceMap=================", distanceMap)
 	if len(distanceMap) > 0 {
-		distanceText=GetDistanceSenten(distanceMap,distanceTextType,userIamgeMap)
+		distanceText=GetDistanceSenten(distanceMap,distanceTextType,userImageMap)
 		log.Infof("distanceText=================", distanceText)
 
 	}
@@ -114,12 +114,12 @@ func DoBuildData(ctx algo.IContext) error {
 	//获取在线用户情感状态
 	affectionNums := 0
 	var onlineBaseCategText []search.MateTextResDataItem
-	var userImageMap map[int64]string
+	userAffectImageMap:=map[int64]string{}
 	for _, userView := range onlineUserMap {
 		stringAffection := strconv.Itoa(userView.Affection)
 		if _, ok := affection_map[stringAffection]; ok {
 			affectionNums += 1
-			userImageMap[userView.UserId]=userView.Avatar
+			userAffectImageMap[userView.UserId]=userView.Avatar
 		}
 	}
 	if affectionNums > 0 {
@@ -127,7 +127,7 @@ func DoBuildData(ctx algo.IContext) error {
 		var onlineBaseCateg redis.TextTypeCategText
 		onlineBaseCateg, err = mateCategCache.QueryMateUserCategTextList(baseTextType, categType)
 		if err == nil {
-			for k,v:=range userImageMap {
+			for k,v:=range userAffectImageMap {
 				if k==0 {
 					//只选择一个
 					onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, baseTextType, 4, k, v)

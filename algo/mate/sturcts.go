@@ -278,7 +278,7 @@ func GetSearchIamge( searchResult []search.MateTextResDataItem) []search.MateTex
 	count:=0
 	for _,v:=range searchResult {
 		count += 1
-		if count < 2 {
+		if count < 20 {
 			//增加随机图片
 			IamgeList := GetRandomImage()
 			imageResult := GetSentenceData(v.Id, v.Text, v.Weight, v.TextType, v.TagType, v.UserId, IamgeList[0], IamgeList[1])
