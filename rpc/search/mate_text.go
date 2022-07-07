@@ -74,7 +74,7 @@ func CallMateTextList(request *algo.RecommendRequest, searchLimit int64) ([]Mate
 		MobileOS:      request.MobileOS,
 		ClientVersion: request.ClientVersion,
 		Filter:        strings.Join(filters, "*"),
-		ReturnFields:  "id,tag_type,text_type,weight",
+		ReturnFields:  "id,text,tag_type,text_type,weight",
 		Distance:      "50km",
 	}
 	log.Infof("search=================%+v",params)
