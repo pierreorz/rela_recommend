@@ -275,11 +275,15 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64,IamgeMap map[int6
 //重新组装search结果，增加默认图片
 func GetSearchIamge( searchResult []search.MateTextResDataItem) []search.MateTextResDataItem{
 	var searchImageResult []search.MateTextResDataItem
-	for _,v:=range searchResult{
-		//增加随机图片
-		IamgeList:=GetRandomImage()
-		imageResult:=GetSentenceData(v.Id,v.Text,v.Weight,v.TextType,v.TagType,v.UserId,IamgeList[0],IamgeList[1])
-		searchImageResult=append(searchImageResult,imageResult)
+	count:=0
+	for _,v:=range searchResult {
+		count += 1
+		if count < 2 {
+			//增加随机图片
+			IamgeList := GetRandomImage()
+			imageResult := GetSentenceData(v.Id, v.Text, v.Weight, v.TextType, v.TagType, v.UserId, IamgeList[0], IamgeList[1])
+			searchImageResult = append(searchImageResult, imageResult)
+		}
 	}
 
 	return searchImageResult
