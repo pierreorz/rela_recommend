@@ -2,6 +2,7 @@ package mate
 
 import (
 	"fmt"
+	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
@@ -287,6 +288,34 @@ func GetSearchIamge( searchResult []search.MateTextResDataItem) []search.MateTex
 	}
 
 	return searchImageResult
+}
+
+//合并偏好用户
+func GetMergeMap(themeMap map[int64][]int64,momMap map[int64][]int64) map[int64][]int64{
+	allMap:= make(map[int64][]int64)
+	for k,v:=range themeMap{
+		allMap[k]=v
+	}
+	for k,v:=range momMap{
+		if _,ok:=allMap[k];ok{
+			allMap[k]=append(allMap[k],v...)
+		}else {
+			allMap[k]=v
+		}
+	}
+
+	return allMap
+}
+//根据结果抽取偏好
+func GetCategoryRandomData(categMap map[int64][]int64 ) map[int64]int64{
+	resultMap:= make(map[int64]int64)
+	for k,v:= range categMap{
+		index:=rand.Intn(len(v))
+		userId:=v[index]
+		resultMap[k]=userId
+	}
+
+	return resultMap
 }
 
 

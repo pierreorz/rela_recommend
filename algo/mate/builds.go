@@ -160,23 +160,25 @@ func DoBuildData(ctx algo.IContext) error {
 	//
 	//}
 	////假装情侣池
-	var onlineUserThemeMap map[int64]float64 //假装情侣池
+	var onlineUserThemeMap map[int64][]int64 //假装情侣池
 	onlineUserThemeMap = themeUserCache.QueryMatThemeProfileData(onlineUserList)
+	log.Infof("ThemeMap=======%+v",onlineUserThemeMap)
 	//获取假装情侣用户moment偏好
-	var onlineUserMomMap map[int64]float64 //假装情侣池
+	var onlineUserMomMap map[int64][]int64 //假装情侣池
 	onlineUserMomMap = behaviorCache.QueryMateMomUserData(onlineUserList)
+	log.Infof("MomMap=======%+v",onlineUserThemeMap)
 	//合并用户偏好(假装情侣池)
-	onlineUserProfile := MergeMap(onlineUserThemeMap, onlineUserMomMap)
+	onlineUserProfile :=GetMergeMap(onlineUserThemeMap, onlineUserMomMap)
 	var onlineCategText []search.MateTextResDataItem
 	if len(onlineUserProfile) > 0 {
-		resultList := rutils.SortMapByValue(onlineUserProfile)
+
+		categMap:=GetCategoryRandomData(onlineUserProfile)
 		var olineCateg redis.TextTypeCategText
-		randomList := GetRandomData(len(resultList), resultList)
-		if len(randomList) > 0 {
-			for _, v := range randomList {
-				olineCateg, err = mateCategCache.QueryMateUserCategTextList(categTextType, v)
+		if len(categMap) > 0 {
+			for categId, userId := range categMap {
+				olineCateg, err = mateCategCache.QueryMateUserCategTextList(categTextType, categId)
 				if err == nil {
-					onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType, 4,v)
+					onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType,categId,userId)
 				}
 			}
 		}
