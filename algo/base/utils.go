@@ -17,6 +17,7 @@ func DoWithRoutersContext(c *routers.Context, appName, typeName string) (*algo.R
 	var ctx = &ContextBase{}
 	var params = &algo.RecommendRequest{}
 	var err = request.Bind(c, params)
+	log.Infof("err===================1%+v",err)
 	if err == nil {
 		params.App = utils.CoalesceString(appName, c.Params.ByName("app"), params.App)
 
@@ -31,6 +32,7 @@ func DoWithRoutersContext(c *routers.Context, appName, typeName string) (*algo.R
 		var app = algo.GetAppInfo(name)
 		if app != nil {
 			err = ctx.Do(app, params)
+			log.Infof("err===================2%+v",err)
 		} else {
 			err = errors.New("invalid app: " + name)
 		}
