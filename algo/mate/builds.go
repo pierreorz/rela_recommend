@@ -21,15 +21,23 @@ func DoBuildData(ctx algo.IContext) error {
 	//momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	themeUserCache := redis.NewThemeCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
-	awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
 	mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	pretendList, err := awsCache.QueryPretendLoveList()
-	if err!=nil{
-		log.Infof("pretendList===========err%+v",err)
-	}
+
+
+
+	//获取假装情侣在线缓存数据
+	var pretendList []redis.PretendLoveUser
+	pf.Run("pretendUser", func(*performs.Performs) interface{} {
+		var pretendCacheErr error
+		awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
+		if pretendList, pretendCacheErr := awsCache.QueryPretendLoveList(); pretendCacheErr != nil {
+			return len(pretendList)
+		}
+		return pretendCacheErr
+	})
+
 	//获取假装情侣在线用户id
 	var onlineUserList []int64
-
 	for _, v := range pretendList {
 		userId, err := strconv.ParseInt(v.Userid, 10, 64)
 		if err == nil {
@@ -42,12 +50,15 @@ func DoBuildData(ctx algo.IContext) error {
 	//获取用户实时行为
 	var userBehavior redis.BehaviorMate // 用户实时行为
 	berhaviorMap := map[int64]int64{} //用户近1小时曝光情况
-	userBehavior,err = mateCategCache.QueryMatebehaviorMap(params.UserId)
-	if err!=nil{
-		log.Infof("userBehavior===========err%+v",err)
-	}
-	log.Infof("userBehavior============================%+v",userBehavior)
-
+	//userBehavior,err = mateCategCache.QueryMatebehaviorMap(params.UserId)
+	pf.Run("requser", func(*performs.Performs) interface{} {
+		var requserCacheErr error
+		if userBehavior, requserCacheErr = mateCategCache.QueryMatebehaviorMap(params.UserId); requserCacheErr != nil {
+			return len(userBehavior.Data)
+		}
+		return requserCacheErr
+	})
+	//解析获取实施行为
 	for _,v:= range userBehavior.Data{
 		mateID:=v.ID
 		berhaviorMap[mateID]=1
@@ -129,11 +140,14 @@ func DoBuildData(ctx algo.IContext) error {
 	if affectionNums > 0 {
 		categType := int64(4)
 		var onlineBaseCateg redis.TextTypeCategText
-		onlineBaseCateg, err = mateCategCache.QueryMateUserCategTextList(baseTextType, categType)
-		if err!=nil{
-			log.Infof("onlineBaseCateg===========err%+v",err)
-		}
-
+		//获取情感文案
+		pf.Run("affection", func(*performs.Performs) interface{} {
+			var affectCacheErr error
+			if onlineBaseCateg, affectCacheErr = mateCategCache.QueryMateUserCategTextList(baseTextType, categType); affectCacheErr != nil {
+				return len(onlineBaseCateg.TextLine)
+			}
+			return affectCacheErr
+		})
 		for k,_:=range userAffectImageMap {
 			if k==0 {
 				//只选择一个
@@ -141,6 +155,7 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		}
 	}
+
 	//获取假装情侣池话题偏好
 	//var reqUserThemeMap map[int64]float64    //请求者（不展示）
 	//userProfileUserIds := []int64{params.UserId}
@@ -181,14 +196,16 @@ func DoBuildData(ctx algo.IContext) error {
 		categMap:=GetCategoryRandomData(onlineUserProfile)
 		var olineCateg redis.TextTypeCategText
 		if len(categMap) > 0 {
-			for categId, userId := range categMap {
-				olineCateg, err = mateCategCache.QueryMateUserCategTextList(categTextType, categId)
-				if err!=nil{
-					log.Infof("olineCateg===========err%+v",err)
+			pf.Run("categ", func(*performs.Performs) interface{} {
+				var categCacheErr error
+				for categId, userId := range categMap {
+					if olineCateg, categCacheErr = mateCategCache.QueryMateUserCategTextList(categTextType, categId);categCacheErr != nil  {
+						onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType, categId, userId)
+						return len(onlineCategText)
+					}
 				}
-				onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType,categId,userId)
-
-			}
+				return categCacheErr
+			})
 		}
 	}
 	//旧版搜索结果
@@ -250,6 +267,5 @@ func DoBuildData(ctx algo.IContext) error {
 
 		return len(dataList)
 	})
-	log.Infof("err===========5%+v",err)
 	return err
 }

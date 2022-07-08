@@ -152,7 +152,6 @@ func (self *ContextBase) DoBuildData() error {
 		if len(name) > 0 {
 			if builder, ok := app.BuilderMap[name]; ok {
 				err = builder.Do(self)
-				log.Infof("err=================4%+v",err)
 			} else {
 				err = errors.New("builder not found:" + name)
 			}
@@ -297,7 +296,6 @@ func (self *ContextBase) Do(app *algo.AppInfo, params *algo.RecommendRequest) er
 	if err == nil {
 		pfm.Begin("buildData")
 		err = self.DoBuildData()
-		log.Infof("err3==========================%+v",err)
 		pfm.End("buildData")
 	}
 	if err == nil {
