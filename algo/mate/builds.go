@@ -242,6 +242,6 @@ func DoBuildData(ctx algo.IContext) error {
 
 		return len(dataList)
 	})
-
+	log.Infof("err===========5%+v",err)
 	return err
 }
