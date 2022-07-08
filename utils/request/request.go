@@ -8,6 +8,6 @@ import (
 func Bind(c *routers.Context, i interface{}) error {
 	if factory.IsProduction {
 		return c.BindAndSingnature(i)
-	} 
+	}
 	return c.Bind(i)
 }
