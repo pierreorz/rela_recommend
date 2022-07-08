@@ -93,6 +93,7 @@ func (self *PagerBase) BuildResponse(ctx IContext, minIndex int, maxIndex int) (
 			Score:  rankInfo.Score,
 			Reason: rankInfo.ReasonString()})
 	}
+	log.Infof("err================6%+v",returnObjs)
 	response := &RecommendResponse{RankId: ctx.GetRankId(), DataIds: returnIds, DataList: returnObjs, Status: "ok"}
 	return response, nil
 }
@@ -104,6 +105,7 @@ type PagerOrigin struct {
 
 func (self *PagerOrigin) Do(ctx IContext) error {
 	response, err := self.BuildResponse(ctx, 0, ctx.GetDataLength())
+	log.Infof("err============5%+v",err)
 	ctx.SetResponse(response)
 	return err
 }
