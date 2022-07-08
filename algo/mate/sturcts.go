@@ -277,14 +277,11 @@ func GetDistanceSenten(kmMap map[int64]float64 ,textType int64,IamgeMap map[int6
 func GetSearchIamge( searchResult []search.MateTextResDataItem) []search.MateTextResDataItem{
 	var searchImageResult []search.MateTextResDataItem
 	for _,v:=range searchResult {
-		if v.Id>1000 {
-			//增加随机图片
-			IamgeList := GetRandomImage()
-			imageResult := GetSentenceData(v.Id, v.Text, v.Weight, v.TextType, v.TagType, v.UserId, IamgeList[0], IamgeList[1])
-			searchImageResult = append(searchImageResult, imageResult)
-		}
+		//增加随机图片
+		IamgeList := GetRandomImage()
+		imageResult := GetSentenceData(v.Id, v.Text, v.Weight, v.TextType, v.TagType, v.UserId, IamgeList[0], IamgeList[1])
+		searchImageResult = append(searchImageResult, imageResult)
 	}
-
 	return searchImageResult
 }
 
