@@ -127,10 +127,10 @@ func DoBuildData(ctx algo.IContext) error {
 		var onlineBaseCateg redis.TextTypeCategText
 		onlineBaseCateg, err = mateCategCache.QueryMateUserCategTextList(baseTextType, categType)
 		if err == nil {
-			for k,v:=range userAffectImageMap {
+			for k,_:=range userAffectImageMap {
 				if k==0 {
 					//只选择一个
-					onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, baseTextType, 4, k, v)
+					onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, baseTextType, 4, k)
 				}
 			}
 		}
@@ -176,8 +176,7 @@ func DoBuildData(ctx algo.IContext) error {
 			for _, v := range randomList {
 				olineCateg, err = mateCategCache.QueryMateUserCategTextList(categTextType, v)
 				if err == nil {
-					userProfile:=onlineUserMap[v]
-					onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType, 4,v,userProfile.Avatar)
+					onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType, 4,v)
 				}
 			}
 		}

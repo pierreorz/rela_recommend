@@ -212,7 +212,7 @@ func GetBaseSentenceDataMap(userMap map[int64]*redis.UserProfile,textType int64)
 	return nil
 }
 
-func GetCategSentenceData(text string,textType int64 ,categType int64,userId int64,imageUrl string) []search.MateTextResDataItem {
+func GetCategSentenceData(text string,textType int64 ,categType int64,userId int64) []search.MateTextResDataItem {
 	var categSentceList []search.MateTextResDataItem
 	if len(text) > 0 {
 		//增加随机图片
