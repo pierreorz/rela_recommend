@@ -8,8 +8,6 @@ import (
 func Bind(c *routers.Context, i interface{}) error {
 	if factory.IsProduction {
 		return c.BindAndSingnature(i)
-	} else {
-		c.Request.ParseForm()
-	}
+	} 
 	return c.Bind(i)
 }
