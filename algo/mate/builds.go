@@ -24,14 +24,16 @@ func DoBuildData(ctx algo.IContext) error {
 	awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
 	mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	pretendList, err := awsCache.QueryPretendLoveList()
+	if err!=nil{
+		log.Infof("pretendList===========err%+v",err)
+	}
 	//获取假装情侣在线用户id
 	var onlineUserList []int64
-	if err == nil {
-		for _, v := range pretendList {
-			userId, err := strconv.ParseInt(v.Userid, 10, 64)
-			if err == nil {
-				onlineUserList = append(onlineUserList, userId)
-			}
+
+	for _, v := range pretendList {
+		userId, err := strconv.ParseInt(v.Userid, 10, 64)
+		if err == nil {
+			onlineUserList = append(onlineUserList, userId)
 		}
 	}
 	if params.Limit == 0 {
@@ -41,12 +43,14 @@ func DoBuildData(ctx algo.IContext) error {
 	var userBehavior redis.BehaviorMate // 用户实时行为
 	berhaviorMap := map[int64]int64{} //用户近1小时曝光情况
 	userBehavior,err = mateCategCache.QueryMatebehaviorMap(params.UserId)
+	if err!=nil{
+		log.Infof("userBehavior===========err%+v",err)
+	}
 	log.Infof("userBehavior============================%+v",userBehavior)
-	if err==nil{
-		for _,v:= range userBehavior.Data{
-			mateID:=v.ID
-			berhaviorMap[mateID]=1
-		}
+
+	for _,v:= range userBehavior.Data{
+		mateID:=v.ID
+		berhaviorMap[mateID]=1
 	}
 	log.Infof("berhaviorMap============================%+v",berhaviorMap)
 	//获取用户信息，在线用户信息
@@ -126,12 +130,14 @@ func DoBuildData(ctx algo.IContext) error {
 		categType := int64(4)
 		var onlineBaseCateg redis.TextTypeCategText
 		onlineBaseCateg, err = mateCategCache.QueryMateUserCategTextList(baseTextType, categType)
-		if err == nil {
-			for k,_:=range userAffectImageMap {
-				if k==0 {
-					//只选择一个
-					onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, baseTextType, 4, k)
-				}
+		if err!=nil{
+			log.Infof("onlineBaseCateg===========err%+v",err)
+		}
+
+		for k,_:=range userAffectImageMap {
+			if k==0 {
+				//只选择一个
+				onlineBaseCategText = GetCategSentenceData(onlineBaseCateg.TextLine, baseTextType, 4, k)
 			}
 		}
 	}
@@ -177,9 +183,11 @@ func DoBuildData(ctx algo.IContext) error {
 		if len(categMap) > 0 {
 			for categId, userId := range categMap {
 				olineCateg, err = mateCategCache.QueryMateUserCategTextList(categTextType, categId)
-				if err == nil {
-					onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType,categId,userId)
+				if err!=nil{
+					log.Infof("olineCateg===========err%+v",err)
 				}
+				onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType,categId,userId)
+
 			}
 		}
 	}
