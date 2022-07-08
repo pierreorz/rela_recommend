@@ -264,7 +264,7 @@ func DoBuildData(ctx algo.IContext) error {
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(dataIds)
 		ctx.SetDataList(dataList)
-
+		log.Infof("DataList===========%+v",dataList)
 		return len(dataList)
 	})
 	return err
