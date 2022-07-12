@@ -1158,11 +1158,15 @@ func AddRecommendReasonFunc(ctx algo.IContext) error {
 		if moms!=nil{
 			lat :=moms.Lat
 			lng :=moms.Lng
-			if rutils.EarthDistance(float64(params.Lng), float64(params.Lat), lng, lat)<=50000{
+			if rutils.EarthDistance(float64(params.Lng), float64(params.Lat), lng, lat)<=30000{//少于30km即为附近的人标签
 				rankInfo.AddRecommendWithType("nearby",1,algo.TypeNearby)
 			}
 		}
-
+		if dataInfo.ItemOfflineBehavior!=nil{
+			if GetMomentLikeNum(dataInfo.ItemOfflineBehavior.PageMap,"moment.around:like","moment.recommend:like","moment.friend:like")>100{
+				rankInfo.AddRecommendWithType("hot",1,algo.TypeHot)
+			}
+		}
 		//if {
 		//	rankInfo.AddRecommendWithType("hot",1,algo.TypeHot)
 		//}//判断是否热门
@@ -1174,6 +1178,16 @@ func getFeedRecExposure(pageMap map[string]int) int{
 	result :=0
 	if count,ok :=pageMap[FeedRecPage];ok{
 		result = count
+	}
+	return result
+}
+
+func GetMomentLikeNum(pageMap map[string]int,names ...string) int{
+	result :=0
+	for _, name := range names {
+		if count,ok :=pageMap[name];ok{
+			result+=count
+		}
 	}
 	return result
 }

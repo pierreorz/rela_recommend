@@ -84,6 +84,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"mom_content_weight":    &strategy.BaseRichStrategy{StrategyFunc: MomentContentStrategy},
 	"willson_suppress":      &strategy.BaseRichStrategy{StrategyFunc: HotMomentSuppressStrategyFunc},
 	"icp_activity":          &strategy.BaseRichStrategy{StrategyFunc: increaseEventExpose},
+	"add_reason":            &strategy.BaseRichStrategy{StrategyFunc: AddRecommendReasonFunc},
 }
 
 // 精排算法
