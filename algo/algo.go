@@ -64,8 +64,8 @@ func (self *AlgoBase) doPredictSingle(ctx IContext, index int) {
 	}else{
 		rankInfo.AlgoScore=self.PredictSingle(rankInfo.Features)
 		rankInfo.Score = rankInfo.AlgoScore
+		rankInfo.AlgoName = self.Name()
 	}
-	rankInfo.AlgoName = self.Name()
 }
 
 // 使用简单计算
