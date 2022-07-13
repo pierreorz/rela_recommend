@@ -454,6 +454,10 @@ func DoBuildData(ctx algo.IContext) error {
 					if momUser.Status == 0 || momUser.Status == 5 {
 						continue
 					}
+					if momUser.IsPrivate==1{//私密用户的日志过滤
+
+						continue
+					}
 				}
 
 				// 处理置顶
