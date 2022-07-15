@@ -27,25 +27,25 @@ var allReasonTypes = map[ReasonType]clientReason{
 	TypeYouMayLike: {
 		Type: TypeYouMayLike,
 		Text: &MultiLanguage{
-			Cht: "你可能感兴趣",
+			Chs: "你可能感兴趣",
 		},
 	},
 	TypeHot: {
 		Type: TypeHot,
 		Text: &MultiLanguage{
-			Cht: "热门推荐",
+			Chs: "热门推荐",
 		},
 	},
 	TypeYouFollow: {
 		Type: TypeYouFollow,
 		Text: &MultiLanguage{
-			Cht: "你的关注",
+			Chs: "你的关注",
 		},
 	},
 	TypeNearby: {
 		Type: TypeNearby,
 		Text: &MultiLanguage{
-			Cht: "在你附近",
+			Chs: "在你附近",
 		},
 	},
 }
