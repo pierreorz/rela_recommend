@@ -35,7 +35,7 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 		return pretendCacheErr
 	})
-
+	log.Infof("pretendList=============%+v",pretendList)
 	//获取假装情侣在线用户id
 	var onlineUserList []int64
 	for _, v := range pretendList {
@@ -44,6 +44,7 @@ func DoBuildData(ctx algo.IContext) error {
 			onlineUserList = append(onlineUserList, userId)
 		}
 	}
+	log.Infof("onlineUserList=============%+v",onlineUserList)
 	if params.Limit == 0 {
 		params.Limit = abtest.GetInt64("default_limit", 50)
 	}
