@@ -8,6 +8,7 @@ import (
 	"rela_recommend/utils"
 	"rela_recommend/utils/request"
 	"rela_recommend/utils/routers"
+	"runtime/debug"
 	"strings"
 )
 
@@ -35,6 +36,7 @@ func DoWithRoutersContext(c *routers.Context, appName, typeName string) (*algo.R
 		}
 	}
 	if err != nil {
+		log.Errorf("utils.panic---path:%s, err:%+v, statck:%s---", c.Request.URL.Path,err, string(debug.Stack()))
 		log.Error(err.Error())
 	}
 	return ctx.GetResponse(), err
