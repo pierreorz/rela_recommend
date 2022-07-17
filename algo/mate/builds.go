@@ -30,7 +30,7 @@ func DoBuildData(ctx algo.IContext) error {
 	pf.Run("pretendUser", func(*performs.Performs) interface{} {
 		var pretendCacheErr error
 		awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
-		if pretendList, pretendCacheErr := awsCache.QueryPretendLoveList(); pretendCacheErr != nil {
+		if pretendList, pretendCacheErr := awsCache.QueryPretendLoveList(); pretendCacheErr == nil {
 			log.Infof("pretendList=============%+v",pretendList)
 			return len(pretendList)
 		}
@@ -55,7 +55,7 @@ func DoBuildData(ctx algo.IContext) error {
 	//userBehavior,err = mateCategCache.QueryMatebehaviorMap(params.UserId)
 	pf.Run("requser", func(*performs.Performs) interface{} {
 		var requserCacheErr error
-		if userBehavior, requserCacheErr = mateCategCache.QueryMatebehaviorMap(params.UserId); requserCacheErr != nil {
+		if userBehavior, requserCacheErr = mateCategCache.QueryMatebehaviorMap(params.UserId); requserCacheErr == nil {
 			return len(userBehavior.Data)
 		}
 		return requserCacheErr
@@ -71,7 +71,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var onlineUserMap map[int64]*redis.UserProfile
 	pf.Run("user", func(*performs.Performs) interface{} {
 		var userCacheErr error
-		if user, onlineUserMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, onlineUserList); userCacheErr != nil {
+		if user, onlineUserMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, onlineUserList); userCacheErr == nil {
 			return rutils.GetInt(user != nil)
 		}
 		return userCacheErr
@@ -145,7 +145,7 @@ func DoBuildData(ctx algo.IContext) error {
 		//获取情感文案
 		pf.Run("affection", func(*performs.Performs) interface{} {
 			var affectCacheErr error
-			if onlineBaseCateg, affectCacheErr = mateCategCache.QueryMateUserCategTextList(baseTextType, categType); affectCacheErr != nil {
+			if onlineBaseCateg, affectCacheErr = mateCategCache.QueryMateUserCategTextList(baseTextType, categType); affectCacheErr == nil {
 				return len(onlineBaseCateg.TextLine)
 			}
 			return affectCacheErr
@@ -201,7 +201,7 @@ func DoBuildData(ctx algo.IContext) error {
 			pf.Run("categ", func(*performs.Performs) interface{} {
 				var categCacheErr error
 				for categId, userId := range categMap {
-					if olineCateg, categCacheErr = mateCategCache.QueryMateUserCategTextList(categTextType, categId);categCacheErr != nil  {
+					if olineCateg, categCacheErr = mateCategCache.QueryMateUserCategTextList(categTextType, categId);categCacheErr == nil  {
 						onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType, categId, userId)
 						return len(onlineCategText)
 					}
