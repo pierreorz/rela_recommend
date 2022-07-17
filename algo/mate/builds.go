@@ -23,18 +23,16 @@ func DoBuildData(ctx algo.IContext) error {
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
-
-
 	//获取假装情侣在线缓存数据
 	var pretendList []redis.PretendLoveUser
 	pf.Run("pretendUser", func(*performs.Performs) interface{} {
-		var pretendCacheErr error
 		awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
 		if pretendList, pretendCacheErr := awsCache.QueryPretendLoveList(); pretendCacheErr == nil {
 			log.Infof("pretendList=============%+v",pretendList)
 			return len(pretendList)
+		}else {
+			return pretendCacheErr
 		}
-		return pretendCacheErr
 	})
 	log.Infof("pretendList=============%+v",pretendList)
 	//获取假装情侣在线用户id
@@ -57,8 +55,9 @@ func DoBuildData(ctx algo.IContext) error {
 		var requserCacheErr error
 		if userBehavior, requserCacheErr = mateCategCache.QueryMatebehaviorMap(params.UserId); requserCacheErr == nil {
 			return len(userBehavior.Data)
+		}else{
+			return requserCacheErr
 		}
-		return requserCacheErr
 	})
 	//解析获取实施行为
 	for _,v:= range userBehavior.Data{
@@ -73,8 +72,9 @@ func DoBuildData(ctx algo.IContext) error {
 		var userCacheErr error
 		if user, onlineUserMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, onlineUserList); userCacheErr == nil {
 			return rutils.GetInt(user != nil)
+		}else{
+			return userCacheErr
 		}
-		return userCacheErr
 	})
 	//获取距离文案(增加了用户头像)
 	var distanceMap = map[int64]float64{}
@@ -147,8 +147,9 @@ func DoBuildData(ctx algo.IContext) error {
 			var affectCacheErr error
 			if onlineBaseCateg, affectCacheErr = mateCategCache.QueryMateUserCategTextList(baseTextType, categType); affectCacheErr == nil {
 				return len(onlineBaseCateg.TextLine)
+			}else{
+				return affectCacheErr
 			}
-			return affectCacheErr
 		})
 		for k,_:=range userAffectImageMap {
 			if k==0 {
@@ -201,12 +202,14 @@ func DoBuildData(ctx algo.IContext) error {
 			pf.Run("categ", func(*performs.Performs) interface{} {
 				var categCacheErr error
 				for categId, userId := range categMap {
-					if olineCateg, categCacheErr = mateCategCache.QueryMateUserCategTextList(categTextType, categId);categCacheErr == nil  {
+					if olineCateg, categCacheErr = mateCategCache.QueryMateUserCategTextList(categTextType, categId); categCacheErr == nil {
 						onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType, categId, userId)
 						return len(onlineCategText)
+					} else {
+						return categCacheErr
 					}
 				}
-				return categCacheErr
+				return len(onlineCategText)
 			})
 		}
 	}
