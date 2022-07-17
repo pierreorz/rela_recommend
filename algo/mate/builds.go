@@ -27,8 +27,9 @@ func DoBuildData(ctx algo.IContext) error {
 	var pretendList []redis.PretendLoveUser
 	pf.Run("pretendUser", func(*performs.Performs) interface{} {
 		awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
-		if pretendList, pretendCacheErr := awsCache.QueryPretendLoveList(); pretendCacheErr == nil {
+		if pretend, pretendCacheErr := awsCache.QueryPretendLoveList(); pretendCacheErr == nil {
 			log.Infof("pretendList=============%+v",pretendList)
+			pretendList=append(pretendList, pretend...)
 			return len(pretendList)
 		}else {
 			return pretendCacheErr
