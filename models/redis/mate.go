@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"rela_recommend/cache"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/service/abtest"
 	"strings"
 )
@@ -78,7 +79,7 @@ func (self *PretendLoveUserModule) QueryPretendLoveList()  ([]PretendLoveUser,er
 				}
 			}
 		}
-		//log.Infof("pretend======%+v",users)
+		log.Infof("pretend======%+v",users)
 		return users, err
 	}
 	return users, err

@@ -31,6 +31,7 @@ func DoBuildData(ctx algo.IContext) error {
 		var pretendCacheErr error
 		awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
 		if pretendList, pretendCacheErr := awsCache.QueryPretendLoveList(); pretendCacheErr != nil {
+			log.Infof("pretendList=============%+v",pretendList)
 			return len(pretendList)
 		}
 		return pretendCacheErr
