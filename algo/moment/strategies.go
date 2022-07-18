@@ -1171,7 +1171,6 @@ func AddRecommendReasonFunc(ctx algo.IContext) error {
 		//	rankInfo.AddRecommendWithType("hot",1,algo.TypeHot)
 		//}//判断是否热门
 	}
-	log.Warnf("rankinfo recommend reason %s",r)
 	return nil
 }
 
