@@ -28,14 +28,13 @@ func DoBuildData(ctx algo.IContext) error {
 	pf.Run("pretendUser", func(*performs.Performs) interface{} {
 		awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
 		if pretend, pretendCacheErr := awsCache.QueryPretendLoveList(); pretendCacheErr == nil {
-			log.Infof("pretendList=============%+v",pretendList)
 			pretendList=append(pretendList, pretend...)
 			return len(pretendList)
 		}else {
 			return pretendCacheErr
 		}
 	})
-	log.Infof("pretendList=============%+v",pretendList)
+	//log.Infof("pretendList=============%+v",pretendList)
 	//获取假装情侣在线用户id
 	var onlineUserList []int64
 	for _, v := range pretendList {
@@ -44,7 +43,7 @@ func DoBuildData(ctx algo.IContext) error {
 			onlineUserList = append(onlineUserList, userId)
 		}
 	}
-	log.Infof("onlineUserList=============%+v",onlineUserList)
+	//log.Infof("onlineUserList=============%+v",onlineUserList)
 	if params.Limit == 0 {
 		params.Limit = abtest.GetInt64("default_limit", 50)
 	}
@@ -65,7 +64,7 @@ func DoBuildData(ctx algo.IContext) error {
 		mateID:=v.ID
 		berhaviorMap[mateID]=1
 	}
-	log.Infof("berhaviorMap============================%+v",berhaviorMap)
+	//log.Infof("berhaviorMap============================%+v",berhaviorMap)
 	//获取用户信息，在线用户信息
 	var user *redis.UserProfile
 	var onlineUserMap map[int64]*redis.UserProfile
@@ -231,11 +230,11 @@ func DoBuildData(ctx algo.IContext) error {
 	var searchImageResult []search.MateTextResDataItem
 	searchImageResult=GetSearchIamge(searchResList)
 
-	log.Infof("searchImageResult=============%+v", searchImageResult)
-	log.Infof("onlineBaseCategText=============%+v", onlineBaseCategText)
-	log.Infof("onlineUserBaseSentenceList=============%+v", onlineUserBaseSentenceList)
-	log.Infof("onlineCategText=============%+v", onlineCategText)
-	log.Infof("distanceText=============%+v", distanceText)
+	//log.Infof("searchImageResult=============%+v", searchImageResult)
+	//log.Infof("onlineBaseCategText=============%+v", onlineBaseCategText)
+	//log.Infof("onlineUserBaseSentenceList=============%+v", onlineUserBaseSentenceList)
+	//log.Infof("onlineCategText=============%+v", onlineCategText)
+	//log.Infof("distanceText=============%+v", distanceText)
 	//合并文案数据
 	var allSentenceList []search.MateTextResDataItem
 	if onlineUserBaseSentenceList != nil {
