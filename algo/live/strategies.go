@@ -118,13 +118,81 @@ func (self *NewLiveStrategy) oldScore(live *LiveInfo) float32 {
 // 对于上个小时榜前3名进行随机制前
 func HourRankRecommendFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
+	var startIndex = 5
+	var intervar = 0
+	params := ctx.GetRequest()
 	topN := abtest.GetInt("per_hour_rank_top_n", 3) // 前n名随机， 分数相同的并列，有可能返回1,2,2,3
 	indexs := []int{}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+		userInfo := ctx.GetUserInfo().(*UserInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		label :=0
 		if dataInfo.LiveData != nil && dataInfo.LiveData.PreHourRank > 0 && dataInfo.LiveData.PreHourRank <= topN {
 			indexs = append(indexs, index)
+			label =1
+			//continue //有上小时top3标签即不添加其他标签
 		}
+		if dataInfo.LiveCache.IsShowAdd == 1 {
+			distance := rutils.EarthDistance(float64(params.Lng), float64(params.Lat), float64(dataInfo.LiveCache.Lng), float64(dataInfo.LiveCache.Lat))
+			switch {
+			case distance < 30000:
+				dataInfo.LiveData.AddLabel(&labelItem{
+					Style: AroundLabel,
+					Title: multiLanguage{
+						Chs: "在你附近",
+						Cht: "在你附近",
+						En:  "NEAR YOU",
+					},
+					weight: AroundWeight,
+					level:  level1,
+				})
+			case distance >= 30000 && distance < 50000:
+				dataInfo.LiveData.AddLabel(&labelItem{
+					Style: CityLabel,
+					Title: multiLanguage{
+						Chs: "同城",
+						Cht: "同城",
+						En:  "THE SAME CITY",
+					},
+					weight: CityWeight,
+					level:  level1,
+				})
+			}
+		}
+		if userInfo.UserConcerns != nil {
+			if userInfo.UserConcerns.Contains(dataInfo.UserId) {
+				dataInfo.LiveData.AddLabel(&labelItem{
+					Style: FollowLabel,
+					Title: multiLanguage{
+						Chs: "你的关注",
+						Cht: "你的关注",
+						En:  "YOUR FOLLOW",
+					},
+					weight: FollowLabelWeight,
+					level:  level1,
+				})
+			}
+		}
+		if userInfo.UserInterests != nil {
+			if userInfo.UserInterests.Contains(dataInfo.UserId) {
+				dataInfo.LiveData.AddLabel(&labelItem{
+					Style: StrategyLabel,
+					Title: multiLanguage{
+						Chs: "猜你喜欢",
+						Cht: "猜你喜歡",
+						En:  "GUESS YOU LIKE",
+					},
+					weight: StrategyLabelWeight,
+					level:  level1,
+				})
+				if label==0{
+					rankInfo.HopeIndex = startIndex + intervar*7
+					intervar += 1
+				}
+			}
+		}
+
 	}
 	if len(indexs) > 0 {
 		i := rand.Intn(len(indexs))
