@@ -10,11 +10,12 @@ import (
 )
 
 const (
-	TypeEmpty = iota // 推荐理由等级，默认情况下值越小越优先展示
-	TypeYouFollow
+	TypeYouFollow =iota
 	TypeNearby
 	TypeHot
 	TypeYouMayLike
+	TypeEmpty  // 推荐理由等级，默认情况下值越小越优先展示
+
 )
 
 type ReasonType int8
