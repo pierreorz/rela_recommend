@@ -127,9 +127,11 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 		userInfo := ctx.GetUserInfo().(*UserInfo)
 		rankInfo := dataInfo.GetRankInfo()
+		label :=0
 		if dataInfo.LiveData != nil && dataInfo.LiveData.PreHourRank > 0 && dataInfo.LiveData.PreHourRank <= topN {
 			indexs = append(indexs, index)
-			continue //有上小时top3标签即不添加其他标签
+			label =1
+			//continue //有上小时top3标签即不添加其他标签
 		}
 		if dataInfo.LiveCache.IsShowAdd == 1 {
 			distance := rutils.EarthDistance(float64(params.Lng), float64(params.Lat), float64(dataInfo.LiveCache.Lng), float64(dataInfo.LiveCache.Lat))
@@ -174,7 +176,6 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 		}
 		if userInfo.UserInterests != nil {
 			if userInfo.UserInterests.Contains(dataInfo.UserId) {
-				rankInfo.HopeIndex = startIndex + intervar*7
 				dataInfo.LiveData.AddLabel(&labelItem{
 					Style: StrategyLabel,
 					Title: multiLanguage{
@@ -185,7 +186,10 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					weight: StrategyLabelWeight,
 					level:  level1,
 				})
-				intervar += 1
+				if label==0{
+					rankInfo.HopeIndex = startIndex + intervar*7
+					intervar += 1
+				}
 			}
 		}
 
