@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
+	rutils "rela_recommend/utils"
 	"rela_recommend/algo/utils"
 	"rela_recommend/log"
 	"rela_recommend/models/behavior"
@@ -1145,11 +1146,48 @@ func GenerateRangeNum(min, max int) int {
 	return randNum
 }
 
+func AddRecommendReasonFunc(ctx algo.IContext) error {
+	params := ctx.GetRequest()
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		moms :=dataInfo.MomentExtendCache
+		if rankInfo.IsBussiness==1{
+			rankInfo.AddRecommendWithType("follow",1,algo.TypeYouFollow)
+		}
+		if moms!=nil{
+			lat :=moms.Lat
+			lng :=moms.Lng
+			if rutils.EarthDistance(float64(params.Lng), float64(params.Lat), lng, lat)<=30000{//少于30km即为附近的人标签
+				rankInfo.AddRecommendWithType("nearby",1,algo.TypeNearby)
+			}
+		}
+		if dataInfo.ItemOfflineBehavior!=nil{
+			if GetMomentLikeNum(dataInfo.ItemOfflineBehavior.PageMap,"moment.recommend:like","moment.friend:like")>100{
+				rankInfo.AddRecommendWithType("hot",1,algo.TypeHot)
+			}
+		}
+		//if {
+		//	rankInfo.AddRecommendWithType("hot",1,algo.TypeHot)
+		//}//判断是否热门
+	}
+	return nil
+}
 
 func getFeedRecExposure(pageMap map[string]int) int{
 	result :=0
 	if count,ok :=pageMap[FeedRecPage];ok{
 		result = count
+	}
+	return result
+}
+
+func GetMomentLikeNum(pageMap map[string]int,names ...string) int{
+	result :=0
+	for _, name := range names {
+		if count,ok :=pageMap[name];ok{
+			result+=count
+		}
 	}
 	return result
 }

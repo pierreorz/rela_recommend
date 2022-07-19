@@ -28,6 +28,9 @@ func DoBuildData(ctx algo.IContext) error {
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
+	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, &factory.CacheRds)
+
+
 	// search list
 	custom := abtest.GetString("custom_sort_type", "ai")
 	dataIdList := params.DataIds
@@ -43,6 +46,7 @@ func DoBuildData(ctx algo.IContext) error {
 	paiRecallList :=make([]int64,0)
 	liveMomentIds := make([]int64, 0)
 	paiResult :=make(map[int64]float64,0)
+	var concernsSet = &utils.SetInt64{}
 	var recIds, topMap, recMap, bussinessMap = []int64{}, map[int64]int{}, map[int64]int{}, map[int64]int{}
 	var liveMap = map[int64]int{}
 	var expId = ""
@@ -372,6 +376,17 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			return userErr
 		},
+		"concerns": func(*performs.Performs) interface{} { // 获取关注信息
+			if abtest.GetBool("live_user_concerns", true) {
+				if concerns, conErr := redisTheCache.QueryConcernsByUserV1(params.UserId); conErr == nil {
+					concernsSet = utils.NewSetInt64FromArray(concerns)
+					return concernsSet.Len()
+				} else {
+					return conErr
+				}
+			}
+			return nil
+		},
 		"profile": func(*performs.Performs) interface{} { // 获取用户信息
 			var embeddingCacheErr error
 			momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr = userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId, userIds)
@@ -454,6 +469,10 @@ func DoBuildData(ctx algo.IContext) error {
 					if momUser.Status == 0 || momUser.Status == 5 {
 						continue
 					}
+					if momUser.IsPrivate==1{//私密用户的日志过滤
+
+						continue
+					}
 				}
 
 				// 处理置顶
@@ -472,7 +491,7 @@ func DoBuildData(ctx algo.IContext) error {
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
 					if topTypeRes == "RECOMMEND" {
-						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true,ClientReason:algo.TypeEmpty})
 					}
 
 				}
@@ -502,14 +521,17 @@ func DoBuildData(ctx algo.IContext) error {
 						isBussiness = 1
 					}
 				}
+				if concernsSet.Contains(mom.Moments.UserId){
+					isBussiness=1
+				}
 				if recMap != nil {
 					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
-						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true,ClientReason:algo.TypeEmpty})
 					}
 				}
 				if hotIdMap != nil {
 					if isRecommend := hotIdMap.Contains(mom.Moments.Id); isRecommend {
-						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true})
+						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true,ClientReason:algo.TypeEmpty})
 					}
 				}
 				var score=0.0
