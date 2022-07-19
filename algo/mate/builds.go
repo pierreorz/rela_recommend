@@ -23,19 +23,18 @@ func DoBuildData(ctx algo.IContext) error {
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
-
-
 	//获取假装情侣在线缓存数据
 	var pretendList []redis.PretendLoveUser
 	pf.Run("pretendUser", func(*performs.Performs) interface{} {
-		var pretendCacheErr error
 		awsCache := redis.NewMateCacheModule(&factory.CacheCluster, &factory.AwsCluster)
-		if pretendList, pretendCacheErr := awsCache.QueryPretendLoveList(); pretendCacheErr != nil {
+		if pretend, pretendCacheErr := awsCache.QueryPretendLoveList(); pretendCacheErr == nil {
+			pretendList=append(pretendList, pretend...)
 			return len(pretendList)
+		}else {
+			return pretendCacheErr
 		}
-		return pretendCacheErr
 	})
-
+	//log.Infof("pretendList=============%+v",pretendList)
 	//获取假装情侣在线用户id
 	var onlineUserList []int64
 	for _, v := range pretendList {
@@ -44,6 +43,7 @@ func DoBuildData(ctx algo.IContext) error {
 			onlineUserList = append(onlineUserList, userId)
 		}
 	}
+	//log.Infof("onlineUserList=============%+v",onlineUserList)
 	if params.Limit == 0 {
 		params.Limit = abtest.GetInt64("default_limit", 50)
 	}
@@ -53,26 +53,28 @@ func DoBuildData(ctx algo.IContext) error {
 	//userBehavior,err = mateCategCache.QueryMatebehaviorMap(params.UserId)
 	pf.Run("requser", func(*performs.Performs) interface{} {
 		var requserCacheErr error
-		if userBehavior, requserCacheErr = mateCategCache.QueryMatebehaviorMap(params.UserId); requserCacheErr != nil {
+		if userBehavior, requserCacheErr = mateCategCache.QueryMatebehaviorMap(params.UserId); requserCacheErr == nil {
 			return len(userBehavior.Data)
+		}else{
+			return requserCacheErr
 		}
-		return requserCacheErr
 	})
 	//解析获取实施行为
 	for _,v:= range userBehavior.Data{
 		mateID:=v.ID
 		berhaviorMap[mateID]=1
 	}
-	log.Infof("berhaviorMap============================%+v",berhaviorMap)
+	//log.Infof("berhaviorMap============================%+v",berhaviorMap)
 	//获取用户信息，在线用户信息
 	var user *redis.UserProfile
 	var onlineUserMap map[int64]*redis.UserProfile
 	pf.Run("user", func(*performs.Performs) interface{} {
 		var userCacheErr error
-		if user, onlineUserMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, onlineUserList); userCacheErr != nil {
+		if user, onlineUserMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, onlineUserList); userCacheErr == nil {
 			return rutils.GetInt(user != nil)
+		}else{
+			return userCacheErr
 		}
-		return userCacheErr
 	})
 	//获取距离文案(增加了用户头像)
 	var distanceMap = map[int64]float64{}
@@ -143,10 +145,11 @@ func DoBuildData(ctx algo.IContext) error {
 		//获取情感文案
 		pf.Run("affection", func(*performs.Performs) interface{} {
 			var affectCacheErr error
-			if onlineBaseCateg, affectCacheErr = mateCategCache.QueryMateUserCategTextList(baseTextType, categType); affectCacheErr != nil {
+			if onlineBaseCateg, affectCacheErr = mateCategCache.QueryMateUserCategTextList(baseTextType, categType); affectCacheErr == nil {
 				return len(onlineBaseCateg.TextLine)
+			}else{
+				return affectCacheErr
 			}
-			return affectCacheErr
 		})
 		for k,_:=range userAffectImageMap {
 			if k==0 {
@@ -199,12 +202,14 @@ func DoBuildData(ctx algo.IContext) error {
 			pf.Run("categ", func(*performs.Performs) interface{} {
 				var categCacheErr error
 				for categId, userId := range categMap {
-					if olineCateg, categCacheErr = mateCategCache.QueryMateUserCategTextList(categTextType, categId);categCacheErr != nil  {
+					if olineCateg, categCacheErr = mateCategCache.QueryMateUserCategTextList(categTextType, categId); categCacheErr == nil {
 						onlineCategText = GetCategSentenceData(olineCateg.TextLine, categTextType, categId, userId)
 						return len(onlineCategText)
+					} else {
+						return categCacheErr
 					}
 				}
-				return categCacheErr
+				return len(onlineCategText)
 			})
 		}
 	}
@@ -225,11 +230,11 @@ func DoBuildData(ctx algo.IContext) error {
 	var searchImageResult []search.MateTextResDataItem
 	searchImageResult=GetSearchIamge(searchResList)
 
-	log.Infof("searchImageResult=============%+v", searchImageResult)
-	log.Infof("onlineBaseCategText=============%+v", onlineBaseCategText)
-	log.Infof("onlineUserBaseSentenceList=============%+v", onlineUserBaseSentenceList)
-	log.Infof("onlineCategText=============%+v", onlineCategText)
-	log.Infof("distanceText=============%+v", distanceText)
+	//log.Infof("searchImageResult=============%+v", searchImageResult)
+	//log.Infof("onlineBaseCategText=============%+v", onlineBaseCategText)
+	//log.Infof("onlineUserBaseSentenceList=============%+v", onlineUserBaseSentenceList)
+	//log.Infof("onlineCategText=============%+v", onlineCategText)
+	//log.Infof("distanceText=============%+v", distanceText)
 	//合并文案数据
 	var allSentenceList []search.MateTextResDataItem
 	if onlineUserBaseSentenceList != nil {
