@@ -140,33 +140,31 @@ func (self *MomentCacheModule) GetThemeRelpyListOrDefault(id int64, defaultId in
 }
 
 
-func (this *ThemeUserProfileModule)QueryMatThemeProfileData(userId []int64) map[int64]float64 {
+func (this *ThemeUserProfileModule)QueryMatThemeProfileData(userId []int64) map[int64][]int64 {
 	userProfileUserIds := userId
 	var themeProfileMap = map[int64]*ThemeUserProfile{}
 	var themeUserCacheErr error
-	userThemeMap := map[int64]float64{}
+	 userThemeMap :=make(map[int64][]int64)
 	themeProfileMap, themeUserCacheErr = this.QueryThemeUserProfileMap(userProfileUserIds)
+	var userList []int64
 	if themeUserCacheErr == nil {
-		for _,profile := range themeProfileMap{
+		for userId,profile := range themeProfileMap{
 			if profile!=nil{
+				userList=append(userList,userId)
 				tagMap:=profile.AiTag
 				themeTagLongMap:=tagMap.UserShortTag
 				themeTagShortMap:=tagMap.UserShortTag
 				if len(themeTagLongMap) > 0 {
 					for k, _ := range themeTagLongMap {
 						if _, ok := userThemeMap[k]; ok {
-							userThemeMap[k] += 1.0
-						} else {
-							userThemeMap[k] = 1.0
+							userThemeMap[k]=userList
 						}
 					}
 				}
 				if len(themeTagShortMap) > 0 {
 					for k, _ := range themeTagShortMap {
 						if _, ok := userThemeMap[k]; ok {
-							userThemeMap[k] += 1
-						} else {
-							userThemeMap[k] = 1
+							userThemeMap[k]=userList
 						}
 					}
 				}

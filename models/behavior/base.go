@@ -407,19 +407,21 @@ func (self *BehaviorCacheModule) QueryDataBehaviorTop(module string) (*DataBehav
 	}
 }
 
-func (self *BehaviorCacheModule)QueryMateMomUserData (userId []int64) map[int64]float64 {
+func (self *BehaviorCacheModule)QueryMateMomUserData (userId []int64) map[int64][]int64 {
 	userProfileUserIds := userId
-	var userMomMap = map[int64]float64{}
+	userMomMap := make(map[int64][]int64)
 	realtimes, realtimeErr := self.QueryUserBehaviorMap("moment", userProfileUserIds)
+	var userList []int64
 	if realtimeErr == nil {
-		for _,momProfile:=range realtimes {
+		for userId,momProfile:=range realtimes {
 			if momProfile != nil {
+				userList=append(userList,userId)
 				countMap := momProfile.BehaviorMap["moment.recommend:exposure"]
 				if countMap != nil {
 					tagMap := countMap.CountMap
 					if tagMap!=nil{
 						for _,v:=range tagMap{
-							userMomMap[v.Id] = 1.0
+							userMomMap[v.Id] = userList
 						}
 					}
 				}
