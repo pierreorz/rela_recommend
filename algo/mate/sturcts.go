@@ -103,8 +103,8 @@ func GetRandomImage()[]string{
 	youSecond:=timeSecond+randomNum
 	myIndex:=timeSecond%6
 	matchIndex:=youSecond%6
-	randomImageList=append(randomImageList,imageList[myIndex])
 	randomImageList=append(randomImageList,imageList[matchIndex])
+	randomImageList=append(randomImageList,imageList[myIndex])
 	return randomImageList
 }
 
