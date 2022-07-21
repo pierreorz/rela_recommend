@@ -35,8 +35,8 @@ var allReasonTypes = map[ReasonType]clientReason{
 	TypeHot: {
 		Type: TypeHot,
 		Text: &MultiLanguage{
-			Chs: "热门推荐",
-			Cht: "熱門推薦",
+			Chs: "超多点赞",
+			Cht: "超多按贊",
 			En: "From trending posts",
 		},
 	},
