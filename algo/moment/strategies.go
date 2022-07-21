@@ -1163,7 +1163,7 @@ func AddRecommendReasonFunc(ctx algo.IContext) error {
 			}
 		}
 		if dataInfo.ItemOfflineBehavior!=nil{
-			if GetMomentLikeNum(dataInfo.ItemOfflineBehavior.PageMap,"moment.recommend:like","moment.friend:like")>100{
+			if GetMomentLikeNum(dataInfo.ItemOfflineBehavior.PageMap,"moment.recommend:like","moment.friend:like")>300{
 				rankInfo.AddRecommendWithType("hot",1,algo.TypeHot)
 			}
 		}
