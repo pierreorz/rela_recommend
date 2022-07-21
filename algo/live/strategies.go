@@ -137,6 +137,11 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 			distance := rutils.EarthDistance(float64(params.Lng), float64(params.Lat), float64(dataInfo.LiveCache.Lng), float64(dataInfo.LiveCache.Lat))
 			switch {
 			case distance < 30000:
+				if label==0{
+					rankInfo.HopeIndex = startIndex + intervar*5
+					intervar += 1
+					label =1
+				}
 				dataInfo.LiveData.AddLabel(&labelItem{
 					Style: AroundLabel,
 					Title: multiLanguage{
@@ -148,6 +153,11 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					level:  level1,
 				})
 			case distance >= 30000 && distance < 50000:
+				if label==0{
+					rankInfo.HopeIndex = startIndex + intervar*5
+					intervar += 1
+					label =1
+				}
 				dataInfo.LiveData.AddLabel(&labelItem{
 					Style: CityLabel,
 					Title: multiLanguage{
@@ -187,7 +197,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					level:  level1,
 				})
 				if label==0{
-					rankInfo.HopeIndex = startIndex + intervar*7
+					rankInfo.HopeIndex = startIndex + intervar*5
 					intervar += 1
 				}
 			}
