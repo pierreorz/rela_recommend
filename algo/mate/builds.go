@@ -66,7 +66,7 @@ func DoBuildData(ctx algo.IContext) error {
 		messageBehavior = userMessageBehavior[params.UserId]
 		if messageBehavior !=nil{
 			//获取用户广告的行为
-			if messageBehavior.GetAdFeedListExposure().Count > 0 {
+			if messageBehavior.GetMateListExposure().Count > 0 {
 				messageList := messageBehavior.GetAdFeedListExposure().LastList
 				if len(messageList) > 1 {
 					for index := 0; index < len(messageList); index++{
