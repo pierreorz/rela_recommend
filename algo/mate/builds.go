@@ -64,6 +64,7 @@ func DoBuildData(ctx algo.IContext) error {
 	userMessageBehavior, realtimeErr := behaviorCache.QueryUserBehaviorMap("message", []int64{params.UserId})
 	if realtimeErr == nil {
 		messageBehavior = userMessageBehavior[params.UserId]
+		log.Infof("messageBehavior============================%+v",messageBehavior)
 		if messageBehavior !=nil{
 			//获取用户广告的行为
 			if messageBehavior.GetMateListExposure().Count > 0 {
