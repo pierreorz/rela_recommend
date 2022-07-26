@@ -9,6 +9,55 @@ import (
 	"sort"
 )
 
+const (
+	TypeYouFollow =iota
+	TypeNearby
+	TypeHot
+	TypeYouMayLike
+	TypeEmpty  // 推荐理由等级，默认情况下值越小越优先展示
+
+)
+
+type ReasonType int8
+
+var allReasonTypes = map[ReasonType]clientReason{
+	TypeEmpty: {
+		Type: TypeEmpty,
+		Text: nil,
+	},
+	TypeYouMayLike: {
+		Type: TypeYouMayLike,
+		Text: &MultiLanguage{
+			Chs: "你可能感兴趣",
+
+		},
+	},
+	TypeHot: {
+		Type: TypeHot,
+		Text: &MultiLanguage{
+			Chs: "超多点赞",
+			Cht: "超多按贊",
+			En: "From trending posts",
+		},
+	},
+	TypeYouFollow: {
+		Type: TypeYouFollow,
+		Text: &MultiLanguage{
+			Chs: "你的关注",
+			Cht: "你的關注",
+			En: "From user you're following",
+		},
+	},
+	TypeNearby: {
+		Type: TypeNearby,
+		Text: &MultiLanguage{
+			Chs: "在你附近",
+			Cht: "在你附近",
+			En: "From nearby posts",
+		},
+	},
+}
+
 type AppInfo struct {
 	// app名称，用于标识app，读取app的abtest
 	Name string
@@ -51,7 +100,7 @@ type RecommendRequest struct {
 	// enum: moment,theme,user,live,match
 	App string `json:"app" form:"app"`
 
-	Addr  string  `json:"addr" form:"addr"`
+	Addr string `json:"addr" form:"addr"`
 	// 子功能名
 	//
 	// required: false
@@ -143,13 +192,13 @@ func (self *RecommendRequest) GetVersion() int {
 	return self.version
 }
 
-
 type RecommendResponseItem struct {
-	DataId int64       `json:"dataId" form:"dataId"`
-	Data   interface{} `json:"data" form:"data"`
-	Index  int         `json:"index" form:"index"`
-	Reason string      `json:"reason" form:"reason"`
-	Score  float32     `json:"score" form:"score"`
+	DataId         int64          `json:"dataId" form:"dataId"`
+	Data           interface{}    `json:"data" form:"data"`
+	Index          int            `json:"index" form:"index"`
+	Reason         string         `json:"reason" form:"reason"`
+	ReasonMultiple *MultiLanguage `json:"reason_multiple"`
+	Score          float32        `json:"score" form:"score"`
 }
 
 // 返回参数
@@ -163,32 +212,43 @@ type RecommendResponse struct {
 }
 
 type RecommendItem struct {
-	Reason     string  // 推荐理由
-	Score      float32 // 推荐分数
-	NeedReturn bool    // 是否返回给前端
+	Reason       string     // 推荐理由
+	Score        float32    // 推荐分数
+	NeedReturn   bool       // 是否返回给前端
+	ClientReason ReasonType // 客户端显示的推荐理由
 }
 
 type RankInfo struct {
-	Features   *utils.Features // 特征
-	IsTop      int             // 1: 置顶， 0: 默认， -1:置底
-	PagedIndex int             // 分页展示过的index
-	Level      int             // 推荐优先级
-	Recommends []RecommendItem // 推荐系数
-	Punish     float32         // 惩罚系数
-	AlgoName   string          // 算法名称
-	AlgoScore  float32         // 算法得分
-	PaiScore   float64          //Pai 算法得分
-	Score      float32         // 最终得分
-	Index      int             // 排在第几
-	LiveIndex  int             //热门直播日志的排序
-	TopLive    int             //是否是头部主播的直播日志
-	HopeIndex  int             // 期望排在第几，排序结束后调整
-	IsBussiness int           //是否是业务日志（用户关注日志、点击头像多次未看过日志）
-	IsSoftTop int     //是否软置顶日志   1:是  0：默认
-	ExpId     string    //Pai实验Id
-	RequestId string	//Pai请求id
-	OffTime   int       //超时标记位
+	Features    *utils.Features // 特征
+	IsTop       int             // 1: 置顶， 0: 默认， -1:置底
+	PagedIndex  int             // 分页展示过的index
+	Level       int             // 推荐优先级
+	Recommends  []RecommendItem // 推荐系数
+	Punish      float32         // 惩罚系数
+	AlgoName    string          // 算法名称
+	AlgoScore   float32         // 算法得分
+	PaiScore    float64         //Pai 算法得分
+	Score       float32         // 最终得分
+	Index       int             // 排在第几
+	LiveIndex   int             //热门直播日志的排序
+	TopLive     int             //是否是头部主播的直播日志
+	HopeIndex   int             // 期望排在第几，排序结束后调整
+	IsBussiness int             //是否是业务日志（用户关注日志、点击头像多次未看过日志）
+	IsSoftTop   int             //是否软置顶日志   1:是  0：默认
+	ExpId       string          //Pai实验Id
+	RequestId   string          //Pai请求id
+	OffTime     int             //超时标记位
+}
 
+type MultiLanguage struct {
+	Chs string `json:"chs"`
+	Cht string `json:"cht"`
+	En  string `json:"en"`
+}
+
+type clientReason struct {
+	Type int8           `json:"type"`
+	Text *MultiLanguage `json:"text"`
 }
 
 // 获取Features的字符串形式：1:1.0,1000:1.0,99:1.0
@@ -201,13 +261,39 @@ func (self *RankInfo) GetFeaturesString() string {
 }
 
 func (self *RankInfo) AddRecommend(reason string, score float32) {
-	item := RecommendItem{Reason: reason, Score: score, NeedReturn: false}
+	item := RecommendItem{Reason: reason, Score: score, NeedReturn: false,ClientReason:TypeEmpty}
+	self.Recommends = append(self.Recommends, item)
+}
+
+func (self *RankInfo) AddRecommendWithType(reason string, score float32, reasonType ReasonType) {
+	item := RecommendItem{Reason: reason, Score: score, NeedReturn: true, ClientReason: reasonType}
 	self.Recommends = append(self.Recommends, item)
 }
 
 func (self *RankInfo) AddRecommendNeedReturn(reason string, score float32) {
 	item := RecommendItem{Reason: reason, Score: score, NeedReturn: true}
 	self.Recommends = append(self.Recommends, item)
+}
+
+func (self *RankInfo) ClientReasonString() *MultiLanguage {
+	var reason *clientReason
+	for _, rd := range self.Recommends {
+		current, ok := allReasonTypes[rd.ClientReason]
+		if ok {
+			if reason == nil {
+				reason = &current
+			}
+			if reason.Type > current.Type {
+				reason = &current
+			}
+		}
+	}
+
+	if reason == nil {
+		return nil
+	}
+
+	return reason.Text
 }
 
 // 增加推荐理由，以,隔开：TOP,RECOMMEND
@@ -227,7 +313,7 @@ func (self *RankInfo) RecommendsString() string {
 // 将推荐理由转化为字符串, returnAll: 是否返回所有，false只返回客户端需要的内容
 func (self *RankInfo) getRecommendsString(returnAll bool, f func(string, float32) string) string {
 	var buffer bytes.Buffer
-	if self.IsTop > 0&&self.IsSoftTop!=1 {//置顶且非软置顶
+	if self.IsTop > 0 && self.IsSoftTop != 1 { //置顶且非软置顶
 		buffer.WriteString(f("TOP", 1))
 	} else if self.IsTop < 0 {
 		buffer.WriteString(f("BOTTOM", 1))
@@ -321,7 +407,7 @@ func Features2String(features []Feature) string {
 
 func FeaturesMap2String(features map[int]float32) string {
 	var buffer bytes.Buffer
-	var i int = 0
+	var i = 0
 	for key, val := range features {
 		if i > 0 {
 			buffer.WriteString(",")

@@ -51,7 +51,7 @@ type UserProfile struct {
 	Intro          string    `json:"intro"` //用户标签
 	Occupation     string    `json:"occupation"`//用户职业
 	TeenActive     int8      `json:"teen_active,omitempty"` //是否是青少年模式
-
+	IsPrivate      int        `json:"is_private,omitempty"`
 	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
 	LiveInfo     *liveInfo          `json:"live_info,omitempty"`
