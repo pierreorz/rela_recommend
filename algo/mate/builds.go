@@ -34,7 +34,6 @@ func DoBuildData(ctx algo.IContext) error {
 			return pretendCacheErr
 		}
 	})
-	//log.Infof("pretendList=============%+v",pretendList)
 	//获取假装情侣在线用户id
 	var onlineUserList []int64
 	for _, v := range pretendList {
@@ -43,7 +42,6 @@ func DoBuildData(ctx algo.IContext) error {
 			onlineUserList = append(onlineUserList, userId)
 		}
 	}
-	//log.Infof("onlineUserList=============%+v",onlineUserList)
 	if params.Limit == 0 {
 		params.Limit = abtest.GetInt64("default_limit", 50)
 	}
@@ -64,7 +62,6 @@ func DoBuildData(ctx algo.IContext) error {
 	userMessageBehavior, realtimeErr := behaviorCache.QueryUserBehaviorMap("message", []int64{params.UserId})
 	if realtimeErr == nil {
 		messageBehavior = userMessageBehavior[params.UserId]
-		log.Infof("messageBehavior============================%+v",messageBehavior)
 		if messageBehavior !=nil{
 			//获取用户message页面数
 			if messageBehavior.GetMateListExposure().Count > 0 {
@@ -79,13 +76,11 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 		}
-	log.Infof("berhaviorMapkafka============================%+v",berhaviorMap)
 	//解析获取实施行为(近一小时数据)
 	for _,v:= range userBehavior.Data{
 		mateID:=v.ID
 		berhaviorMap[mateID]=1
 	}
-	log.Infof("berhaviorMapall============================%+v",berhaviorMap)
 	//获取用户信息，在线用户信息
 	var user *redis.UserProfile
 	var onlineUserMap map[int64]*redis.UserProfile
@@ -245,7 +240,6 @@ func DoBuildData(ctx algo.IContext) error {
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(dataIds)
 		ctx.SetDataList(dataList)
-		log.Infof("DataList===========%+v",dataList)
 		return len(dataList)
 	})
 	return err
