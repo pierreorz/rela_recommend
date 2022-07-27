@@ -66,7 +66,7 @@ func DoBuildData(ctx algo.IContext) error {
 		messageBehavior = userMessageBehavior[params.UserId]
 		log.Infof("messageBehavior============================%+v",messageBehavior)
 		if messageBehavior !=nil{
-			//获取用户广告的行为
+			//获取用户message页面数
 			if messageBehavior.GetMateListExposure().Count > 0 {
 				messageList := messageBehavior.GetMateListExposure().LastList
 				if len(messageList) > 1 {
