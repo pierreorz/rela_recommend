@@ -69,6 +69,7 @@ const (
 	MultiAudioEncounter // multi link and encounter
 
 	MultiVideo
+
 )
 
 var classifyMap map[int]multiLanguage
