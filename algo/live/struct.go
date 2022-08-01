@@ -68,7 +68,8 @@ const (
 	MultiAudio          // multi link
 	MultiAudioEncounter // multi link and encounter
 
-	MultiVideo
+	MultiVideoFour
+	MultiVideoNine
 
 )
 
@@ -192,7 +193,7 @@ func (lrt *ILiveRankItemV3) GetLiveType() int {
 		return 1
 	case PkBusy, PkSummary:
 		return 2
-	case MultiVideo:
+	case MultiVideoFour,MultiVideoNine:
 		return 3
 	}
 	return 0
