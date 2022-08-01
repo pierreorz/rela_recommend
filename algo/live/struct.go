@@ -36,10 +36,11 @@ const (
 	PkLabel        = 4
 	BeamingLabel   = 5
 	ClassifyLabel  = 6
-	StrategyLabel  = 9
-	FollowLabel    = 8
-	AroundLabel    = 7
-	CityLabel      = 7
+	StrategyLabel  = 6
+	FollowLabel    = 6
+	AroundLabel    = 6
+	CityLabel      = 6
+	MultiBeamingLabel   =7
 
 	typeRecommend     = 1
 	typeBigVideo      = 32768
@@ -66,6 +67,8 @@ const (
 
 	MultiAudio          // multi link
 	MultiAudioEncounter // multi link and encounter
+
+	MultiVideo
 )
 
 var classifyMap map[int]multiLanguage
@@ -188,6 +191,8 @@ func (lrt *ILiveRankItemV3) GetLiveType() int {
 		return 1
 	case PkBusy, PkSummary:
 		return 2
+	case MultiVideo:
+		return 3
 	}
 	return 0
 }
@@ -261,6 +266,17 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				}
 
 				switch data.GetLiveType() {
+				case 3:
+					self.LiveData.AddLabel(&labelItem{
+						Style: MultiBeamingLabel,
+						Title: multiLanguage{
+							Chs: "多人视频中",
+							Cht: "",
+							En:  "",
+						},
+						weight: LiveTypeLabelWeight,
+						level:  level2,
+					})
 				case 2:
 					self.LiveData.AddLabel(&labelItem{
 						Style: PkLabel,
