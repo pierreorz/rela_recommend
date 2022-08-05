@@ -62,6 +62,16 @@ type UserContentProfile struct {
 	PicturePref map[string]float32 `json:"picture_pref,omitempty"`
 }
 
+type UserLiveContentProfile struct {
+	UserId int64      `json:"user_id"`
+}
+
+type LiveContentProfile struct{
+	LiveId   int64       `json:"live_id"`
+	live
+
+}
+
 type UserLiveProfile struct {
 	UserId                int64             `json:"user_id"`                      //用户id
 	LiveLongPref          map[int64]float32 `json:"live_long_pref,omitempty"`     //用户长期主播偏好

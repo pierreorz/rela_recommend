@@ -5,11 +5,11 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
-	rutils "rela_recommend/utils"
 	"rela_recommend/algo/utils"
 	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
+	rutils "rela_recommend/utils"
 	"strings"
 	"time"
 )
@@ -945,6 +945,33 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 	return nil
 }
 
+func liveRecommendStrategyFunc(ctx algo.IContext) error{
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
+			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 { //非置顶直播日志
+				if live := dataInfo.LiveContentProfile; live != nil {//必须有主播相关的画像
+					//新用户不管
+					if dataInfo.MomentCache.MomentsType=="live"{//日志类型得分，视频直播类型占0.65分
+						w1 :=0.65
+					}else{
+						w1 :=0.35
+					}
+					if live.
+
+					if liveUser := dataInfo.UserCache; liveUser != nil {
+
+					}
+				}
+				if dataInfo.LiveContentProfile.
+			}
+		}
+	}
+
+	return nil
+}
 func editRecommendStrategyFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	recommendArr :=make([]int64,0)
