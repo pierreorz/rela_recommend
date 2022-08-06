@@ -113,7 +113,9 @@ func DoBuildData(ctx algo.IContext) error {
 	for _, mom := range moms {
 		if mom.Moments != nil && mom.Moments.Id > 0 {
 			momUser, _ := usersMap[mom.Moments.UserId]
-
+			if momUser.IsPrivate==1{//私密用户的日志过滤
+				continue
+			}
 			// 处理置顶
 			var isTop = 0
 			if topMap != nil {

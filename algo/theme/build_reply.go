@@ -315,6 +315,11 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		for _, theme := range themes {
 			//log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
 			if theme.Moments != nil && theme.Moments.Id > 0 {
+				if themeUser :=usersMap[theme.Moments.UserId];themeUser!=nil{
+					if themeUser.IsPrivate==1{
+						continue
+					}
+				}
 				themeId := theme.Moments.Id
 				replyId, replyIdOk := themeReplyMap[themeId]
 				reply, replyInfoOK := replysMap[replyId]
