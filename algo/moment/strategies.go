@@ -962,7 +962,9 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 					}else{
 						w1 :=0.35
 					}
-					if live.
+					if live.{
+
+					}
 
 					if liveUser := dataInfo.UserCache; liveUser != nil {
 
