@@ -947,6 +947,9 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 
 func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	userInfo := ctx.GetUserInfo().(*UserInfo)
+	userWeight :=make([]float64,0)
+	liveWeight :=make([]float64,0)
+	if
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
