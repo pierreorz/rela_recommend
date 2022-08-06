@@ -112,8 +112,8 @@ func DoBuildData(ctx algo.IContext) error {
 	dataList := make([]algo.IDataInfo, 0)
 	for _, mom := range moms {
 		if mom.Moments != nil && mom.Moments.Id > 0 {
-			momUser, _ := usersMap[mom.Moments.UserId]
-			if momUser!=nil{
+			momUser, ok := usersMap[mom.Moments.UserId]
+			if ok&&momUser!=nil{
 				if momUser.IsPrivate==1{//私密用户的日志过滤
 					continue
 				}
