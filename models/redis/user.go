@@ -55,7 +55,7 @@ type UserProfile struct {
 	JsonRoleLike   map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike   map[string]float32 `json:"jsonAffeLike"`
 	LiveInfo       *liveInfo          `json:"live_info,omitempty"`
-	OnlineHiding   *int8              `json:"online_hiding,omitempty"`
+	OnlineHiding   int8              `json:"online_hiding,omitempty"`
 }
 
 type UserContentProfile struct {
@@ -146,7 +146,7 @@ func (user *UserProfile) IsVipOnlineHiding() bool {
 	if user == nil {
 		return false
 	}
-	if user.IsVip == 1 && *user.OnlineHiding == 1 {
+	if user.IsVip == 1 && user.OnlineHiding == 1 {
 		return true
 	}
 	return false
