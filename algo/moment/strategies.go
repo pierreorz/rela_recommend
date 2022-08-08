@@ -982,6 +982,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 			    mom.momId = dataInfo.MomentCache.Id
 				if live := dataInfo.LiveContentProfile; live != nil {//必须有主播相关的画像
 					//新用户不管
+					log.Warnf("have live profile%s",live)
 					if dataInfo.MomentCache.MomentsType=="live"{//日志类型得分，视频直播类型占0.65分
 						w1 =0.65
 					}else{
