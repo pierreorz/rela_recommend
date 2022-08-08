@@ -999,7 +999,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 						}
 					}
 				}
-				score :=w1 *0.3 + w2*0.2 +w3*0.1 +w4*0.1+w5*0.3
+				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3
 				mom.score=score
 				res=append(res, mom)
 			}
