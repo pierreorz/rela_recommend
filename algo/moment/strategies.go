@@ -1000,13 +1000,11 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 				}
 				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3
 				mom.score=score
-				log.Warnf("live mom struct %s",mom)
 				res=append(res, mom)
 			}
 		}
 	}
 	sort.Sort(res)
-	log.Warnf("live sort result %s",res)
 	for index,mom :=range res{
 		sortIds[mom.momId] = index
 	}
