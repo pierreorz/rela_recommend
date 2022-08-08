@@ -407,14 +407,14 @@ func DoBuildData(ctx algo.IContext) error {
 			userContentProfileMap, userContentProfileErr = userCache.QueryUserContentProfileByIdsMap([]int64{params.UserId})
 			return userContentProfileErr
 		},
-		"user_live_content_proflie":func(*performs.Performs) interface{}{//用户关于直播的画像
+		"user_live_content_profile":func(*performs.Performs) interface{}{//用户关于直播的画像
 			var userLiveContentProfileErr error
-			userLiveContentProfileMap, userLiveContentProfileErr = userCache.QueryUserContentProfileByIdsMap([]int64{params.UserId})
+			userLiveContentProfileMap, userLiveContentProfileErr = userCache.QueryUserLiveContentProfileByIdsMap([]int64{params.UserId})
 			return userLiveContentProfileErr
 		},
 		"live_content_profile":func(*performs.Performs) interface{}{
 			var liveContentProfileErr error
-			liveContentProfileMap, liveContentProfileErr = userCache.QueryUserContentProfileByIdsMap([]int64{params.UserId})
+			liveContentProfileMap, liveContentProfileErr = userCache.QueryLiveContentProfileByIdsMap([]int64{params.UserId})
 			return liveContentProfileErr
 		},
 

@@ -75,6 +75,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"around_exposure_down":  &strategy.BaseRichStrategy{StrategyFunc: AroundExposureAssignmentsStrategyFunc},
 	"topLive_hope_index":    &strategy.BaseRichStrategy{StrategyFunc: topLiveIncreaseExposureFunc},
 	"content_recommend_exposure":&strategy.BaseRichStrategy{StrategyFunc: editRecommendStrategyFunc},
+	"live_mom_rec":&strategy.BaseRichStrategy{StrategyFunc: liveRecommendStrategyFunc},
 	"around_live_exposure":&strategy.BaseRichStrategy{StrategyFunc: aroundLiveExposureFunc},
 	"themereply_hope_index": &strategy.BaseRichStrategy{StrategyFunc: ThemeReplyIndexFunc},
 	"bussiness_exposure":    &strategy.BaseRichStrategy{StrategyFunc: BussinessExposureFunc},
