@@ -976,13 +976,12 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 20 {
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
 			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil { //非置顶直播日志
 			    var mom momLive
 			    mom.momId = dataInfo.MomentCache.Id
 				if live := dataInfo.LiveContentProfile; live != nil {//必须有主播相关的画像
 					//新用户不管
-					log.Warnf("have live profile%s",live)
 					if dataInfo.MomentCache.MomentsType=="live"{//日志类型得分，视频直播类型占0.65分
 						w1 =0.65
 					}else{
