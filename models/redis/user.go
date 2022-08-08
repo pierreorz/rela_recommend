@@ -65,7 +65,7 @@ type UserContentProfile struct {
 type UserLiveContentProfile struct {
 	UserId int64      `json:"user_id"`
 	WantRole int      `json:"want_role"`
-	UserLivePref  map[int64]float64 `json:"user_live_pref"`
+	UserLivePref  map[int64]float64 `json:"user_live_pref,omitempty"`
 }
 
 type LiveContentProfile struct{
