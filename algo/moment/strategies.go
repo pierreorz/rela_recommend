@@ -25,7 +25,7 @@ const(
 )
 
 
-type momLiveSorter   []*momLive
+type momLiveSorter   []momLive
 type momLive struct {
 	momId int64
 	score float64
@@ -979,7 +979,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
 
 			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil { //非置顶直播日志
-			    var mom *momLive
+			    var mom momLive
 			    mom.momId = dataInfo.MomentCache.Id
 				if live := dataInfo.LiveContentProfile; live != nil {//必须有主播相关的画像
 					//新用户不管
