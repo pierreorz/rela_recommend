@@ -976,7 +976,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 20 {
 			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil { //非置顶直播日志
 			    var mom momLive
 			    mom.momId = dataInfo.MomentCache.Id
@@ -994,7 +994,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 						if user.WantRole+live.Role==1{//角色属性相关
 							w4 =1
 						}
-						if pref,isOk :=user.UserLivePref[dataInfo.MomentCache.Id];isOk{
+						if pref,isOk :=user.UserLivePref[dataInfo.MomentCache.UserId];isOk{
 							w5 =pref
 						}
 					}
