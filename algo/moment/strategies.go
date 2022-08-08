@@ -977,7 +977,6 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
-
 			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil { //非置顶直播日志
 			    var mom momLive
 			    mom.momId = dataInfo.MomentCache.Id
@@ -1001,6 +1000,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 				}
 				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3
 				mom.score=score
+				log.Warnf("live mom struct %s",mom)
 				res=append(res, mom)
 			}
 		}
