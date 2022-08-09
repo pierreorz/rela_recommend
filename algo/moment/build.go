@@ -419,7 +419,6 @@ func DoBuildData(ctx algo.IContext) error {
 		},
 
 	})
-	log.Warnf("live content profile%s",liveContentProfileMap)
 
 	preforms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
