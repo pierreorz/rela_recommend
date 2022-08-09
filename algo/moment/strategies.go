@@ -1005,7 +1005,6 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		}
 	}
 	sort.Sort(res)
-	log.Warnf("sort res%s",res)
 	for index,mom :=range res{
 		sortIds[mom.momId] = index
 	}
