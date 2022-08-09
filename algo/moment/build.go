@@ -365,6 +365,8 @@ func DoBuildData(ctx algo.IContext) error {
 	var momentUserEmbedding *redis.MomentUserProfile
 	var userLiveProfielMap map[int64]*redis.UserLiveProfile
 	var userContentProfileMap map[int64]*redis.UserContentProfile
+	var userLiveContentProfileMap map[int64]*redis.UserLiveContentProfile
+	var liveContentProfileMap map[int64]*redis.LiveContentProfile
 	var momentUserEmbeddingMap = map[int64]*redis.MomentUserProfile{}
 	var isVip = 0
 	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
@@ -405,6 +407,17 @@ func DoBuildData(ctx algo.IContext) error {
 			userContentProfileMap, userContentProfileErr = userCache.QueryUserContentProfileByIdsMap([]int64{params.UserId})
 			return userContentProfileErr
 		},
+		"user_live_content_profile":func(*performs.Performs) interface{}{//用户关于直播的画像
+			var userLiveContentProfileErr error
+			userLiveContentProfileMap, userLiveContentProfileErr = userCache.QueryUserLiveContentProfileByIdsMap([]int64{params.UserId})
+			return userLiveContentProfileErr
+		},
+		"live_content_profile":func(*performs.Performs) interface{}{
+			var liveContentProfileErr error
+			liveContentProfileMap, liveContentProfileErr = userCache.QueryLiveContentProfileByIdsMap(userIds)
+			return liveContentProfileErr
+		},
+
 	})
 
 	preforms.Run("build", func(*performs.Performs) interface{} {
@@ -414,6 +427,7 @@ func DoBuildData(ctx algo.IContext) error {
 			MomentUserProfile:  momentUserEmbedding,
 			UserLiveProfile:    userLiveProfielMap[params.UserId],
 			UserContentProfile: userContentProfileMap[params.UserId],
+			UserLiveContentProfile:userLiveContentProfileMap[params.UserId],
 			UserBehavior:       userBehavior,
 		}
 		isVip = user.IsVip
@@ -548,6 +562,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
+					LiveContentProfile:   liveContentProfileMap[mom.Moments.UserId],
 					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop,PaiScore:score,ExpId:utils.ConvertExpId(expId,recall_expId),RequestId:requestId,OffTime:offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],

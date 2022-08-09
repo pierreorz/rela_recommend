@@ -18,6 +18,7 @@ type UserInfo struct {
 	UserBehavior       *behavior.UserBehavior
 	UserLiveProfile    *redis.UserLiveProfile
 	UserContentProfile *redis.UserContentProfile
+	UserLiveContentProfile *redis.UserLiveContentProfile  //使用者直播画像数据
 }
 
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
@@ -39,6 +40,8 @@ type DataInfo struct {
 	ItemBehavior         *behavior.UserBehavior
 	ItemOfflineBehavior  *redis.MomOfflinePageMap
 	UserItemBehavior     *behavior.UserBehavior //用户对该发布日志的行为数据
+	LiveContentProfile   *redis.LiveContentProfile
+
 }
 
 func (self *DataInfo) GetDataId() int64 {

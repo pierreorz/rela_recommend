@@ -63,6 +63,19 @@ type UserContentProfile struct {
 	PicturePref map[string]float32 `json:"picture_pref,omitempty"`
 }
 
+type UserLiveContentProfile struct {
+	UserId int64      `json:"user_id"`
+	WantRole int      `json:"want_role"`
+	UserLivePref  map[int64]float64 `json:"user_live_pref,omitempty"`
+}
+
+type LiveContentProfile struct{
+	LiveId   int64       `json:"live_id"`
+	LiveContentScore  float64   `json:"live_content_score"`
+	LiveValueScore    float64   `json:"live_value_score"`
+	Role              int    `json:"role_type"`
+}
+
 type UserLiveProfile struct {
 	UserId                int64             `json:"user_id"`                      //用户id
 	LiveLongPref          map[int64]float32 `json:"live_long_pref,omitempty"`     //用户长期主播偏好
@@ -114,6 +127,49 @@ func (this *UserCacheModule) QueryUserContentProfileByIdsMap(userIds []int64) (m
 	}
 	return resUserContentProfileMap, err
 }
+
+//读取主播画像数据
+
+func (self *UserCacheModule) QueryLiveContentProfileByIds(ids []int64) ([]LiveContentProfile, error) {
+	keyFormatter := "live_content_profile:%d"
+	ress, err := self.MGetStructs(LiveContentProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs := ress.Interface().([]LiveContentProfile)
+	return objs, err
+}
+
+// 获取当前用户和用户列表Map
+func (this *UserCacheModule) QueryLiveContentProfileByIdsMap(userIds []int64) (map[int64]*LiveContentProfile, error) {
+	liveContentProfiles, err := this.QueryLiveContentProfileByIds(userIds)
+	var resUserContentProfileMap = make(map[int64]*LiveContentProfile, 0)
+	if err == nil {
+		for i, user := range liveContentProfiles {
+			resUserContentProfileMap[user.LiveId] = &liveContentProfiles[i]
+		}
+	}
+	return resUserContentProfileMap, err
+}
+
+//读取用户画像数据
+func (self *UserCacheModule) QueryUserLiveContentProfileByIds(ids []int64) ([]UserLiveContentProfile, error) {
+	keyFormatter := "user_live_content_profile:%d"
+	ress, err := self.MGetStructs(UserLiveContentProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs := ress.Interface().([]UserLiveContentProfile)
+	return objs, err
+}
+
+// 获取当前用户和用户列表Map
+func (this *UserCacheModule) QueryUserLiveContentProfileByIdsMap(userIds []int64) (map[int64]*UserLiveContentProfile, error) {
+	liveContentProfiles, err := this.QueryUserLiveContentProfileByIds(userIds)
+	var resUserContentProfileMap = make(map[int64]*UserLiveContentProfile, 0)
+	if err == nil {
+		for i, user := range liveContentProfiles {
+			resUserContentProfileMap[user.UserId] = &liveContentProfiles[i]
+		}
+	}
+	return resUserContentProfileMap, err
+}
+
+
 
 func (user *UserProfile) MaybeICPUser(lat, lng float32) bool {
 	// 特定ICP审核用户
