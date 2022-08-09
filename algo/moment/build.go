@@ -414,7 +414,7 @@ func DoBuildData(ctx algo.IContext) error {
 		},
 		"live_content_profile":func(*performs.Performs) interface{}{
 			var liveContentProfileErr error
-			liveContentProfileMap, liveContentProfileErr = userCache.QueryLiveContentProfileByIdsMap([]int64{params.UserId})
+			liveContentProfileMap, liveContentProfileErr = userCache.QueryLiveContentProfileByIdsMap(userIds)
 			return liveContentProfileErr
 		},
 
