@@ -30,14 +30,14 @@ func DoBuildData(ctx algo.IContext) error {
 	pf.Run("user", func(*performs.Performs) interface{} {
 		var userCacheErr error
 		if user, _, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, []int64{}); userCacheErr != nil {
-				return rutils.GetInt(user != nil)
+			return rutils.GetInt(user != nil)
 		} else {
 			return userCacheErr
 		}
 	})
 	//获取用户实时行为
 	var userBehavior *behavior.UserBehavior // 用户实时行为
-	userAdIdMap := map[int64]int64{} //广告曝光数据
+	userAdIdMap := map[int64]int64{}        //广告曝光数据
 	realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap("ad", []int64{params.UserId})
 	if realtimeErr == nil { // 获取flink数据
 		userBehavior = realtimes[params.UserId]
@@ -69,7 +69,7 @@ func DoBuildData(ctx algo.IContext) error {
 			//}
 		}
 	}
-	log.Infof("userMap=================%+v",userAdIdMap)
+	log.Infof("userMap=================%+v", userAdIdMap)
 	// 获取search的广告列表
 	var searchResList = []search.SearchADResDataItem{}
 	if abtest.GetBool("icp_switch", false) && (abtest.GetBool("is_icp_user", false) || user.MaybeICPUser(params.Lat, params.Lng)) {
@@ -79,7 +79,7 @@ func DoBuildData(ctx algo.IContext) error {
 			clientName := abtest.GetString("backend_app_name", "1") // 1: rela 2: 饭角
 			var searchErr error
 			//青少年过滤 ,TeenActive:1为青少年模式
-			if user.Status != 7 && user.TeenActive!=1 {
+			if user.CanRecommend() {
 				//针对新老版本的请求过滤
 				if params.ClientVersion >= 50802 { //params.Type == feedType 不对广告类型限制
 					if searchResList, searchErr = search.CallFeedAdList(clientName, params, user); searchErr == nil {
@@ -94,7 +94,7 @@ func DoBuildData(ctx algo.IContext) error {
 						return searchErr
 					}
 				}
-			}else{
+			} else {
 				return rutils.GetInt(user)
 			}
 		})
@@ -135,7 +135,7 @@ func DoBuildData(ctx algo.IContext) error {
 					dataList = append(dataList, info)
 				}
 			}
-		} else{ //当只有一条广告时不过滤上一次广告
+		} else { //当只有一条广告时不过滤上一次广告
 			for i, searchRes := range searchResList {
 				info := &DataInfo{
 					DataId:     searchRes.Id,

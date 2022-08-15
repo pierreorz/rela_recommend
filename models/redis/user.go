@@ -25,36 +25,37 @@ type liveInfo struct {
 }
 
 type UserProfile struct {
-	UserId         int64    `json:"id"`             // 用户ID
-	Location       Location `json:"location"`       //地理位置
-	Avatar         string   `json:"avatar"`         // 头像
-	IsVip          int      `json:"isVip"`          // 是否是vip
-	LastUpdateTime int64    `json:"lastUpdateTime"` //最后在线时间
-	MomentsCount   int      `json:"momentsCount"`   // 日志数
-	NewImageCount  int      `json:"newImageCount"`
-	RoleName       string   `json:"roleName"`
-	UserImageCount int      `json:"userImageCount"`
-	WantRole       string   `json:"wantRole"`
-	Status         int      `json:"status"`
-	Affection      int      `json:"affection"`
-	Age            int      `json:"age"`
-	Height         int      `json:"height"`
-	Weight         int      `json:"weight"`
-	Ratio          int      `json:"ratio"`
-	CreateTime     JsonTime `json:"createTime"`
-	Horoscope      string   `json:"horoscope"`
-	Reason         string   `json:"reason"` //优质用户推荐理由
-	Grade          float64  `json:"grade"`  //优质用户推荐等级 1-100
-	Recall         int      `json:"new_recall,omitempty"`
-	ActiveDate     string   `json:"active_date"`      // 用于计算回流用户
-	LastActiveDate string   `json:"last_active_date"` // 用于计算回流用户
-	Intro          string    `json:"intro"` //用户标签
-	Occupation     string    `json:"occupation"`//用户职业
-	TeenActive     int8      `json:"teen_active,omitempty"` //是否是青少年模式
-	IsPrivate      int        `json:"is_private,omitempty"`
-	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
-	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
-	LiveInfo     *liveInfo          `json:"live_info,omitempty"`
+	UserId         int64              `json:"id"`             // 用户ID
+	Location       Location           `json:"location"`       //地理位置
+	Avatar         string             `json:"avatar"`         // 头像
+	IsVip          int                `json:"isVip"`          // 是否是vip
+	LastUpdateTime int64              `json:"lastUpdateTime"` //最后在线时间
+	MomentsCount   int                `json:"momentsCount"`   // 日志数
+	NewImageCount  int                `json:"newImageCount"`
+	RoleName       string             `json:"roleName"`
+	UserImageCount int                `json:"userImageCount"`
+	WantRole       string             `json:"wantRole"`
+	Status         int                `json:"status"`
+	Affection      int                `json:"affection"`
+	Age            int                `json:"age"`
+	Height         int                `json:"height"`
+	Weight         int                `json:"weight"`
+	Ratio          int                `json:"ratio"`
+	CreateTime     JsonTime           `json:"createTime"`
+	Horoscope      string             `json:"horoscope"`
+	Reason         string             `json:"reason"` //优质用户推荐理由
+	Grade          float64            `json:"grade"`  //优质用户推荐等级 1-100
+	Recall         int                `json:"new_recall,omitempty"`
+	ActiveDate     string             `json:"active_date"`           // 用于计算回流用户
+	LastActiveDate string             `json:"last_active_date"`      // 用于计算回流用户
+	Intro          string             `json:"intro"`                 //用户标签
+	Occupation     string             `json:"occupation"`            //用户职业
+	TeenActive     int8               `json:"teen_active,omitempty"` //是否是青少年模式
+	IsPrivate      int                `json:"is_private,omitempty"`
+	Identity       int8               `json:"identity"` // 性别身份认证，-1 未通过，0 未验证，1 审核中，2系统认证通过，3 人工认证通过，4 主播认证通过，5  历史申诉认证通过
+	JsonRoleLike   map[string]float32 `json:"jsonRoleLike"`
+	JsonAffeLike   map[string]float32 `json:"jsonAffeLike"`
+	LiveInfo       *liveInfo          `json:"live_info,omitempty"`
 }
 
 type UserContentProfile struct {
@@ -145,6 +146,19 @@ func (user *UserProfile) GetRoleNameInt() int {
 	return utils.GetInt(user.RoleName)
 }
 
+func (user *UserProfile) CanRecommend() bool {
+	if user == nil {
+		return false
+	}
+
+	isNormal := user.Status == 1                                // 状态正常
+	notPrivate := user.IsPrivate == 0                           // 非私密账号
+	notTeen := user.Status != 7 && user.TeenActive != 1         // 非青少年模式
+	femaleIdentity := user.Identity != -1 && user.Identity != 1 // 非确认男性用户
+
+	return isNormal && notPrivate && notTeen && femaleIdentity
+}
+
 func (user *UserProfile) IsRecurringUser(compareTime time.Time, threshold time.Duration) bool {
 	// 在 compareTime 当天活跃，且距离上一次活跃超过 threshold 时间
 	var activeDate, lastActiveDate time.Time
@@ -179,7 +193,6 @@ func (user *UserProfile) GetWantRoleInts() []int {
 type UserCacheModule struct {
 	CachePikaModule
 }
-
 
 func NewUserCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cache.Cache) *UserCacheModule {
 	return &UserCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
@@ -252,6 +265,6 @@ func (this *UserCacheModule) QueryConcernsByUser(userId int64) ([]int64, error) 
 	return this.SmembersInt64List(userId, "user_concern:%d")
 }
 
-func (this *UserCacheModule)QueryConcernsByUserV1(userId int64)([]int64 ,error){
+func (this *UserCacheModule) QueryConcernsByUserV1(userId int64) ([]int64, error) {
 	return this.ZmembersInt64List(userId, "user:%d:followers")
 }

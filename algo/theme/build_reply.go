@@ -345,6 +345,11 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
+				if themeUserCache, ok := usersMap[theme.Moments.UserId]; ok {
+					if !themeUserCache.CanRecommend() {
+						continue
+					}
+				}
 				info := &DataInfo{
 					DataId:            themeId,
 					UserCache:         usersMap[theme.Moments.UserId],
