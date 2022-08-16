@@ -1233,7 +1233,9 @@ func AddRecommendReasonFunc(ctx algo.IContext) error {
 			lat :=moms.Lat
 			lng :=moms.Lng
 			if rutils.EarthDistance(float64(params.Lng), float64(params.Lat), lng, lat)<=30000{//少于30km即为附近的人标签
-				rankInfo.AddRecommendWithType("nearby",1,algo.TypeNearby)
+				if params.Lng>0.0&&params.Lat>0.0&&lng>0.0&&lat>0.0{
+					rankInfo.AddRecommendWithType("nearby",1,algo.TypeNearby)
+				}
 			}
 		}
 		if dataInfo.ItemOfflineBehavior!=nil{
