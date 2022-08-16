@@ -216,7 +216,7 @@ func initMongo(cfg *conf.Config) {
 func initRpc(cfg *conf.Config) {
 	SearchRpcClient = rpc.NewHttpClient(cfg.Rpc.SearchRpcAddr, time.Millisecond*500)
 	ApiRpcClient = rpc.NewHttpClient(cfg.Rpc.ApiRpcAddr, time.Millisecond*100)
-	ChatRoomRpcClient = rpc.NewHttpClient(cfg.Rpc.ChatRoomRpcAddr, time.Millisecond*1000)
+	ChatRoomRpcClient = rpc.NewHttpClient(cfg.Rpc.ChatRoomRpcAddr, time.Millisecond*2000)
 	AiSearchRpcClient = rpc.NewHttpClient(cfg.Rpc.AiSearchRpcAddr, time.Millisecond*1000)
 	MomentSearchRpcClient = rpc.NewHttpClient(cfg.Rpc.AiSearchRpcAddr, time.Millisecond*500)
 	PaiRpcClient =rpc.NewHttpClient(cfg.Rpc.PaiRpcAddr,time.Millisecond*400)
