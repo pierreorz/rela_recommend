@@ -207,17 +207,29 @@ func (user *UserProfile) IsVipOnlineHiding() bool {
 	return false
 }
 
+// 使用者测是否可以推荐
 func (user *UserProfile) CanRecommend() bool {
+
+	if user == nil {
+		return false
+	}
+
+	notTeen := user.Status != 7 && user.TeenActive != 1 // 非青少年模式
+
+	return notTeen
+}
+
+// 被推荐内容的用户是否可以推荐
+func (user *UserProfile) DataUserCanRecommend() bool {
 	if user == nil {
 		return false
 	}
 
 	isNormal := user.Status == 1                                // 状态正常
 	notPrivate := user.IsPrivate == 0                           // 非私密账号
-	notTeen := user.Status != 7 && user.TeenActive != 1         // 非青少年模式
-	femaleIdentity := user.Identity != -1 && user.Identity != 1 // 非确认男性用户
+	femaleIdentity := user.Identity != -1 && user.Identity != 1 // 非男性用户
 
-	return isNormal && notPrivate && notTeen && femaleIdentity
+	return isNormal && notPrivate && femaleIdentity
 }
 
 func (user *UserProfile) GetRoleNameInt() int {

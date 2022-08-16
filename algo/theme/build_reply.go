@@ -315,8 +315,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		for _, theme := range themes {
 			//log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
 			if theme.Moments != nil && theme.Moments.Id > 0 {
-				if themeUser,ok :=usersMap[theme.Moments.UserId];ok&&themeUser!=nil{
-					if themeUser.IsPrivate==1{
+				if themeUser, ok := usersMap[theme.Moments.UserId]; ok && themeUser != nil {
+					if themeUser.IsPrivate == 1 {
 						continue
 					}
 				}
@@ -351,7 +351,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 				}
 				if themeUserCache, ok := usersMap[theme.Moments.UserId]; ok {
-					if !themeUserCache.CanRecommend() {
+					if !themeUserCache.DataUserCanRecommend() {
 						continue
 					}
 				}

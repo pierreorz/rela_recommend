@@ -189,7 +189,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 			if data.IsVipOnlineHiding() {
 				continue
 			}
-			if data.CanRecommend() {
+			if data.DataUserCanRecommend() {
 				info := &DataInfo{
 					DataId:       dataId,
 					UserCache:    data,
