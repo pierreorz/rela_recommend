@@ -272,9 +272,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					self.LiveData.AddLabel(&labelItem{
 						Style: MultiBeamingLabel,
 						Title: multiLanguage{
-							Chs: "多人视频中",
-							Cht: "",
-							En:  "",
+							Chs: "姬姬喳喳",
+							Cht: "姬姬喳喳",
+							En:  "Group Video",
 						},
 						weight: LiveTypeLabelWeight,
 						level:  level2,
