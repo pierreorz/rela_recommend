@@ -5,11 +5,12 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
-	rutils "rela_recommend/utils"
 	"rela_recommend/algo/utils"
 	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
+	rutils "rela_recommend/utils"
+	"sort"
 	"strings"
 	"time"
 )
@@ -22,6 +23,24 @@ const(
 	Ios = "is_ios"
 	FeedRecPage = "moment.recommend"
 )
+
+
+type momLiveSorter   []momLive
+type momLive struct {
+	momId int64
+	score float64
+}
+
+func (a momLiveSorter) Len() int      { return len(a) }
+func (a momLiveSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a momLiveSorter) Less(i, j int) bool { // 按照 score , id 倒序
+	if a[i].score == a[j].score {
+		return a[i].momId>a[j].momId
+	}else{
+		return a[i].score>a[j].score
+	}
+}
+
 // 按照6小时优先策略
 func DoTimeLevel(ctx algo.IContext, index int) error {
 	abtest := ctx.GetAbTest()
@@ -945,6 +964,59 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 	return nil
 }
 
+func liveRecommendStrategyFunc(ctx algo.IContext) error{
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	w1 :=0.0
+	w2 :=0.0
+	w3 :=0.0
+	w4 :=0.0
+	w5 :=0.0
+	var res =momLiveSorter{}
+	sortIds :=make(map[int64]int,0)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
+			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil { //非置顶直播日志
+			    var mom momLive
+			    mom.momId = dataInfo.MomentCache.Id
+				if live := dataInfo.LiveContentProfile; live != nil {//必须有主播相关的画像
+					//新用户不管
+					if dataInfo.MomentCache.MomentsType=="live"{//日志类型得分，视频直播类型占0.65分
+						w1 =0.65
+					}else{
+						w1 =0.35
+					}
+					w2 =live.LiveContentScore//直播内容得分
+					w3 =live.LiveValueScore //直播价值得分
+					if user :=userInfo.UserLiveContentProfile;user!=nil{
+						if user.WantRole+live.Role==1{//角色属性相关
+							w4 =1
+						}
+						if pref,isOk :=user.UserLivePref[dataInfo.MomentCache.UserId];isOk{
+							w5 =pref
+						}
+					}
+				}
+				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3
+				mom.score=score
+				res=append(res, mom)
+			}
+		}
+	}
+	sort.Sort(res)
+	for index,mom :=range res{
+		sortIds[mom.momId] = index
+	}
+	for index:=0;index<ctx.GetDataLength();index++{
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if sortIndex,ok :=sortIds[dataInfo.DataId];ok{//运营推荐主播每隔5位随机进行展示
+			rankInfo.HopeIndex=sortIndex*5+GenerateRangeNum(1,6)
+		}
+	}
+	return nil
+}
 func editRecommendStrategyFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	recommendArr :=make([]int64,0)

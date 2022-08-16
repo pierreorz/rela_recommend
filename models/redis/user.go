@@ -25,41 +25,55 @@ type liveInfo struct {
 }
 
 type UserProfile struct {
-	UserId         int64    `json:"id"`             // 用户ID
-	Location       Location `json:"location"`       //地理位置
-	Avatar         string   `json:"avatar"`         // 头像
-	IsVip          int      `json:"isVip"`          // 是否是vip
-	LastUpdateTime int64    `json:"lastUpdateTime"` //最后在线时间
-	MomentsCount   int      `json:"momentsCount"`   // 日志数
-	NewImageCount  int      `json:"newImageCount"`
-	RoleName       string   `json:"roleName"`
-	UserImageCount int      `json:"userImageCount"`
-	WantRole       string   `json:"wantRole"`
-	Status         int      `json:"status"`
-	Affection      int      `json:"affection"`
-	Age            int      `json:"age"`
-	Height         int      `json:"height"`
-	Weight         int      `json:"weight"`
-	Ratio          int      `json:"ratio"`
-	CreateTime     JsonTime `json:"createTime"`
-	Horoscope      string   `json:"horoscope"`
-	Reason         string   `json:"reason"` //优质用户推荐理由
-	Grade          float64  `json:"grade"`  //优质用户推荐等级 1-100
-	Recall         int      `json:"new_recall,omitempty"`
-	ActiveDate     string   `json:"active_date"`      // 用于计算回流用户
-	LastActiveDate string   `json:"last_active_date"` // 用于计算回流用户
-	Intro          string    `json:"intro"` //用户标签
-	Occupation     string    `json:"occupation"`//用户职业
-	TeenActive     int8      `json:"teen_active,omitempty"` //是否是青少年模式
-	IsPrivate      int        `json:"is_private,omitempty"`
-	JsonRoleLike map[string]float32 `json:"jsonRoleLike"`
-	JsonAffeLike map[string]float32 `json:"jsonAffeLike"`
-	LiveInfo     *liveInfo          `json:"live_info,omitempty"`
+	UserId         int64              `json:"id"`             // 用户ID
+	Location       Location           `json:"location"`       //地理位置
+	Avatar         string             `json:"avatar"`         // 头像
+	IsVip          int                `json:"isVip"`          // 是否是vip
+	LastUpdateTime int64              `json:"lastUpdateTime"` //最后在线时间
+	MomentsCount   int                `json:"momentsCount"`   // 日志数
+	NewImageCount  int                `json:"newImageCount"`
+	RoleName       string             `json:"roleName"`
+	UserImageCount int                `json:"userImageCount"`
+	WantRole       string             `json:"wantRole"`
+	Status         int                `json:"status"`
+	Affection      int                `json:"affection"`
+	Age            int                `json:"age"`
+	Height         int                `json:"height"`
+	Weight         int                `json:"weight"`
+	Ratio          int                `json:"ratio"`
+	CreateTime     JsonTime           `json:"createTime"`
+	Horoscope      string             `json:"horoscope"`
+	Reason         string             `json:"reason"` //优质用户推荐理由
+	Grade          float64            `json:"grade"`  //优质用户推荐等级 1-100
+	Recall         int                `json:"new_recall,omitempty"`
+	ActiveDate     string             `json:"active_date"`           // 用于计算回流用户
+	LastActiveDate string             `json:"last_active_date"`      // 用于计算回流用户
+	Intro          string             `json:"intro"`                 //用户标签
+	Occupation     string             `json:"occupation"`            //用户职业
+	TeenActive     int8               `json:"teen_active,omitempty"` //是否是青少年模式
+	IsPrivate      int                `json:"is_private,omitempty"`
+	JsonRoleLike   map[string]float32 `json:"jsonRoleLike"`
+	JsonAffeLike   map[string]float32 `json:"jsonAffeLike"`
+	LiveInfo       *liveInfo          `json:"live_info,omitempty"`
+	OnlineHiding   int8              `json:"online_hiding,omitempty"`
 }
 
 type UserContentProfile struct {
 	UserId      int64              `json:"user_id"`
 	PicturePref map[string]float32 `json:"picture_pref,omitempty"`
+}
+
+type UserLiveContentProfile struct {
+	UserId int64      `json:"user_id"`
+	WantRole int      `json:"want_role"`
+	UserLivePref  map[int64]float64 `json:"user_live_pref,omitempty"`
+}
+
+type LiveContentProfile struct{
+	LiveId   int64       `json:"live_id"`
+	LiveContentScore  float64   `json:"live_content_score"`
+	LiveValueScore    float64   `json:"live_value_score"`
+	Role              int    `json:"role_type"`
 }
 
 type UserLiveProfile struct {
@@ -114,6 +128,49 @@ func (this *UserCacheModule) QueryUserContentProfileByIdsMap(userIds []int64) (m
 	return resUserContentProfileMap, err
 }
 
+//读取主播画像数据
+
+func (self *UserCacheModule) QueryLiveContentProfileByIds(ids []int64) ([]LiveContentProfile, error) {
+	keyFormatter := "live_content_profile:%d"
+	ress, err := self.MGetStructs(LiveContentProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs := ress.Interface().([]LiveContentProfile)
+	return objs, err
+}
+
+// 获取当前用户和用户列表Map
+func (this *UserCacheModule) QueryLiveContentProfileByIdsMap(userIds []int64) (map[int64]*LiveContentProfile, error) {
+	liveContentProfiles, err := this.QueryLiveContentProfileByIds(userIds)
+	var resUserContentProfileMap = make(map[int64]*LiveContentProfile, 0)
+	if err == nil {
+		for i, user := range liveContentProfiles {
+			resUserContentProfileMap[user.LiveId] = &liveContentProfiles[i]
+		}
+	}
+	return resUserContentProfileMap, err
+}
+
+//读取用户画像数据
+func (self *UserCacheModule) QueryUserLiveContentProfileByIds(ids []int64) ([]UserLiveContentProfile, error) {
+	keyFormatter := "user_live_content_profile:%d"
+	ress, err := self.MGetStructs(UserLiveContentProfile{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs := ress.Interface().([]UserLiveContentProfile)
+	return objs, err
+}
+
+// 获取当前用户和用户列表Map
+func (this *UserCacheModule) QueryUserLiveContentProfileByIdsMap(userIds []int64) (map[int64]*UserLiveContentProfile, error) {
+	liveContentProfiles, err := this.QueryUserLiveContentProfileByIds(userIds)
+	var resUserContentProfileMap = make(map[int64]*UserLiveContentProfile, 0)
+	if err == nil {
+		for i, user := range liveContentProfiles {
+			resUserContentProfileMap[user.UserId] = &liveContentProfiles[i]
+		}
+	}
+	return resUserContentProfileMap, err
+}
+
+
+
 func (user *UserProfile) MaybeICPUser(lat, lng float32) bool {
 	// 特定ICP审核用户
 	if user.UserId == 104208008 {
@@ -137,6 +194,16 @@ func (user *UserProfile) MaybeICPUser(lat, lng float32) bool {
 		if math.Abs(user.Location.Lon-0.0) <= 1e-6 || math.Abs(user.Location.Lat-0.0) <= 1e-6 {
 			return true
 		}
+	}
+	return false
+}
+
+func (user *UserProfile) IsVipOnlineHiding() bool {
+	if user == nil {
+		return false
+	}
+	if user.IsVip == 1 && user.OnlineHiding == 1 {
+		return true
 	}
 	return false
 }
@@ -179,7 +246,6 @@ func (user *UserProfile) GetWantRoleInts() []int {
 type UserCacheModule struct {
 	CachePikaModule
 }
-
 
 func NewUserCacheModule(ctx abtest.IAbTestAble, cache *cache.Cache, store *cache.Cache) *UserCacheModule {
 	return &UserCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
@@ -252,6 +318,6 @@ func (this *UserCacheModule) QueryConcernsByUser(userId int64) ([]int64, error) 
 	return this.SmembersInt64List(userId, "user_concern:%d")
 }
 
-func (this *UserCacheModule)QueryConcernsByUserV1(userId int64)([]int64 ,error){
+func (this *UserCacheModule) QueryConcernsByUserV1(userId int64) ([]int64, error) {
 	return this.ZmembersInt64List(userId, "user:%d:followers")
 }

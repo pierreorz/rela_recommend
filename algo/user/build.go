@@ -186,6 +186,9 @@ func DoBuildDataV1(ctx algo.IContext) error {
 		// 组装被曝光者信息
 		dataList := make([]algo.IDataInfo, 0)
 		for dataId, data := range usersMap {
+			if data.IsVipOnlineHiding() {
+				continue
+			}
 			info := &DataInfo{
 				DataId:       dataId,
 				UserCache:    data,
