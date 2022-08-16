@@ -186,6 +186,9 @@ func DoBuildDataV1(ctx algo.IContext) error {
 		// 组装被曝光者信息
 		dataList := make([]algo.IDataInfo, 0)
 		for dataId, data := range usersMap {
+			if data.IsVipOnlineHiding() {
+				continue
+			}
 			if data.CanRecommend() {
 				info := &DataInfo{
 					DataId:       dataId,
@@ -194,21 +197,12 @@ func DoBuildDataV1(ctx algo.IContext) error {
 					LiveInfo:     liveMap[dataId],
 					RankInfo:     &algo.RankInfo{},
 					SearchFields: userSearchMap[dataId],
-			if data.IsVipOnlineHiding() {
-				continue
-			}
-			info := &DataInfo{
-				DataId:       dataId,
-				UserCache:    data,
-				UserProfile:  userProfileMap[dataId],
-				LiveInfo:     liveMap[dataId],
-				RankInfo:     &algo.RankInfo{},
-				SearchFields: userSearchMap[dataId],
 
-				UserBehavior: userBehaviorMap[dataId],
-				ItemBehavior: itemBehaviorMap[dataId],
+					UserBehavior: userBehaviorMap[dataId],
+					ItemBehavior: itemBehaviorMap[dataId],
+				}
+				dataList = append(dataList, info)
 			}
-			dataList = append(dataList, info)
 		}
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(dataIds)
