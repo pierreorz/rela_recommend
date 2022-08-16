@@ -966,6 +966,8 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 
 func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	userInfo := ctx.GetUserInfo().(*UserInfo)
+	abtest := ctx.GetAbTest()
+	interval :=abtest.GetInt("live_interval_index",7)
 	w1 :=0.0
 	w2 :=0.0
 	w3 :=0.0
@@ -1012,7 +1014,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if sortIndex,ok :=sortIds[dataInfo.DataId];ok{//运营推荐主播每隔5位随机进行展示
-			rankInfo.HopeIndex=sortIndex*5+GenerateRangeNum(1,6)
+			rankInfo.HopeIndex=sortIndex*5+GenerateRangeNum(1,interval)
 		}
 	}
 	return nil
