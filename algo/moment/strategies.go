@@ -1014,7 +1014,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if sortIndex,ok :=sortIds[dataInfo.DataId];ok{//运营推荐主播每隔5位随机进行展示
-			rankInfo.HopeIndex=sortIndex*5+GenerateRangeNum(1,interval)
+			rankInfo.HopeIndex=sortIndex*(interval-1)+GenerateRangeNum(1,interval)
 		}
 	}
 	return nil
