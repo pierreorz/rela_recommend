@@ -128,6 +128,20 @@ func DoBuildData(ctx algo.IContext) error {
 				})
 			}
 
+			if lives[i].Live.IsHoroscopeStar {
+				liveInfo.GetRankInfo().AddRecommendNeedReturn("HOROSCOPE_STAR", 1.0)
+				liveInfo.LiveData.AddLabel(&labelItem{
+					Style: WeekStarLabel,
+					Title: multiLanguage{
+						Chs: "星座女神",
+						Cht: "星座女神",
+						En:  "Goddess",
+					},
+					weight: HoroscopeLabelWeight,
+					level:  level1,
+				})
+			}
+
 			if lives[i].Live.IsMonthStar {
 				liveInfo.GetRankInfo().AddRecommendNeedReturn("MONTH_STAR", 1.0)
 				liveInfo.LiveData.AddLabel(&labelItem{

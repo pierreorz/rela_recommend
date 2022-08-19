@@ -22,8 +22,9 @@ const (
 	RecommendLabelWeight
 	WeekStarLabelWeight
 	MonthStarLabelWeight
+	HoroscopeLabelWeight
 	ModalStudentLabelWeight
-	LiveTypeLabelWeight
+	TypeLabelWeight
 	ClassifyLabelWeight
 	AroundWeight
 	CityWeight
@@ -213,7 +214,7 @@ func (self *LiveInfo) GetDataId() int64 {
 
 func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 	params := ctx.GetRequest()
-	userId :=params.UserId
+	userId := params.UserId
 	if self.LiveCache != nil {
 		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
 
@@ -269,7 +270,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Cht: "PK中",
 							En:  "PK",
 						},
-						weight: LiveTypeLabelWeight,
+						weight: TypeLabelWeight,
 						level:  level2,
 					})
 				case 1:
@@ -280,16 +281,16 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Cht: "連麥中",
 							En:  "Beaming",
 						},
-						weight: LiveTypeLabelWeight,
+						weight: TypeLabelWeight,
 						level:  level2,
 					})
 				}
 
 				data.LabelList = self.LiveData.ToLabelList()
-				key :=prefix+":"+ strconv.FormatInt(self.UserId, 10)+":"+ strconv.FormatInt(userId, 10)
-				log.Warnf("label list key,%s",key)
+				key := prefix + ":" + strconv.FormatInt(self.UserId, 10) + ":" + strconv.FormatInt(userId, 10)
+				log.Warnf("label list key,%s", key)
 				if err := help.SetExStructByCache(factory.CacheCommonRds, key, data.LabelList, LabelExpire); err != nil {
-					log.Warnf("read label list err %s",err)
+					log.Warnf("read label list err %s", err)
 				}
 				dataJson, err := json.Marshal(data)
 				if err == nil {
