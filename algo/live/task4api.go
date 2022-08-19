@@ -126,6 +126,13 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 				liveCache.Live.IsWeekStar = true
 			}
 		}
+
+		if len(horoscopeStars) > 0 {
+			contained := utils.ContainsInt64(horoscopeStars, liveCache.Live.UserId)
+			if contained {
+				liveCache.Live.IsHoroscopeStar = true
+			}
+		}
 		if liveCache.Live.UserId == monthStarUID {
 			liveCache.Live.IsMonthStar = true
 		}
