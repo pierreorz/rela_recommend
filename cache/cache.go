@@ -3,6 +3,7 @@ package cache
 type Cache interface {
 	// get cached value by key.
 	Get(key string) (interface{}, error)
+
 	// GetMulti is a batch version of Get.
 	Mget(keys []string) ([]interface{}, error)
 	// lrange key start end
