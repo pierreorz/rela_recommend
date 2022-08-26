@@ -150,7 +150,6 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 		liveCache.DayIncoming = live.DayIncoming
 		liveCache.MonthIncoming = live.MonthIncoming
 		liveCache.Data4Api = live.Data
-		liveCache.Url = live.Url
 	}
 	return liveCacheList
 }

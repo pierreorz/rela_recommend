@@ -151,6 +151,7 @@ type multiLanguage struct {
 	Chs string `json:"chs"`
 	Cht string `json:"cht"`
 	En  string `json:"en"`
+	Url string  `json:"url"`
 }
 
 type ClassifyItem struct {
