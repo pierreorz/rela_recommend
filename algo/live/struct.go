@@ -275,7 +275,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Cht: "姬姬喳喳",
 							En:  "Group Video",
 						},
-						weight: LiveTypeLabelWeight,
+						weight: TypeLabelWeight,
 						level:  level2,
 					})
 				case 2:
