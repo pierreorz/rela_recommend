@@ -985,9 +985,9 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 				if live := dataInfo.LiveContentProfile; live != nil {//必须有主播相关的画像
 					//新用户不管
 					if dataInfo.MomentCache.MomentsType=="live"{//日志类型得分，视频直播类型占0.65分
-						w1 =0.65
+						w1 =0.55
 					}else{
-						w1 =0.35
+						w1 =0.45
 					}
 					w2 =live.LiveContentScore//直播内容得分
 					w3 =live.LiveValueScore //直播价值得分

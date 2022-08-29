@@ -139,10 +139,15 @@ type LiveInfo struct {
 	UserItemBehavior *behavior.UserBehavior
 }
 
+type newStyle struct{
+	font string
+	background string
+	color     string
+}
 type labelItem struct {
 	Title multiLanguage `json:"title"`
 	Style int           `json:"style"`
-
+	NewStyle newStyle
 	weight int
 	level  int
 }
