@@ -270,6 +270,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				case 2:
 					self.LiveData.AddLabel(&labelItem{
 						Style: PkLabel,
+						NewStyle:newStyle{
+							font:       "",
+							background: "https://static.rela.me/itOuWnrOWnrOWWs+WWs0AzeC5wbmcxNjYxNDc5MzY5ODcw.png",
+							color:      "",
+						},
 						Title: multiLanguage{
 							Chs: "PK中",
 							Cht: "PK中",
@@ -281,6 +286,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				case 1:
 					self.LiveData.AddLabel(&labelItem{
 						Style: BeamingLabel,
+						NewStyle:newStyle{
+							font:       "",
+							background: "",
+							color:      "",
+						},
 						Title: multiLanguage{
 							Chs: "连麦中",
 							Cht: "連麥中",
