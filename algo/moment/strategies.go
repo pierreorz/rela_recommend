@@ -1020,14 +1020,8 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	return nil
 }
 func editRecommendStrategyFunc(ctx algo.IContext) error {
-	abtest := ctx.GetAbTest()
 	recommendArr :=make([]int64,0)
-	liveExpectExposure :=abtest.GetInt("live_expect_exposure",50000)
 	recommendArrMap :=make(map[int64]int,0)
-	topLiveArr :=make([]int64,0)
-	topLiveArrMap :=make(map[int64]int,0)
-	softTopLiveArr :=make([]int64,0)
-	softTopLiveArrMap :=make(map[int64]int,0)
 	for index :=0;index<ctx.GetDataLength(); index++{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -1035,31 +1029,15 @@ func editRecommendStrategyFunc(ctx algo.IContext) error {
 			if strings.Contains(rankInfo.ReasonString(),"RECOMMEND")&&! strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.IsSoftTop==0&&rankInfo.IsTop==0{////如果是运营推荐且不为直播日志且非置顶日志且非软置顶日志
 				recommendArr=append(recommendArr,dataInfo.DataId)
 			}
-			if strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.TopLive==1&&rankInfo.IsTop==0&&rankInfo.IsSoftTop==0{//直播日志且为头部主播且不置顶且不为软置顶
-					topLiveArr = append(topLiveArr,dataInfo.DataId)
-			}
-			if strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.IsTop==0&&rankInfo.IsSoftTop==1{//软置顶直播日志非置顶
-				if (dataInfo.ItemOfflineBehavior!=nil&&getFeedRecExposure(dataInfo.ItemOfflineBehavior.PageMap)>liveExpectExposure)||dataInfo.ItemOfflineBehavior==nil{
-					softTopLiveArr = append(softTopLiveArr,dataInfo.DataId)
-				}
-			}
 		}
 	}
 	//对每个数组打散
 	recommendArrMap = Shuffle(recommendArr)
-	topLiveArrMap = Shuffle(topLiveArr)
-	softTopLiveArrMap =Shuffle(softTopLiveArr)
 	for index :=0;index<ctx.GetDataLength();index++{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if sortIndex,ok :=recommendArrMap[dataInfo.DataId];ok{//运营推荐主播每隔5位随机进行展示
 			rankInfo.HopeIndex=sortIndex*5+GenerateRangeNum(1,6)
-		}
-		if sortIndex,ok :=topLiveArrMap[dataInfo.DataId];ok{
-			rankInfo.HopeIndex=sortIndex*7+GenerateRangeNum(1,8)//头部主播每隔7位随机进行展示
-		}
-		if sortIndex,ok :=softTopLiveArrMap[dataInfo.DataId];ok{
-			rankInfo.HopeIndex=sortIndex*10+GenerateRangeNum(1,11)//软置顶定直播每隔10位进行展示
 		}
 	}
 	return nil

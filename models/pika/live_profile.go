@@ -35,6 +35,7 @@ type LiveProfile struct {
 	Classify         int      `json:"classify"`
 	MomentsID        int64    `json:"momentsId"`
 	IsWeekStar       bool     `json:"-"`
+	IsHoroscopeStar  bool     `json:"-"`
 	IsMonthStar      bool     `json:"-"`
 	IsModelStudent   bool     `json:"-"`
 }
@@ -51,9 +52,9 @@ type LiveCache struct {
 	TopCount       int         `json:"topCount"`
 	BottomScore    int         `json:"bottomScore"`
 	NowIncoming    float32     `json:"nowGem"`
-	Lat              float32   `json:"lat"`
-	Lng              float32   `json:"lng"`
-	IsShowAdd      int          `json:"is_show_add"`
+	Lat            float32     `json:"lat"`
+	Lng            float32     `json:"lng"`
+	IsShowAdd      int         `json:"is_show_add"`
 	DayIncoming    float32     `json:"dayIncoming"`
 	MonthIncoming  float32     `json:"monthIncoming"`
 	Data4Api       interface{} `json:"data"` // 20200305专门为api接口新增的透传参数
@@ -109,7 +110,7 @@ func (lcm *LiveCacheModule) MgetByLiveIds(allList []LiveCache, liveIds []int64) 
 		if len(live_ids_map) == 0 {
 			lives = allList
 		} else {
-			for i, _ := range allList {
+			for i := range allList {
 				if _, ok := live_ids_map[allList[i].Live.UserId]; ok {
 					lives = append(lives, allList[i])
 				}
@@ -152,6 +153,25 @@ func (lcm *LiveCacheModule) QueryLiveList() ([]LiveCache, error) {
 
 func (lcm *LiveCacheModule) GetWeekStars() ([]int64, error) {
 	key := "live_week_star_recommend"
+	var value string
+	var users []int64
+	err := help.GetStructByCache(lcm.cacheLive, key, &value)
+	if err == nil {
+		value = strings.Trim(value, "\"")
+		for _, single := range strings.Split(value, ",") {
+			uid64 := utils.GetInt64(single)
+			if uid64 > 0 {
+				users = append(users, uid64)
+			}
+		}
+		//log.Debugf("get model student: %+v", users)
+		return users, nil
+	}
+	return users, err
+}
+
+func (lcm *LiveCacheModule) GetHoroscopeStars() ([]int64, error) {
+	key := "live_horoscope_star_recommend"
 	var value string
 	var users []int64
 	err := help.GetStructByCache(lcm.cacheLive, key, &value)

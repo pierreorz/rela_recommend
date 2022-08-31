@@ -22,8 +22,9 @@ const (
 	RecommendLabelWeight
 	WeekStarLabelWeight
 	MonthStarLabelWeight
+	HoroscopeLabelWeight
 	ModalStudentLabelWeight
-	LiveTypeLabelWeight
+	TypeLabelWeight
 	ClassifyLabelWeight
 	AroundWeight
 	CityWeight
@@ -36,10 +37,11 @@ const (
 	PkLabel        = 4
 	BeamingLabel   = 5
 	ClassifyLabel  = 6
-	StrategyLabel  = 9
-	FollowLabel    = 8
-	AroundLabel    = 7
-	CityLabel      = 7
+	StrategyLabel  = 6
+	FollowLabel    = 6
+	AroundLabel    = 6
+	CityLabel      = 6
+	MultiBeamingLabel   =7
 
 	typeRecommend     = 1
 	typeBigVideo      = 32768
@@ -66,6 +68,8 @@ const (
 
 	MultiAudio          // multi link
 	MultiAudioEncounter // multi link and encounter
+	MultiVideoFour
+	MultiVideoNine
 )
 
 var classifyMap map[int]multiLanguage
@@ -194,6 +198,8 @@ func (lrt *ILiveRankItemV3) GetLiveType() int {
 		return 1
 	case PkBusy, PkSummary:
 		return 2
+	case MultiVideoFour, MultiVideoNine:
+		return 3
 	}
 	return 0
 }
@@ -219,7 +225,7 @@ func (self *LiveInfo) GetDataId() int64 {
 
 func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 	params := ctx.GetRequest()
-	userId :=params.UserId
+	userId := params.UserId
 	if self.LiveCache != nil {
 		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
 
@@ -267,6 +273,17 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				}
 
 				switch data.GetLiveType() {
+				case 3:
+					self.LiveData.AddLabel(&labelItem{
+						Style: MultiBeamingLabel,
+						Title: multiLanguage{
+							Chs: "姬姬喳喳",
+							Cht: "姬姬喳喳",
+							En:  "Group Video",
+						},
+						weight: TypeLabelWeight,
+						level:  level2,
+					})
 				case 2:
 					self.LiveData.AddLabel(&labelItem{
 						Style: PkLabel,
@@ -280,7 +297,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Cht: "PK中",
 							En:  "PK",
 						},
-						weight: LiveTypeLabelWeight,
+						weight: TypeLabelWeight,
 						level:  level2,
 					})
 				case 1:
@@ -296,16 +313,16 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Cht: "連麥中",
 							En:  "Beaming",
 						},
-						weight: LiveTypeLabelWeight,
+						weight: TypeLabelWeight,
 						level:  level2,
 					})
 				}
 
 				data.LabelList = self.LiveData.ToLabelList()
-				key :=prefix+":"+ strconv.FormatInt(self.UserId, 10)+":"+ strconv.FormatInt(userId, 10)
-				log.Warnf("label list key,%s",key)
+				key := prefix + ":" + strconv.FormatInt(self.UserId, 10) + ":" + strconv.FormatInt(userId, 10)
+				log.Warnf("label list key,%s", key)
 				if err := help.SetExStructByCache(factory.CacheCommonRds, key, data.LabelList, LabelExpire); err != nil {
-					log.Warnf("read label list err %s",err)
+					log.Warnf("read label list err %s", err)
 				}
 				dataJson, err := json.Marshal(data)
 				if err == nil {
