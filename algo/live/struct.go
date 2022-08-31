@@ -251,6 +251,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				if len(data.Label) > 0 && data.LabelLang != nil {
 					self.LiveData.AddLabel(&labelItem{
 						Style: RecommendLabel,
+						NewStyle:newStyle{
+							font:       "",
+							background: data.LabelLang.Url,
+							color:      "",
+						},
 						Title: multiLanguage{
 							Chs: data.LabelLang.Chs,
 							Cht: data.LabelLang.Cht,
@@ -265,6 +270,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					if lang, ok := classifyMap[data.Classify]; ok {
 						self.LiveData.AddLabel(&labelItem{
 							Title:  lang,
+							NewStyle:newStyle{
+								font:       "",
+								background: "https://static.rela.me/CH562+QDN4LnBuZzE2NjE0NzkzNjk4NjM=.png",
+								color:      "",
+							},
 							Style:  ClassifyLabel,
 							weight: ClassifyLabelWeight,
 							level:  level3,
@@ -276,6 +286,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				case 3:
 					self.LiveData.AddLabel(&labelItem{
 						Style: MultiBeamingLabel,
+						NewStyle:newStyle{
+							font:       "",
+							background: "https://static.rela.me/itOuWnrOWnrOWWs+WWs0AzeC5wbmcxNjYxNDc5MzY5ODcw.png",
+							color:      "",
+						},
 						Title: multiLanguage{
 							Chs: "姬姬喳喳",
 							Cht: "姬姬喳喳",
@@ -289,7 +304,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						Style: PkLabel,
 						NewStyle:newStyle{
 							font:       "",
-							background: "https://static.rela.me/itOuWnrOWnrOWWs+WWs0AzeC5wbmcxNjYxNDc5MzY5ODcw.png",
+							background: "https://static.rela.me/Go5pifQDN4LnBuZzE2NjE0NzkzNjk4NzY=.png",
 							color:      "",
 						},
 						Title: multiLanguage{
@@ -305,7 +320,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						Style: BeamingLabel,
 						NewStyle:newStyle{
 							font:       "",
-							background: "",
+							background: "https://static.rela.me/itOuWnrOWnrOWWs+WWs0AzeC5wbmcxNjYxNDc5MzY5ODcw.png",
 							color:      "",
 						},
 						Title: multiLanguage{

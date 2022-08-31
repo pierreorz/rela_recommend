@@ -213,6 +213,11 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 		rankInfo.AddRecommendNeedReturn("PER_HOUR_TOP3", 2.0)
 		liveInfo.LiveData.AddLabel(&labelItem{
 			Style: HourRankLabel,
+			NewStyle:newStyle{
+				font:       "",
+				background: "https://static.rela.me/CH562+OuWwj+aXtuamnEAzeC5wbmcxNjYxNDc5MzY5ODg5.png",
+				color:      "",
+			},
 			Title: multiLanguage{
 				Chs: "上小时TOP3",
 				Cht: "上小時TOP3",

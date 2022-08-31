@@ -132,6 +132,11 @@ func DoBuildData(ctx algo.IContext) error {
 				liveInfo.GetRankInfo().AddRecommendNeedReturn("HOROSCOPE_STAR", 1.0)
 				liveInfo.LiveData.AddLabel(&labelItem{
 					Style: WeekStarLabel,
+					NewStyle:newStyle{
+						font:       "",
+						background: "https://static.rela.me/Wz56WeQDN4LnBuZzE2NjE0NzkzNjk4ODU=.png",
+						color:      "",
+					},
 					Title: multiLanguage{
 						Chs: "星座女神",
 						Cht: "星座女神",
@@ -146,6 +151,11 @@ func DoBuildData(ctx algo.IContext) error {
 				liveInfo.GetRankInfo().AddRecommendNeedReturn("MONTH_STAR", 1.0)
 				liveInfo.LiveData.AddLabel(&labelItem{
 					Style: WeekStarLabel,
+					NewStyle:newStyle{
+						font:       "",
+						background: "https://static.rela.me/i75pKtQDN4LnBuZzE2NjE0NzkzNjk4ODE=.png",
+						color:      "",
+					},
 					Title: multiLanguage{
 						Chs: "王牌主播",
 						Cht: "王牌主播",
