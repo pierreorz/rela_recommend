@@ -214,9 +214,9 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 		liveInfo.LiveData.AddLabel(&labelItem{
 			Style: HourRankLabel,
 			NewStyle:newStyle{
-				font:       "",
-				background: "https://static.rela.me/CH562+OuWwj+aXtuamnEAzeC5wbmcxNjYxNDc5MzY5ODg5.png",
-				color:      "",
+				Font:       "",
+				Background: "https://static.rela.me/CH562+OuWwj+aXtuamnEAzeC5wbmcxNjYxNDc5MzY5ODg5.png",
+				Color:      "",
 			},
 			Title: multiLanguage{
 				Chs: "上小时TOP3",

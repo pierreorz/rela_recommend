@@ -252,9 +252,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					self.LiveData.AddLabel(&labelItem{
 						Style: RecommendLabel,
 						NewStyle:newStyle{
-							font:       "",
-							background: data.LabelLang.Url,
-							color:      "",
+							Font:       "",
+							Background: data.LabelLang.Url,
+							Color:      "",
 						},
 						Title: multiLanguage{
 							Chs: data.LabelLang.Chs,
@@ -271,9 +271,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						self.LiveData.AddLabel(&labelItem{
 							Title:  lang,
 							NewStyle:newStyle{
-								font:       "",
-								background: "https://static.rela.me/CH562+QDN4LnBuZzE2NjE0NzkzNjk4NjM=.png",
-								color:      "",
+								Font:       "",
+								Background: "https://static.rela.me/CH562+QDN4LnBuZzE2NjE0NzkzNjk4NjM=.png",
+								Color:      "",
 							},
 							Style:  ClassifyLabel,
 							weight: ClassifyLabelWeight,
@@ -287,9 +287,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					self.LiveData.AddLabel(&labelItem{
 						Style: MultiBeamingLabel,
 						NewStyle:newStyle{
-							font:       "",
-							background: "https://static.rela.me/itOuWnrOWnrOWWs+WWs0AzeC5wbmcxNjYxNDc5MzY5ODcw.png",
-							color:      "",
+							Font:       "",
+							Background: "https://static.rela.me/itOuWnrOWnrOWWs+WWs0AzeC5wbmcxNjYxNDc5MzY5ODcw.png",
+							Color:      "",
 						},
 						Title: multiLanguage{
 							Chs: "姬姬喳喳",
@@ -303,9 +303,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					self.LiveData.AddLabel(&labelItem{
 						Style: PkLabel,
 						NewStyle:newStyle{
-							font:       "",
-							background: "https://static.rela.me/Go5pifQDN4LnBuZzE2NjE0NzkzNjk4NzY=.png",
-							color:      "",
+							Font:       "",
+							Background: "https://static.rela.me/Go5pifQDN4LnBuZzE2NjE0NzkzNjk4NzY=.png",
+							Color:      "",
 						},
 						Title: multiLanguage{
 							Chs: "PK中",
@@ -319,9 +319,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					self.LiveData.AddLabel(&labelItem{
 						Style: BeamingLabel,
 						NewStyle:newStyle{
-							font:       "",
-							background: "https://static.rela.me/itOuWnrOWnrOWWs+WWs0AzeC5wbmcxNjYxNDc5MzY5ODcw.png",
-							color:      "",
+							Font:       "",
+							Background: "https://static.rela.me/itOuWnrOWnrOWWs+WWs0AzeC5wbmcxNjYxNDc5MzY5ODcw.png",
+							Color:      "",
 						},
 						Title: multiLanguage{
 							Chs: "连麦中",

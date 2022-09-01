@@ -133,9 +133,9 @@ func DoBuildData(ctx algo.IContext) error {
 				liveInfo.LiveData.AddLabel(&labelItem{
 					Style: WeekStarLabel,
 					NewStyle:newStyle{
-						font:       "",
-						background: "https://static.rela.me/Wz56WeQDN4LnBuZzE2NjE0NzkzNjk4ODU=.png",
-						color:      "",
+						Font:       "",
+						Background: "https://static.rela.me/Wz56WeQDN4LnBuZzE2NjE0NzkzNjk4ODU=.png",
+						Color:      "",
 					},
 					Title: multiLanguage{
 						Chs: "星座女神",
@@ -152,9 +152,9 @@ func DoBuildData(ctx algo.IContext) error {
 				liveInfo.LiveData.AddLabel(&labelItem{
 					Style: WeekStarLabel,
 					NewStyle:newStyle{
-						font:       "",
-						background: "https://static.rela.me/i75pKtQDN4LnBuZzE2NjE0NzkzNjk4ODE=.png",
-						color:      "",
+						Font:       "",
+						Background: "https://static.rela.me/i75pKtQDN4LnBuZzE2NjE0NzkzNjk4ODE=.png",
+						Color:      "",
 					},
 					Title: multiLanguage{
 						Chs: "王牌主播",
