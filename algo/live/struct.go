@@ -144,14 +144,14 @@ type LiveInfo struct {
 }
 
 type newStyle struct{
-	font string
-	background string
-	color     string
+	Font string  `json:"font"`
+	Background string `json:"background"`
+	Color     string   `json:"color"`
 }
 type labelItem struct {
 	Title multiLanguage `json:"title"`
 	Style int           `json:"style"`
-	NewStyle newStyle
+	NewStyle newStyle	`json:"new_style"`
 	weight int
 	level  int
 }
