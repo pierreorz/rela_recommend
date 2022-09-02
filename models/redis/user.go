@@ -55,7 +55,8 @@ type UserProfile struct {
 	JsonRoleLike   map[string]float32 `json:"jsonRoleLike"`
 	JsonAffeLike   map[string]float32 `json:"jsonAffeLike"`
 	LiveInfo       *liveInfo          `json:"live_info,omitempty"`
-	OnlineHiding   int8              `json:"online_hiding,omitempty"`
+	OnlineHiding   int8               `json:"online_hiding,omitempty"`
+	Identity       int8               `json:"identity"` //身份认证 -1 未通过，0 未验证，1 审核中，2系统认证通过，3 人工认证通过，4 主播认证通过，5  历史申诉认证通过
 }
 
 type UserContentProfile struct {
@@ -64,16 +65,16 @@ type UserContentProfile struct {
 }
 
 type UserLiveContentProfile struct {
-	UserId int64      `json:"user_id"`
-	WantRole int      `json:"want_role"`
-	UserLivePref  map[int64]float64 `json:"user_live_pref,omitempty"`
+	UserId       int64             `json:"user_id"`
+	WantRole     int               `json:"want_role"`
+	UserLivePref map[int64]float64 `json:"user_live_pref,omitempty"`
 }
 
-type LiveContentProfile struct{
-	LiveId   int64       `json:"live_id"`
-	LiveContentScore  float64   `json:"live_content_score"`
-	LiveValueScore    float64   `json:"live_value_score"`
-	Role              int    `json:"role_type"`
+type LiveContentProfile struct {
+	LiveId           int64   `json:"live_id"`
+	LiveContentScore float64 `json:"live_content_score"`
+	LiveValueScore   float64 `json:"live_value_score"`
+	Role             int     `json:"role_type"`
 }
 
 type UserLiveProfile struct {
@@ -85,7 +86,7 @@ type UserLiveProfile struct {
 	LiveTypeLongPref      map[int]float32   `json:"live_type_long_pref,omitempty"`
 	LiveTypeShortPref     map[int]float32   `json:"live_type_short_pref,omitempty"`
 	LiveClassifyLongPref  map[int]float32   `json:"live_classify_long_pref,omitempty"`
-	LiveClassifyShortPref map[int]float32   `json:live_classify_short_pref,omitempty`
+	LiveClassifyShortPref map[int]float32   `json:"live_classify_short_pref,omitempty"`
 }
 
 //读取用户直播画像
@@ -169,8 +170,6 @@ func (this *UserCacheModule) QueryUserLiveContentProfileByIdsMap(userIds []int64
 	return resUserContentProfileMap, err
 }
 
-
-
 func (user *UserProfile) MaybeICPUser(lat, lng float32) bool {
 	// 特定ICP审核用户
 	if user.UserId == 104208008 {
@@ -206,6 +205,31 @@ func (user *UserProfile) IsVipOnlineHiding() bool {
 		return true
 	}
 	return false
+}
+
+// 使用者测是否可以推荐
+func (user *UserProfile) CanRecommend() bool {
+
+	if user == nil {
+		return false
+	}
+
+	notTeen := user.Status != 7 && user.TeenActive != 1 // 非青少年模式
+
+	return notTeen
+}
+
+// 被推荐内容的用户是否可以推荐
+func (user *UserProfile) DataUserCanRecommend() bool {
+	if user == nil {
+		return false
+	}
+
+	isNormal := user.Status == 1                                // 状态正常
+	notPrivate := user.IsPrivate == 0                           // 非私密账号
+	femaleIdentity := user.Identity != -1 && user.Identity != 1 // 非男性用户
+
+	return isNormal && notPrivate && femaleIdentity
 }
 
 func (user *UserProfile) GetRoleNameInt() int {

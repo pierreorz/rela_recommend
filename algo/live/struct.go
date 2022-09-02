@@ -31,17 +31,17 @@ const (
 	FollowLabelWeight
 	StrategyLabelWeight
 
-	HourRankLabel  = 1
-	RecommendLabel = 2
-	WeekStarLabel  = 3
-	PkLabel        = 4
-	BeamingLabel   = 5
-	ClassifyLabel  = 6
-	StrategyLabel  = 6
-	FollowLabel    = 6
-	AroundLabel    = 6
-	CityLabel      = 6
-	MultiBeamingLabel   =7
+	HourRankLabel     = 1
+	RecommendLabel    = 2
+	WeekStarLabel     = 3
+	PkLabel           = 4
+	BeamingLabel      = 5
+	ClassifyLabel     = 6
+	StrategyLabel     = 6
+	FollowLabel       = 6
+	AroundLabel       = 6
+	CityLabel         = 6
+	MultiBeamingLabel = 7
 
 	typeRecommend     = 1
 	typeBigVideo      = 32768
@@ -242,6 +242,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					log.Errorf("unmarshal live data %+v error: %+v", self.LiveCache.Data4Api, err)
 					return nil
 				}
+				log.Warnf("live data err %s", data)
 				if len(data.Label) > 0 && data.LabelLang != nil {
 					self.LiveData.AddLabel(&labelItem{
 						Style: RecommendLabel,
