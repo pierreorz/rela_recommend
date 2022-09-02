@@ -936,7 +936,27 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
-
+func  LiveMomAddWeightFunc(ctx algo.IContext) error{
+	liveArrMap := make(map[int64]int, 0)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		if strings.Contains(dataInfo.MomentCache.MomentsType, "live"){
+			liveArrMap[dataInfo.DataId]=1
+		}
+	}
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
+			if !strings.Contains(dataInfo.MomentCache.MomentsType, "live"){
+				if _,isOk :=liveArrMap[dataInfo.MomentCache.Id];isOk{
+					rankInfo.AddRecommend("liveMomAddWeight", 1.1)
+				}
+			}
+		}
+	}
+	return nil
+}
 
 func aroundLiveExposureFunc(ctx algo.IContext) error {
 	liveArr := make([]int64, 0)
@@ -987,9 +1007,9 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 				if live := dataInfo.LiveContentProfile; live != nil {//必须有主播相关的画像
 					//新用户不管
 					if dataInfo.MomentCache.MomentsType=="live"{//日志类型得分，视频直播类型占0.65分
-						w1 =0.55
+						w1 =0.6
 					}else{
-						w1 =0.45
+						w1 =0.4
 					}
 					w2 =live.LiveContentScore//直播内容得分
 					w3 =live.LiveValueScore //直播价值得分
