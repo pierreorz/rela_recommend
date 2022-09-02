@@ -42,6 +42,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var user2 *redis.LiveProfile
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
+	var consumerSet = &utils.SetInt64{}
 	var interestSet = &utils.SetInt64{}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
@@ -97,9 +98,21 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			return hourRankErr
 		},
+		"consume_user":func(*performs.Performs) interface{}{
+			if consumer, consumerErr := rdsPikaCache.GetInt64List(params.UserId, "user_consumer"); consumerErr == nil {
+				consumerSet = utils.NewSetInt64FromArray(consumer)
+				return consumerSet.Len()
+			} else {
+				return consumerErr
+			}
+		},
 	})
 	pfms.Run("build", func(*performs.Performs) interface{} {
 		livesInfo := make([]algo.IDataInfo, 0)
+		consumer :=0
+		if concernsSet.Contains(user.UserId){
+			consumer = 1
+		}
 		for i, _ := range lives {
 			liveId := lives[i].Live.UserId
 			id, _ := strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId, 10), 10, 64)
@@ -188,7 +201,8 @@ func DoBuildData(ctx algo.IContext) error {
 			UserCache:     user,
 			LiveProfile:   user2,
 			UserConcerns:  concernsSet,
-			UserInterests: interestSet}
+			UserInterests: interestSet,
+		ConsumeUser:consumer}
 
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(liveIds)

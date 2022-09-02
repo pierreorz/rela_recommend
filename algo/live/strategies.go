@@ -31,6 +31,19 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 	return nil
 }
 
+func LiveExposureFunc(ctx algo.IContext) error {
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	if userInfo.ConsumeUser==1{
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if dataInfo.LiveCache.Live.AudioType==0{
+				rankInfo.AddRecommend("live_add_exposure",1.2)
+			}
+		}
+	}
+	return nil
+	}
 // 融合老策略的分数
 type OldScoreStrategy struct{}
 

@@ -81,6 +81,7 @@ type UserInfo struct {
 	LiveProfile   *redis.LiveProfile
 	UserConcerns  *rutils.SetInt64
 	UserInterests *rutils.SetInt64
+	ConsumeUser    int
 }
 
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
