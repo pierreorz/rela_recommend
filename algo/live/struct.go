@@ -272,7 +272,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Title:  lang,
 							NewStyle:newStyle{
 								Font:       "",
-								Background: "https://static.rela.me/CH562+QDN4LnBuZzE2NjE0NzkzNjk4NjM=.png",
+								Background: "https://static.rela.me/whitetag.jpg",
 								Color:      "",
 							},
 							Style:  ClassifyLabel,
@@ -288,7 +288,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						Style: MultiBeamingLabel,
 						NewStyle:newStyle{
 							Font:       "",
-							Background: "https://static.rela.me/itOuWnrOWnrOWWs+WWs0AzeC5wbmcxNjYxNDc5MzY5ODcw.png",
+							Background: "https://static.rela.me/bluengreentag.jpg",
 							Color:      "",
 						},
 						Title: multiLanguage{
@@ -320,7 +320,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						Style: BeamingLabel,
 						NewStyle:newStyle{
 							Font:       "",
-							Background: "https://static.rela.me/itOuWnrOWnrOWWs+WWs0AzeC5wbmcxNjYxNDc5MzY5ODcw.png",
+							Background: "https://static.rela.me/bluengreentag.jpg",
 							Color:      "",
 						},
 						Title: multiLanguage{

@@ -215,7 +215,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 			Style: HourRankLabel,
 			NewStyle:newStyle{
 				Font:       "",
-				Background: "https://static.rela.me/CH562+OuWwj+aXtuamnEAzeC5wbmcxNjYxNDc5MzY5ODg5.png",
+				Background: "https://static.rela.me/yellotag.jpg",
 				Color:      "",
 			},
 			Title: multiLanguage{

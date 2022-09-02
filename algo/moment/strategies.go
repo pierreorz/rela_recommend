@@ -936,6 +936,8 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
+
+
 func aroundLiveExposureFunc(ctx algo.IContext) error {
 	liveArr := make([]int64, 0)
 	liveArrMap := make(map[int64]int, 0)
