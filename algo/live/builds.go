@@ -148,7 +148,7 @@ func DoBuildData(ctx algo.IContext) error {
 					NewStyle:newStyle{
 						Font:       "",
 						Background: "https://static.rela.me/Wz56WeQDN4LnBuZzE2NjE0NzkzNjk4ODU=.png",
-						Color:      "",
+						Color:      "ffffff",
 					},
 					Title: multiLanguage{
 						Chs: "星座女神",
@@ -167,7 +167,7 @@ func DoBuildData(ctx algo.IContext) error {
 					NewStyle:newStyle{
 						Font:       "",
 						Background: "https://static.rela.me/i75pKtQDN4LnBuZzE2NjE0NzkzNjk4ODE=.png",
-						Color:      "",
+						Color:      "ffffff",
 					},
 					Title: multiLanguage{
 						Chs: "王牌主播",

@@ -255,7 +255,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						NewStyle:newStyle{
 							Font:       "",
 							Background: data.LabelLang.Url,
-							Color:      "",
+							Color:      "313333",
 						},
 						Title: multiLanguage{
 							Chs: data.LabelLang.Chs,
@@ -274,7 +274,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							NewStyle:newStyle{
 								Font:       "",
 								Background: "https://static.rela.me/whitetag.jpg",
-								Color:      "",
+								Color:      "ffffff",
 							},
 							Style:  ClassifyLabel,
 							weight: ClassifyLabelWeight,
@@ -290,7 +290,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						NewStyle:newStyle{
 							Font:       "",
 							Background: "https://static.rela.me/bluengreentag.jpg",
-							Color:      "",
+							Color:      "ffffff",
 						},
 						Title: multiLanguage{
 							Chs: "姬姬喳喳",
@@ -306,7 +306,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						NewStyle:newStyle{
 							Font:       "",
 							Background: "https://static.rela.me/Go5pifQDN4LnBuZzE2NjE0NzkzNjk4NzY=.png",
-							Color:      "",
+							Color:      "ffffff",
 						},
 						Title: multiLanguage{
 							Chs: "PK中",
@@ -322,7 +322,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						NewStyle:newStyle{
 							Font:       "",
 							Background: "https://static.rela.me/bluengreentag.jpg",
-							Color:      "",
+							Color:      "ffffff",
 						},
 						Title: multiLanguage{
 							Chs: "连麦中",

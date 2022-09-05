@@ -229,7 +229,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 			NewStyle:newStyle{
 				Font:       "",
 				Background: "https://static.rela.me/yellotag.jpg",
-				Color:      "",
+				Color:      "ffffff",
 			},
 			Title: multiLanguage{
 				Chs: "上小时TOP3",
