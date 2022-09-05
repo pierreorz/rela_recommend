@@ -261,6 +261,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Chs: data.LabelLang.Chs,
 							Cht: data.LabelLang.Cht,
 							En:  data.LabelLang.En,
+							Url:data.LabelLang.Url,
 						},
 						weight: RecommendLabelWeight,
 						level:  level1,
