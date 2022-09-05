@@ -255,7 +255,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						NewStyle:newStyle{
 							Font:       "",
 							Background: data.LabelLang.Url,
-							Color:      "313333",
+							Color:      "",
 						},
 						Title: multiLanguage{
 							Chs: data.LabelLang.Chs,
@@ -274,7 +274,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							NewStyle:newStyle{
 								Font:       "",
 								Background: "https://static.rela.me/whitetag.jpg",
-								Color:      "ffffff",
+								Color:      "313333",
 							},
 							Style:  ClassifyLabel,
 							weight: ClassifyLabelWeight,
