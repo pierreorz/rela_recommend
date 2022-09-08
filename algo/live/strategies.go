@@ -31,6 +31,19 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 	return nil
 }
 
+func LiveExposureFunc(ctx algo.IContext) error {
+	userInfo := ctx.GetUserInfo().(*UserInfo)
+	if userInfo.ConsumeUser==1{
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if dataInfo.LiveCache.Live.AudioType==0{
+				rankInfo.AddRecommend("live_add_exposure",1.2)
+			}
+		}
+	}
+	return nil
+	}
 // 融合老策略的分数
 type OldScoreStrategy struct{}
 
@@ -213,6 +226,11 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 		rankInfo.AddRecommendNeedReturn("PER_HOUR_TOP3", 2.0)
 		liveInfo.LiveData.AddLabel(&labelItem{
 			Style: HourRankLabel,
+			NewStyle:newStyle{
+				Font:       "",
+				Background: "https://static.rela.me/yellotag.jpg",
+				Color:      "ffffff",
+			},
 			Title: multiLanguage{
 				Chs: "上小时TOP3",
 				Cht: "上小時TOP3",

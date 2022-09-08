@@ -81,6 +81,7 @@ type UserInfo struct {
 	LiveProfile   *redis.LiveProfile
 	UserConcerns  *rutils.SetInt64
 	UserInterests *rutils.SetInt64
+	ConsumeUser    int
 }
 
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
@@ -143,10 +144,15 @@ type LiveInfo struct {
 	UserItemBehavior *behavior.UserBehavior
 }
 
+type newStyle struct{
+	Font string  `json:"font"`
+	Background string `json:"background"`
+	Color     string   `json:"color"`
+}
 type labelItem struct {
 	Title multiLanguage `json:"title"`
 	Style int           `json:"style"`
-
+	NewStyle newStyle	`json:"new_style"`
 	weight int
 	level  int
 }
@@ -155,6 +161,7 @@ type multiLanguage struct {
 	Chs string `json:"chs"`
 	Cht string `json:"cht"`
 	En  string `json:"en"`
+	Url string  `json:"url"`
 }
 
 type ClassifyItem struct {
@@ -246,10 +253,16 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				if len(data.Label) > 0 && data.LabelLang != nil {
 					self.LiveData.AddLabel(&labelItem{
 						Style: RecommendLabel,
+						NewStyle:newStyle{
+							Font:       "",
+							Background: data.LabelLang.Url,
+							Color:      "",
+						},
 						Title: multiLanguage{
 							Chs: data.LabelLang.Chs,
 							Cht: data.LabelLang.Cht,
 							En:  data.LabelLang.En,
+							Url:data.LabelLang.Url,
 						},
 						weight: RecommendLabelWeight,
 						level:  level1,
@@ -260,6 +273,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					if lang, ok := classifyMap[data.Classify]; ok {
 						self.LiveData.AddLabel(&labelItem{
 							Title:  lang,
+							NewStyle:newStyle{
+								Font:       "",
+								Background: "https://static.rela.me/whitetag.jpg",
+								Color:      "313333",
+							},
 							Style:  ClassifyLabel,
 							weight: ClassifyLabelWeight,
 							level:  level3,
@@ -271,6 +289,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				case 3:
 					self.LiveData.AddLabel(&labelItem{
 						Style: MultiBeamingLabel,
+						NewStyle:newStyle{
+							Font:       "",
+							Background: "https://static.rela.me/bluengreentag.jpg",
+							Color:      "ffffff",
+						},
 						Title: multiLanguage{
 							Chs: "姬姬喳喳",
 							Cht: "姬姬喳喳",
@@ -282,6 +305,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				case 2:
 					self.LiveData.AddLabel(&labelItem{
 						Style: PkLabel,
+						NewStyle:newStyle{
+							Font:       "",
+							Background: "https://static.rela.me/Go5pifQDN4LnBuZzE2NjE0NzkzNjk4NzY=.png",
+							Color:      "ffffff",
+						},
 						Title: multiLanguage{
 							Chs: "PK中",
 							Cht: "PK中",
@@ -293,6 +321,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				case 1:
 					self.LiveData.AddLabel(&labelItem{
 						Style: BeamingLabel,
+						NewStyle:newStyle{
+							Font:       "",
+							Background: "https://static.rela.me/bluengreentag.jpg",
+							Color:      "ffffff",
+						},
 						Title: multiLanguage{
 							Chs: "连麦中",
 							Cht: "連麥中",
