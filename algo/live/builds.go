@@ -131,6 +131,11 @@ func DoBuildData(ctx algo.IContext) error {
 				liveInfo.GetRankInfo().AddRecommendNeedReturn("WEEK_STAR", 1.0)
 				liveInfo.LiveData.AddLabel(&labelItem{
 					Style: WeekStarLabel,
+					NewStyle:newStyle{
+						Font:       "",
+						Background: "https://static.rela.me/Go5pifQDN4LnBuZzE2NjE0NzkzNjk4NzY=.png",
+						Color:      "ffffff",
+					},
 					Title: multiLanguage{
 						Chs: "闪耀周星",
 						Cht: "閃耀周星",
