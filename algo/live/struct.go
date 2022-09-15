@@ -227,6 +227,13 @@ func (self *LiveInfo) GetDataId() int64 {
 func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 	params := ctx.GetRequest()
 	userId := params.UserId
+	Version := ctx.GetRequest().ClientVersion
+	pk :=""
+	beaming :=""
+	if Version>=51600{//判断版本
+		pk ="⚡️"
+		beaming="🔗"
+	}
 	if self.LiveCache != nil {
 		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
 
@@ -311,9 +318,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Color:      "ffffff",
 						},
 						Title: multiLanguage{
-							Chs: "⚡️PK中",
-							Cht: "⚡️PK中",
-							En:  "⚡️PK",
+							Chs: pk+"PK中",
+							Cht: pk+"️PK中",
+							En:  pk+"⚡️PK",
 						},
 						weight: TypeLabelWeight,
 						level:  level2,
@@ -327,9 +334,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Color:      "ffffff",
 						},
 						Title: multiLanguage{
-							Chs: "🔗连麦中",
-							Cht: "🔗連麥中",
-							En:  "🔗Beaming",
+							Chs: beaming+"连麦中",
+							Cht: beaming+"連麥中",
+							En:  beaming+"Beaming",
 						},
 						weight: TypeLabelWeight,
 						level:  level2,
