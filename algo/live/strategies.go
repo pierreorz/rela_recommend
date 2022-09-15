@@ -33,7 +33,7 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 
 func LiveExposureFunc(ctx algo.IContext) error {
 	userInfo := ctx.GetUserInfo().(*UserInfo)
-	if userInfo.ConsumeUser==1{
+	if userInfo.ConsumeUser==0{//低消费用户将视频提权
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 			rankInfo := dataInfo.GetRankInfo()
