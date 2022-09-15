@@ -230,9 +230,11 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 	Version := ctx.GetRequest().ClientVersion
 	pk :=""
 	beaming :=""
+	talking :=""
 	if Version>=51600{//判断版本
 		pk ="⚡️"
 		beaming="🔗"
+		talking="💬"
 	}
 	if self.LiveCache != nil {
 		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
@@ -302,9 +304,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Color:      "ffffff",
 						},
 						Title: multiLanguage{
-							Chs: "💬姬姬喳喳",
-							Cht: "💬姬姬喳喳",
-							En:  "💬Group Video",
+							Chs: talking+"姬姬喳喳",
+							Cht: talking+"姬姬喳喳",
+							En:  talking+"Group Video",
 						},
 						weight: TypeLabelWeight,
 						level:  level2,
