@@ -320,7 +320,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						Title: multiLanguage{
 							Chs: pk+"PK中",
 							Cht: pk+"️PK中",
-							En:  pk+"⚡️PK",
+							En:  pk+"️PK",
 						},
 						weight: TypeLabelWeight,
 						level:  level2,
