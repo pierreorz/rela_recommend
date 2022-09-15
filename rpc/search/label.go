@@ -25,6 +25,7 @@ type searchLabelMomentRes struct {
 
 
 type SearchLabelResDataItem struct {
+	Id        int64 `json:"id"`
 	ViewNum   int64 `json:"view_num"`
 	Name      string `json:"name"`
 	JoinNum    int64 `json:"join_num"`
@@ -68,8 +69,8 @@ func CallLabelMomentList(id int64,limit int64) ([]int64, error) {
 
 //标签联想
 
-func CallLabelSuggestList(query string) ([]string, error) {
-	namelist := make([]string, 0)
+func CallLabelSuggestList(query string) ([]int64, error) {
+	namelist := make([]int64, 0)
 
 	params := searchBaseRequest{
 		Query:query,
@@ -79,7 +80,7 @@ func CallLabelSuggestList(query string) ([]string, error) {
 		searchRes := &searchLabelRes{}
 		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLabelSuggestListUrl, paramsData, searchRes); err == nil {
 			for _, element := range searchRes.Data {
-				namelist = append(namelist, element.Name)
+				namelist = append(namelist, element.Id)
 			}
 			return namelist, err
 		} else {
@@ -91,8 +92,8 @@ func CallLabelSuggestList(query string) ([]string, error) {
 }
 
 //标签搜索接口
-func CallLabelSearchList(query string) ([]string, error) {
-	namelist := make([]string, 0)
+func CallLabelSearchList(query string) ([]int64, error) {
+	namelist := make([]int64, 0)
 
 	params := searchBaseRequest{
 		Query:query,
@@ -102,7 +103,7 @@ func CallLabelSearchList(query string) ([]string, error) {
 		searchRes := &searchLabelRes{}
 		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLabelSuggestListUrl, paramsData, searchRes); err == nil {
 			for _, element := range searchRes.Data {
-				namelist = append(namelist, element.Name)
+				namelist = append(namelist, element.Id)
 			}
 			return namelist, err
 		} else {
