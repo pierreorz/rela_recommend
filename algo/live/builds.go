@@ -99,7 +99,7 @@ func DoBuildData(ctx algo.IContext) error {
 			return hourRankErr
 		},
 		"consume_user":func(*performs.Performs) interface{}{
-			if consumer, consumerErr := rdsPikaCache.GetInt64List(params.UserId, "user_consumer"); consumerErr == nil {
+			if consumer, consumerErr := rdsPikaCache.GetInt64List(-999999999, "user_consumer:%d"); consumerErr == nil {
 				consumerSet = utils.NewSetInt64FromArray(consumer)
 				return consumerSet.Len()
 			} else {
@@ -110,7 +110,7 @@ func DoBuildData(ctx algo.IContext) error {
 	pfms.Run("build", func(*performs.Performs) interface{} {
 		livesInfo := make([]algo.IDataInfo, 0)
 		consumer :=0
-		if concernsSet.Contains(user.UserId){
+		if concernsSet.Contains(1){//高消费用户
 			consumer = 1
 		}
 		for i, _ := range lives {
