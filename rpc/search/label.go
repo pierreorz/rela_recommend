@@ -2,6 +2,7 @@ package search
 
 import (
 	"encoding/json"
+	"fmt"
 	"rela_recommend/factory"
 	"strings"
 )
@@ -37,23 +38,22 @@ type searchLabelRes struct {
 }
 
 
-//获取广告日志列表
-func CallLabelMomentList(id int64) ([]int64, error) {
+
+//获取标签下日志列表
+func CallLabelMomentList(id int64,limit int64) ([]int64, error) {
 	idlist := make([]int64, 0)
 	filters := []string{
-		fmt.Sprintf("{moments_type:%s}", "ad"),     //  moments Type
-		fmt.Sprintf("ad_location.start_time:(,now/m]", ), // time
-		fmt.Sprint("ad_location.end_time:[now/m,)"),
+		fmt.Sprintf("id:%d", id),     //  moments Type
 	}
 
-	params := searchMomentRequest{
-		UserID:   userId,
+	params := searchBaseRequest{
 		Filter:   strings.Join(filters, "*"),
+		Limit: limit,
 	}
 
 	if paramsData, err := json.Marshal(params); err == nil {
-		searchRes := &searchMomentRes{}
-		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchNearMomentListUrlV1, paramsData, searchRes); err == nil {
+		searchRes := &searchLabelMomentRes{}
+		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLabelMomentsListUrl, paramsData, searchRes); err == nil {
 			for _, element := range searchRes.Data {
 				idlist = append(idlist, element.Id)
 			}
@@ -63,5 +63,52 @@ func CallLabelMomentList(id int64) ([]int64, error) {
 		}
 	} else {
 		return idlist, err
+	}
+}
+
+//标签联想
+
+func CallLabelSuggestList(query string) ([]string, error) {
+	namelist := make([]string, 0)
+
+	params := searchBaseRequest{
+		Query:query,
+	}
+
+	if paramsData, err := json.Marshal(params); err == nil {
+		searchRes := &searchLabelRes{}
+		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLabelSuggestListUrl, paramsData, searchRes); err == nil {
+			for _, element := range searchRes.Data {
+				namelist = append(namelist, element.Name)
+			}
+			return namelist, err
+		} else {
+			return namelist, err
+		}
+	} else {
+		return namelist, err
+	}
+}
+
+//标签搜索接口
+func CallLabelSearchList(query string) ([]string, error) {
+	namelist := make([]string, 0)
+
+	params := searchBaseRequest{
+		Query:query,
+	}
+
+	if paramsData, err := json.Marshal(params); err == nil {
+		searchRes := &searchLabelRes{}
+		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLabelSuggestListUrl, paramsData, searchRes); err == nil {
+			for _, element := range searchRes.Data {
+				namelist = append(namelist, element.Name)
+			}
+			return namelist, err
+		} else {
+			return namelist, err
+		}
+	} else {
+		return namelist, err
 	}
 }

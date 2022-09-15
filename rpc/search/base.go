@@ -44,6 +44,7 @@ type searchBaseRequest struct {
 	Lng      float32 `json:"lng" form:"lng" `
 	Lat      float32 `json:"lat" form:"lat" `
 	Filter   string  `json:"filter" form:"filter" `
+	Sort         string `json:"sort"`
 	Query    string  `json:"query" form:"query" `
 }
 

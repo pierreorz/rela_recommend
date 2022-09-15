@@ -13,6 +13,7 @@ import (
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
+	"strconv"
 	"time"
 )
 
@@ -31,14 +32,14 @@ func DoBuildLabelData(ctx algo.IContext) error{
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
-	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, &factory.CacheRds)
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
-
+	queryInt,_ :=strconv.ParseInt(query, 10, 64)
+	var itemBehaviorMap = map[int64]*behavior.UserBehavior{}     // 获取日志行为
 	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
 		"recommend": func(*performs.Performs) interface{} {
-			newIdList, errSearch = search.CallNearMomentListV2(query, 1000)
+			newIdList, errSearch = search.CallLabelMomentList(queryInt, 1000)
 			if errSearch!=nil{//search的兜底数据
-				newIdList,_ =momentCache.GetInt64ListOrDefault(query, -999999999, "hour_recommend_list:%d")
+				newIdList,_ =momentCache.GetInt64ListOrDefault(queryInt, -999999999, "hour_recommend_list:%d")
 			}
 			return nil
 		},
@@ -83,55 +84,18 @@ func DoBuildLabelData(ctx algo.IContext) error{
 		userInfo := &UserInfo{
 			UserId:                 params.UserId,
 			UserCache:              user,
-			MomentUserProfile:      momentUserEmbedding,
-			UserLiveProfile:        userLiveProfielMap[params.UserId],
-			UserContentProfile:     userContentProfileMap[params.UserId],
-			UserLiveContentProfile: userLiveContentProfileMap[params.UserId],
-			UserBehavior:           userBehavior,
 		}
-		isVip = user.IsVip
-		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
-		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.1)
-		statusSwitch := abtest.GetBool("mom_status_filter", false)
-		filterLive := abtest.GetBool("fileter_live", true)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
-			if icpSwitch && (mayBeIcpUser || icpWhite) { //icp白名单以及杭州新注册用户
-				if !mom.CanRecommend() { //非推荐审核通过
-					if !(mom.MomentsProfile != nil && mom.MomentsProfile.IsActivity) { //非活动
-						continue
-					}
-				}
-			}
+
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
 			}
 			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
 				continue
 			}
-
-			//搜索过滤开关(运营推荐不管审核状态)
-			if _, ok := searchMomentMap[mom.Moments.Id]; !ok {
-				if filteredAudit {
-					//if (mom.MomentsProfile != nil && mom.MomentsProfile.AuditStatus == 1) || (mom.MomentsProfile == nil) {
-					//	continue
-					//}
-					if !mom.CanRecommend() {
-						if mayBeIcpUser && app.Name == "moment.near" { //附近日志仅对icp用户开通推荐审核
-							continue
-						}
-						if app.Name == "moment" { //推荐日志默认开通推荐审核
-							continue
-						}
-					}
-				}
-			}
 			if mom.Moments.ShareTo != "all" {
-				continue
-			}
-
-			if statusSwitch && mom.Moments.Status != 1 { //状态不为1的过滤
 				continue
 			}
 
@@ -143,83 +107,14 @@ func DoBuildLabelData(ctx algo.IContext) error{
 						continue
 					}
 				}
-
-				// 处理置顶
-
-				var isTop = 0
-				if topMap != nil {
-					if _, isTopOk := topMap[mom.Moments.Id]; isTopOk {
-						isTop = 1
-					}
-				}
-				var isSoftTop = 0
-				// 处理推荐
-				var recommends = []algo.RecommendItem{}
-				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
-					topTypeRes := topType.GetCurrentTopType(searchScenery)
-					isTop = utils.GetInt(topTypeRes == "TOP")
-					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
-					if topTypeRes == "RECOMMEND" {
-						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true, ClientReason: algo.TypeEmpty})
-					}
-
-				}
-				//if isSoftTop==1{
-				//	log.Warnf("soft top moment%s",mom.Moments.Id)
-				//}
-				var liveIndex = 0
-				var isTopLiveMom = -1
-				if liveMap != nil {
-					if rank, isOk := liveMap[mom.Moments.Id]; isOk {
-						liveIndex = rank
-						momUser, _ := usersMap[mom.Moments.UserId]
-						if momUser != nil {
-							if isTopLive(ctx, momUser) { //头部主播日志
-								isTopLiveMom = 1
-							} else {
-								if isTop != 1 && filterLive { //非头部主播且非置顶直播日志进行过滤
-									continue
-								}
-							}
-						}
-					}
-				}
-				var isBussiness = 0
-				if bussinessMap != nil {
-					if _, isOk := bussinessMap[mom.Moments.Id]; isOk {
-						isBussiness = 1
-					}
-				}
-				if concernsSet.Contains(mom.Moments.UserId) {
-					isBussiness = 1
-				}
-				if recMap != nil {
-					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
-						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true, ClientReason: algo.TypeEmpty})
-					}
-				}
-				if hotIdMap != nil {
-					if isRecommend := hotIdMap.Contains(mom.Moments.Id); isRecommend {
-						recommends = append(recommends, algo.RecommendItem{Reason: "REALHOT", Score: realRecommendScore, NeedReturn: true, ClientReason: algo.TypeEmpty})
-					}
-				}
-				var score = 0.0
-				if len(paiResult) > 0 {
-					if paiScore, isOk := paiResult[mom.Moments.Id]; isOk {
-						score = paiScore
-					}
-				}
 				info := &DataInfo{
 					DataId:               mom.Moments.Id,
 					UserCache:            momUser,
 					MomentCache:          mom.Moments,
 					MomentExtendCache:    mom.MomentsExtend,
 					MomentProfile:        mom.MomentsProfile,
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recall_expId), RequestId: requestId, OffTime: offTime},
-					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
-					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],
-					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],
+
 				}
 				dataList = append(dataList, info)
 			}
