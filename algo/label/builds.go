@@ -100,4 +100,10 @@ func DoBuildLabelSearch(ctx algo.IContext) error {
 }
 
 
+func DoBuildLabelRec(ctx algo.IContext) error {
+	var err error
+
+	return err
+}
+
 

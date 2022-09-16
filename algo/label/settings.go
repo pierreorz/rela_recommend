@@ -21,8 +21,8 @@ var loggerMap = map[string]algo.ILogger{
 
 var builderMap = map[string]algo.IBuilder{
 	"associate":         &algo.BuilderBase{DoBuild: DoBuildLabelSuggest},
-	"search": &algo.BuilderBase{DoBuild: DoBuildLabelSearch},}
-	//"rec": &algo.BuilderBase{DoBuild: DoBuildMomentFriendDetailSimData},
+	"search": &algo.BuilderBase{DoBuild: DoBuildLabelSearch},
+	"rec": &algo.BuilderBase{DoBuild: DoBuildLabelRec}}
 
 
 //标签联想
@@ -54,3 +54,12 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 
 
 //标签推荐
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "label.rec", Module: "label", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: nil,
+	BuilderKey: "build", BuilderDefault: "rec", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: nil,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: nil})

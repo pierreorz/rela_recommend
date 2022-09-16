@@ -126,6 +126,8 @@ func DoBuildLabelData(ctx algo.IContext) error{
 	})
 	return err
 }
+
+
 func DoBuildData(ctx algo.IContext) error {
 	var err error
 	abtest := ctx.GetAbTest()

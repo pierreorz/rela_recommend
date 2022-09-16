@@ -14,7 +14,7 @@ var builderMap = map[string]algo.IBuilder{
 	"arounddetail": &algo.BuilderBase{DoBuild: DoBuildMomentAroundDetailSimData},
 	"followdetail": &algo.BuilderBase{DoBuild: DoBuildMomentFriendDetailSimData},
 	"recdetail":    &algo.BuilderBase{DoBuild: DoBuildMomentRecommendDetailSimData},
-	"label":       &algo.BuilderBase{DoBuild: DoBuildMomentRecommendDetailSimData}}
+	"label":       &algo.BuilderBase{DoBuild: DoBuildLabelData}}
 var strategyMap = map[string]algo.IStrategy{
 	"time_level":       &algo.StrategyBase{DoSingle: DoTimeLevel},
 	"time_weight":      &algo.StrategyBase{DoSingle: DoTimeWeightLevel},
