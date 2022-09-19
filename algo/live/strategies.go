@@ -192,6 +192,11 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 			if userInfo.UserConcerns.Contains(dataInfo.UserId) {
 				dataInfo.LiveData.AddLabel(&labelItem{
 					Style: FollowLabel,
+					NewStyle:newStyle{
+						Font:       "",
+						Background: "https://static.rela.me/whitetag2",
+						Color:      "313333",
+					},
 					Title: multiLanguage{
 						Chs: "你的关注",
 						Cht: "你的关注",
@@ -287,6 +292,11 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 			if userInfo.UserConcerns.Contains(dataInfo.UserId) {
 				dataInfo.LiveData.AddLabel(&labelItem{
 					Style: FollowLabel,
+					NewStyle:newStyle{
+						Font:       "",
+						Background: "https://static.rela.me/whitetag2",
+						Color:      "313333",
+					},
 					Title: multiLanguage{
 						Chs: "你的关注",
 						Cht: "你的关注",
