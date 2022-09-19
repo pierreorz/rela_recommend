@@ -178,6 +178,11 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 				}
 				dataInfo.LiveData.AddLabel(&labelItem{
 					Style: CityLabel,
+					NewStyle:newStyle{
+						Font:       "",
+						Background: "https://static.rela.me/whitetag2",
+						Color:      "313333",
+					},
 					Title: multiLanguage{
 						Chs: "同城",
 						Cht: "同城",
