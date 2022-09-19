@@ -50,6 +50,7 @@ func CallLabelMomentList(id int64,limit int64) ([]int64, error) {
 	params := searchBaseRequest{
 		Filter:   strings.Join(filters, "*"),
 		Limit: limit,
+		Sort:"-insertTime",
 	}
 
 	if paramsData, err := json.Marshal(params); err == nil {
