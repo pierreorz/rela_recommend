@@ -284,7 +284,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Title:  lang,
 							NewStyle:newStyle{
 								Font:       "",
-								Background: "https://static.rela.me/whitetag.jpg",
+								Background: "https://static.rela.me/whitetag2",
 								Color:      "313333",
 							},
 							Style:  ClassifyLabel,
