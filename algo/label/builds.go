@@ -39,9 +39,10 @@ func DoBuildLabelSuggest(ctx algo.IContext) error {
 
 		// 组装被曝光者信息
 		dataList := make([]algo.IDataInfo, 0)
-		for _, nameId := range nameList {
+		for i, nameId := range nameList {
 			info := &DataInfo{
 				DataId:    nameId,
+				RankInfo:             &algo.RankInfo{Level: -i},
 			}
 			dataList = append(dataList, info)
 		}
@@ -85,9 +86,10 @@ func DoBuildLabelSearch(ctx algo.IContext) error {
 
 		// 组装被曝光者信息
 		dataList := make([]algo.IDataInfo, 0)
-		for _, nameId := range nameList {
+		for i, nameId := range nameList {
 			info := &DataInfo{
 				DataId:    nameId,
+				RankInfo:             &algo.RankInfo{Level: -i},
 			}
 			dataList = append(dataList, info)
 		}
@@ -123,7 +125,7 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 		},
 	})
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	if len(query)>0{//非文本类请求
+	if len(query)<=0{//非文本类请求
 		if len(params.Params["image_url"])>0{//图片类日志
 			if idList, err = rdsPikaCache.GetInt64ListFromString("Image", "mom_label_data:%s");err!=nil{
 				return err
