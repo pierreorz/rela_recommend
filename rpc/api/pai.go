@@ -11,7 +11,7 @@ import (
 
 const externalPaiHomeFeedUrl = "/api/rec/home_feed"
 const externalPaiHomeFeedRecallUrl = "/api/rec/home_feed_recall"
-const externalPaiLabelRecUrl = "/api/predict/label_rec_v1"
+const externalPaiLabelRecUrl = ""
 
 type paiHomeFeedRes struct {
 	Code int  	`json:"code"`
@@ -171,7 +171,10 @@ func GetLabelRecResult(query string) (string,error){
 	var requestErr error
 	if requestErr = factory.PaiRpcLabelRecClient.PaiLabelRecSendPOSTJson(externalPaiLabelRecUrl, query, result); requestErr == nil {
 			return result,requestErr
-		}
+			log.Warnf("request err,%s",requestErr)
+			log.Warnf("request err,%s",result)
+
+	}
 	return result,requestErr
 }
 

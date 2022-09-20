@@ -15,7 +15,7 @@ const (
 	DefaultLiveRpcAddr     = "http://live:3500"
 	DefaultPaiRpcAddr      ="http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict/rela_rec"
 	DefaultPaiRpcRecallAddr   ="http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict/rela_rec_recall"
-	DefaultPaiRpcLabelRecAddr = "http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com"
+	DefaultPaiRpcLabelRecAddr = "http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict/label_rec_v1"
 )
 
 
