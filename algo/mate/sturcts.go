@@ -138,10 +138,10 @@ var imageList =[]string{
 func GetRandomImage()[]string{
 	var randomImageList []string
 	timeSecond :=time.Now().Unix()
-	randomNum:=timeSecond%4+1
+	randomNum:=timeSecond%37+1
 	youSecond:=timeSecond+randomNum
-	myIndex:=timeSecond%6
-	matchIndex:=youSecond%6
+	myIndex:=timeSecond%39
+	matchIndex:=youSecond%39
 	randomImageList=append(randomImageList,imageList[matchIndex])
 	randomImageList=append(randomImageList,imageList[myIndex])
 	return randomImageList
