@@ -7,6 +7,9 @@ import (
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
+	"rela_recommend/rpc/api"
+	"rela_recommend/utils"
+
 	"time"
 )
 
@@ -140,7 +143,10 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 			}
 		}
 	}else{//请求接口数据
-
+		result,_ :=api.GetLabelRecResult(query)
+		if len(result)>0{
+			idList =utils.GetInt64s(utils.GetString(result))
+		}
 	}
 	if change==1{//对指定数据进行打散
 		rand.Seed(time.Now().UnixNano())
