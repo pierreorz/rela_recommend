@@ -131,6 +131,11 @@ type paiHomeFeedRecallRequest struct {
 	Debug   bool  `json:"debug"`
 }
 
+type paiLabelRecRequest struct {
+	Query  string  `json:"query"`
+	ImageUrl string `json:"image_url"`
+	VideoUrl string  `json:"video_url"`
+}
 
 func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
 	result := make([]int64,0)
@@ -166,15 +171,22 @@ func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
 }
 
 
-func GetLabelRecResult(query string) (string,error){
+func GetLabelRecResult(query string,video string,image string) (string,error){
 	result :=""
 	var requestErr error
-	if requestErr = factory.PaiRpcLabelRecClient.PaiLabelRecSendPOSTJson(externalPaiLabelRecUrl, query, result); requestErr == nil {
+	params := paiLabelRecRequest{
+		Query:    query,
+		ImageUrl: video,
+		VideoUrl: image,
+	}
+	if paramsData, err := json.Marshal(params); err == nil {
+		if requestErr = factory.PaiRpcLabelRecClient.PaiLabelRecSendPOSTJson(externalPaiLabelRecUrl, paramsData, result); requestErr == nil {
 			return result,requestErr
 			log.Warnf("request err,%s",requestErr)
 			log.Warnf("request err,%s",result)
-
+		}
 	}
+
 	return result,requestErr
 }
 
