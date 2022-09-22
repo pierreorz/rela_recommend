@@ -44,7 +44,7 @@ type searchLabelRes struct {
 func CallLabelMomentList(id int64,limit int64) ([]int64, error) {
 	idlist := make([]int64, 0)
 	filters := []string{
-		fmt.Sprintf("id:%d", id),     //  moments Type
+		fmt.Sprintf("main_id:%d", id),     //  moments Type
 	}
 
 	params := searchBaseRequest{
