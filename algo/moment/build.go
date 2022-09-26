@@ -59,7 +59,7 @@ func DoBuildLabelData(ctx algo.IContext) error{
 			return momsErr
 		},
 	})
-	log.Warnf("newIdList1%s",newIdList)
+	log.Warnf("newIdList1%s",moms)
 
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"item_behavior": func(*performs.Performs) interface{} { // 获取日志行为
