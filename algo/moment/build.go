@@ -89,7 +89,7 @@ func DoBuildLabelData(ctx algo.IContext) error{
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
-
+			log.Warnf("mom id is %s",mom)
 			if mom.Moments.Id > 0 {
 				momUser, _ := usersMap[mom.Moments.UserId]
 				////status=0 禁用用户，status=5 注销用户
