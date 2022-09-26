@@ -90,24 +90,14 @@ func DoBuildLabelData(ctx algo.IContext) error{
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
 
-			if mom.Moments == nil || mom.MomentsExtend == nil {
-				continue
-			}
-			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
-				continue
-			}
-			if mom.Moments.ShareTo != "all" {
-				continue
-			}
-
 			if mom.Moments.Id > 0 {
 				momUser, _ := usersMap[mom.Moments.UserId]
-				//status=0 禁用用户，status=5 注销用户
-				if momUser != nil {
-					if !momUser.DataUserCanRecommend() { //私密用户的日志过滤
-						continue
-					}
-				}
+				////status=0 禁用用户，status=5 注销用户
+				//if momUser != nil {
+				//	if !momUser.DataUserCanRecommend() { //私密用户的日志过滤
+				//		continue
+				//	}
+				//}
 				info := &DataInfo{
 					DataId:               mom.Moments.Id,
 					UserCache:            momUser,
