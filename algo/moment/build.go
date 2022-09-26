@@ -38,13 +38,35 @@ func DoBuildLabelData(ctx algo.IContext) error{
 	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
 		"recommend": func(*performs.Performs) interface{} {
 			newIdList, errSearch = search.CallLabelMomentList(queryInt, 1000)
-			log.Warnf("newIdList%s",newIdList)
 			if errSearch!=nil{//search的兜底数据
 				newIdList,_ =momentCache.GetInt64ListOrDefault(queryInt, -999999999, "hour_recommend_list:%d")
 			}
 			return errSearch
 		},
 
+
+	})
+
+	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
+		"item_behavior": func(*performs.Performs) interface{} { // 获取日志行为
+			var itemBehaviorErr error
+			itemBehaviorMap, itemBehaviorErr := behaviorCache.QueryItemBehaviorMap(behaviorModuleName, newIdList)
+			if itemBehaviorErr == nil {
+				return len(itemBehaviorMap)
+			}
+			return itemBehaviorErr
+		},
+	})
+
+	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
+		"user": func(*performs.Performs) interface{} { // 获取用户信息
+			var userErr error
+			user, usersMap, userErr = userCache.QueryByUserAndUsersMap(params.UserId, userIds)
+			if userErr == nil {
+				return len(usersMap)
+			}
+			return userErr
+		},
 		"moment": func(*performs.Performs) interface{} { // 获取日志缓存
 			var momsErr error
 			if moms, momsErr = momentCache.QueryMomentsByIds(newIdList); momsErr == nil {
@@ -59,30 +81,6 @@ func DoBuildLabelData(ctx algo.IContext) error{
 			return momsErr
 		},
 	})
-	log.Warnf("newIdList1%s",moms)
-
-	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
-		"item_behavior": func(*performs.Performs) interface{} { // 获取日志行为
-			var itemBehaviorErr error
-			itemBehaviorMap, itemBehaviorErr := behaviorCache.QueryItemBehaviorMap(behaviorModuleName, newIdList)
-			if itemBehaviorErr == nil {
-				return len(itemBehaviorMap)
-			}
-			return itemBehaviorErr
-		},
-	})
-	log.Warnf("newIdList2%s",newIdList)
-
-	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
-		"user": func(*performs.Performs) interface{} { // 获取用户信息
-			var userErr error
-			user, usersMap, userErr = userCache.QueryByUserAndUsersMap(params.UserId, userIds)
-			if userErr == nil {
-				return len(usersMap)
-			}
-			return userErr
-		},
-	})
 	preforms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId:                 params.UserId,
@@ -91,7 +89,6 @@ func DoBuildLabelData(ctx algo.IContext) error{
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
 			// 后期搜索完善此条件去除
-			log.Warnf("mom id is %s",mom)
 			if mom.Moments.Id > 0 {
 				momUser, _ := usersMap[mom.Moments.UserId]
 				////status=0 禁用用户，status=5 注销用户
