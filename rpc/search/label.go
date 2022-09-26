@@ -44,7 +44,7 @@ type searchLabelRes struct {
 func CallLabelMomentList(id int64,limit int64) ([]int64, error) {
 	idlist := make([]int64, 0)
 	filters := []string{
-		fmt.Sprintf("main_id:%d", id),     //  moments Type
+		fmt.Sprintf("main_id:%d", id), //  moments Type
 	}
 
 	params := searchBaseRequest{
@@ -102,7 +102,7 @@ func CallLabelSearchList(query string) ([]int64, error) {
 
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchLabelRes{}
-		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLabelSuggestListUrl, paramsData, searchRes); err == nil {
+		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLabelListUrl, paramsData, searchRes); err == nil {
 			for _, element := range searchRes.Data {
 				namelist = append(namelist, element.Id)
 			}

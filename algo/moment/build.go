@@ -38,6 +38,7 @@ func DoBuildLabelData(ctx algo.IContext) error{
 	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
 		"recommend": func(*performs.Performs) interface{} {
 			newIdList, errSearch = search.CallLabelMomentList(queryInt, 1000)
+			log.Warnf("newIdList%s",newIdList)
 			if errSearch!=nil{//search的兜底数据
 				newIdList,_ =momentCache.GetInt64ListOrDefault(queryInt, -999999999, "hour_recommend_list:%d")
 			}
