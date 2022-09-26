@@ -42,7 +42,7 @@ func DoBuildLabelData(ctx algo.IContext) error{
 			if errSearch!=nil{//search的兜底数据
 				newIdList,_ =momentCache.GetInt64ListOrDefault(queryInt, -999999999, "hour_recommend_list:%d")
 			}
-			return nil
+			return errSearch
 		},
 
 		"moment": func(*performs.Performs) interface{} { // 获取日志缓存
@@ -59,6 +59,7 @@ func DoBuildLabelData(ctx algo.IContext) error{
 			return momsErr
 		},
 	})
+	log.Warnf("newIdList1%s",newIdList)
 
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
 		"item_behavior": func(*performs.Performs) interface{} { // 获取日志行为
@@ -70,6 +71,7 @@ func DoBuildLabelData(ctx algo.IContext) error{
 			return itemBehaviorErr
 		},
 	})
+	log.Warnf("newIdList2%s",newIdList)
 
 	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} { // 获取用户信息
