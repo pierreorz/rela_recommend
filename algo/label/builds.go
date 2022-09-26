@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
@@ -68,6 +69,7 @@ func DoBuildLabelSearch(ctx algo.IContext) error {
 	query :=params.Params["query"]
 	nameList := make([]int64, 0)
 	nameList,_ =search.CallLabelSearchList(query)
+	log.Warnf("label search is %s",nameList)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
 	// 获取用户信息
