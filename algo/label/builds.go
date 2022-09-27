@@ -17,13 +17,13 @@ import (
 func DoBuildLabelSuggest(ctx algo.IContext) error {
 	var err error
 	pf := ctx.GetPerforms()
-
 	params := ctx.GetRequest()
 	query :=params.Params["query"]
 	nameList := make([]int64, 0)
 	nameList,_ =search.CallLabelSuggestList(query)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
+	log.Warnf("newIdlIst is %s",nameList)
 	// 获取用户信息
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
@@ -113,6 +113,7 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 	var err error
 	params := ctx.GetRequest()
 	query :=params.Params["query"]
+	abtest := ctx.GetAbTest()
 	idList := make([]int64, 0)
 	pf := ctx.GetPerforms()
 	change :=0
@@ -144,6 +145,10 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 				return err
 			}
 		}
+		if len(abtest.GetInt64s("label_recommend_hot_data",""))>0{
+			idList = abtest.GetInt64s("label_recommend_hot_data","")
+		}
+
 	}else{//请求接口数据
 		result,_ :=api.GetLabelRecResult(query,params.Params["video_url"],params.Params["image_url"])
 		if len(result)>0{
