@@ -151,6 +151,7 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 
 	}else{//请求接口数据
 		result,_ :=api.GetLabelRecResult(query,params.Params["video_url"],params.Params["image_url"])
+		log.Warnf("result is %s",result)
 		if len(result)>0{
 			idList =utils.GetInt64s(utils.GetString(result))
 		}

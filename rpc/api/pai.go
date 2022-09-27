@@ -185,6 +185,7 @@ func GetLabelRecResult(query string,video string,image string) (string,error){
 			log.Warnf("request err,%s",requestErr)
 			log.Warnf("request err,%s",result)
 		}
+		return result,requestErr
 	}
 
 	return result,requestErr
