@@ -11,7 +11,7 @@ import (
 
 const externalPaiHomeFeedUrl = "/api/rec/home_feed"
 const externalPaiHomeFeedRecallUrl = "/api/rec/home_feed_recall"
-const externalPaiLabelRecUrl = ""
+const externalPaiLabelRecUrl = "/label_rec_v1"
 
 type paiHomeFeedRes struct {
 	Code int  	`json:"code"`
