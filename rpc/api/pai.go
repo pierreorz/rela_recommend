@@ -180,7 +180,7 @@ func GetLabelRecResult(query string,video string,image string) (string,error){
 		VideoUrl: image,
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
-		if requestErr = factory.PaiRpcLabelRecClient.PaiLabelRecSendPOSTJson(externalPaiLabelRecUrl, paramsData, result); requestErr == nil {
+		if requestErr = factory.PaiRpcLabelRecClient.PaiLabelRecSendPOSTJson(externalPaiLabelRecUrl, paramsData, &result); requestErr == nil {
 			return result,requestErr
 			log.Warnf("request err,%s",requestErr)
 			log.Warnf("request err,%s",result)
