@@ -6,11 +6,9 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/models/redis"
+	"rela_recommend/rpc/api"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
-	"rela_recommend/rpc/api"
-	"rela_recommend/utils"
-
 	"time"
 )
 
@@ -64,7 +62,6 @@ func DoBuildLabelSuggest(ctx algo.IContext) error {
 func DoBuildLabelSearch(ctx algo.IContext) error {
 	var err error
 	pf := ctx.GetPerforms()
-
 	params := ctx.GetRequest()
 	query :=params.Params["query"]
 	nameList := make([]int64, 0)
@@ -116,6 +113,8 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	idList := make([]int64, 0)
 	pf := ctx.GetPerforms()
+	reason :=""
+
 	change :=0
 	// 获取用户信息
 	var user *redis.UserProfile
@@ -150,10 +149,9 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 		}
 
 	}else{//请求接口数据
-		result,_ :=api.GetLabelRecResult(query,params.Params["video_url"],params.Params["image_url"])
-		log.Warnf("result is %s",result)
-		if len(result)>0{
-			idList =utils.GetInt64s(utils.GetString(result))
+		idList,reason,_ =api.GetLabelRecResult(query,params.Params["video_url"],params.Params["image_url"])
+		if reason =="hot" {
+			idList = abtest.GetInt64s("label_recommend_hot_data","")
 		}
 	}
 	if change==1{//对指定数据进行打散

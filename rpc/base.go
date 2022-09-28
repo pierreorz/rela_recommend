@@ -76,7 +76,7 @@ func (cli *HttpClient) PaiRecallSendPOSTJson(url string, body []byte, internalCl
 func (cli *HttpClient) PaiLabelRecSendPOSTJson(url string, body []byte, internalClientRes interface{}) error {
 	finalUrl := cli.api_host + url
 	req, _ := http.NewRequest(http.MethodPost, finalUrl, bytes.NewBuffer(body))
-	req.Header.Set("Authorization","MWEzZWU5NzMwZGYyMmU5NmNiMTY2MDk5YzQ2OTMzZDE3M2Q3MWYzNA==")
+	req.Header.Set("Authorization","Y2MxNDJkN2MxZGM4Zjc1YTQ5OTkwNzk4Y2Q3NTUzOTM5NjI1ZGM1NA==")
 	req.Header.Set("Content-Type", "application/json")
 	return cli.doRequest(req, internalClientRes)
 }
