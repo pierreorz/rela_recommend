@@ -316,6 +316,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			//log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
 			if theme.Moments != nil && theme.Moments.Id > 0 {
 				if !theme.CanRecommend() {
+					log.Infof("==================CanRecommendId",theme.Moments.Id)
 					continue
 				}
 				if themeUser, ok := usersMap[theme.Moments.UserId]; ok && themeUser != nil {
