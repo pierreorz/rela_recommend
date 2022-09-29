@@ -93,11 +93,12 @@ func CallLabelSuggestList(query string) ([]int64, error) {
 }
 
 //标签搜索接口
-func CallLabelSearchList(query string) ([]int64, error) {
+func CallLabelSearchList(query string,limit int64) ([]int64, error) {
 	namelist := make([]int64, 0)
 
 	params := searchBaseRequest{
 		Query:query,
+		Limit:limit,
 	}
 
 	if paramsData, err := json.Marshal(params); err == nil {

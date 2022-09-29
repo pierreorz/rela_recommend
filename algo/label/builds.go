@@ -63,9 +63,10 @@ func DoBuildLabelSearch(ctx algo.IContext) error {
 	var err error
 	pf := ctx.GetPerforms()
 	params := ctx.GetRequest()
+	limit :=params.Limit
 	query :=params.Params["query"]
 	nameList := make([]int64, 0)
-	nameList,_ =search.CallLabelSearchList(query)
+	nameList,_ =search.CallLabelSearchList(query,limit)
 	log.Warnf("label search is %s",nameList)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
