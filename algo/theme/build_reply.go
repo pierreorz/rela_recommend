@@ -325,6 +325,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 					}
 				}
 				themeId := theme.Moments.Id
+				log.Infof("==================fiterthemeId",theme.Moments.Id)
 				replyId, replyIdOk := themeReplyMap[themeId]
 				reply, replyInfoOK := replysMap[replyId]
 				// 计算推荐类型
