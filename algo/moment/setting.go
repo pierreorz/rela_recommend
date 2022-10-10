@@ -17,6 +17,7 @@ var builderMap = map[string]algo.IBuilder{
 	"label":       &algo.BuilderBase{DoBuild: DoBuildLabelData}}
 var strategyMap = map[string]algo.IStrategy{
 	"time_level":       &algo.StrategyBase{DoSingle: DoTimeLevel},
+	"sort_by_time":     &algo.StrategyBase{DoSingle: SortByTimeLevel},
 	"time_weight":      &algo.StrategyBase{DoSingle: DoTimeWeightLevel},
 	"time_weight_v2":   &algo.StrategyBase{DoSingle: DoTimeWeightLevelV2},
 	"tag_pref":         &algo.StrategyBase{DoSingle: DoPrefWeightLevel},
