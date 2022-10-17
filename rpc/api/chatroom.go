@@ -9,7 +9,7 @@ import (
 
 const internalSearchChatRoomListUrl = "/internal/chatrooms"
 
-// 接口调用参数 -1.all; 1. video; 2. audio; 3. multi_audio(radio)
+// 接口调用参数 -1.all; 1. video; 2. audio; 3. multi_audio(radio) 4. group video
 var ChatRoomLiveTypes []int = []int{-1, 1, 2, 3, 4}
 
 type SimpleChatroom struct {
