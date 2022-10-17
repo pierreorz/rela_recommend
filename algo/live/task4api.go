@@ -1,6 +1,7 @@
 package live
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"rela_recommend/factory"
@@ -41,10 +42,6 @@ func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache 
 	} else if classify == typeBigMultiAudio {
 		typeId = 3
 		classify = typeRecommend
-	} else if classify == typeGroupVideo {
-		// 叽叽喳喳类型
-		typeId = 4
-		classify = typeRecommend
 	}
 	var lives []pika.LiveCache
 	if typeId <= 0 {
@@ -52,8 +49,13 @@ func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache 
 	}
 	liveList := GetCachedLiveMapList(typeId) // -1 获取所有直播
 	for i, live := range liveList {
-		// 不限制 或 类型是特定类型; classify=1时为推荐分类，不限制分类
-		if classify <= typeRecommend || live.Live.Classify == classify {
+		if classify == typeGroupVideo {
+			// 二十大会特殊审核逻辑，把叽叽喳喳单独列出来
+			if live.IsGroupVideo {
+				lives = append(lives, liveList[i])
+			}
+		} else if classify <= typeRecommend || live.Live.Classify == classify {
+			// 不限制 或 类型是特定类型; classify=1时为推荐分类，不限制分类
 			lives = append(lives, liveList[i])
 		}
 	}
@@ -163,6 +165,15 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 		liveCache.DayIncoming = live.DayIncoming
 		liveCache.MonthIncoming = live.MonthIncoming
 		liveCache.Data4Api = live.Data
+
+		var item ILiveRankItemV3
+		err := json.Unmarshal([]byte(live.Data), &item)
+		if err == nil {
+			switch item.Status {
+			case MultiVideoFour, MultiVideoNine:
+				liveCache.IsGroupVideo = true
+			}
+		}
 	}
 	return liveCacheList
 }
