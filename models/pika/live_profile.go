@@ -58,6 +58,7 @@ type LiveCache struct {
 	DayIncoming    float32     `json:"dayIncoming"`
 	MonthIncoming  float32     `json:"monthIncoming"`
 	Data4Api       interface{} `json:"data"` // 20200305专门为api接口新增的透传参数
+	IsGroupVideo   bool        `json:"-"`
 }
 
 func (self *LiveCache) GetBusinessScore() float32 {

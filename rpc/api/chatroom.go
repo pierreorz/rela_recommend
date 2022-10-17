@@ -9,8 +9,8 @@ import (
 
 const internalSearchChatRoomListUrl = "/internal/chatrooms"
 
-// 接口调用参数 -1.all; 1. video; 2. audio; 3. multi_audio(radio)
-var ChatRoomLiveTypes []int = []int{-1, 1, 2, 3}
+// 接口调用参数 -1.all; 1. video; 2. audio; 3. multi_audio(radio) 4. group video
+var ChatRoomLiveTypes []int = []int{-1, 1, 2, 3, 4}
 
 type SimpleChatroom struct {
 	UserID           int64     `json:"uid"`
@@ -30,14 +30,14 @@ type SimpleChatroom struct {
 	StarsCount       int       `json:"starsCount"`
 	TopCount         int       `json:"topCount"`
 	TopView          int       `json:"topView"`
-	NowIncoming      float32    `json:"nowGem"`
+	NowIncoming      float32   `json:"nowGem"`
 	DayIncoming      float32   `json:"dayIncoming"`
 	MonthIncoming    float32   `json:"monthIncoming"`
 	IsMulti          int       `json:"isMulti"`
 	Classify         int       `json:"classify"`
 	MomentsID        int64     `json:"momentsId"`
 	CreateTime       time.Time `json:"createTime"`
-	IsShowAdd        int        `json:"is_show_add"`
+	IsShowAdd        int       `json:"is_show_add"`
 	Data             string    `json:"data"`
 }
 
