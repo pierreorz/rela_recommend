@@ -165,7 +165,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "在你附近",
 						Cht: "在你附近",
-						En:  "NEAR YOU",
+						En:  "Nearby",
 					},
 					weight: AroundWeight,
 					level:  level1,
@@ -186,7 +186,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "同城",
 						Cht: "同城",
-						En:  "THE SAME CITY",
+						En:  "Local",
 					},
 					weight: CityWeight,
 					level:  level1,
@@ -205,7 +205,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "你的关注",
 						Cht: "你的关注",
-						En:  "YOUR FOLLOW",
+						En:  "Following",
 					},
 					weight: FollowLabelWeight,
 					level:  level1,
@@ -219,7 +219,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "猜你喜欢",
 						Cht: "猜你喜歡",
-						En:  "GUESS YOU LIKE",
+						En:  "Recommended",
 					},
 					weight: StrategyLabelWeight,
 					level:  level1,
@@ -275,7 +275,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "在你附近",
 						Cht: "在你附近",
-						En:  "NEAR YOU",
+						En:  "Nearby",
 					},
 					weight: AroundWeight,
 					level:  level1,
@@ -286,7 +286,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "同城",
 						Cht: "同城",
-						En:  "THE SAME CITY",
+						En:  "Local",
 					},
 					weight: CityWeight,
 					level:  level1,
@@ -305,7 +305,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "你的关注",
 						Cht: "你的关注",
-						En:  "YOUR FOLLOW",
+						En:  "Following",
 					},
 					weight: FollowLabelWeight,
 					level:  level1,
@@ -320,7 +320,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "猜你喜欢",
 						Cht: "猜你喜歡",
-						En:  "GUESS YOU LIKE",
+						En:  "Recommended",
 					},
 					weight: StrategyLabelWeight,
 					level:  level1,
