@@ -41,8 +41,12 @@ func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache 
 	} else if classify == typeBigMultiAudio {
 		typeId = 3
 		classify = typeRecommend
+	} else if classify == typeGroupVideo {
+		// 叽叽喳喳类型
+		typeId = 4
+		classify = typeRecommend
 	}
-	lives := []pika.LiveCache{}
+	var lives []pika.LiveCache
 	if typeId <= 0 {
 		typeId = -1
 	}
@@ -138,9 +142,6 @@ func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
 		}
 		if len(modelStudents) >= 0 {
 			contained := utils.ContainsInt64(modelStudents, liveCache.Live.UserId)
-			//if liveCache.Live.UserId == 104311999 {
-			//	log.Debugf("contained: %+v, %+v", contained, err)
-			//}
 			if contained {
 				liveCache.Live.IsModelStudent = true
 			}
