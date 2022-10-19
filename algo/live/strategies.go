@@ -32,14 +32,30 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 }
 
 func LiveExposureFunc(ctx algo.IContext) error {
+	abtest := ctx.GetAbTest()
 	userInfo := ctx.GetUserInfo().(*UserInfo)
+	videoList :=make(map[int64]int,0)
+	count :=0
 	if userInfo.ConsumeUser==0{//低消费用户将视频提权
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 			rankInfo := dataInfo.GetRankInfo()
-			if dataInfo.LiveCache.Live.AudioType==0{
-				rankInfo.AddRecommend("live_add_exposure",1.2)
+			if dataInfo.LiveCache.Live.AudioType==0{//视频类直播
+				if rankInfo.IsTop==0 && rankInfo.HopeIndex<=0{
+					videoList[dataInfo.LiveCache.Live.UserId]=1
+				}
 			}
+		}
+	}
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if _,ok :=videoList[dataInfo.LiveCache.Live.UserId];ok{
+			rankInfo.HopeIndex= abtest.GetInt("video_start_index",3)
+			count+=1
+		}
+		if count>= abtest.GetInt("video_max_expo",8){
+			break
 		}
 	}
 	return nil
@@ -165,7 +181,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "在你附近",
 						Cht: "在你附近",
-						En:  "NEAR YOU",
+						En:  "Nearby",
 					},
 					weight: AroundWeight,
 					level:  level1,
@@ -186,7 +202,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "同城",
 						Cht: "同城",
-						En:  "THE SAME CITY",
+						En:  "Local",
 					},
 					weight: CityWeight,
 					level:  level1,
@@ -205,7 +221,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "你的关注",
 						Cht: "你的关注",
-						En:  "YOUR FOLLOW",
+						En:  "Following",
 					},
 					weight: FollowLabelWeight,
 					level:  level1,
@@ -219,7 +235,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "猜你喜欢",
 						Cht: "猜你喜歡",
-						En:  "GUESS YOU LIKE",
+						En:  "Recommended",
 					},
 					weight: StrategyLabelWeight,
 					level:  level1,
@@ -275,7 +291,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "在你附近",
 						Cht: "在你附近",
-						En:  "NEAR YOU",
+						En:  "Nearby",
 					},
 					weight: AroundWeight,
 					level:  level1,
@@ -286,7 +302,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "同城",
 						Cht: "同城",
-						En:  "THE SAME CITY",
+						En:  "Local",
 					},
 					weight: CityWeight,
 					level:  level1,
@@ -305,7 +321,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "你的关注",
 						Cht: "你的关注",
-						En:  "YOUR FOLLOW",
+						En:  "Following",
 					},
 					weight: FollowLabelWeight,
 					level:  level1,
@@ -320,7 +336,7 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 					Title: multiLanguage{
 						Chs: "猜你喜欢",
 						Cht: "猜你喜歡",
-						En:  "GUESS YOU LIKE",
+						En:  "Recommended",
 					},
 					weight: StrategyLabelWeight,
 					level:  level1,
