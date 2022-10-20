@@ -11,11 +11,113 @@ import (
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/api"
 	"rela_recommend/rpc/search"
-
 	"rela_recommend/service/performs"
 	"rela_recommend/utils"
+	"strconv"
 	"time"
 )
+
+func DoBuildLabelData(ctx algo.IContext) error{
+	var err,errSearch error
+	preforms := ctx.GetPerforms()
+	params := ctx.GetRequest()
+	query :=params.Params["query"]
+	abtest := ctx.GetAbTest()
+	app := ctx.GetAppInfo()
+	newIdList := make([]int64, 0)
+	var userIds = make([]int64, 0)
+	var user *redis.UserProfile
+	var usersMap = map[int64]*redis.UserProfile{}
+	var moms = []redis.MomentsAndExtend{}                        // 获取日志缓存
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
+	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
+	queryInt,_ :=strconv.ParseInt(query, 10, 64)
+	var itemBehaviorMap = map[int64]*behavior.UserBehavior{}     // 获取日志行为
+	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
+		"recommend": func(*performs.Performs) interface{} {
+			newIdList, errSearch = search.CallLabelMomentList(queryInt, 1000)
+			if errSearch!=nil{//search的兜底数据
+				newIdList,_ =momentCache.GetInt64ListOrDefault(queryInt, -999999999, "hour_recommend_list:%d")
+			}
+			return errSearch
+		},
+
+
+	})
+
+	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
+		"item_behavior": func(*performs.Performs) interface{} { // 获取日志行为
+			var itemBehaviorErr error
+			itemBehaviorMap, itemBehaviorErr := behaviorCache.QueryItemBehaviorMap(behaviorModuleName, newIdList)
+			if itemBehaviorErr == nil {
+				return len(itemBehaviorMap)
+			}
+			return itemBehaviorErr
+		},
+	})
+
+	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
+		"user": func(*performs.Performs) interface{} { // 获取用户信息
+			var userErr error
+			user, usersMap, userErr = userCache.QueryByUserAndUsersMap(params.UserId, userIds)
+			if userErr == nil {
+				return len(usersMap)
+			}
+			return userErr
+		},
+		"moment": func(*performs.Performs) interface{} { // 获取日志缓存
+			var momsErr error
+			if moms, momsErr = momentCache.QueryMomentsByIds(newIdList); momsErr == nil {
+				for _, mom := range moms {
+					if mom.Moments != nil {
+						userIds = append(userIds, mom.Moments.UserId)
+					}
+				}
+				userIds = utils.NewSetInt64FromArray(userIds).ToList()
+				return len(moms)
+			}
+			return momsErr
+		},
+	})
+	preforms.Run("build", func(*performs.Performs) interface{} {
+		userInfo := &UserInfo{
+			UserId:                 params.UserId,
+			UserCache:              user,
+		}
+		dataList := make([]algo.IDataInfo, 0)
+		for _, mom := range moms {
+			// 后期搜索完善此条件去除
+			if mom.Moments.Id > 0 {
+				momUser, _ := usersMap[mom.Moments.UserId]
+				////status=0 禁用用户，status=5 注销用户
+				//if momUser != nil {
+				//	if !momUser.DataUserCanRecommend() { //私密用户的日志过滤
+				//		continue
+				//	}
+				//}
+				info := &DataInfo{
+					DataId:               mom.Moments.Id,
+					UserCache:            momUser,
+					MomentCache:          mom.Moments,
+					MomentExtendCache:    mom.MomentsExtend,
+					MomentProfile:        mom.MomentsProfile,
+					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
+					RankInfo:             &algo.RankInfo{},
+
+				}
+				dataList = append(dataList, info)
+			}
+		}
+		ctx.SetUserInfo(userInfo)
+		ctx.SetDataIds(newIdList)
+		ctx.SetDataList(dataList)
+		return len(dataList)
+	})
+	return err
+}
+
 
 func DoBuildData(ctx algo.IContext) error {
 	var err error

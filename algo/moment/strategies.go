@@ -53,6 +53,15 @@ func DoTimeLevel(ctx algo.IContext, index int) error {
 	return nil
 }
 
+// 按照时间优先策略
+func SortByTimeLevel(ctx algo.IContext, index int) error {
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	min := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Minutes())
+	rankInfo.Level = -min
+	return nil
+}
+
 //日志提权策略v2
 func DoTimeWeightLevelV2(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)

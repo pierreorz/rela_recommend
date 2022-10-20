@@ -56,3 +56,11 @@ func (self *LiveCacheModule) GetInt64List(id int64, keyFormatter string) ([]int6
 	}
 	return nil, err
 }
+
+func (self *LiveCacheModule) GetInt64ListFromString(key string, keyFormatter string) ([]int64, error) {
+	res, err := self.GetSet(fmt.Sprintf(keyFormatter, key), 24*60*60, 1*60*60)
+	if err == nil {
+		return utils.GetInt64s(utils.GetString(res)), nil
+	}
+	return nil, err
+}
