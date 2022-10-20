@@ -46,18 +46,19 @@ func LiveExposureFunc(ctx algo.IContext) error {
 				}
 			}
 		}
-	}
-	for index := 0; index < ctx.GetDataLength(); index++ {
-		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
-		rankInfo := dataInfo.GetRankInfo()
-		if _,ok :=videoList[dataInfo.LiveCache.Live.UserId];ok{
-			rankInfo.HopeIndex= abtest.GetInt("video_start_index",3)
-			count+=1
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			if _,ok :=videoList[dataInfo.LiveCache.Live.UserId];ok{
+				rankInfo.HopeIndex= abtest.GetInt("video_start_index",3)
+				count+=1
+			}
+			if count>= abtest.GetInt("video_max_expo",8){
+				break
+			}
 		}
-		if count>= abtest.GetInt("video_max_expo",8){
-			break
-		}
 	}
+
 	return nil
 	}
 // 融合老策略的分数
