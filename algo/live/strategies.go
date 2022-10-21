@@ -14,6 +14,7 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index)
 	rankInfo := dataInfo.GetRankInfo()
 	live := dataInfo.(*LiveInfo)
+	log.Warnf("third")
 
 	if live.LiveCache.Recommand == 1 { // 1: 推荐
 		if live.LiveCache.RecommandLevel > 10 { // 15: 置顶
