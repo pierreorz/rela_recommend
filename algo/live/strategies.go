@@ -41,7 +41,7 @@ func LiveExposureFunc(ctx algo.IContext) error {
 			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.LiveCache.Live.AudioType==0{//视频类直播
-				if rankInfo.IsTop==0 && rankInfo.HopeIndex<=0{
+				if rankInfo.IsTop==0 && rankInfo.HopeIndex<=0&&rankInfo.Level<=50{
 					videoList[dataInfo.LiveCache.Live.UserId]=1
 				}
 			}
