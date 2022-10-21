@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
-	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 )
 
@@ -14,7 +13,6 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index)
 	rankInfo := dataInfo.GetRankInfo()
 	live := dataInfo.(*LiveInfo)
-	log.Warnf("third")
 
 	if live.LiveCache.Recommand == 1 { // 1: 推荐
 		if live.LiveCache.RecommandLevel > 10 { // 15: 置顶
@@ -38,7 +36,6 @@ func LiveExposureFunc(ctx algo.IContext) error {
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	videoList :=make(map[int64]int,0)
 	count :=0
-	log.Warnf("first")
 	if userInfo.ConsumeUser==0{//低消费用户将视频提权
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
@@ -153,7 +150,6 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	var startIndex = 5
 	var intervar = 0
-	log.Warnf("sencond")
 
 	params := ctx.GetRequest()
 	topN := abtest.GetInt("per_hour_rank_top_n", 3) // 前n名随机， 分数相同的并列，有可能返回1,2,2,3
