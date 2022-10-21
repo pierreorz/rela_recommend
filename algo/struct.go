@@ -238,6 +238,7 @@ type RankInfo struct {
 	ExpId       string          //Pai实验Id
 	RequestId   string          //Pai请求id
 	OffTime     int             //超时标记位
+	IsHourTop   int				//小时top3
 }
 
 type MultiLanguage struct {
