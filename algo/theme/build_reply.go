@@ -331,7 +331,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
 					topTypeRes = topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
-					if topTypeRes=="Top"{
+					if topTypeRes=="TOP"{
 						log.Infof("Top themeid",themeId)
 					}
 					if topTypeRes == "RECOMMEND" {
@@ -355,9 +355,11 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-				if !theme.CanRecommend() || len(topTypeRes)==0{
-					//log.Infof("==================CanRecommendId",theme.Moments.Id)
-					continue
+				if len(topTypeRes)==0{
+					if !theme.CanRecommend() {
+						//log.Infof("==================CanRecommendId",theme.Moments.Id)
+						continue
+					}
 				}
 				if themeUserCache, ok := usersMap[theme.Moments.UserId]; ok {
 					if !themeUserCache.DataUserCanRecommend() {
