@@ -203,7 +203,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
-	//log.Debugf("all themeIds: %+v", themeIds)
+	log.Debugf("all themeIds: %+v", themeIds)
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
 	var replysMap = map[int64]redis.MomentsAndExtend{}
@@ -268,6 +268,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 
+	log.Debugf("all themesUserIds: %+v", themesUserIds)
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
 	var usersProfileMap = map[int64]*redis.ThemeUserProfile{}
@@ -313,10 +314,10 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		//canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
-			//log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
+			log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
 			if theme.Moments != nil && theme.Moments.Id > 0 {
 				if !theme.CanRecommend() {
-					//log.Infof("==================CanRecommendId",theme.Moments.Id)
+					log.Infof("==================CanRecommendId",theme.Moments.Id)
 					continue
 				}
 				if themeUser, ok := usersMap[theme.Moments.UserId]; ok && themeUser != nil {
