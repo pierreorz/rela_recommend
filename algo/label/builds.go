@@ -141,16 +141,22 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 					return err
 				}
 			}
+			log.Warnf("id1 list is%s",idList)
+
 			if len(params.Params["video_url"]) > 0 { //视频类日志
 				if idList, err = rdsPikaCache.GetInt64ListFromString("Video", "mom_label_data:%s"); err != nil {
 					return err
 				}
-				if len(params.Params["video_url"]) <= 0 && len(params.Params["image_url"]) <= 0 { //全部传空
-					if idList, err = rdsPikaCache.GetInt64ListFromString("hot", "mom_label_data:%s"); err != nil { //默认热门数据
-						return err
-					}
+			}
+			log.Warnf("id2 list is%s",idList)
+
+			if len(params.Params["video_url"]) <= 0 && len(params.Params["image_url"]) <= 0 { //全部传空
+				if idList, err = rdsPikaCache.GetInt64ListFromString("hot", "mom_label_data:%s"); err != nil { //默认热门数据
+					return err
 				}
 			}
+			log.Warnf("id3 list is%s",idList)
+
 		} else { //请求接口数据
 			idList, reason, _ = api.GetLabelRecResult(query, params.Params["video_url"], params.Params["image_url"])
 			if reason != "search" {
