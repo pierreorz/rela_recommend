@@ -327,10 +327,13 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				// 计算推荐类型
 				var isTop int = 0
 				var recommends []algo.RecommendItem
+				var topTypeRes string
 				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
-					topTypeRes := topType.GetCurrentTopType(searchScenery)
+					topTypeRes = topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
-					//log.Debugf("mid: %+d", theme.Moments.Id)
+					if topTypeRes=="Top"{
+						log.Infof("Top themeid",themeId)
+					}
 					if topTypeRes == "RECOMMEND" {
 						recommends = append(recommends, algo.RecommendItem{
 							Reason:     "RECOMMEND",
@@ -338,7 +341,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-				log.Debugf("isTop: %+d",isTop)
 				if theme.MomentsProfile != nil && theme.MomentsProfile.IsActivity {
 					recommends = append(recommends, algo.RecommendItem{
 						Reason:     "EVENT",
@@ -353,7 +355,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-				if !theme.CanRecommend() {
+				if !theme.CanRecommend() || len(topTypeRes)==0{
 					//log.Infof("==================CanRecommendId",theme.Moments.Id)
 					continue
 				}
