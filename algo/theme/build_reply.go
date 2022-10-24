@@ -169,7 +169,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				returnedRecommend := abtest.GetBool("search_returned_recommend", true)
 				searchReplyMap, searchThemeMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
 					searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
-				log.Debugf("search_returned_recommend ====== searchThemeMap: %+v", searchThemeMap)
+				//log.Debugf("search_returned_recommend ====== searchThemeMap: %+v", searchThemeMap)
 				if searchReplyMapErr == nil {
 					replyIdSet := utils.SetInt64{}
 					for _, searchRes := range searchReplyMap {
@@ -204,7 +204,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
-	log.Debugf("all themeIds: %+v", themeIds)
+	//log.Debugf("all themeIds: %+v", themeIds)
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
 	var replysMap = map[int64]redis.MomentsAndExtend{}
@@ -314,12 +314,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		//canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
-			log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
+			//log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
 			if theme.Moments != nil && theme.Moments.Id > 0 {
-				if !theme.CanRecommend() {
-					//log.Infof("==================CanRecommendId",theme.Moments.Id)
-					continue
-				}
 				if themeUser, ok := usersMap[theme.Moments.UserId]; ok && themeUser != nil {
 					if themeUser.IsPrivate == 1 {
 						continue
@@ -334,6 +330,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
+					log.Debugf("mid: %+d", theme.Moments.Id)
 					if topTypeRes == "RECOMMEND" {
 						recommends = append(recommends, algo.RecommendItem{
 							Reason:     "RECOMMEND",
@@ -354,6 +351,10 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							Score:      backendRecommendEventScore,
 							NeedReturn: true})
 					}
+				}
+				if !theme.CanRecommend() {
+					//log.Infof("==================CanRecommendId",theme.Moments.Id)
+					continue
 				}
 				if themeUserCache, ok := usersMap[theme.Moments.UserId]; ok {
 					if !themeUserCache.DataUserCanRecommend() {
