@@ -46,6 +46,7 @@ const (
 	typeRecommend     = 1
 	typeBigVideo      = 32768
 	typeBigMultiAudio = 65535
+	typeGroupVideo    = 65536
 
 	level1 = 1
 	level2 = 2
@@ -81,7 +82,7 @@ type UserInfo struct {
 	LiveProfile   *redis.LiveProfile
 	UserConcerns  *rutils.SetInt64
 	UserInterests *rutils.SetInt64
-	ConsumeUser    int
+	ConsumeUser   int
 }
 
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
@@ -144,24 +145,24 @@ type LiveInfo struct {
 	UserItemBehavior *behavior.UserBehavior
 }
 
-type newStyle struct{
-	Font string  `json:"font"`
+type newStyle struct {
+	Font       string `json:"font"`
 	Background string `json:"background"`
-	Color     string   `json:"color"`
+	Color      string `json:"color"`
 }
 type labelItem struct {
-	Title multiLanguage `json:"title"`
-	Style int           `json:"style"`
-	NewStyle newStyle	`json:"new_style"`
-	weight int
-	level  int
+	Title    multiLanguage `json:"title"`
+	Style    int           `json:"style"`
+	NewStyle newStyle      `json:"new_style"`
+	weight   int
+	level    int
 }
 
 type multiLanguage struct {
 	Chs string `json:"chs"`
 	Cht string `json:"cht"`
 	En  string `json:"en"`
-	Url string  `json:"url"`
+	Url string `json:"url"`
 }
 
 type ClassifyItem struct {
@@ -228,13 +229,13 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 	params := ctx.GetRequest()
 	userId := params.UserId
 	Version := ctx.GetRequest().ClientVersion
-	pk :=""
-	beaming :=""
-	talking :=""
-	if Version>=51600{//判断版本
-		pk ="⚡️"
-		beaming="🔗"
-		talking="💬"
+	pk := ""
+	beaming := ""
+	talking := ""
+	if Version >= 51600 { //判断版本
+		pk = "⚡️"
+		beaming = "🔗"
+		talking = "💬"
 	}
 	if self.LiveCache != nil {
 		liveLabelSwitchON := ctx.GetAbTest().GetBool("live_label_switch", false)
@@ -245,7 +246,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 		var needReturnLabel bool
 		classify := rutils.GetInt(params.Params["classify"])
 		switch classify {
-		case typeRecommend, typeBigVideo, typeBigMultiAudio:
+		case typeRecommend, typeBigVideo, typeBigMultiAudio, typeGroupVideo:
 			needReturnLabel = true
 		}
 
@@ -262,7 +263,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				if len(data.Label) > 0 && data.LabelLang != nil {
 					self.LiveData.AddLabel(&labelItem{
 						Style: RecommendLabel,
-						NewStyle:newStyle{
+						NewStyle: newStyle{
 							Font:       "",
 							Background: data.LabelLang.Url,
 							Color:      "",
@@ -271,7 +272,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 							Chs: data.LabelLang.Chs,
 							Cht: data.LabelLang.Cht,
 							En:  data.LabelLang.En,
-							Url:data.LabelLang.Url,
+							Url: data.LabelLang.Url,
 						},
 						weight: RecommendLabelWeight,
 						level:  level1,
@@ -281,8 +282,8 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				if classifyMap != nil {
 					if lang, ok := classifyMap[data.Classify]; ok {
 						self.LiveData.AddLabel(&labelItem{
-							Title:  lang,
-							NewStyle:newStyle{
+							Title: lang,
+							NewStyle: newStyle{
 								Font:       "",
 								Background: "https://static.rela.me/whitetag2",
 								Color:      "313333",
@@ -298,15 +299,15 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				case 3:
 					self.LiveData.AddLabel(&labelItem{
 						Style: MultiBeamingLabel,
-						NewStyle:newStyle{
+						NewStyle: newStyle{
 							Font:       "",
 							Background: "https://static.rela.me/bluengreentag.jpg",
 							Color:      "ffffff",
 						},
 						Title: multiLanguage{
-							Chs: talking+"姬姬喳喳",
-							Cht: talking+"姬姬喳喳",
-							En:  talking+"Group Video",
+							Chs: talking + "姬姬喳喳",
+							Cht: talking + "姬姬喳喳",
+							En:  talking + "Group Video",
 						},
 						weight: TypeLabelWeight,
 						level:  level2,
@@ -314,15 +315,15 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				case 2:
 					self.LiveData.AddLabel(&labelItem{
 						Style: PkLabel,
-						NewStyle:newStyle{
+						NewStyle: newStyle{
 							Font:       "",
 							Background: "https://static.rela.me/Go5pifQDN4LnBuZzE2NjE0NzkzNjk4NzY=.png",
 							Color:      "ffffff",
 						},
 						Title: multiLanguage{
-							Chs: pk+"PK中",
-							Cht: pk+"️PK中",
-							En:  pk+"️PK",
+							Chs: pk + "PK中",
+							Cht: pk + "️PK中",
+							En:  pk + "️PK",
 						},
 						weight: TypeLabelWeight,
 						level:  level2,
@@ -330,15 +331,15 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				case 1:
 					self.LiveData.AddLabel(&labelItem{
 						Style: BeamingLabel,
-						NewStyle:newStyle{
+						NewStyle: newStyle{
 							Font:       "",
 							Background: "https://static.rela.me/bluengreentag.jpg",
 							Color:      "ffffff",
 						},
 						Title: multiLanguage{
-							Chs: beaming+"连麦中",
-							Cht: beaming+"連麥中",
-							En:  beaming+"Beaming",
+							Chs: beaming + "连麦中",
+							Cht: beaming + "連麥中",
+							En:  beaming + "Beaming",
 						},
 						weight: TypeLabelWeight,
 						level:  level2,
