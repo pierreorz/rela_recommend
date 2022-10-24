@@ -134,6 +134,7 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 	})
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	if abtest.GetBool("label_rec_switch", true) { //关掉标签推荐开关
+	log.Warnf("len query %s",len(query))
 		if len(query) <= 0 { //非文本类请求
 			change = 1
 			if len(params.Params["image_url"]) > 0 { //图片类日志
@@ -163,6 +164,7 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 				if idList, err = rdsPikaCache.GetInt64ListFromString("hot", "mom_label_data:%s"); err != nil { //默认热门数据
 					return err
 				}
+				log.Warnf("id3 list is%s",idList)
 			}
 		}
 	} else {
