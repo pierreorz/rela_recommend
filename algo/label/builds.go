@@ -133,28 +133,35 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 		},
 	})
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	if abtest.GetBool("label_rec_switch",true){//关掉标签推荐开关
-		if len(query)<=0{//非文本类请求
-			change=1
-			if len(params.Params["image_url"])>0{//图片类日志
-				if idList, err = rdsPikaCache.GetInt64ListFromString("Image", "mom_label_data:%s");err!=nil{
+	if abtest.GetBool("label_rec_switch", true) { //关掉标签推荐开关
+		if len(query) <= 0 { //非文本类请求
+			change = 1
+			if len(params.Params["image_url"]) > 0 { //图片类日志
+				if idList, err = rdsPikaCache.GetInt64ListFromString("Image", "mom_label_data:%s"); err != nil {
 					return err
 				}
 			}
-			if len(params.Params["video_url"])>0{//视频类日志
-				if idList, err = rdsPikaCache.GetInt64ListFromString("Video", "mom_label_data:%s");err!=nil{
+			if len(params.Params["video_url"]) > 0 { //视频类日志
+				if idList, err = rdsPikaCache.GetInt64ListFromString("Video", "mom_label_data:%s"); err != nil {
 					return err
 				}
+				if len(params.Params["video_url"]) <= 0 && len(params.Params["image_url"]) <= 0 { //全部传空
+					if idList, err = rdsPikaCache.GetInt64ListFromString("hot", "mom_label_data:%s"); err != nil { //默认热门数据
+						return err
+					}
+				}
 			}
-		}else{//请求接口数据
-			idList,reason,_ =api.GetLabelRecResult(query,params.Params["video_url"],params.Params["image_url"])
-			if reason !="search" {
-				idList = abtest.GetInt64s("label_recommend_hot_data","")
+		} else { //请求接口数据
+			idList, reason, _ = api.GetLabelRecResult(query, params.Params["video_url"], params.Params["image_url"])
+			if reason != "search" {
+				if idList, err = rdsPikaCache.GetInt64ListFromString("hot", "mom_label_data:%s"); err != nil { //默认热门数据
+					return err
+				}
 			}
 		}
-	}else{
+	} else {
 		change = 1
-		if idList, err = rdsPikaCache.GetInt64ListFromString("hot", "mom_label_data:%s");err!=nil{//默认热门数据
+		if idList, err = rdsPikaCache.GetInt64ListFromString("hot", "mom_label_data:%s"); err != nil { //默认热门数据
 			return err
 		}
 	}
