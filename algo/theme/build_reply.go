@@ -331,9 +331,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
 					topTypeRes = topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
-					if topTypeRes=="TOP"{
-						log.Infof("Top themeid",themeId)
-					}
 					if topTypeRes == "RECOMMEND" {
 						recommends = append(recommends, algo.RecommendItem{
 							Reason:     "RECOMMEND",
