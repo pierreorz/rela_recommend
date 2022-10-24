@@ -352,7 +352,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-				if !theme.CanRecommend() {
+				if !theme.CanRecommend() || isTop==0{
 					//log.Infof("==================CanRecommendId",theme.Moments.Id)
 					continue
 				}
