@@ -268,7 +268,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 
-	log.Debugf("all themesUserIds: %+v", themesUserIds)
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
 	var usersProfileMap = map[int64]*redis.ThemeUserProfile{}
@@ -314,12 +313,8 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		//canExposeEvent := abtest.GetBool("expose_event", false)
 		dataList := make([]algo.IDataInfo, 0)
 		for _, theme := range themes {
-			log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
+			//log.Debugf("mid: %+d, exposure: %+v, profile: %+v", theme.Moments.Id, canExposeEvent, theme.MomentsProfile)
 			if theme.Moments != nil && theme.Moments.Id > 0 {
-				if !theme.CanRecommend() {
-					log.Infof("==================CanRecommendId",theme.Moments.Id)
-					continue
-				}
 				if themeUser, ok := usersMap[theme.Moments.UserId]; ok && themeUser != nil {
 					if themeUser.IsPrivate == 1 {
 						continue
@@ -331,8 +326,9 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				// 计算推荐类型
 				var isTop int = 0
 				var recommends []algo.RecommendItem
+				var topTypeRes string
 				if topType, topTypeOK := searchThemeMap[themeId]; topTypeOK {
-					topTypeRes := topType.GetCurrentTopType(searchScenery)
+					topTypeRes = topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					if topTypeRes == "RECOMMEND" {
 						recommends = append(recommends, algo.RecommendItem{
@@ -353,6 +349,12 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							Reason:     "EVENT",
 							Score:      backendRecommendEventScore,
 							NeedReturn: true})
+					}
+				}
+				if len(topTypeRes)==0{
+					if !theme.CanRecommend() {
+						//log.Infof("==================CanRecommendId",theme.Moments.Id)
+						continue
 					}
 				}
 				if themeUserCache, ok := usersMap[theme.Moments.UserId]; ok {
