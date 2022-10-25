@@ -11,6 +11,7 @@ import (
 
 const externalPaiHomeFeedUrl = "/api/rec/home_feed"
 const externalPaiHomeFeedRecallUrl = "/api/rec/home_feed_recall"
+const externalPaiLabelRecUrl = "/label_rec_v1"
 
 type paiHomeFeedRes struct {
 	Code int  	`json:"code"`
@@ -117,6 +118,12 @@ type paiHomeFeedRecallRes struct {
 	Items  []PaiResRecallDataItem  `json:"items"`
 }
 
+
+type paiLabelRecRes struct {
+	Code    int `json:"errcode"`
+	Reason  string `json:"reason"`
+	Ids     []int64  `json:"ids"`
+}
 type PaiResRecallDataItem struct {
 	ItemId   string  `json:"item_id"`
 	Score    float64  `json:"score"`
@@ -130,6 +137,11 @@ type paiHomeFeedRecallRequest struct {
 	Debug   bool  `json:"debug"`
 }
 
+type paiLabelRecRequest struct {
+	Query  string  `json:"query"`
+	ImageUrl string `json:"image_url"`
+	VideoUrl string  `json:"video_url"`
+}
 
 func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
 	result := make([]int64,0)
@@ -163,3 +175,28 @@ func GetRecallResult(userId int64,size int) ([]int64 ,string,string,error){
 	log.Warnf("request err,%s",requestErr)
 	return result,expId,requestId,requestErr
 }
+
+
+func GetLabelRecResult(query string,video string,image string) ([]int64,string,error){
+	result :=&paiLabelRecRes{}
+	reason :=""
+	ids :=make([]int64,0)
+	var requestErr error
+	params := paiLabelRecRequest{
+		Query:    query,
+		ImageUrl: video,
+		VideoUrl: image,
+	}
+	if paramsData, err := json.Marshal(params); err == nil {
+		if requestErr = factory.PaiRpcLabelRecClient.PaiLabelRecSendPOSTJson(externalPaiLabelRecUrl, paramsData, result); requestErr == nil {
+			for _, element := range result.Ids {
+				ids = append(ids, element)
+			}
+			reason = result.Reason
+		}
+		return ids,reason,requestErr
+	}
+	return ids,reason,requestErr
+}
+
+

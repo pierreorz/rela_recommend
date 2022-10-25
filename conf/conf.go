@@ -15,6 +15,7 @@ const (
 	DefaultLiveRpcAddr     = "http://live:3500"
 	DefaultPaiRpcAddr      ="http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict/rela_rec"
 	DefaultPaiRpcRecallAddr   ="http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict/rela_rec_recall"
+	DefaultPaiRpcLabelRecAddr = "http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict"
 )
 
 
@@ -59,6 +60,7 @@ type rpcConfig struct {
 	ApiRpcAddr      string `toml:"api_rpc_addr"`
 	ChatRoomRpcAddr string `toml:"chatroom_rpc_addr"`
 	LiveRpcAddr     string `toml:"live_rpc_addr"`
+	PaiRpcLabelRecAddr string `toml:"pai_rpc_label_rec_addr"`
 	AiSearchRpcAddr string `toml:"ai_search_rpc_addr"`
 	PaiRpcAddr      string `toml:"pai_rpc_addr"`
 	PaiRpcRecallAddr   string  `toml:"pai_rpc_pre_addr"`
@@ -145,5 +147,6 @@ func NewConfigDefault() *Config {
 	cfg.Rpc.LiveRpcAddr = DefaultLiveRpcAddr
 	cfg.Rpc.PaiRpcAddr= DefaultPaiRpcAddr
 	cfg.Rpc.PaiRpcRecallAddr = DefaultPaiRpcRecallAddr
+	cfg.Rpc.PaiRpcLabelRecAddr=DefaultPaiRpcLabelRecAddr
 	return cfg
 }

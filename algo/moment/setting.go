@@ -13,9 +13,11 @@ var builderMap = map[string]algo.IBuilder{
 	"base":         &algo.BuilderBase{DoBuild: DoBuildData},
 	"arounddetail": &algo.BuilderBase{DoBuild: DoBuildMomentAroundDetailSimData},
 	"followdetail": &algo.BuilderBase{DoBuild: DoBuildMomentFriendDetailSimData},
-	"recdetail":    &algo.BuilderBase{DoBuild: DoBuildMomentRecommendDetailSimData}}
+	"recdetail":    &algo.BuilderBase{DoBuild: DoBuildMomentRecommendDetailSimData},
+	"label":       &algo.BuilderBase{DoBuild: DoBuildLabelData}}
 var strategyMap = map[string]algo.IStrategy{
 	"time_level":       &algo.StrategyBase{DoSingle: DoTimeLevel},
+	"sort_by_time":     &algo.StrategyBase{DoSingle: SortByTimeLevel},
 	"time_weight":      &algo.StrategyBase{DoSingle: DoTimeWeightLevel},
 	"time_weight_v2":   &algo.StrategyBase{DoSingle: DoTimeWeightLevelV2},
 	"tag_pref":         &algo.StrategyBase{DoSingle: DoPrefWeightLevel},
@@ -184,6 +186,18 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "moment.followdetail", Module: "moment", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: nil,
 	BuilderKey: "build", BuilderDefault: "followdetail", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+
+//标签下日志
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "moment.label", Module: "moment", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
+	BuilderKey: "build", BuilderDefault: "label", BuilderMap: builderMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
