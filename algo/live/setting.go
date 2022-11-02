@@ -15,14 +15,15 @@ var builderMap = map[string]algo.IBuilder{
 var strategyMap = map[string]algo.IStrategy{
 	"top_recommend_level": &algo.StrategyBase{DoSingle: LiveTopRecommandStrategyFunc},
 	"old_score":           &OldScoreStrategy{},
+	"sort_srta":           &SortHotStrategy{},
 	"algo_v2":                &NewScoreStrategyV2{},
 	"algo_score":         &NewLiveStrategy{},
 }
 var richStrategyMap = map[string]algo.IRichStrategy{
-	"per_hour_top": &strategy.BaseRichStrategy{StrategyFunc: HourRankRecommendFunc, DefaultWeight: 1}, // 执行优先级在top_recommend之后，避免覆盖
+	"per_hour_top": &strategy.BaseRichStrategy{StrategyFunc: HourRankRecommendFunc, DefaultWeight: 1}, // 执行优先级在top_recommend之后，避免覆盖//按weight大小顺序执行
 	"exposure_down": &strategy.BaseRichStrategy{StrategyItemFunc: UserBehaviorExposureDownItemFunc},
 	"interest": &strategy.BaseRichStrategy{StrategyFunc: StrategyRecommendFunc},
-	"live_add_exposure": &strategy.BaseRichStrategy{StrategyFunc: LiveExposureFunc},
+	"live_add_exposure": &strategy.BaseRichStrategy{StrategyFunc: LiveExposureFunc},//后台设置weight为3即可最后执行，执行完后执行top_recommend_level
 
 }
 

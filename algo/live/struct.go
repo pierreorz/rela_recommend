@@ -83,6 +83,8 @@ type UserInfo struct {
 	UserConcerns  *rutils.SetInt64
 	UserInterests *rutils.SetInt64
 	ConsumeUser   int
+	UserLiveContentProfile *redis.UserLiveContentProfile  //使用者直播画像数据
+
 }
 
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
@@ -143,6 +145,7 @@ type LiveInfo struct {
 	RankInfo         *algo.RankInfo
 	Features         *utils.Features
 	UserItemBehavior *behavior.UserBehavior
+	LiveContentProfile   *redis.LiveContentProfile//主播画像数据
 }
 
 type newStyle struct {
