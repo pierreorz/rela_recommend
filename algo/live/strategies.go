@@ -112,7 +112,7 @@ func (self *SortHotStrategy)Do (ctx algo.IContext) error{
 	w4 :=0.0
 	w5 :=0.0
 	sort :=params.Params["sort"]
-	if sort!="hot" { //非横幅直播不走运营}
+	if sort=="hot" { //横幅直播的逻辑}
 		for i := 0; i < ctx.GetDataLength(); i++ {
 			dataInfo := ctx.GetDataByIndex(i)
 			liveinfo := dataInfo.(*LiveInfo)
