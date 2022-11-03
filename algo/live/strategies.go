@@ -15,8 +15,7 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 	live := dataInfo.(*LiveInfo)
 	params := ctx.GetRequest()
 
-	sort :=params.Params["sort"]
-	if sort!="hot"{//非横幅直播不走运营逻辑
+	if sort,ok :=params.Params["sort"];ok&&sort!="hot"{//非横幅直播不走运营逻辑
 		if live.LiveCache.Recommand == 1 { // 1: 推荐
 			if live.LiveCache.RecommandLevel > 10 { // 15: 置顶
 				rankInfo.IsTop = 1
@@ -111,8 +110,7 @@ func (self *SortHotStrategy)Do (ctx algo.IContext) error{
 	w3 :=0.0
 	w4 :=0.0
 	w5 :=0.0
-	sort :=params.Params["sort"]
-	if sort=="hot" { //横幅直播的逻辑}
+	if sort,ok :=params.Params["sort"];ok&&sort=="hot"{ //横幅直播的逻辑}
 		for i := 0; i < ctx.GetDataLength(); i++ {
 			dataInfo := ctx.GetDataByIndex(i)
 			liveinfo := dataInfo.(*LiveInfo)
