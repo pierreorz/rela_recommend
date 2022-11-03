@@ -252,7 +252,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 		case typeRecommend, typeBigVideo, typeBigMultiAudio, typeGroupVideo:
 			needReturnLabel = true
 		}
-		if sort :=params.Params["sort"];sort=="hot"{//横幅直播添加标签
+		if sort,ok :=params.Params["sort"];ok&&sort=="hot"{//横幅直播添加标签
 			needReturnLabel = true
 		}
 

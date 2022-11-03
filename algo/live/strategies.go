@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
+	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 )
 
@@ -15,8 +16,8 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 	live := dataInfo.(*LiveInfo)
 	params := ctx.GetRequest()
 
-	sort :=params.Params["sort"]
-	if sort!="hot"{//非横幅直播不走运营逻辑
+	if sort,ok :=params.Params["sort"];ok&&sort!="hot"{//非横幅直播不走运营逻辑
+	log.Warnf("current is")
 		if live.LiveCache.Recommand == 1 { // 1: 推荐
 			if live.LiveCache.RecommandLevel > 10 { // 15: 置顶
 				rankInfo.IsTop = 1
@@ -40,29 +41,31 @@ func LiveExposureFunc(ctx algo.IContext) error {
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	videoList :=make(map[int64]int,0)
 	count :=0
-	if userInfo.ConsumeUser==0{//低消费用户将视频提权
-		for index := 0; index < ctx.GetDataLength(); index++ {
-			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
-			rankInfo := dataInfo.GetRankInfo()
-			if dataInfo.LiveCache.Live.AudioType==0{//视频类直播
-				if rankInfo.IsTop==0 && rankInfo.HopeIndex<=3&&rankInfo.IsHourTop!=1{//过滤掉上小时top3直播以及添加其他标签的直播
-					videoList[dataInfo.LiveCache.Live.UserId]=1
+	params := ctx.GetRequest()
+	if sort,ok :=params.Params["sort"];ok&&sort!="hot"{
+		if userInfo.ConsumeUser==0{//低消费用户将视频提权
+			for index := 0; index < ctx.GetDataLength(); index++ {
+				dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+				rankInfo := dataInfo.GetRankInfo()
+				if dataInfo.LiveCache.Live.AudioType==0{//视频类直播
+					if rankInfo.IsTop==0 && rankInfo.HopeIndex<=3&&rankInfo.IsHourTop!=1{//过滤掉上小时top3直播以及添加其他标签的直播
+						videoList[dataInfo.LiveCache.Live.UserId]=1
+					}
+				}
+			}
+			for index := 0; index < ctx.GetDataLength(); index++ {
+				dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+				rankInfo := dataInfo.GetRankInfo()
+				if _,ok :=videoList[dataInfo.LiveCache.Live.UserId];ok{
+					rankInfo.HopeIndex= abtest.GetInt("video_start_index",3)
+					count+=1
+				}
+				if count>= abtest.GetInt("video_max_expo",8){
+					break
 				}
 			}
 		}
-		for index := 0; index < ctx.GetDataLength(); index++ {
-			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
-			rankInfo := dataInfo.GetRankInfo()
-			if _,ok :=videoList[dataInfo.LiveCache.Live.UserId];ok{
-				rankInfo.HopeIndex= abtest.GetInt("video_start_index",3)
-				count+=1
-			}
-			if count>= abtest.GetInt("video_max_expo",8){
-				break
-			}
-		}
 	}
-
 	return nil
 	}
 // 融合老策略的分数
@@ -111,8 +114,7 @@ func (self *SortHotStrategy)Do (ctx algo.IContext) error{
 	w3 :=0.0
 	w4 :=0.0
 	w5 :=0.0
-	sort :=params.Params["sort"]
-	if sort=="hot" { //横幅直播的逻辑}
+	if sort,ok :=params.Params["sort"];ok&&sort=="hot"{ //横幅直播的逻辑}
 		for i := 0; i < ctx.GetDataLength(); i++ {
 			dataInfo := ctx.GetDataByIndex(i)
 			liveinfo := dataInfo.(*LiveInfo)
@@ -147,14 +149,18 @@ type NewScoreStrategyV2 struct{}
 
 func (self *NewScoreStrategyV2) Do(ctx algo.IContext) error {
 	var err error
+	params := ctx.GetRequest()
+
 	algo_score := ctx.GetAbTest().GetFloat("algo_ratio", 0.3)
 	business_score := 1 - algo_score
-	for i := 0; i < ctx.GetDataLength(); i++ {
-		dataInfo := ctx.GetDataByIndex(i)
-		live := dataInfo.(*LiveInfo)
-		rankInfo := dataInfo.GetRankInfo()
-		score := self.oldScore(live)
-		rankInfo.Score = live.RankInfo.Score*algo_score + score*business_score
+	if sort,ok :=params.Params["sort"];ok&&sort!="hot"{//直播列表逻辑
+		for i := 0; i < ctx.GetDataLength(); i++ {
+			dataInfo := ctx.GetDataByIndex(i)
+			live := dataInfo.(*LiveInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			score := self.oldScore(live)
+			rankInfo.Score = live.RankInfo.Score*algo_score + score*business_score
+		}
 	}
 	return err
 }
@@ -202,129 +208,132 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	var startIndex = 5
 	var intervar = 0
-
 	params := ctx.GetRequest()
 	topN := abtest.GetInt("per_hour_rank_top_n", 3) // 前n名随机， 分数相同的并列，有可能返回1,2,2,3
 	indexs := []int{}
-	for index := 0; index < ctx.GetDataLength(); index++ {
-		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
-		userInfo := ctx.GetUserInfo().(*UserInfo)
-		rankInfo := dataInfo.GetRankInfo()
-		label :=0
-		if dataInfo.LiveData != nil && dataInfo.LiveData.PreHourRank > 0 && dataInfo.LiveData.PreHourRank <= topN {
-			indexs = append(indexs, index)
-			label =1
-			rankInfo.IsHourTop=1
-			//continue //有上小时top3标签即不添加其他标签
-		}
-		if dataInfo.LiveCache.IsShowAdd == 1 {
-			distance := rutils.EarthDistance(float64(params.Lng), float64(params.Lat), float64(dataInfo.LiveCache.Lng), float64(dataInfo.LiveCache.Lat))
-			switch {
-			case distance < 30000:
-				if label==0{
-					rankInfo.HopeIndex = startIndex + intervar*5
-					intervar += 1
-					label =1
-				}
-				dataInfo.LiveData.AddLabel(&labelItem{
-					Style: AroundLabel,
-					NewStyle:newStyle{
-						Font:       "",
-						Background: "https://static.rela.me/whitetag2",
-						Color:      "313333",
-					},
-					Title: multiLanguage{
-						Chs: "在你附近",
-						Cht: "在你附近",
-						En:  "Nearby",
-					},
-					weight: AroundWeight,
-					level:  level1,
-				})
-			case distance >= 30000 && distance < 50000:
-				if label==0{
-					rankInfo.HopeIndex = startIndex + intervar*5
-					intervar += 1
-					label =1
-				}
-				dataInfo.LiveData.AddLabel(&labelItem{
-					Style: CityLabel,
-					NewStyle:newStyle{
-						Font:       "",
-						Background: "https://static.rela.me/whitetag2",
-						Color:      "313333",
-					},
-					Title: multiLanguage{
-						Chs: "同城",
-						Cht: "同城",
-						En:  "Local",
-					},
-					weight: CityWeight,
-					level:  level1,
-				})
+	if sort,ok :=params.Params["sort"];ok{
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+			userInfo := ctx.GetUserInfo().(*UserInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			label :=0
+			if dataInfo.LiveData != nil && dataInfo.LiveData.PreHourRank > 0 && dataInfo.LiveData.PreHourRank <= topN {
+				indexs = append(indexs, index)
+				label =1
+				rankInfo.IsHourTop=1
+				//continue //有上小时top3标签即不添加其他标签
 			}
-		}
-		if userInfo.UserConcerns != nil {
-			if userInfo.UserConcerns.Contains(dataInfo.UserId) {
-				dataInfo.LiveData.AddLabel(&labelItem{
-					Style: FollowLabel,
-					NewStyle:newStyle{
-						Font:       "",
-						Background: "https://static.rela.me/whitetag2",
-						Color:      "313333",
-					},
-					Title: multiLanguage{
-						Chs: "你的关注",
-						Cht: "你的关注",
-						En:  "Following",
-					},
-					weight: FollowLabelWeight,
-					level:  level1,
-				})
-			}
-		}
-		if userInfo.UserInterests != nil {
-			if userInfo.UserInterests.Contains(dataInfo.UserId) {
-				dataInfo.LiveData.AddLabel(&labelItem{
-					Style: StrategyLabel,
-					Title: multiLanguage{
-						Chs: "猜你喜欢",
-						Cht: "猜你喜歡",
-						En:  "Recommended",
-					},
-					weight: StrategyLabelWeight,
-					level:  level1,
-				})
-				if label==0{
-					rankInfo.HopeIndex = startIndex + intervar*5
-					intervar += 1
+			if dataInfo.LiveCache.IsShowAdd == 1 {
+				distance := rutils.EarthDistance(float64(params.Lng), float64(params.Lat), float64(dataInfo.LiveCache.Lng), float64(dataInfo.LiveCache.Lat))
+				switch {
+				case distance < 30000:
+					if label==0&&sort!="hot"{
+						rankInfo.HopeIndex = startIndex + intervar*5
+						intervar += 1
+						label =1
+					}
+					dataInfo.LiveData.AddLabel(&labelItem{
+						Style: AroundLabel,
+						NewStyle:newStyle{
+							Font:       "",
+							Background: "https://static.rela.me/whitetag2",
+							Color:      "313333",
+						},
+						Title: multiLanguage{
+							Chs: "在你附近",
+							Cht: "在你附近",
+							En:  "Nearby",
+						},
+						weight: AroundWeight,
+						level:  level1,
+					})
+				case distance >= 30000 && distance < 50000:
+					if label==0&&sort!="hot"{
+						rankInfo.HopeIndex = startIndex + intervar*5
+						intervar += 1
+						label =1
+					}
+					dataInfo.LiveData.AddLabel(&labelItem{
+						Style: CityLabel,
+						NewStyle:newStyle{
+							Font:       "",
+							Background: "https://static.rela.me/whitetag2",
+							Color:      "313333",
+						},
+						Title: multiLanguage{
+							Chs: "同城",
+							Cht: "同城",
+							En:  "Local",
+						},
+						weight: CityWeight,
+						level:  level1,
+					})
 				}
 			}
-		}
+			if userInfo.UserConcerns != nil {
+				if userInfo.UserConcerns.Contains(dataInfo.UserId) {
+					dataInfo.LiveData.AddLabel(&labelItem{
+						Style: FollowLabel,
+						NewStyle:newStyle{
+							Font:       "",
+							Background: "https://static.rela.me/whitetag2",
+							Color:      "313333",
+						},
+						Title: multiLanguage{
+							Chs: "你的关注",
+							Cht: "你的关注",
+							En:  "Following",
+						},
+						weight: FollowLabelWeight,
+						level:  level1,
+					})
+				}
+			}
+			if userInfo.UserInterests != nil {
+				if userInfo.UserInterests.Contains(dataInfo.UserId) {
+					dataInfo.LiveData.AddLabel(&labelItem{
+						Style: StrategyLabel,
+						Title: multiLanguage{
+							Chs: "猜你喜欢",
+							Cht: "猜你喜歡",
+							En:  "Recommended",
+						},
+						weight: StrategyLabelWeight,
+						level:  level1,
+					})
+					if label==0&&sort!="hot"{
+						rankInfo.HopeIndex = startIndex + intervar*5
+						intervar += 1
+					}
+				}
+			}
 
-	}
-	if len(indexs) > 0 {
-		i := rand.Intn(len(indexs))
-		index := indexs[i]
-		liveInfo := ctx.GetDataByIndex(index).(*LiveInfo)
-		rankInfo := liveInfo.GetRankInfo()
-		rankInfo.Level = rankInfo.Level + 99
-		rankInfo.AddRecommendNeedReturn("PER_HOUR_TOP3", 2.0)
-		liveInfo.LiveData.AddLabel(&labelItem{
-			Style: HourRankLabel,
-			NewStyle:newStyle{
-				Font:       "",
-				Background: "https://static.rela.me/yellotag.jpg",
-				Color:      "ffffff",
-			},
-			Title: multiLanguage{
-				Chs: "上小时TOP3",
-				Cht: "上小時TOP3",
-				En:  "TOP3",
-			},
-			weight: HourRankLabelWeight,
-			level:  level1,
-		})
+		}
+		if len(indexs) > 0 {
+			i := rand.Intn(len(indexs))
+			index := indexs[i]
+			liveInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+			rankInfo := liveInfo.GetRankInfo()
+			if sort!="hot"{
+				rankInfo.Level = rankInfo.Level + 99
+			}
+			rankInfo.AddRecommendNeedReturn("PER_HOUR_TOP3", 2.0)
+			liveInfo.LiveData.AddLabel(&labelItem{
+				Style: HourRankLabel,
+				NewStyle:newStyle{
+					Font:       "",
+					Background: "https://static.rela.me/yellotag.jpg",
+					Color:      "ffffff",
+				},
+				Title: multiLanguage{
+					Chs: "上小时TOP3",
+					Cht: "上小時TOP3",
+					En:  "TOP3",
+				},
+				weight: HourRankLabelWeight,
+				level:  level1,
+			})
+		}
 	}
 	return nil
 }
