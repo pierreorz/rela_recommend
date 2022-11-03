@@ -149,14 +149,18 @@ type NewScoreStrategyV2 struct{}
 
 func (self *NewScoreStrategyV2) Do(ctx algo.IContext) error {
 	var err error
+	params := ctx.GetRequest()
+
 	algo_score := ctx.GetAbTest().GetFloat("algo_ratio", 0.3)
 	business_score := 1 - algo_score
-	for i := 0; i < ctx.GetDataLength(); i++ {
-		dataInfo := ctx.GetDataByIndex(i)
-		live := dataInfo.(*LiveInfo)
-		rankInfo := dataInfo.GetRankInfo()
-		score := self.oldScore(live)
-		rankInfo.Score = live.RankInfo.Score*algo_score + score*business_score
+	if sort,ok :=params.Params["sort"];ok&&sort!="hot"{//直播列表逻辑
+		for i := 0; i < ctx.GetDataLength(); i++ {
+			dataInfo := ctx.GetDataByIndex(i)
+			live := dataInfo.(*LiveInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			score := self.oldScore(live)
+			rankInfo.Score = live.RankInfo.Score*algo_score + score*business_score
+		}
 	}
 	return err
 }
