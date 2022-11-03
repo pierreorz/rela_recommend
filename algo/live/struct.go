@@ -245,11 +245,14 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 
 		params := ctx.GetRequest()
 
-		// 只有在“推荐、视频、热聊“的情况下，返回label_list
+		// 只有在“推荐、视频、热聊“的情况下，返回label_list  判断sort
 		var needReturnLabel bool
 		classify := rutils.GetInt(params.Params["classify"])
 		switch classify {
 		case typeRecommend, typeBigVideo, typeBigMultiAudio, typeGroupVideo:
+			needReturnLabel = true
+		}
+		if sort :=params.Params["sort"];sort=="hot"{//横幅直播添加标签
 			needReturnLabel = true
 		}
 
