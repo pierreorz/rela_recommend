@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
+	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 )
 
@@ -16,6 +17,7 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 	params := ctx.GetRequest()
 
 	if sort,ok :=params.Params["sort"];ok&&sort!="hot"{//非横幅直播不走运营逻辑
+	log.Warnf("current is")
 		if live.LiveCache.Recommand == 1 { // 1: 推荐
 			if live.LiveCache.RecommandLevel > 10 { // 15: 置顶
 				rankInfo.IsTop = 1
@@ -39,29 +41,31 @@ func LiveExposureFunc(ctx algo.IContext) error {
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	videoList :=make(map[int64]int,0)
 	count :=0
-	if userInfo.ConsumeUser==0{//低消费用户将视频提权
-		for index := 0; index < ctx.GetDataLength(); index++ {
-			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
-			rankInfo := dataInfo.GetRankInfo()
-			if dataInfo.LiveCache.Live.AudioType==0{//视频类直播
-				if rankInfo.IsTop==0 && rankInfo.HopeIndex<=3&&rankInfo.IsHourTop!=1{//过滤掉上小时top3直播以及添加其他标签的直播
-					videoList[dataInfo.LiveCache.Live.UserId]=1
+	params := ctx.GetRequest()
+	if sort,ok :=params.Params["sort"];ok&&sort!="hot"{
+		if userInfo.ConsumeUser==0{//低消费用户将视频提权
+			for index := 0; index < ctx.GetDataLength(); index++ {
+				dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+				rankInfo := dataInfo.GetRankInfo()
+				if dataInfo.LiveCache.Live.AudioType==0{//视频类直播
+					if rankInfo.IsTop==0 && rankInfo.HopeIndex<=3&&rankInfo.IsHourTop!=1{//过滤掉上小时top3直播以及添加其他标签的直播
+						videoList[dataInfo.LiveCache.Live.UserId]=1
+					}
+				}
+			}
+			for index := 0; index < ctx.GetDataLength(); index++ {
+				dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
+				rankInfo := dataInfo.GetRankInfo()
+				if _,ok :=videoList[dataInfo.LiveCache.Live.UserId];ok{
+					rankInfo.HopeIndex= abtest.GetInt("video_start_index",3)
+					count+=1
+				}
+				if count>= abtest.GetInt("video_max_expo",8){
+					break
 				}
 			}
 		}
-		for index := 0; index < ctx.GetDataLength(); index++ {
-			dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
-			rankInfo := dataInfo.GetRankInfo()
-			if _,ok :=videoList[dataInfo.LiveCache.Live.UserId];ok{
-				rankInfo.HopeIndex= abtest.GetInt("video_start_index",3)
-				count+=1
-			}
-			if count>= abtest.GetInt("video_max_expo",8){
-				break
-			}
-		}
 	}
-
 	return nil
 	}
 // 融合老策略的分数
@@ -200,7 +204,6 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	var startIndex = 5
 	var intervar = 0
-
 	params := ctx.GetRequest()
 	topN := abtest.GetInt("per_hour_rank_top_n", 3) // 前n名随机， 分数相同的并列，有可能返回1,2,2,3
 	indexs := []int{}
