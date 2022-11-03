@@ -83,6 +83,8 @@ type UserInfo struct {
 	UserConcerns  *rutils.SetInt64
 	UserInterests *rutils.SetInt64
 	ConsumeUser   int
+	UserLiveContentProfile *redis.UserLiveContentProfile  //使用者直播画像数据
+
 }
 
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
@@ -143,6 +145,7 @@ type LiveInfo struct {
 	RankInfo         *algo.RankInfo
 	Features         *utils.Features
 	UserItemBehavior *behavior.UserBehavior
+	LiveContentProfile   *redis.LiveContentProfile//主播画像数据
 }
 
 type newStyle struct {
@@ -242,11 +245,14 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 
 		params := ctx.GetRequest()
 
-		// 只有在“推荐、视频、热聊“的情况下，返回label_list
+		// 只有在“推荐、视频、热聊“的情况下，返回label_list  判断sort
 		var needReturnLabel bool
 		classify := rutils.GetInt(params.Params["classify"])
 		switch classify {
 		case typeRecommend, typeBigVideo, typeBigMultiAudio, typeGroupVideo:
+			needReturnLabel = true
+		}
+		if sort,ok :=params.Params["sort"];ok&&sort=="hot"{//横幅直播添加标签
 			needReturnLabel = true
 		}
 
