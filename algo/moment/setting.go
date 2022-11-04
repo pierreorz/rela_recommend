@@ -149,6 +149,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
 
+//关注页为你推荐
 var _ =algo.AddAppInfo(&algo.AppInfo{
 	Name: "moment.followrec", Module: "moment", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
