@@ -14,7 +14,8 @@ var builderMap = map[string]algo.IBuilder{
 	"arounddetail": &algo.BuilderBase{DoBuild: DoBuildMomentAroundDetailSimData},
 	"followdetail": &algo.BuilderBase{DoBuild: DoBuildMomentFriendDetailSimData},
 	"recdetail":    &algo.BuilderBase{DoBuild: DoBuildMomentRecommendDetailSimData},
-	"label":       &algo.BuilderBase{DoBuild: DoBuildLabelData}}
+	"label":       &algo.BuilderBase{DoBuild: DoBuildLabelData},
+	"followrec":   &algo.BuilderBase{DoBuild: DoBuildFollowRecData},}
 var strategyMap = map[string]algo.IStrategy{
 	"time_level":       &algo.StrategyBase{DoSingle: DoTimeLevel},
 	"sort_by_time":     &algo.StrategyBase{DoSingle: SortByTimeLevel},
@@ -148,6 +149,17 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
 
+//关注页为你推荐
+var _ =algo.AddAppInfo(&algo.AppInfo{
+	Name: "moment.followrec", Module: "moment", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
+	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
 // 日志附近的人
 var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "moment.near", Module: "moment", Path: workDir,
@@ -203,3 +215,4 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
 	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+

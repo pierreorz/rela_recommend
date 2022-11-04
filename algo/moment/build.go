@@ -17,6 +17,212 @@ import (
 	"time"
 )
 
+func DoBuildFollowRecData(ctx algo.IContext) error{
+	var err error
+	abtest := ctx.GetAbTest()
+	params := ctx.GetRequest()
+	preforms := ctx.GetPerforms()
+	app := ctx.GetAppInfo()
+	userId :=params.UserId
+	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
+	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, &factory.CacheRds)
+	var concernsSet = &utils.SetInt64{}
+	var userBehavior *behavior.UserBehavior // 用户实时行为
+
+	// search list
+	dataIdList := params.DataIds
+	recIdList := make([]int64, 0)
+	aroundHotIdList :=make([]int64,0)
+	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
+		"recommend": func(*performs.Performs) interface{} { // 获取推荐日志
+			if dataIdList == nil || len(dataIdList) == 0 {
+				recListKeyFormatter := abtest.GetString("recommend_list_key", "")
+				// moment_recommend_list:%d
+					recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
+					return len(recIdList)
+
+			}
+			return nil
+		}, "around_hot": func(*performs.Performs) interface{} {
+			if abtest.GetBool("hour_rec_moment", false) {//获取附近热门的top100
+				recListKeyFormatter := abtest.GetString("around_list_key", "moment.around_list_hot_data:%s")
+				aroundHotIdList, _ = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
+				return len(aroundHotIdList)
+			}
+			return nil
+		},
+	})
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, aroundHotIdList).ToList()
+	var itemBehaviorMap = map[int64]*behavior.UserBehavior{}     // 获取日志行为
+	var userItemBehaviorMap = map[int64]*behavior.UserBehavior{} //获取用户日志行为
+	var moms = []redis.MomentsAndExtend{}                        // 获取日志缓存
+	var userIds = make([]int64, 0)
+	var momOfflineProfileMap = map[int64]*redis.MomentOfflineProfile{} // 获取日志离线画像
+	var momContentProfileMap = map[int64]*redis.MomentContentProfile{}
+	var itemOfflineBehaviorMap = map[int64]*redis.MomOfflinePageMap{}
+	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
+	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
+		"item_behavior": func(*performs.Performs) interface{} { // 获取日志行为
+			var itemBehaviorErr error
+			itemBehaviorMap, itemBehaviorErr = behaviorCache.QueryItemBehaviorMap(behaviorModuleName, dataIds)
+			if itemBehaviorErr == nil {
+				return len(itemBehaviorMap)
+			}
+			return itemBehaviorErr
+		},
+		"item_offline_behavior": func(*performs.Performs) interface{} {
+			var itemOfflineBehaviorErr error
+			itemOfflineBehaviorMap, itemOfflineBehaviorErr = momentCache.QueryMomentOfflineBehaviorMap(dataIds)
+			return itemOfflineBehaviorErr
+		}, "useritem_behavior": func(*performs.Performs) interface{} {
+			var userItemBehaviorErr error
+			userItemBehaviorMap, userItemBehaviorErr = behaviorCache.QueryUserItemBehaviorMap(behaviorModuleName, params.UserId, dataIds)
+			if userItemBehaviorErr == nil {
+				return len(userItemBehaviorMap)
+			}
+			return userItemBehaviorErr
+		},
+		"moment": func(*performs.Performs) interface{} { // 获取日志缓存
+			var momsErr error
+			if moms, momsErr = momentCache.QueryMomentsByIds(dataIds); momsErr == nil {
+				for _, mom := range moms {
+					if mom.Moments != nil {
+						userIds = append(userIds, mom.Moments.UserId)
+					}
+				}
+				userIds = utils.NewSetInt64FromArray(userIds).ToList()
+				return len(moms)
+			}
+			return momsErr
+		}, "profile": func(*performs.Performs) interface{} { // 获取日志离线画像
+			var momOfflineProfileErr error
+			momOfflineProfileMap, momOfflineProfileErr = momentCache.QueryMomentOfflineProfileByIdsMap(dataIds)
+			if momOfflineProfileErr == nil {
+				return len(momOfflineProfileMap)
+			}
+			return momOfflineProfileErr
+		}, "picture_profile": func(*performs.Performs) interface{} { // 获取日志离线画像
+			var momContentProfileErr error
+			momContentProfileMap, momContentProfileErr = momentCache.QueryMomentContentProfileByIdsMap(dataIds)
+			if momContentProfileErr == nil {
+				return len(momOfflineProfileMap)
+			}
+			return momContentProfileErr
+		},
+	})
+	var user *redis.UserProfile
+	var usersMap = map[int64]*redis.UserProfile{}
+	var momentUserEmbedding *redis.MomentUserProfile
+	var userContentProfileMap map[int64]*redis.UserContentProfile
+	var momentUserEmbeddingMap = map[int64]*redis.MomentUserProfile{}
+	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
+		"user": func(*performs.Performs) interface{} { // 获取用户信息
+			var userErr error
+			user, usersMap, userErr = userCache.QueryByUserAndUsersMap(params.UserId, userIds)
+			if userErr == nil {
+				return len(usersMap)
+			}
+			return userErr
+		},
+		"concerns": func(*performs.Performs) interface{} { // 获取关注信息
+			if abtest.GetBool("live_user_concerns", true) {
+				if concerns, conErr := redisTheCache.QueryConcernsByUserV1(params.UserId); conErr == nil {
+					concernsSet = utils.NewSetInt64FromArray(concerns)
+					return concernsSet.Len()
+				} else {
+					return conErr
+				}
+			}
+			return nil
+		},
+		"profile": func(*performs.Performs) interface{} { // 获取用户信息
+			var embeddingCacheErr error
+			momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr = userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId, userIds)
+			if embeddingCacheErr == nil {
+				return len(momentUserEmbeddingMap)
+			}
+			return embeddingCacheErr
+		},
+		"user_behavior": func(*performs.Performs) interface{} { // 获取实时操作的内容
+			realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap(app.Module, []int64{params.UserId})
+			if realtimeErr == nil && abtest.GetInt("rich_strategy:user_behavior_interact:weight", 1) == 1 {
+				userBehavior = realtimes[params.UserId]
+
+			}
+			return realtimeErr
+		},
+	})
+	preforms.Run("build", func(*performs.Performs) interface{} {
+		userInfo := &UserInfo{
+			UserId:                 params.UserId,
+			UserCache:              user,
+			MomentUserProfile:      momentUserEmbedding,
+			UserContentProfile:     userContentProfileMap[params.UserId],
+			UserBehavior:           userBehavior,
+		}
+		dataList := make([]algo.IDataInfo, 0)
+		for _, mom := range moms {
+			// 后期搜索完善此条件去除
+			if mom.Moments == nil || mom.MomentsExtend == nil {
+				continue
+			}
+			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
+				continue
+			}
+			if !mom.CanRecommend(){
+				continue
+			}
+			if mom.Moments.ShareTo != "all" {
+				continue
+			}
+
+			if mom.Moments.Status != 1 { //状态不为1的过滤
+				continue
+			}
+
+			if mom.Moments.Id > 0 {
+				momUser, _ := usersMap[mom.Moments.UserId]
+				//status=0 禁用用户，status=5 注销用户
+				if momUser != nil {
+					if !momUser.DataUserCanRecommend() { //私密用户的日志过滤
+						continue
+					}
+					if momUser.IsVipHidingMom(){//vip隐藏日志过滤
+						continue
+					}
+				}
+				isBussiness :=0
+				if concernsSet.Contains(mom.Moments.UserId) {//关注日志
+					isBussiness = 1
+				}
+
+
+				info := &DataInfo{
+					DataId:               mom.Moments.Id,
+					UserCache:            momUser,
+					MomentCache:          mom.Moments,
+					MomentExtendCache:    mom.MomentsExtend,
+					MomentProfile:        mom.MomentsProfile,
+					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
+					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
+					RankInfo:             &algo.RankInfo{IsBussiness:isBussiness},
+					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
+					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
+					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],
+					UserItemBehavior:     userItemBehaviorMap[mom.Moments.Id],
+				}
+				dataList = append(dataList, info)
+			}
+		}
+		ctx.SetUserInfo(userInfo)
+		ctx.SetDataIds(dataIds)
+		ctx.SetDataList(dataList)
+		return len(dataList)
+	})
+	return err
+}
 func DoBuildLabelData(ctx algo.IContext) error{
 	var err,errSearch error
 	preforms := ctx.GetPerforms()
