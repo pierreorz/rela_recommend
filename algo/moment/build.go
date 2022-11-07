@@ -38,7 +38,7 @@ func DoBuildFollowRecData(ctx algo.IContext) error{
 	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
 		"recommend": func(*performs.Performs) interface{} { // 获取推荐日志
 			if dataIdList == nil || len(dataIdList) == 0 {
-				recListKeyFormatter := abtest.GetString("recommend_list_key", "")
+				recListKeyFormatter := abtest.GetString("recommend_list_key", "moment_follow_rec:%d")
 				// moment_recommend_list:%d
 					recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
 					return len(recIdList)
