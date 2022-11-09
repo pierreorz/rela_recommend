@@ -46,7 +46,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 		ad_soure := sd.AdvertSource
 		//运行相关广告状态直接赋值
 		if ad_soure == "own" || ad_soure == "partner" {
-			nums:=4
+			nums:=5
 			rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
 		} else{
 			//		rand_num := rand.Intn(5) + 1.0
