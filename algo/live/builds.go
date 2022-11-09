@@ -114,13 +114,19 @@ func DoBuildData(ctx algo.IContext) error {
 		},
 		"user_live_content_profile": func(*performs.Performs) interface{} { //用户关于直播的画像
 			var userLiveContentProfileErr error
-			userLiveContentProfileMap, userLiveContentProfileErr = userCache.QueryUserLiveContentProfileByIdsMap([]int64{params.UserId})
-			return userLiveContentProfileErr
+			if userLiveContentProfileMap, userLiveContentProfileErr = userCache.QueryUserLiveContentProfileByIdsMap([]int64{params.UserId}); userLiveContentProfileErr==nil{
+				return len(userLiveContentProfileMap)
+			}else{
+				return userLiveContentProfileErr
+			}
 		},
 		"live_content_profile": func(*performs.Performs) interface{} {
 			var liveContentProfileErr error
-			liveContentProfileMap, liveContentProfileErr = userCache.QueryLiveContentProfileByIdsMap(liveIds)
-			return liveContentProfileErr
+			if liveContentProfileMap, liveContentProfileErr = userCache.QueryLiveContentProfileByIdsMap(liveIds);liveContentProfileErr==nil{
+				return len(liveContentProfileMap)
+			}else{
+				return liveContentProfileErr
+			}
 		},
 	})
 	pfms.Run("build", func(*performs.Performs) interface{} {
