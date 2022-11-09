@@ -47,7 +47,14 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 		//运行相关广告状态直接赋值
 		if ad_source == "own" || ad_source == "partner" {
 			nums:=5
-			log.Infof("sdId===============ad_source", sd.Id,ad_source)
+			hisexpores := dataInfo.SearchData.HistoryExposures
+			click := dataInfo.SearchData.HistoryClicks
+
+
+			log.Infof("sdId===============", sd.Id,ad_source)
+			log.Infof("click===============", click,ad_source)
+			log.Infof("hisexpores===============", hisexpores,ad_source)
+
 			rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
 		} else{
 			//		rand_num := rand.Intn(5) + 1.0
@@ -64,9 +71,9 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 			nums := float64(ctr) * math.Exp(-float64(rand_num))
 
 			log.Infof("sdId===============", sd.Id,ad_source)
-			//log.Infof("click===============", click)
-			//log.Infof("hisexpores===============", hisexpores)
-			//log.Infof("rand_nums===============", ctr, nums)
+			log.Infof("click===============", click,ad_source)
+			log.Infof("hisexpores===============", hisexpores,ad_source)
+			log.Infof("rand_nums===============", ctr, nums,ad_source)
 			rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
 			}
 		}
