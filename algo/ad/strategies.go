@@ -43,10 +43,11 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 		dataInfo := iDataInfo.(*DataInfo)
 		sd := dataInfo.SearchData
 
-		ad_soure := sd.AdvertSource
+		ad_source := sd.AdvertSource
 		//运行相关广告状态直接赋值
-		if ad_soure == "own" || ad_soure == "partner" {
+		if ad_source == "own" || ad_source == "partner" {
 			nums:=5
+			log.Infof("sdId===============ad_source", sd.Id,ad_source)
 			rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
 		} else{
 			//		rand_num := rand.Intn(5) + 1.0
@@ -62,7 +63,7 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 			ctr := float64(click+1) / float64(rand.Intn(dataLen)+hisexpores+1)
 			nums := float64(ctr) * math.Exp(-float64(rand_num))
 
-			log.Infof("sdId===============", sd.Id)
+			log.Infof("sdId===============", sd.Id,ad_source)
 			//log.Infof("click===============", click)
 			//log.Infof("hisexpores===============", hisexpores)
 			//log.Infof("rand_nums===============", ctr, nums)
