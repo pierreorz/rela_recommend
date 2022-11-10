@@ -24,15 +24,12 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 		runningRate := float64(ctx.GetCreateTime().Unix()-sd.StartTime) / float64(sd.EndTime-sd.StartTime)
 		exposureRate := float64(sd.HistoryExposures) / float64(sd.Exposure)
 		cnt_z := abtest.GetFloat64("base_score_cnt_z", 20.0)
-		log.Infof("cntRate===============", sd.Id,sd.AdvertSource,cnt_z,cntRate,math.Pow(runningRate/exposureRate, cnt_z))
 		cntRate = math.Min(math.Pow(runningRate/exposureRate, cnt_z), 10000) // 无穷大
 	}
 
 	var clickRate float64 = 1.0
 	var weightRate float64 = 1.0 + float64(sd.Weight)/100.0
 
-	log.Infof("cntRate===============", sd.Id,sd.AdvertSource,priceRate,cntRate,weightRate)
-	log.Infof("baseRate===============", sd.Id,sd.AdvertSource,float32(priceRate * cntRate * clickRate * weightRate))
 	rankInfo.Score = float32(priceRate * cntRate * clickRate * weightRate)
 	return nil
 }
