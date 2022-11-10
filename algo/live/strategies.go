@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/utils"
-	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 )
 
@@ -17,7 +16,6 @@ func LiveTopRecommandStrategyFunc(ctx algo.IContext, index int) error {
 	params := ctx.GetRequest()
 
 	if sort,ok :=params.Params["sort"];ok&&sort!="hot"{//非横幅直播不走运营逻辑
-	log.Warnf("current is")
 		if live.LiveCache.Recommand == 1 { // 1: 推荐
 			if live.LiveCache.RecommandLevel > 10 { // 15: 置顶
 				rankInfo.IsTop = 1

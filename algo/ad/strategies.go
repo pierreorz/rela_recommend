@@ -39,29 +39,43 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 	//召回的广告数据大于才做分发
 	if request.ClientVersion>= 50802 {
 		//app := ctx.GetAppInfo()
-		dataLen:=ctx.GetDataLength()
+		dataLen := ctx.GetDataLength()
 		dataInfo := iDataInfo.(*DataInfo)
 		sd := dataInfo.SearchData
 
-		//		rand_num := rand.Intn(5) + 1.0
-		//		nums := float32(rand_num) / float32(sd.Id)
-		hisexpores := dataInfo.SearchData.HistoryExposures
-		click := dataInfo.SearchData.HistoryClicks
+		ad_source := sd.AdvertSource
+		//运行相关广告状态直接赋值
+		if ad_source == "own" || ad_source == "partner" {
+			nums:=5
+			hisexpores := dataInfo.SearchData.HistoryExposures
+			click := dataInfo.SearchData.HistoryClicks
 
-		//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
-		if click > hisexpores {
-			click = hisexpores
-		}
-		rand_num := rand.Intn(dataLen)
-		ctr := float64(click+1) / float64(rand.Intn(dataLen)+hisexpores+1)
-		nums := float64(ctr) * math.Exp(-float64(rand_num))
 
-		log.Infof("sdId===============", sd.Id)
-		//log.Infof("click===============", click)
-		//log.Infof("hisexpores===============", hisexpores)
-		//log.Infof("rand_nums===============", ctr, nums)
-		rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
+			log.Infof("sdId===============", sd.Id,ad_source)
+			log.Infof("click===============", click,ad_source)
+			log.Infof("hisexpores===============", hisexpores,ad_source)
 
+			rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
+		} else{
+			//		rand_num := rand.Intn(5) + 1.0
+			//		nums := float32(rand_num) / float32(sd.Id)
+			hisexpores := dataInfo.SearchData.HistoryExposures
+			click := dataInfo.SearchData.HistoryClicks
+
+			//rand_num := -(rand.Intn(5) + hisexpores)/dataLen
+			if click > hisexpores {
+				click = hisexpores
+			}
+			rand_num := rand.Intn(dataLen)
+			ctr := float64(click+1) / float64(rand.Intn(dataLen)+hisexpores+1)
+			nums := float64(ctr) * math.Exp(-float64(rand_num))
+
+			log.Infof("sdId===============", sd.Id,ad_source)
+			log.Infof("click===============", click,ad_source)
+			log.Infof("hisexpores===============", hisexpores,ad_source)
+			log.Infof("rand_nums===============", ctr, nums,ad_source)
+			rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
+			}
 		}
 
 	return nil
