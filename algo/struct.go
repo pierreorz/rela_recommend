@@ -51,8 +51,8 @@ var allReasonTypes = map[ReasonType]clientReason{
 	TypeNearby: {
 		Type: TypeNearby,
 		Text: &MultiLanguage{
-			Chs: "在你附近",
-			Cht: "在你附近",
+			Chs: "Ta在你附近",
+			Cht: "Ta在你附近",
 			En: "From nearby posts",
 		},
 	},
