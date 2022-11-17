@@ -17,34 +17,33 @@ import (
 	"time"
 )
 
-func DoBuildLabelData(ctx algo.IContext) error{
-	var err,errSearch error
+func DoBuildLabelData(ctx algo.IContext) error {
+	var err, errSearch error
 	preforms := ctx.GetPerforms()
 	params := ctx.GetRequest()
-	query :=params.Params["query"]
+	query := params.Params["query"]
 	abtest := ctx.GetAbTest()
 	app := ctx.GetAppInfo()
 	newIdList := make([]int64, 0)
+	labelDataList := make([]search.LabelResDataItem, 0)
 	var userIds = make([]int64, 0)
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
-	var moms = []redis.MomentsAndExtend{}                        // 获取日志缓存
+	var moms = []redis.MomentsAndExtend{} // 获取日志缓存
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
-	queryInt,_ :=strconv.ParseInt(query, 10, 64)
-	var itemBehaviorMap = map[int64]*behavior.UserBehavior{}     // 获取日志行为
+	queryInt, _ := strconv.ParseInt(query, 10, 64)
+	var itemBehaviorMap = map[int64]*behavior.UserBehavior{} // 获取日志行为
 	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
 		"recommend": func(*performs.Performs) interface{} {
-			newIdList, errSearch = search.CallLabelMomentList(queryInt, 1000)
-			if errSearch!=nil{//search的兜底数据
-				newIdList,_ =momentCache.GetInt64ListOrDefault(queryInt, -999999999, "hour_recommend_list:%d")
+			newIdList, labelDataList, errSearch = search.CallLabelMomentList(queryInt, 1000)
+			if errSearch != nil { //search的兜底数据
+				newIdList, _ = momentCache.GetInt64ListOrDefault(queryInt, -999999999, "hour_recommend_list:%d")
 			}
 			return errSearch
 		},
-
-
 	})
 
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
@@ -83,8 +82,8 @@ func DoBuildLabelData(ctx algo.IContext) error{
 	})
 	preforms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
-			UserId:                 params.UserId,
-			UserCache:              user,
+			UserId:    params.UserId,
+			UserCache: user,
 		}
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
@@ -98,14 +97,14 @@ func DoBuildLabelData(ctx algo.IContext) error{
 				//	}
 				//}
 				info := &DataInfo{
-					DataId:               mom.Moments.Id,
-					UserCache:            momUser,
-					MomentCache:          mom.Moments,
-					MomentExtendCache:    mom.MomentsExtend,
-					MomentProfile:        mom.MomentsProfile,
-					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{},
-
+					DataId:            mom.Moments.Id,
+					UserCache:         momUser,
+					MomentCache:       mom.Moments,
+					MomentExtendCache: mom.MomentsExtend,
+					MomentProfile:     mom.MomentsProfile,
+					ItemBehavior:      itemBehaviorMap[mom.Moments.Id],
+					RankInfo:          &algo.RankInfo{},
+					ExtraData:         labelDataList,
 				}
 				dataList = append(dataList, info)
 			}
@@ -117,7 +116,6 @@ func DoBuildLabelData(ctx algo.IContext) error{
 	})
 	return err
 }
-
 
 func DoBuildData(ctx algo.IContext) error {
 	var err error
@@ -343,7 +341,7 @@ func DoBuildData(ctx algo.IContext) error {
 							//		pictureTagList=append(pictureTagList,tag)
 							//	}
 							//}
-							for key, _ := range tagMap {
+							for key := range tagMap {
 								//去掉情感恋爱
 								if key != 23 {
 									tagList = append(tagList, key)
@@ -582,7 +580,7 @@ func DoBuildData(ctx algo.IContext) error {
 					if !momUser.DataUserCanRecommend() { //私密用户的日志过滤
 						continue
 					}
-					if momUser.IsVipHidingMom(){//vip隐藏日志过滤
+					if momUser.IsVipHidingMom() { //vip隐藏日志过滤
 						continue
 					}
 				}
@@ -681,7 +679,7 @@ func DoBuildData(ctx algo.IContext) error {
 func getMapKey(scoreMap map[int64]int) []int64 {
 	res := make([]int64, 0)
 	if scoreMap != nil && len(scoreMap) > 0 {
-		for key, _ := range scoreMap {
+		for key := range scoreMap {
 			res = append(res, key)
 		}
 	}

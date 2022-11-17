@@ -14,11 +14,11 @@ type UserInfo struct {
 	UserCache    *redis.UserProfile
 	UserConcerns *rutils.SetInt64
 	//MomentOfflineProfile *redis.MomentOfflineProfile
-	MomentUserProfile  *redis.MomentUserProfile
-	UserBehavior       *behavior.UserBehavior
-	UserLiveProfile    *redis.UserLiveProfile
-	UserContentProfile *redis.UserContentProfile
-	UserLiveContentProfile *redis.UserLiveContentProfile  //使用者直播画像数据
+	MomentUserProfile      *redis.MomentUserProfile
+	UserBehavior           *behavior.UserBehavior
+	UserLiveProfile        *redis.UserLiveProfile
+	UserContentProfile     *redis.UserContentProfile
+	UserLiveContentProfile *redis.UserLiveContentProfile //使用者直播画像数据
 }
 
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
@@ -41,7 +41,7 @@ type DataInfo struct {
 	ItemOfflineBehavior  *redis.MomOfflinePageMap
 	UserItemBehavior     *behavior.UserBehavior //用户对该发布日志的行为数据
 	LiveContentProfile   *redis.LiveContentProfile
-
+	ExtraData            interface{}
 }
 
 func (self *DataInfo) GetDataId() int64 {
@@ -49,7 +49,7 @@ func (self *DataInfo) GetDataId() int64 {
 }
 
 func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
-	return nil
+	return self.ExtraData
 }
 
 func (self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {
@@ -72,7 +72,7 @@ func (self *DataInfo) GetUserItemBehavior() *behavior.UserBehavior {
 	return self.UserItemBehavior
 }
 
-func AdCanExposure(ctx algo.IContext, loc *redis.AdLoc, exposureRecords float64,jumpType int64) bool {
+func AdCanExposure(ctx algo.IContext, loc *redis.AdLoc, exposureRecords float64, jumpType int64) bool {
 	nowTime := ctx.GetCreateTime().Unix()
 	requestVersion := ctx.GetRequest().ClientVersion
 	// 低版本不支持一些跳转类型
