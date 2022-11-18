@@ -309,7 +309,6 @@ func DoBuildLabelData(ctx algo.IContext) error {
 					MomentProfile:     mom.MomentsProfile,
 					ItemBehavior:      itemBehaviorMap[mom.Moments.Id],
 					RankInfo:          &algo.RankInfo{},
-					ExtraData:         labelDataList[mom.Moments.Id],
 				}
 				dataList = append(dataList, info)
 			}
