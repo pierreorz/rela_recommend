@@ -41,7 +41,6 @@ type DataInfo struct {
 	ItemOfflineBehavior  *redis.MomOfflinePageMap
 	UserItemBehavior     *behavior.UserBehavior //用户对该发布日志的行为数据
 	LiveContentProfile   *redis.LiveContentProfile
-	ExtraData            interface{}
 }
 
 func (self *DataInfo) GetDataId() int64 {
@@ -49,7 +48,7 @@ func (self *DataInfo) GetDataId() int64 {
 }
 
 func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
-	return self.ExtraData
+	return nil
 }
 
 func (self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {

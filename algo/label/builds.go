@@ -16,12 +16,12 @@ func DoBuildLabelSuggest(ctx algo.IContext) error {
 	var err error
 	pf := ctx.GetPerforms()
 	params := ctx.GetRequest()
-	query :=params.Params["query"]
+	query := params.Params["query"]
 	nameList := make([]int64, 0)
-	nameList,_ =search.CallLabelSuggestList(query)
+	nameList, _ = search.CallLabelSuggestList(query)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
-	log.Warnf("newIdlIst is %s",nameList)
+	log.Warnf("newIdlIst is %s", nameList)
 	// 获取用户信息
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
@@ -45,8 +45,8 @@ func DoBuildLabelSuggest(ctx algo.IContext) error {
 		dataList := make([]algo.IDataInfo, 0)
 		for i, nameId := range nameList {
 			info := &DataInfo{
-				DataId:    nameId,
-				RankInfo:             &algo.RankInfo{Level: -i},
+				DataId:   nameId,
+				RankInfo: &algo.RankInfo{Level: -i},
 			}
 			dataList = append(dataList, info)
 		}
@@ -57,17 +57,17 @@ func DoBuildLabelSuggest(ctx algo.IContext) error {
 	})
 	return err
 }
-
 
 func DoBuildLabelSearch(ctx algo.IContext) error {
 	var err error
 	pf := ctx.GetPerforms()
 	params := ctx.GetRequest()
-	limit :=params.Limit
-	query :=params.Params["query"]
-	nameList := make([]int64, 0)
-	nameList,_ =search.CallLabelSearchList(query,limit)
-	log.Warnf("label search is %s",nameList)
+	limit := params.Limit
+	query := params.Params["query"]
+	idList, dataMap, err := search.CallLabelSearchList(query, limit)
+	if err != nil {
+		return err
+	}
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
 	// 获取用户信息
@@ -76,7 +76,7 @@ func DoBuildLabelSearch(ctx algo.IContext) error {
 	pf.RunsGo("caches", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} {
 			var userCacheErr error
-			user, usersMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, nameList)
+			user, usersMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, idList)
 			if userCacheErr != nil {
 				return userCacheErr
 			}
@@ -91,32 +91,32 @@ func DoBuildLabelSearch(ctx algo.IContext) error {
 
 		// 组装被曝光者信息
 		dataList := make([]algo.IDataInfo, 0)
-		for i, nameId := range nameList {
+		for i, labelId := range idList {
 			info := &DataInfo{
-				DataId:    nameId,
-				RankInfo:             &algo.RankInfo{Level: -i},
+				DataId:    labelId,
+				RankInfo:  &algo.RankInfo{Level: -i},
+				ExtraData: dataMap[labelId],
 			}
 			dataList = append(dataList, info)
 		}
 		ctx.SetUserInfo(userInfo)
-		ctx.SetDataIds(nameList)
+		ctx.SetDataIds(idList)
 		ctx.SetDataList(dataList)
 		return len(dataList)
 	})
 	return err
 }
 
-
 func DoBuildLabelRec(ctx algo.IContext) error {
 	var err error
 	params := ctx.GetRequest()
-	query :=params.Params["query"]
+	query := params.Params["query"]
 	abtest := ctx.GetAbTest()
 	idList := make([]int64, 0)
 	pf := ctx.GetPerforms()
-	reason :=""
+	reason := ""
 
-	change :=0
+	change := 0
 	// 获取用户信息
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
@@ -158,7 +158,7 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 				if idList, err = rdsPikaCache.GetInt64ListFromString("hot", "mom_label_data:%s"); err != nil { //默认热门数据
 					return err
 				}
-				log.Warnf("id3 list is%s",idList)
+				log.Warnf("id3 list is%s", idList)
 			}
 		}
 	} else {
@@ -168,7 +168,7 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 		}
 	}
 
-	if change==1{//对指定数据进行打散
+	if change == 1 { //对指定数据进行打散
 		rand.Seed(time.Now().UnixNano())
 		rand.Shuffle(len(idList), func(i, j int) { idList[i], idList[j] = idList[j], idList[i] })
 	}
@@ -182,9 +182,8 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 		dataList := make([]algo.IDataInfo, 0)
 		for i, nameId := range idList {
 			info := &DataInfo{
-				DataId:    nameId,
-				RankInfo:             &algo.RankInfo{Level: -i},
-
+				DataId:   nameId,
+				RankInfo: &algo.RankInfo{Level: -i},
 			}
 			dataList = append(dataList, info)
 		}
@@ -195,5 +194,3 @@ func DoBuildLabelRec(ctx algo.IContext) error {
 	})
 	return err
 }
-
-

@@ -92,25 +92,28 @@ func CallLabelSuggestList(query string) ([]int64, error) {
 }
 
 //标签搜索接口
-func CallLabelSearchList(query string, limit int64) ([]int64, error) {
-	namelist := make([]int64, 0)
+func CallLabelSearchList(query string, limit int64) ([]int64, map[int64]LabelResDataItem, error) {
+	idList := make([]int64, 0)
+	dataMap := make(map[int64]LabelResDataItem, 0)
 
 	params := searchBaseRequest{
-		Query: query,
-		Limit: limit,
+		Query:        query,
+		Limit:        limit,
+		ReturnFields: "stat_join_num",
 	}
 
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchLabelRes{}
 		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLabelListUrl, paramsData, searchRes); err == nil {
 			for _, element := range searchRes.Data {
-				namelist = append(namelist, element.Id)
+				idList = append(idList, element.Id)
+				dataMap[element.Id] = element
 			}
-			return namelist, err
+			return idList, dataMap, err
 		} else {
-			return namelist, err
+			return idList, dataMap, err
 		}
 	} else {
-		return namelist, err
+		return idList, dataMap, err
 	}
 }
