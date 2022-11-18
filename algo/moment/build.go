@@ -17,13 +17,13 @@ import (
 	"time"
 )
 
-func DoBuildFollowRecData(ctx algo.IContext) error{
+func DoBuildFollowRecData(ctx algo.IContext) error {
 	var err error
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
 	preforms := ctx.GetPerforms()
 	app := ctx.GetAppInfo()
-	userId :=params.UserId
+	userId := params.UserId
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
@@ -34,19 +34,19 @@ func DoBuildFollowRecData(ctx algo.IContext) error{
 	// search list
 	dataIdList := params.DataIds
 	recIdList := make([]int64, 0)
-	aroundHotIdList :=make([]int64,0)
+	aroundHotIdList := make([]int64, 0)
 	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
 		"recommend": func(*performs.Performs) interface{} { // 获取推荐日志
 			if dataIdList == nil || len(dataIdList) == 0 {
 				recListKeyFormatter := abtest.GetString("recommend_list_key", "moment_follow_rec:%d")
 				// moment_recommend_list:%d
-					recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
-					return len(recIdList)
+				recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
+				return len(recIdList)
 
 			}
 			return nil
 		}, "around_hot": func(*performs.Performs) interface{} {
-			if abtest.GetBool("hour_rec_moment", false) {//获取附近热门的top100
+			if abtest.GetBool("hour_rec_moment", false) { //获取附近热门的top100
 				recListKeyFormatter := abtest.GetString("around_list_key", "moment.around_list_hot_data:%s")
 				aroundHotIdList, _ = momentCache.GetInt64ListFromGeohash(params.Lat, params.Lng, 4, recListKeyFormatter)
 				return len(aroundHotIdList)
@@ -156,11 +156,11 @@ func DoBuildFollowRecData(ctx algo.IContext) error{
 	})
 	preforms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
-			UserId:                 params.UserId,
-			UserCache:              user,
-			MomentUserProfile:      momentUserEmbedding,
-			UserContentProfile:     userContentProfileMap[params.UserId],
-			UserBehavior:           userBehavior,
+			UserId:             params.UserId,
+			UserCache:          user,
+			MomentUserProfile:  momentUserEmbedding,
+			UserContentProfile: userContentProfileMap[params.UserId],
+			UserBehavior:       userBehavior,
 		}
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
@@ -171,7 +171,7 @@ func DoBuildFollowRecData(ctx algo.IContext) error{
 			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
 				continue
 			}
-			if !mom.CanRecommend(){
+			if !mom.CanRecommend() {
 				continue
 			}
 			if mom.Moments.ShareTo != "all" {
@@ -189,15 +189,14 @@ func DoBuildFollowRecData(ctx algo.IContext) error{
 					if !momUser.DataUserCanRecommend() { //私密用户的日志过滤
 						continue
 					}
-					if momUser.IsVipHidingMom(){//vip隐藏日志过滤
+					if momUser.IsVipHidingMom() { //vip隐藏日志过滤
 						continue
 					}
 				}
-				isBussiness :=0
-				if concernsSet.Contains(mom.Moments.UserId) {//关注日志
+				isBussiness := 0
+				if concernsSet.Contains(mom.Moments.UserId) { //关注日志
 					isBussiness = 1
 				}
-
 
 				info := &DataInfo{
 					DataId:               mom.Moments.Id,
@@ -207,7 +206,7 @@ func DoBuildFollowRecData(ctx algo.IContext) error{
 					MomentProfile:        mom.MomentsProfile,
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{IsBussiness:isBussiness},
+					RankInfo:             &algo.RankInfo{IsBussiness: isBussiness},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],
@@ -223,34 +222,33 @@ func DoBuildFollowRecData(ctx algo.IContext) error{
 	})
 	return err
 }
-func DoBuildLabelData(ctx algo.IContext) error{
-	var err,errSearch error
+func DoBuildLabelData(ctx algo.IContext) error {
+	var err, errSearch error
 	preforms := ctx.GetPerforms()
 	params := ctx.GetRequest()
-	query :=params.Params["query"]
+	query := params.Params["query"]
 	abtest := ctx.GetAbTest()
 	app := ctx.GetAppInfo()
 	newIdList := make([]int64, 0)
+	labelDataList := make(map[int64]search.LabelResDataItem, 0)
 	var userIds = make([]int64, 0)
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
-	var moms = []redis.MomentsAndExtend{}                        // 获取日志缓存
+	var moms []redis.MomentsAndExtend // 获取日志缓存
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	momentCache := redis.NewMomentCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	behaviorModuleName := abtest.GetString("behavior_module_name", app.Module) // 特征对应的module名称
-	queryInt,_ :=strconv.ParseInt(query, 10, 64)
-	var itemBehaviorMap = map[int64]*behavior.UserBehavior{}     // 获取日志行为
+	queryInt, _ := strconv.ParseInt(query, 10, 64)
+	var itemBehaviorMap = map[int64]*behavior.UserBehavior{} // 获取日志行为
 	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
 		"recommend": func(*performs.Performs) interface{} {
-			newIdList, errSearch = search.CallLabelMomentList(queryInt, 1000)
-			if errSearch!=nil{//search的兜底数据
-				newIdList,_ =momentCache.GetInt64ListOrDefault(queryInt, -999999999, "hour_recommend_list:%d")
+			newIdList, labelDataList, errSearch = search.CallLabelMomentList(queryInt, 1000)
+			if errSearch != nil { //search的兜底数据
+				newIdList, _ = momentCache.GetInt64ListOrDefault(queryInt, -999999999, "hour_recommend_list:%d")
 			}
 			return errSearch
 		},
-
-
 	})
 
 	preforms.RunsGo("moment", map[string]func(*performs.Performs) interface{}{
@@ -289,8 +287,8 @@ func DoBuildLabelData(ctx algo.IContext) error{
 	})
 	preforms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
-			UserId:                 params.UserId,
-			UserCache:              user,
+			UserId:    params.UserId,
+			UserCache: user,
 		}
 		dataList := make([]algo.IDataInfo, 0)
 		for _, mom := range moms {
@@ -304,14 +302,14 @@ func DoBuildLabelData(ctx algo.IContext) error{
 				//	}
 				//}
 				info := &DataInfo{
-					DataId:               mom.Moments.Id,
-					UserCache:            momUser,
-					MomentCache:          mom.Moments,
-					MomentExtendCache:    mom.MomentsExtend,
-					MomentProfile:        mom.MomentsProfile,
-					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
-					RankInfo:             &algo.RankInfo{},
-
+					DataId:            mom.Moments.Id,
+					UserCache:         momUser,
+					MomentCache:       mom.Moments,
+					MomentExtendCache: mom.MomentsExtend,
+					MomentProfile:     mom.MomentsProfile,
+					ItemBehavior:      itemBehaviorMap[mom.Moments.Id],
+					RankInfo:          &algo.RankInfo{},
+					ExtraData:         labelDataList[mom.Moments.Id],
 				}
 				dataList = append(dataList, info)
 			}
@@ -323,7 +321,6 @@ func DoBuildLabelData(ctx algo.IContext) error{
 	})
 	return err
 }
-
 
 func DoBuildData(ctx algo.IContext) error {
 	var err error
@@ -353,14 +350,15 @@ func DoBuildData(ctx algo.IContext) error {
 	liveMomentIds := make([]int64, 0)
 	paiResult := make(map[int64]float64, 0)
 	var concernsSet = &utils.SetInt64{}
-	var recIds, topMap, recMap, bussinessMap = []int64{}, map[int64]int{}, map[int64]int{}, map[int64]int{}
+	var recIds []int64
+	var topMap, recMap, businessMap = map[int64]int{}, map[int64]int{}, map[int64]int{}
 	var liveMap = map[int64]int{}
 	var expId = ""
 	var requestId = ""
-	var recall_expId = ""
+	var recallExpId = ""
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	topN := abtest.GetInt("topn", 5)
-	recall_length := abtest.GetInt("recall_length", 300)
+	recallLength := abtest.GetInt("recall_length", 300)
 	topScore := abtest.GetFloat64("top_score", 0.02)
 	if abtest.GetBool("rec_liveMoments_switch", false) && custom != "hot" {
 		liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
@@ -415,9 +413,9 @@ func DoBuildData(ctx algo.IContext) error {
 						}
 						recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
 						if len(recListKeyFormatter) > 5 && !recallSwitch {
-							recall_expId = utils.RecallOwn
+							recallExpId = utils.RecallOwn
 						} else {
-							paiRecallList, recall_expId, _, err = api.GetRecallResult(params.UserId, recall_length)
+							paiRecallList, recallExpId, _, err = api.GetRecallResult(params.UserId, recallLength)
 						}
 						return len(recIdList)
 					}
@@ -500,7 +498,7 @@ func DoBuildData(ctx algo.IContext) error {
 					bussinessIdList, errBussiness = momentCache.GetInt64ListOrDefault(params.UserId, -9999999, "bussiness_rec_moment_data:%d")
 					if len(bussinessIdList) > 0 {
 						for _, id := range bussinessIdList {
-							bussinessMap[id] = 1
+							businessMap[id] = 1
 						}
 					}
 					if errBussiness == nil {
@@ -549,7 +547,7 @@ func DoBuildData(ctx algo.IContext) error {
 							//		pictureTagList=append(pictureTagList,tag)
 							//	}
 							//}
-							for key, _ := range tagMap {
+							for key := range tagMap {
 								//去掉情感恋爱
 								if key != 23 {
 									tagList = append(tagList, key)
@@ -611,7 +609,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	var itemBehaviorMap = map[int64]*behavior.UserBehavior{}     // 获取日志行为
 	var userItemBehaviorMap = map[int64]*behavior.UserBehavior{} //获取用户日志行为
-	var moms = []redis.MomentsAndExtend{}                        // 获取日志缓存
+	var moms []redis.MomentsAndExtend                            // 获取日志缓存
 	var userIds = make([]int64, 0)
 	var momOfflineProfileMap = map[int64]*redis.MomentOfflineProfile{} // 获取日志离线画像
 	var momContentProfileMap = map[int64]*redis.MomentContentProfile{}
@@ -788,7 +786,7 @@ func DoBuildData(ctx algo.IContext) error {
 					if !momUser.DataUserCanRecommend() { //私密用户的日志过滤
 						continue
 					}
-					if momUser.IsVipHidingMom(){//vip隐藏日志过滤
+					if momUser.IsVipHidingMom() { //vip隐藏日志过滤
 						continue
 					}
 				}
@@ -803,7 +801,7 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				var isSoftTop = 0
 				// 处理推荐
-				var recommends = []algo.RecommendItem{}
+				var recommends []algo.RecommendItem
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
@@ -834,8 +832,8 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				var isBussiness = 0
-				if bussinessMap != nil {
-					if _, isOk := bussinessMap[mom.Moments.Id]; isOk {
+				if businessMap != nil {
+					if _, isOk := businessMap[mom.Moments.Id]; isOk {
 						isBussiness = 1
 					}
 				}
@@ -867,7 +865,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
 					LiveContentProfile:   liveContentProfileMap[mom.Moments.UserId],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recall_expId), RequestId: requestId, OffTime: offTime},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), RequestId: requestId, OffTime: offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],
@@ -887,7 +885,7 @@ func DoBuildData(ctx algo.IContext) error {
 func getMapKey(scoreMap map[int64]int) []int64 {
 	res := make([]int64, 0)
 	if scoreMap != nil && len(scoreMap) > 0 {
-		for key, _ := range scoreMap {
+		for key := range scoreMap {
 			res = append(res, key)
 		}
 	}

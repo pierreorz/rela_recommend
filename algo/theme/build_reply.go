@@ -169,6 +169,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 				returnedRecommend := abtest.GetBool("search_returned_recommend", true)
 				searchReplyMap, searchThemeMap, searchReplyMapErr = search.CallMomentAuditMap(params.UserId, replyIdList,
 					searchScenery, "theme,themereply", returnedRecommend, filtedAudit)
+				//log.Debugf("search_returned_recommend ====== searchThemeMap: %+v", searchThemeMap)
 				if searchReplyMapErr == nil {
 					replyIdSet := utils.SetInt64{}
 					for _, searchRes := range searchReplyMap {
@@ -203,7 +204,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 		},
 	})
 	var themeIds = utils.NewSetInt64FromArray(themeIdList).AppendArray(searchReplyThemeIds).RemoveArray(searchThemeNoReturnIds).ToList()
-	log.Debugf("all themeIds: %+v", themeIds)
+	//log.Debugf("all themeIds: %+v", themeIds)
 	var replyIds = utils.NewSetInt64FromArray(replyIdList).ToList()
 
 	var replysMap = map[int64]redis.MomentsAndExtend{}
@@ -267,7 +268,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return themesMapErr
 		},
 	})
-
+	log.Debugf("all themesUserIds: %+v", themesUserIds)
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
 	var usersProfileMap = map[int64]*redis.ThemeUserProfile{}
