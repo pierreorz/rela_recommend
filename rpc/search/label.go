@@ -24,7 +24,6 @@ type searchLabelMomentRes struct {
 
 type LabelResDataItem struct {
 	Id          int64  `json:"id"`
-	ViewNum     int64  `json:"view_num"`
 	Name        string `json:"name"`
 	StatJoinNum int64  `json:"stat_join_num"`
 }
@@ -99,7 +98,7 @@ func CallLabelSearchList(query string, limit int64) ([]int64, map[int64]LabelRes
 	params := searchBaseRequest{
 		Query:        query,
 		Limit:        limit,
-		ReturnFields: "stat_join_num",
+		ReturnFields: "stat_join_num,name",
 	}
 
 	if paramsData, err := json.Marshal(params); err == nil {
