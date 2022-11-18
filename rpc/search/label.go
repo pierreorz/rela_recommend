@@ -37,9 +37,9 @@ type searchLabelRes struct {
 }
 
 //获取标签下日志列表
-func CallLabelMomentList(id int64, limit int64) ([]int64, []LabelResDataItem, error) {
+func CallLabelMomentList(id int64, limit int64) ([]int64, map[int64]LabelResDataItem, error) {
 	idList := make([]int64, 0)
-	dataList := make([]LabelResDataItem, 0)
+	dataList := make(map[int64]LabelResDataItem, 0)
 	filters := []string{
 		fmt.Sprintf("main_id:%d", id), //  moments Type
 	}
@@ -56,8 +56,9 @@ func CallLabelMomentList(id int64, limit int64) ([]int64, []LabelResDataItem, er
 		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLabelMomentsListUrl, paramsData, searchRes); err == nil {
 			for _, item := range searchRes.Data {
 				idList = append(idList, item.Id)
+				dataList[item.Id] = item
 			}
-			return idList, searchRes.Data, err
+			return idList, dataList, err
 		} else {
 			return idList, dataList, err
 		}
