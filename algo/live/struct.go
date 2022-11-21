@@ -298,9 +298,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						})
 					}
 				}
-
-				switch data.GetLiveType() {
-				case 4:
+				if data.GetLiveType() == 4 && Version >= 51900 {
 					self.LiveData.AddLabel(&labelItem{
 						Style: BlindDate,
 						NewStyle: newStyle{
@@ -316,6 +314,9 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						weight: TypeLabelWeight,
 						level:  level2,
 					})
+				}
+				switch data.GetLiveType() {
+
 				case 3:
 					self.LiveData.AddLabel(&labelItem{
 						Style: MultiBeamingLabel,
