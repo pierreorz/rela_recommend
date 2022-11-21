@@ -304,9 +304,10 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						})
 					}
 				}
-				if data.GetLiveType() == 4 && Version >= 51900 {
+				switch data.GetLiveType() {
+				case 4:
 					self.LiveData.AddLabel(&labelItem{
-						Style: BlindDate,
+						Style: RecommendLabel,
 						NewStyle: newStyle{
 							Font:       "",
 							Background: "https://static.rela.me/heartbeat",
@@ -320,9 +321,6 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						weight: TypeLabelWeight,
 						level:  level2,
 					})
-				}
-				switch data.GetLiveType() {
-
 				case 3:
 					self.LiveData.AddLabel(&labelItem{
 						Style: MultiBeamingLabel,
