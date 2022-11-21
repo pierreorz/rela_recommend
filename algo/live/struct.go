@@ -42,6 +42,7 @@ const (
 	AroundLabel       = 6
 	CityLabel         = 6
 	MultiBeamingLabel = 7
+	BlindDate         =8
 
 	typeRecommend     = 1
 	typeBigVideo      = 32768
@@ -71,6 +72,7 @@ const (
 	MultiAudioEncounter // multi link and encounter
 	MultiVideoFour
 	MultiVideoNine
+	Blind
 )
 
 var classifyMap map[int]multiLanguage
@@ -205,6 +207,8 @@ func (lrt *ILiveRankItemV3) GetLiveType() int {
 		return 2
 	case MultiVideoFour, MultiVideoNine:
 		return 3
+	case Blind:
+		return 4
 	}
 	return 0
 }
@@ -302,6 +306,22 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				}
 
 				switch data.GetLiveType() {
+				case 4:
+					self.LiveData.AddLabel(&labelItem{
+						Style: BlindDate,
+						NewStyle: newStyle{
+							Font:       "",
+							Background: "https://static.rela.me/heartbeat",
+							Color:      "ffffff",
+						},
+						Title: multiLanguage{
+							Chs: "💕心动速配",
+							Cht: "💕心動速配",
+							En:  "💕Blind Date",
+						},
+						weight: TypeLabelWeight,
+						level:  level2,
+					})
 				case 3:
 					self.LiveData.AddLabel(&labelItem{
 						Style: MultiBeamingLabel,
