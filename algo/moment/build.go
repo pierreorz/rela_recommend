@@ -242,12 +242,13 @@ func DoBuildLabelData(ctx algo.IContext) error {
 	queryInt, _ := strconv.ParseInt(query, 10, 64)
 	var itemBehaviorMap = map[int64]*behavior.UserBehavior{} // 获取日志行为
 	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
-		"recommend": func(*performs.Performs) interface{} {
+		"search": func(*performs.Performs) interface{} {
 			newIdList, labelDataList, errSearch = search.CallLabelMomentList(queryInt, 1000)
 			if errSearch != nil { //search的兜底数据
 				newIdList, _ = momentCache.GetInt64ListOrDefault(queryInt, -999999999, "hour_recommend_list:%d")
+				return errSearch
 			}
-			return errSearch
+			return len(newIdList)
 		},
 	})
 
