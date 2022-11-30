@@ -789,10 +789,10 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 		}
 		if rankInfo.IsSoftTop == 1 {
 			if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetRecExposure().Count < 1 {
-				if !strings.Contains(dataInfo.MomentCache.MomentsType,"live"){//过滤直播日志
+				//if !strings.Contains(dataInfo.MomentCache.MomentsType,"live"){//过滤直播日志
 					softTopId = dataInfo.MomentCache.Id
 					isSoftTop = 1
-				}
+				//}
 			}
 		}
 	}
@@ -998,7 +998,9 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	abtest := ctx.GetAbTest()
+	haveSoft :=0
 	interval :=abtest.GetInt("live_interval_index",7)
+	startIndex :=abtest.GetInt("live_start_index",1)
 	w1 :=0.0
 	w2 :=0.0
 	w3 :=0.0
@@ -1010,7 +1012,12 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
-			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil { //非置顶直播日志
+			if strings.Contains(dataInfo.MomentCache.MomentsType, "live")&&rankInfo.IsSoftTop ==1&&haveSoft==0{
+				startIndex=interval
+				interval=interval*2
+				haveSoft=1
+			}
+			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil&&rankInfo.IsSoftTop ==0 { //非置顶直播日志  //非软置顶直播日志
 			    var mom momLive
 			    mom.momId = dataInfo.MomentCache.Id
 				if live := dataInfo.LiveContentProfile; live != nil {//必须有主播相关的画像
@@ -1045,7 +1052,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if sortIndex,ok :=sortIds[dataInfo.DataId];ok{//运营推荐主播每隔5位随机进行展示
-			rankInfo.HopeIndex=sortIndex*(interval-1)+GenerateRangeNum(1,interval)
+			rankInfo.HopeIndex=sortIndex*(interval-1)+GenerateRangeNum(startIndex,interval)
 		}
 	}
 	return nil
