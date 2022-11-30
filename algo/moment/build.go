@@ -652,6 +652,9 @@ func DoBuildData(ctx algo.IContext) error {
 						score = paiScore
 					}
 				}
+				if mom.Moments.Id==166977824291410084{
+					log.Warnf("soft live mom is %s",isSoftTop)
+				}
 				info := &DataInfo{
 					DataId:               mom.Moments.Id,
 					UserCache:            momUser,
