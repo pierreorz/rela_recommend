@@ -1000,7 +1000,6 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
 	haveSoft :=0
 	interval :=abtest.GetInt("live_interval_index",7)
-	startIndex :=abtest.GetInt("live_start_index",1)
 	w1 :=0.0
 	w2 :=0.0
 	w3 :=0.0
@@ -1013,8 +1012,6 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
 			if strings.Contains(dataInfo.MomentCache.MomentsType, "live")&&rankInfo.IsSoftTop ==1&&haveSoft==0{
-				startIndex=interval
-				interval=interval*2
 				haveSoft=1
 			}
 			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil&&rankInfo.IsSoftTop ==0 { //非置顶直播日志  //非软置顶直播日志
@@ -1052,7 +1049,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if sortIndex,ok :=sortIds[dataInfo.DataId];ok{//运营推荐主播每隔5位随机进行展示
-			rankInfo.HopeIndex=sortIndex*(interval-1)+GenerateRangeNum(startIndex,interval)
+			rankInfo.HopeIndex=(sortIndex+haveSoft)*(interval-1)+GenerateRangeNum(1,interval)
 		}
 	}
 	return nil
