@@ -145,6 +145,7 @@ func DoBuildData(ctx algo.IContext) error {
 	adLocationList := make([]int64, 0)
 	paiRecallList := make([]int64, 0)
 	liveMomentIds := make([]int64, 0)
+	userLiveMoment :=make([]int64,0)
 	paiResult := make(map[int64]float64, 0)
 	var concernsSet = &utils.SetInt64{}
 	var recIds, topMap, recMap, bussinessMap = []int64{}, map[int64]int{}, map[int64]int{}, map[int64]int{}
@@ -223,7 +224,13 @@ func DoBuildData(ctx algo.IContext) error {
 					return len(hourRecList)
 				}
 				return nil
-			}, "new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
+			},"live_mom":func(*performs.Performs) interface{} {
+				if abtest.GetBool("realtime_user_live",false){
+					userLiveMoment,err =momentCache.GetInt64ListOrDefault(params.UserId, -999999999, "realtime_user_live_mom:%d")
+					return len(userLiveMoment)
+				}
+				return nil
+			},"new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
 				newMomentLen := abtest.GetInt("new_moment_len", 1000) //不为0即推荐添加实时日志
 				if newMomentLen > 0 {
 					radiusArray := abtest.GetStrings("radius_range", "50km")
