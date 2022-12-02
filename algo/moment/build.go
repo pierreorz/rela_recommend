@@ -376,7 +376,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(hourRecList) > 500 && len(recIdList) > 200 {
 		recIdList = recIdList[:100]
 	}
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, hourRecList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList, paiRecallList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, hourRecList, newIdList, recIds, hotIdList,userLiveMoment, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList, paiRecallList).ToList()
 	// 过滤审核
 	var paiErr error
 	var offTime = 0
