@@ -56,7 +56,7 @@ type UserProfile struct {
 	JsonAffeLike   map[string]float32 `json:"jsonAffeLike"`
 	LiveInfo       *liveInfo          `json:"live_info,omitempty"`
 	OnlineHiding   int8               `json:"online_hiding,omitempty"`
-	Hiding         int8   `json:"hiding,omitempty"`
+	Hiding         int8               `json:"hiding,omitempty"`
 	Identity       int8               `json:"identity"` //身份认证 -1 未通过，0 未验证，1 审核中，2系统认证通过，3 人工认证通过，4 主播认证通过，5  历史申诉认证通过
 }
 
@@ -198,16 +198,15 @@ func (user *UserProfile) MaybeICPUser(lat, lng float32) bool {
 	return false
 }
 
-func (user *UserProfile) IsVipOnlineHiding() bool {
+func (user *UserProfile) IsVipHiding() bool {
 	if user == nil {
 		return false
 	}
-	if user.IsVip == 1 && user.OnlineHiding == 1 {
+	if user.IsVip == 1 && user.Hiding == 1 {
 		return true
 	}
 	return false
 }
-
 
 func (user *UserProfile) IsVipHidingMom() bool {
 	if user == nil {
