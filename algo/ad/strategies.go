@@ -48,10 +48,6 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 		if ad_source == "own" || ad_source == "partner" {
 			nums:=5
 
-			//log.Infof("sdId===============", sd.Id,ad_source)
-			//log.Infof("click===============", click,ad_source)
-			//log.Infof("hisexpores===============", hisexpores,ad_source)
-
 			rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
 		} else{
 			//		rand_num := rand.Intn(5) + 1.0
