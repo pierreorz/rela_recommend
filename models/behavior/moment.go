@@ -38,7 +38,7 @@ package behavior
 
 // 获取总列表曝光
 func (self *UserBehavior) GetMomentListExposure() *Behavior {
-	return self.Gets("moment.friend:exposure", "moment.around:exposure", "moment.recommend:exposure","moment.detail_recommend:exposure","moment.detail:exposure")
+	return self.Gets("moment.friend:exposure", "moment.around:exposure", "moment.recommend:exposure","moment.detail_recommend:exposure","moment.detail:exposure","moment.label:exposure")
 }
 
 
@@ -50,6 +50,8 @@ func (self *UserBehavior) GetMomentListInteract() *Behavior {
 		"moment.recommend:like", "moment.recommend:comment", "moment.recommend:share", "moment.recommend:follow",
 		"moment.detail:like", "moment.detail:comment", "moment.detail:share", "moment.detail:follow",
 		"moment.detail_recommend:like", "moment.detail_recommend:comment", "moment.detail_recommend:share", "moment.detail_recommend:follow",
+		"moment.label:like", "moment.label:comment", "moment.label:share", "moment.label:follow",
+
 	)
 }
 

@@ -18,6 +18,7 @@ var builderMap = map[string]algo.IBuilder{
 	"followrec":   &algo.BuilderBase{DoBuild: DoBuildFollowRecData},}
 var strategyMap = map[string]algo.IStrategy{
 	"time_level":       &algo.StrategyBase{DoSingle: DoTimeLevel},
+	"mom_label_time_level":       &algo.StrategyBase{DoSingle: MomentLabelDoTimeLevel},
 	"sort_by_time":     &algo.StrategyBase{DoSingle: SortByTimeLevel},
 	"time_weight":      &algo.StrategyBase{DoSingle: DoTimeWeightLevel},
 	"time_weight_v2":   &algo.StrategyBase{DoSingle: DoTimeWeightLevelV2},
