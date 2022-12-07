@@ -53,6 +53,20 @@ func DoTimeLevel(ctx algo.IContext, index int) error {
 	return nil
 }
 
+
+
+// 标签下日志按照7天内日志优先策略
+func MomentLabelDoTimeLevel(ctx algo.IContext, index int) error {
+	abtest := ctx.GetAbTest()
+	if hourStrategy := abtest.GetInt("DoTimeLevel:time_interval", 168); hourStrategy > 0 {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		hours := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / hourStrategy
+		rankInfo.Level = -hours
+	}
+	return nil
+}
+
 // 按照时间优先策略
 func SortByTimeLevel(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)

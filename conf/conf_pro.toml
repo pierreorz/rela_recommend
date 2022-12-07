@@ -9,7 +9,7 @@ log_level = "debug"
 # match_cluster_mongo_addr = "mongodb://rela_match:2b194ee2b21ab6563a368b50b3a533dd@172.31.27.135:27017,172.31.18.114:27017,172.31.17.245:27017/rela_match?replicaSet=match-mongodb"
 # match_cluster_mongo_addr = "mongodb://172.31.39.24:21000,172.31.40.182:21000,172.31.35.89:21000/rela_match"
 match_cluster_mongo_addr = "mongodb://172.31.40.219:21000,172.31.44.135:21000/rela_match"
-
+b n
 #本地cache最大内存  128*1024*1024
 memory_cache_size =  157810688
 
