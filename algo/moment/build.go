@@ -552,19 +552,19 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 			}
 			if mom.Moments.Id==167075995895610006{
-				log.warnf("id 1")
+				log.Warnf("id 1")
 			}
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
 			}
 			if mom.Moments.Id==167075995895610006{
-				log.warnf("id 2")
+				log.Warnf("id 2")
 			}
 			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
 				continue
 			}
 			if mom.Moments.Id==167075995895610006{
-				log.warnf("id 3")
+				log.Warnf("id 3")
 			}
 
 			//搜索过滤开关(运营推荐不管审核状态)
@@ -587,13 +587,13 @@ func DoBuildData(ctx algo.IContext) error {
 				continue
 			}
 			if mom.Moments.Id==167075995895610006{
-				log.warnf("id 4")
+				log.Warnf("id 4")
 			}
 			if statusSwitch && mom.Moments.Status != 1 { //状态不为1的过滤
 				continue
 			}
 			if mom.Moments.Id==167075995895610006{
-				log.warnf("id 5")
+				log.Warnf("id 5")
 			}
 			if mom.Moments.Id > 0 {
 				momUser, _ := usersMap[mom.Moments.UserId]
@@ -607,7 +607,7 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				if mom.Moments.Id==167075995895610006{
-					log.warnf("id 6")
+					log.Warnf("id 6")
 				}
 
 				// 处理置顶
