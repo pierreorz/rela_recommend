@@ -198,11 +198,11 @@ func (user *UserProfile) MaybeICPUser(lat, lng float32) bool {
 	return false
 }
 
-func (user *UserProfile) IsVipOnlineHiding() bool {
+func (user *UserProfile) IsVipHiding() bool {
 	if user == nil {
 		return false
 	}
-	if user.IsVip == 1 && user.OnlineHiding == 1 {
+	if user.IsVip == 1 && user.Hiding == 1 {
 		return true
 	}
 	return false
