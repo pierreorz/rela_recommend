@@ -1068,6 +1068,24 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	}
 	return nil
 }
+
+func tagMomStrategyFunc(ctx algo.IContext) error{
+	change :=0
+	for index :=0;index<ctx.GetDataLength();index++{
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
+			if rankInfo.IsTagMom==1{
+				rankInfo.HopeIndex=1
+				change=1
+			}//小时关注标签日志召回
+			if rankInfo.IsTagMom==2{
+				rankInfo.HopeIndex=2+change
+			}//离线关注标签日志召回
+		}
+	}
+	return nil
+}
 func editRecommendStrategyFunc(ctx algo.IContext) error {
 	recommendArr :=make([]int64,0)
 	recommendArrMap :=make(map[int64]int,0)
