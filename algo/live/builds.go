@@ -3,6 +3,7 @@ package live
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
@@ -17,6 +18,9 @@ func DoBuildData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	pfms := ctx.GetPerforms()
 	abtest := ctx.GetAbTest()
+
+	sort :=params.Params["sort"]
+	log.Warnf("live interface is %s",sort)
 	// userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
@@ -46,6 +50,8 @@ func DoBuildData(ctx algo.IContext) error {
 	var interestSet = &utils.SetInt64{}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
+	var userLiveContentProfileMap map[int64]*redis.UserLiveContentProfile
+	var liveContentProfileMap map[int64]*redis.LiveContentProfile
 	pfms.RunsGo("cache", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} { // 获取基础用户画像
 			var userErr error
@@ -98,7 +104,7 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			return hourRankErr
 		},
-		"consume_user":func(*performs.Performs) interface{}{
+		"consume_user": func(*performs.Performs) interface{} {
 			if consumer, consumerErr := rdsPikaCache.GetInt64List(params.UserId, "user_consumer:%d"); consumerErr == nil {
 				consumerSet = utils.NewSetInt64FromArray(consumer)
 				return consumerSet.Len()
@@ -106,11 +112,27 @@ func DoBuildData(ctx algo.IContext) error {
 				return consumerErr
 			}
 		},
+		"user_live_content_profile": func(*performs.Performs) interface{} { //用户关于直播的画像
+			var userLiveContentProfileErr error
+			if userLiveContentProfileMap, userLiveContentProfileErr = userCache.QueryUserLiveContentProfileByIdsMap([]int64{params.UserId}); userLiveContentProfileErr==nil{
+				return len(userLiveContentProfileMap)
+			}else{
+				return userLiveContentProfileErr
+			}
+		},
+		"live_content_profile": func(*performs.Performs) interface{} {
+			var liveContentProfileErr error
+			if liveContentProfileMap, liveContentProfileErr = userCache.QueryLiveContentProfileByIdsMap(liveIds);liveContentProfileErr==nil{
+				return len(liveContentProfileMap)
+			}else{
+				return liveContentProfileErr
+			}
+		},
 	})
 	pfms.Run("build", func(*performs.Performs) interface{} {
 		livesInfo := make([]algo.IDataInfo, 0)
-		consumer :=0
-		if concernsSet.Contains(1){//高消费用户
+		consumer := 0
+		if concernsSet.Contains(1) { //高消费用户
 			consumer = 1
 		}
 		for i, _ := range lives {
@@ -121,6 +143,7 @@ func DoBuildData(ctx algo.IContext) error {
 				LiveCache:        &lives[i],
 				UserCache:        usersMap[liveId],
 				UserItemBehavior: userBehaviorMap[id],
+				LiveContentProfile:   liveContentProfileMap[liveId],
 				LiveProfile:      usersMap2[liveId],
 				LiveData: &LiveData{
 					PreHourIndex: hourRankMap[liveId].Index,
@@ -131,7 +154,7 @@ func DoBuildData(ctx algo.IContext) error {
 				liveInfo.GetRankInfo().AddRecommendNeedReturn("WEEK_STAR", 1.0)
 				liveInfo.LiveData.AddLabel(&labelItem{
 					Style: WeekStarLabel,
-					NewStyle:newStyle{
+					NewStyle: newStyle{
 						Font:       "",
 						Background: "https://static.rela.me/Go5pifQDN4LnBuZzE2NjE0NzkzNjk4NzY=.png",
 						Color:      "ffffff",
@@ -150,7 +173,7 @@ func DoBuildData(ctx algo.IContext) error {
 				liveInfo.GetRankInfo().AddRecommendNeedReturn("HOROSCOPE_STAR", 1.0)
 				liveInfo.LiveData.AddLabel(&labelItem{
 					Style: WeekStarLabel,
-					NewStyle:newStyle{
+					NewStyle: newStyle{
 						Font:       "",
 						Background: "https://static.rela.me/Wz56WeQDN4LnBuZzE2NjE0NzkzNjk4ODU=.png",
 						Color:      "ffffff",
@@ -169,7 +192,7 @@ func DoBuildData(ctx algo.IContext) error {
 				liveInfo.GetRankInfo().AddRecommendNeedReturn("MONTH_STAR", 1.0)
 				liveInfo.LiveData.AddLabel(&labelItem{
 					Style: WeekStarLabel,
-					NewStyle:newStyle{
+					NewStyle: newStyle{
 						Font:       "",
 						Background: "https://static.rela.me/i75pKtQDN4LnBuZzE2NjE0NzkzNjk4ODE=.png",
 						Color:      "ffffff",
@@ -204,10 +227,11 @@ func DoBuildData(ctx algo.IContext) error {
 		userInfo := &UserInfo{
 			UserId:        user.UserId,
 			UserCache:     user,
+			UserLiveContentProfile: userLiveContentProfileMap[params.UserId],
 			LiveProfile:   user2,
 			UserConcerns:  concernsSet,
 			UserInterests: interestSet,
-		ConsumeUser:consumer}
+			ConsumeUser:   consumer}
 
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(liveIds)
@@ -216,4 +240,5 @@ func DoBuildData(ctx algo.IContext) error {
 		return len(livesInfo)
 	})
 	return err
+
 }

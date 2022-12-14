@@ -346,14 +346,17 @@ func DoBuildData(ctx algo.IContext) error {
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
 	bussinessIdList := make([]int64, 0)
+	offlineTagMomIdList :=make([]int64,0)
+	hourTagMomIdList :=make([]int64,0)
 	tagRecommendIdList := make([]int64, 0)
 	adList := make([]int64, 0)
 	adLocationList := make([]int64, 0)
 	paiRecallList := make([]int64, 0)
 	liveMomentIds := make([]int64, 0)
+	userLiveMoment :=make([]int64,0)
 	paiResult := make(map[int64]float64, 0)
 	var concernsSet = &utils.SetInt64{}
-	var recIds, topMap, recMap, bussinessMap = []int64{}, map[int64]int{}, map[int64]int{}, map[int64]int{}
+	var recIds, topMap, recMap, bussinessMap,tagMomMap = []int64{}, map[int64]int{}, map[int64]int{}, map[int64]int{},map[int64]int{}
 	var liveMap = map[int64]int{}
 	var expId = ""
 	var requestId = ""
@@ -429,7 +432,13 @@ func DoBuildData(ctx algo.IContext) error {
 					return len(hourRecList)
 				}
 				return nil
-			}, "new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
+			},"live_mom":func(*performs.Performs) interface{} {
+				if abtest.GetBool("realtime_user_live",false){
+					userLiveMoment,err =momentCache.GetInt64ListOrDefault(params.UserId, -999999999, "realtime_user_live_mom:%d")
+					return len(userLiveMoment)
+				}
+				return nil
+			},"new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
 				newMomentLen := abtest.GetInt("new_moment_len", 1000) //不为0即推荐添加实时日志
 				if newMomentLen > 0 {
 					radiusArray := abtest.GetStrings("radius_range", "50km")
@@ -494,6 +503,23 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				return errBackend
+			}, "hour_tag_mom": func(*performs.Performs) interface{} { // 业务推荐id列表
+					hourTagMomIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -9999999, "hour_follow_mom_hot:%d")
+					if len(hourTagMomIdList) > 0 {
+						for _, id := range hourTagMomIdList {
+							tagMomMap[id] = 1
+						}
+					}
+				return err
+			}, "offline_tag_mom": func(*performs.Performs) interface{} { // 业务推荐id列表
+			// 是否开启业务推荐
+					offlineTagMomIdList, err = momentCache.GetInt64ListOrDefault(params.UserId, -9999999, "offline_follow_mom_hot:%d")
+					if len(offlineTagMomIdList) > 0 {
+						for _, id := range offlineTagMomIdList {
+							tagMomMap[id] = 2
+						}
+					}
+				return err
 			}, "bussiness": func(*performs.Performs) interface{} { // 业务推荐id列表
 				var errBussiness error
 				if abtest.GetBool("bussiness_recommend_switched", false) { // 是否开启业务推荐
@@ -575,7 +601,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(hourRecList) > 500 && len(recIdList) > 200 {
 		recIdList = recIdList[:100]
 	}
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, hourRecList, newIdList, recIds, hotIdList, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList, paiRecallList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, hourRecList, newIdList, hourTagMomIdList,offlineTagMomIdList,recIds, hotIdList,userLiveMoment, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList, paiRecallList).ToList()
 	// 过滤审核
 	var paiErr error
 	var offTime = 0
@@ -750,12 +776,15 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 			}
+
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
 			}
+
 			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
 				continue
 			}
+
 
 			//搜索过滤开关(运营推荐不管审核状态)
 			if _, ok := searchMomentMap[mom.Moments.Id]; !ok {
@@ -788,10 +817,11 @@ func DoBuildData(ctx algo.IContext) error {
 					if !momUser.DataUserCanRecommend() { //私密用户的日志过滤
 						continue
 					}
-					if momUser.IsVipHidingMom(){//vip隐藏日志过滤
-						continue
-					}
+					//if momUser.IsVipHidingMom(){//vip隐藏日志过滤
+					//	continue
+					//}
 				}
+
 
 				// 处理置顶
 
@@ -839,6 +869,12 @@ func DoBuildData(ctx algo.IContext) error {
 						isBussiness = 1
 					}
 				}
+				var isTagMom = 0
+				if tagMomMap != nil {
+					if val, isOk := tagMomMap[mom.Moments.Id]; isOk {
+						isTagMom = val
+					}
+				}
 				if concernsSet.Contains(mom.Moments.UserId) {
 					isBussiness = 1
 				}
@@ -867,7 +903,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
 					LiveContentProfile:   liveContentProfileMap[mom.Moments.UserId],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recall_expId), RequestId: requestId, OffTime: offTime},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom,IsTagMom: isTagMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recall_expId), RequestId: requestId, OffTime: offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],

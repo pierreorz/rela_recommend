@@ -15,6 +15,7 @@ var builderMap = map[string]algo.IBuilder{
 var strategyMap = map[string]algo.IStrategy{
 	"top_recommend_level": &algo.StrategyBase{DoSingle: LiveTopRecommandStrategyFunc},
 	"old_score":           &OldScoreStrategy{},
+	"sort_srta":           &SortHotStrategy{},
 	"algo_v2":                &NewScoreStrategyV2{},
 	"algo_score":         &NewLiveStrategy{},
 }
@@ -43,6 +44,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 	&algo.AlgoBase{AlgoName: "base", FilePath: workDir + "gbdtlr_6_200_v1.3.gz",
 		Model: &utils.GradientBoostingLRClassifier{}, FeaturesFunc: GetLiveFeaturesV2},
 	&algo.AlgoBase{AlgoName: "xgb_1.0", FilePath: workDir + "xgb_1.0.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetLiveFeaturesV2},
+	&algo.AlgoBase{AlgoName: "xgb_2.0", FilePath: workDir + "live_1.2.1.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetLiveFeaturesV2},
 })
 

@@ -8,6 +8,8 @@ import (
 
 func GetLiveFeaturesV2(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *utils.Features {
 	fs := &utils.Features{}
+	params := ctx.GetRequest()
+	classify := rutils.GetInt(params.Params["classify"])
 
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	liveInfo := idata.(*LiveInfo)
@@ -18,6 +20,7 @@ func GetLiveFeaturesV2(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 	fs.Add(1, float32(userCache.Age))
 	fs.Add(2, float32(userCache.Height))
 	fs.Add(3, float32(userCache.Weight))
+	fs.Add(4,float32(userCache.UserId))
 
 	// if userInfo.LiveProfile != nil {
 	// 	// 用户观看行为embedding
@@ -39,7 +42,8 @@ func GetLiveFeaturesV2(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo
 	fs.Add(510, float32(liveCache.Live.GemProfit))                                                   // 房间收益
 	fs.Add(511, float32(ctx.GetCreateTime().Sub(liveCache.Live.CreateTime.Time).Seconds()/60/60/24)) // 房间开播时长 min
 	fs.Add(512, liveCache.Score)                                                                     // 当前直播间观看人数
-
+	fs.Add(513,float32(liveCache.Live.LiveId))                                                       //主播id
+	fs.Add(514,float32(classify))                                                                   //当前列表
 	// if liveInfo.LiveProfile != nil {
 	// 	// 主播直播行为embedding
 	// 	fs.AddArray(600, 30, liveInfo.LiveProfile.LiveViewLiveEmbedding)

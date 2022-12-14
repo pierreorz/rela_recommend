@@ -53,6 +53,20 @@ func DoTimeLevel(ctx algo.IContext, index int) error {
 	return nil
 }
 
+
+
+// 标签下日志按照7天内日志优先策略
+func MomentLabelDoTimeLevel(ctx algo.IContext, index int) error {
+	abtest := ctx.GetAbTest()
+	if hourStrategy := abtest.GetInt("DoTimeLevel:time_interval", 168); hourStrategy > 0 {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		hours := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / hourStrategy
+		rankInfo.Level = -hours
+	}
+	return nil
+}
+
 // 按照时间优先策略
 func SortByTimeLevel(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -789,10 +803,10 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 		}
 		if rankInfo.IsSoftTop == 1 {
 			if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetRecExposure().Count < 1 {
-				if !strings.Contains(dataInfo.MomentCache.MomentsType,"live"){//过滤直播日志
+				//if !strings.Contains(dataInfo.MomentCache.MomentsType,"live"){//过滤直播日志
 					softTopId = dataInfo.MomentCache.Id
 					isSoftTop = 1
-				}
+				//}
 			}
 		}
 	}
@@ -998,6 +1012,7 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	abtest := ctx.GetAbTest()
+	haveSoft :=0
 	interval :=abtest.GetInt("live_interval_index",7)
 	w1 :=0.0
 	w2 :=0.0
@@ -1010,7 +1025,10 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
-			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil { //非置顶直播日志
+			if strings.Contains(dataInfo.MomentCache.MomentsType, "live")&&rankInfo.IsSoftTop ==1&&haveSoft==0{
+				haveSoft=1
+			}
+			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil&&rankInfo.IsSoftTop ==0 { //非置顶直播日志  //非软置顶直播日志
 			    var mom momLive
 			    mom.momId = dataInfo.MomentCache.Id
 				if live := dataInfo.LiveContentProfile; live != nil {//必须有主播相关的画像
@@ -1045,7 +1063,25 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if sortIndex,ok :=sortIds[dataInfo.DataId];ok{//运营推荐主播每隔5位随机进行展示
-			rankInfo.HopeIndex=sortIndex*(interval-1)+GenerateRangeNum(1,interval)
+			rankInfo.HopeIndex=(sortIndex+haveSoft)*(interval-1)+GenerateRangeNum(1,interval)
+		}
+	}
+	return nil
+}
+
+func tagMomStrategyFunc(ctx algo.IContext) error{
+	change :=0
+	for index :=0;index<ctx.GetDataLength();index++{
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
+			if rankInfo.IsTagMom==1{
+				rankInfo.HopeIndex=1
+				change=1
+			}//小时关注标签日志召回
+			if rankInfo.IsTagMom==2{
+				rankInfo.HopeIndex=2+change
+			}//离线关注标签日志召回
 		}
 	}
 	return nil

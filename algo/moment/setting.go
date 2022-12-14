@@ -18,6 +18,7 @@ var builderMap = map[string]algo.IBuilder{
 	"followrec":   &algo.BuilderBase{DoBuild: DoBuildFollowRecData},}
 var strategyMap = map[string]algo.IStrategy{
 	"time_level":       &algo.StrategyBase{DoSingle: DoTimeLevel},
+	"mom_label_time_level":       &algo.StrategyBase{DoSingle: MomentLabelDoTimeLevel},
 	"sort_by_time":     &algo.StrategyBase{DoSingle: SortByTimeLevel},
 	"time_weight":      &algo.StrategyBase{DoSingle: DoTimeWeightLevel},
 	"time_weight_v2":   &algo.StrategyBase{DoSingle: DoTimeWeightLevelV2},
@@ -78,8 +79,9 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"around_exposure_down":  &strategy.BaseRichStrategy{StrategyFunc: AroundExposureAssignmentsStrategyFunc},
 	"topLive_hope_index":    &strategy.BaseRichStrategy{StrategyFunc: topLiveIncreaseExposureFunc},
 	"content_recommend_exposure":&strategy.BaseRichStrategy{StrategyFunc: editRecommendStrategyFunc},
-	"live_mom_rec":&strategy.BaseRichStrategy{StrategyFunc: liveRecommendStrategyFunc},
-	"around_live_exposure":&strategy.BaseRichStrategy{StrategyFunc: aroundLiveExposureFunc},
+	"tag_mom_rec":           &strategy.BaseRichStrategy{StrategyFunc: tagMomStrategyFunc},
+	"live_mom_rec":          &strategy.BaseRichStrategy{StrategyFunc: liveRecommendStrategyFunc},
+	"around_live_exposure":   &strategy.BaseRichStrategy{StrategyFunc: aroundLiveExposureFunc},
 	"live_mom_add_weight":    &strategy.BaseRichStrategy{StrategyFunc: LiveMomAddWeightFunc},
 	"themereply_hope_index": &strategy.BaseRichStrategy{StrategyFunc: ThemeReplyIndexFunc},
 	"bussiness_exposure":    &strategy.BaseRichStrategy{StrategyFunc: BussinessExposureFunc},
