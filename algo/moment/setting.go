@@ -155,7 +155,7 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 var _ =algo.AddAppInfo(&algo.AppInfo{
 	Name: "moment.followrec", Module: "moment", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "model_base", AlgoMap: algosMap,
-	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
+	BuilderKey: "build", BuilderDefault: "followrec", BuilderMap: builderMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
@@ -217,4 +217,6 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
 	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap})
+
+
 
