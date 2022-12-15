@@ -304,7 +304,6 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						})
 					}
 				}
-
 				switch data.GetLiveType() {
 				case 4:
 					self.LiveData.AddLabel(&labelItem{
