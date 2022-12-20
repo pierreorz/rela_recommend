@@ -16,55 +16,53 @@ type SearchLabelMomentResDataItem struct {
 }
 
 type searchLabelMomentRes struct {
-	Data      []SearchLabelMomentResDataItem `json:"result_data"`
-	TotalSize int                       `json:"total_size"`
-	ErrCode   string                    `json:"errcode"`
-	ErrEsc    string                    `json:"erresc"`
+	Data      []LabelResDataItem `json:"result_data"`
+	TotalSize int                `json:"total_size"`
+	ErrCode   string             `json:"errcode"`
+	ErrEsc    string             `json:"erresc"`
 }
 
-
-
-type SearchLabelResDataItem struct {
-	Id        int64 `json:"id"`
-	ViewNum   int64 `json:"view_num"`
-	Name      string `json:"name"`
-	JoinNum    int64 `json:"join_num"`
+type LabelResDataItem struct {
+	Id          int64  `json:"id"`
+	Name        string `json:"name"`
+	StatJoinNum int64  `json:"stat_join_num"`
 }
 
 type searchLabelRes struct {
-	Data      []SearchLabelResDataItem `json:"result_data"`
-	TotalSize int                       `json:"total_size"`
-	ErrCode   string                    `json:"errcode"`
-	ErrEsc    string                    `json:"erresc"`
+	Data      []LabelResDataItem `json:"result_data"`
+	TotalSize int                `json:"total_size"`
+	ErrCode   string             `json:"errcode"`
+	ErrEsc    string             `json:"erresc"`
 }
 
-
-
 //获取标签下日志列表
-func CallLabelMomentList(id int64,limit int64) ([]int64, error) {
-	idlist := make([]int64, 0)
+func CallLabelMomentList(id int64, limit int64) ([]int64, map[int64]LabelResDataItem, error) {
+	idList := make([]int64, 0)
+	dataList := make(map[int64]LabelResDataItem, 0)
 	filters := []string{
 		fmt.Sprintf("main_id:%d", id), //  moments Type
 	}
 
 	params := searchBaseRequest{
-		Filter:   strings.Join(filters, "*"),
-		Limit: limit,
-		Sort:"-insert_time",
+		Filter:       strings.Join(filters, "*"),
+		Limit:        limit,
+		Sort:         "-insert_time",
+		ReturnFields: "stat_join_num",
 	}
 
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchLabelMomentRes{}
 		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLabelMomentsListUrl, paramsData, searchRes); err == nil {
-			for _, element := range searchRes.Data {
-				idlist = append(idlist, element.Id)
+			for _, item := range searchRes.Data {
+				idList = append(idList, item.Id)
+				dataList[item.Id] = item
 			}
-			return idlist, err
+			return idList, dataList, err
 		} else {
-			return idlist, err
+			return idList, dataList, err
 		}
 	} else {
-		return idlist, err
+		return idList, dataList, err
 	}
 }
 
@@ -74,7 +72,7 @@ func CallLabelSuggestList(query string) ([]int64, error) {
 	namelist := make([]int64, 0)
 
 	params := searchBaseRequest{
-		Query:query,
+		Query: query,
 	}
 
 	if paramsData, err := json.Marshal(params); err == nil {
@@ -93,25 +91,28 @@ func CallLabelSuggestList(query string) ([]int64, error) {
 }
 
 //标签搜索接口
-func CallLabelSearchList(query string,limit int64) ([]int64, error) {
-	namelist := make([]int64, 0)
+func CallLabelSearchList(query string, limit int64) ([]int64, map[int64]LabelResDataItem, error) {
+	idList := make([]int64, 0)
+	dataMap := make(map[int64]LabelResDataItem, 0)
 
 	params := searchBaseRequest{
-		Query:query,
-		Limit:limit,
+		Query:        query,
+		Limit:        limit,
+		ReturnFields: "stat_join_num,name",
 	}
 
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &searchLabelRes{}
 		if err = factory.MomentSearchRpcClient.SendPOSTJson(internalSearchLabelListUrl, paramsData, searchRes); err == nil {
 			for _, element := range searchRes.Data {
-				namelist = append(namelist, element.Id)
+				idList = append(idList, element.Id)
+				dataMap[element.Id] = element
 			}
-			return namelist, err
+			return idList, dataMap, err
 		} else {
-			return namelist, err
+			return idList, dataMap, err
 		}
 	} else {
-		return namelist, err
+		return idList, dataMap, err
 	}
 }
