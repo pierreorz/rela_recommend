@@ -37,12 +37,13 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 	//获取用户实时行为
 	var userBehavior *behavior.UserBehavior // 用户实时行为
-	userAdIdMap := map[int64]int64{}        //广告曝光数据
+	userAdIdFeedMap := map[int64]int64{}        //广告曝光数据
+	userAdIdInitMap := map[int64]int64{}        //广告曝光数据
 	realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap("ad", []int64{params.UserId})
 	if realtimeErr == nil { // 获取flink数据
 		userBehavior = realtimes[params.UserId]
 		if userBehavior != nil { //开屏广告和feed流广告id
-			//获取用户广告的行为
+			//获取用户广告的行为(feed广告)
 			if userBehavior.GetAdFeedListExposure().Count > 0 {
 				userFeedList := userBehavior.GetAdFeedListExposure().LastList
 				if len(userFeedList) > 1 {
@@ -57,19 +58,21 @@ func DoBuildData(ctx algo.IContext) error {
 					lastTime := sort.Float64Slice(usserAdTimeList)
 					sort.Sort(lastTime)
 					adId := userAdTimeMap[lastTime[len(lastTime)-1]]
-					userAdIdMap[adId] = 1
+					userAdIdFeedMap[adId] = 1
 				}
 			}
-			//if userBehavior.GetAdInitListExposure().Count > 0 {
-			//	userInitList := userBehavior.GetAdInitListExposure().LastList
-			//	if len(userInitList) > 1 {
-			//		userInitId := userInitList[len(userInitList)-1].DataId
-			//		userAdIdMap[userInitId] = 1
-			//	}
-			//}
+			//获取用户广告的行为(init广告)
+			if userBehavior.GetAdInitListExposure().Count > 0 {
+				userInitList := userBehavior.GetAdInitListExposure().LastList
+				if len(userInitList) > 1 {
+					userInitId := userInitList[len(userInitList)-1].DataId
+					userAdIdInitMap[userInitId] = 1
+				}
+			}
 		}
 	}
-	log.Infof("userMap=================%+v", userAdIdMap)
+	log.Infof("userAdIdFeedMap=================%+v", userAdIdFeedMap)
+	log.Infof("userAdIdInitMap=================%+v", userAdIdInitMap)
 	// 获取search的广告列表
 	var searchResList = []search.SearchADResDataItem{}
 	if abtest.GetBool("icp_switch", false) && (abtest.GetBool("is_icp_user", false) || user.MaybeICPUser(params.Lat, params.Lng)) {
@@ -124,14 +127,17 @@ func DoBuildData(ctx algo.IContext) error {
 		dataList := make([]algo.IDataInfo, 0)
 		if len(searchResList) != 1 {
 			for i, searchRes := range searchResList {
-				if _, ok := userAdIdMap[searchRes.Id]; !ok {
-					info := &DataInfo{
-						DataId:     searchRes.Id,
-						SearchData: &searchResList[i],
-						RankInfo:   &algo.RankInfo{},
+				if _, ok := userAdIdFeedMap[searchRes.Id]; !ok {
+					if _, ok := userAdIdInitMap[searchRes.Id]; !ok {
+
+						info := &DataInfo{
+							DataId:     searchRes.Id,
+							SearchData: &searchResList[i],
+							RankInfo:   &algo.RankInfo{},
+						}
+						dataIds = append(dataIds, searchRes.Id)
+						dataList = append(dataList, info)
 					}
-					dataIds = append(dataIds, searchRes.Id)
-					dataList = append(dataList, info)
 				}
 			}
 		} else { //当只有一条广告时不过滤上一次广告

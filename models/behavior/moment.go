@@ -91,7 +91,7 @@ func (self *UserBehavior) GetAdFeedListExposure() *Behavior {
 }
 
 func (self *UserBehavior) GetAdInitListExposure() *Behavior {
-	return self.Gets("ad.app.init:init")
+	return self.Gets("ad.app.init:init","ad.app.init:exposure")
 }
 //获取假装情侣数据message.list:exposure_couple
 func (self *UserBehavior) GetMateListExposure() *Behavior {

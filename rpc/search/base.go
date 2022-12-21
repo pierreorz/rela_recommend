@@ -37,15 +37,16 @@ type searchBaseResponse struct {
 }
 
 type searchBaseRequest struct {
-	UserID   int64   `json:"userId" form:"userId"`
-	Offset   int64   `json:"offset" form:"offset"`
-	Limit    int64   `json:"limit" form:"limit"`
-	Distance string  `json:"distance" form:"distance"`
-	Lng      float32 `json:"lng" form:"lng" `
-	Lat      float32 `json:"lat" form:"lat" `
-	Filter   string  `json:"filter" form:"filter" `
-	Sort         string `json:"sort"`
-	Query    string  `json:"query" form:"query" `
+	UserID       int64   `json:"userId" form:"userId"`
+	Offset       int64   `json:"offset" form:"offset"`
+	Limit        int64   `json:"limit" form:"limit"`
+	Distance     string  `json:"distance" form:"distance"`
+	Lng          float32 `json:"lng" form:"lng" `
+	Lat          float32 `json:"lat" form:"lat" `
+	Filter       string  `json:"filter" form:"filter" `
+	Sort         string  `json:"sort"`
+	Query        string  `json:"query" form:"query" `
+	ReturnFields string  `json:"return_fields,omitempty" form:"return_fields"`
 }
 
 func CallSearchIdList(url string, userId int64, lat, lng float32, offset, limit int64, filters []string, query string) ([]int64, error) {

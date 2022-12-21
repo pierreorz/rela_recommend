@@ -56,7 +56,7 @@ type UserProfile struct {
 	JsonAffeLike   map[string]float32 `json:"jsonAffeLike"`
 	LiveInfo       *liveInfo          `json:"live_info,omitempty"`
 	OnlineHiding   int8               `json:"online_hiding,omitempty"`
-	Hiding         int8   `json:"hiding,omitempty"`
+	Hiding         int8               `json:"hiding,omitempty"`
 	Identity       int8               `json:"identity"` //身份认证 -1 未通过，0 未验证，1 审核中，2系统认证通过，3 人工认证通过，4 主播认证通过，5  历史申诉认证通过
 }
 
@@ -208,7 +208,6 @@ func (user *UserProfile) IsVipHiding() bool {
 	return false
 }
 
-
 func (user *UserProfile) IsVipHidingMom() bool {
 	if user == nil {
 		return false
@@ -231,7 +230,7 @@ func (user *UserProfile) CanRecommend() bool {
 	return notTeen
 }
 
-// 被推荐内容的用户是否可以推荐
+// DataUserCanRecommend 被推荐内容的用户是否可以推荐
 func (user *UserProfile) DataUserCanRecommend() bool {
 	if user == nil {
 		return false
@@ -242,6 +241,18 @@ func (user *UserProfile) DataUserCanRecommend() bool {
 	femaleIdentity := user.Identity != -1 && user.Identity != 1 // 非男性用户
 
 	return isNormal && notPrivate && femaleIdentity
+}
+
+// DataUserCandidateCanRecommend 被推荐内容的用户是否可以推荐
+func (user *UserProfile) DataUserCandidateCanRecommend() bool {
+	if user == nil {
+		return false
+	}
+
+	isNormal := user.Status == 1                                // 状态正常
+	femaleIdentity := user.Identity != -1 && user.Identity != 1 // 非男性用户
+
+	return isNormal && femaleIdentity
 }
 
 func (user *UserProfile) GetRoleNameInt() int {

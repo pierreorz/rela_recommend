@@ -6,19 +6,19 @@ import (
 	"rela_recommend/models/redis"
 )
 
-
-
 type UserInfo struct {
-	UserId       int64
-	UserCache    *redis.UserProfile
+	UserId    int64
+	UserCache *redis.UserProfile
 }
+
 func (self *UserInfo) GetBehavior() *behavior.UserBehavior {
 	return nil
 }
 
 type DataInfo struct {
-	DataId       int64
-	RankInfo     *algo.RankInfo
+	DataId    int64
+	RankInfo  *algo.RankInfo
+	ExtraData interface{}
 }
 
 func (self *DataInfo) GetDataId() int64 {
@@ -26,7 +26,7 @@ func (self *DataInfo) GetDataId() int64 {
 }
 
 func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
-	return nil
+	return self.ExtraData
 }
 
 func (self *DataInfo) SetRankInfo(rankInfo *algo.RankInfo) {
