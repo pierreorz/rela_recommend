@@ -3,7 +3,6 @@ package mate
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -108,10 +107,10 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		}
 	}
-	log.Infof("distanceMap=================", distanceMap)
+	//log.Infof("distanceMap=================", distanceMap)
 	if len(distanceMap) > 0 {
 		distanceText=GetDistanceSenten(distanceMap,distanceTextType,userImageMap)
-		log.Infof("distanceText=================", distanceText)
+		//log.Infof("distanceText=================", distanceText)
 
 	}
 
@@ -157,11 +156,11 @@ func DoBuildData(ctx algo.IContext) error {
 	//假装情侣池
 	var onlineUserThemeMap map[int64][]int64 //假装情侣池
 	onlineUserThemeMap = themeUserCache.QueryMatThemeProfileData(onlineUserList)
-	log.Infof("ThemeMap=======%+v",onlineUserThemeMap)
+	//log.Infof("ThemeMap=======%+v",onlineUserThemeMap)
 	//获取假装情侣用户moment偏好
 	var onlineUserMomMap map[int64][]int64 //假装情侣池
 	onlineUserMomMap = behaviorCache.QueryMateMomUserData(onlineUserList)
-	log.Infof("MomMap=======%+v",onlineUserThemeMap)
+	//log.Infof("MomMap=======%+v",onlineUserThemeMap)
 	//合并用户偏好(假装情侣池)
 	onlineUserProfile :=GetMergeMap(onlineUserThemeMap, onlineUserMomMap)
 	var onlineCategText []search.MateTextResDataItem
@@ -218,7 +217,7 @@ func DoBuildData(ctx algo.IContext) error {
 		//兜底只有时间段
 		allSentenceList = append(allSentenceList,searchImageResult...)
 	}
-	log.Infof("allSentenceList=============%+v", allSentenceList)
+	//log.Infof("allSentenceList=============%+v", allSentenceList)
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId: params.UserId,
