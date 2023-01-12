@@ -793,7 +793,7 @@ func DoBuildData(ctx algo.IContext) error {
 					if !momUser.DataUserCanRecommend() { //私密用户的日志过滤
 						continue
 					}
-					if momUser.IsVipHidingMom() { //vip隐藏日志过滤
+					if momUser.IsVipHidingMom()&&app.Name=="moment.near" { //vip隐藏日志过滤--仅在附近日志场景下
 						continue
 					}
 				}
