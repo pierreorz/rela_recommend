@@ -63,18 +63,33 @@ func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache 
 }
 
 // 通过直播分类获取直播开播日志列表
-func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) map[int64]int {
+func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) (map[int64]int ,map[int64]int) {
 	lives := GetCachedLiveListByTypeClassify(typeId, classify)
 	MomScoreMap := make(map[int64]float64, 0)
+	MomRankMap := make(map[int64]int, 0)
+	blindMap :=make(map[int64]int,0)
 	for _, live := range lives {
+		if dataStr, ok := live.Data4Api.(string); ok {
+
+			var data ILiveRankItemV3
+			err := json.Unmarshal([]byte(dataStr), &data)
+			if err != nil {
+				log.Errorf("unmarshal live data %+v error: %+v", live.Data4Api, err)
+				return MomRankMap,blindMap
+			}
+			log.Warnf("live data err %s", data)
+			if data.GetLiveType()==4{//心动速配
+				blindMap[live.Live.MomentsID]=1
+			}
+		}
+
 		MomScoreMap[live.Live.MomentsID] = float64(live.GetBusinessScore())
 	}
-	MomRankMap := make(map[int64]int, 0)
 	Moms := utils.SortMapByValue(MomScoreMap)
 	for rank, id := range Moms {
 		MomRankMap[id] = rank + 1
 	}
-	return MomRankMap
+	return MomRankMap,blindMap
 }
 
 func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {

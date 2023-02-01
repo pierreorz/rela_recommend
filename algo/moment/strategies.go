@@ -1019,6 +1019,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	w3 :=0.0
 	w4 :=0.0
 	w5 :=0.0
+	blindWeight :=abtest.GetFloat64("blind_weight",0.2)
 	var res =momLiveSorter{}
 	sortIds :=make(map[int64]int,0)
 	for index := 0; index < ctx.GetDataLength(); index++ {
@@ -1038,6 +1039,9 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 					}else{
 						w1 =0.4
 					}
+					if rankInfo.IsBlindMom==1{
+
+					}
 					w2 =live.LiveContentScore//直播内容得分
 					w3 =live.LiveValueScore //直播价值得分
 					if user :=userInfo.UserLiveContentProfile;user!=nil{
@@ -1049,7 +1053,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 						}
 					}
 				}
-				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3
+				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight
 				mom.score=score
 				res=append(res, mom)
 			}
