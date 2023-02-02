@@ -364,6 +364,9 @@ func DoBuildData(ctx algo.IContext) error {
 	topScore := abtest.GetFloat64("top_score", 0.02)
 	if abtest.GetBool("rec_liveMoments_switch", false) && custom != "hot" {
 		blindIdList,liveMap = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
+		log.Warnf("live mom length %s",len(blindIdList))
+		log.Warnf("live mom length %s",len(liveMap))
+
 		liveMomentIds = getMapKey(liveMap)
 	}
 	adInfo := abtest.GetInt64("ad_moment_id", 0)
