@@ -75,7 +75,6 @@ func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) (map[int64]
 			err := json.Unmarshal([]byte(dataStr), &data)
 			if err != nil {
 				log.Errorf("unmarshal live data %+v error: %+v", live.Data4Api, err)
-				return MomRankMap,blindMap
 			}
 			if data.GetLiveType()==4{//心动速配
 				blindMap[live.Live.MomentsID]=1
