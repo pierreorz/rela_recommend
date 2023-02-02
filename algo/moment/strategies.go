@@ -1019,6 +1019,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	w3 :=0.0
 	w4 :=0.0
 	w5 :=0.0
+	blindWeight :=abtest.GetFloat64("blind_weight",0.2)
 	var res =momLiveSorter{}
 	sortIds :=make(map[int64]int,0)
 	for index := 0; index < ctx.GetDataLength(); index++ {
@@ -1049,7 +1050,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 						}
 					}
 				}
-				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3
+				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)
 				mom.score=score
 				res=append(res, mom)
 			}
