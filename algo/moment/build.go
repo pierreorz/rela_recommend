@@ -826,6 +826,9 @@ func DoBuildData(ctx algo.IContext) error {
 				var isTopLiveMom = -1
 				if liveMap != nil {
 					if rank, isOk := liveMap[mom.Moments.Id]; isOk {
+						if params.UserId==-999999999{//对游客过滤所有直播日志
+							continue
+						}
 						liveIndex = rank
 						momUser, _ := usersMap[mom.Moments.UserId]
 						if momUser != nil {
