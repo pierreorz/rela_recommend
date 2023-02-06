@@ -18,6 +18,7 @@ type RecommendLog struct {
 	RecommendScores string
 	Features        string
 	AbMap           string
+	PagedIndex      int
 }
 
 // 记录request日志
