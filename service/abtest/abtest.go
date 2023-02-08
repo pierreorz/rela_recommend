@@ -193,12 +193,12 @@ func (self *AbTest) init(settingMap map[string]string) {
 	}
 
 	// 记录abtest日志
-	if logJson, logErr := json.Marshal(self); logErr == nil {
+	if logJson, logErr := self.log(); logErr == nil {
 		log.Infof("abtest %s", logJson) // 此日志格式会有实时任务解析，谨慎更改
 	}
 }
 
-func (self *AbTest) MarshalJSON() ([]byte, error) {
+func (self *AbTest) log() ([]byte, error) {
 	type cloneType AbTest
 	clone := cloneType(*self)
 	output := &clone
