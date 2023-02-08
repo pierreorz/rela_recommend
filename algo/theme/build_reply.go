@@ -4,7 +4,6 @@ import (
 	"errors"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
 	"time"
@@ -17,7 +16,6 @@ import (
 
 func DoBuildReplyData(ctx algo.IContext) error {
 	var err error
-	log.Debugf("enter theme build")
 	app := ctx.GetAppInfo()
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
@@ -268,7 +266,6 @@ func DoBuildReplyData(ctx algo.IContext) error {
 			return themesMapErr
 		},
 	})
-	log.Debugf("all themesUserIds: %+v", themesUserIds)
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
 	var usersProfileMap = map[int64]*redis.ThemeUserProfile{}
@@ -352,7 +349,7 @@ func DoBuildReplyData(ctx algo.IContext) error {
 							NeedReturn: true})
 					}
 				}
-				if len(topTypeRes)==0{
+				if len(topTypeRes) == 0 {
 					if !theme.CanRecommend() {
 						//log.Infof("==================CanRecommendId",theme.Moments.Id)
 						continue

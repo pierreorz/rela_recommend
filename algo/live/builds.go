@@ -3,7 +3,6 @@ package live
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
@@ -19,8 +18,6 @@ func DoBuildData(ctx algo.IContext) error {
 	pfms := ctx.GetPerforms()
 	abtest := ctx.GetAbTest()
 
-	sort :=params.Params["sort"]
-	log.Warnf("live interface is %s",sort)
 	// userCache := pika.NewUserProfileModule(&factory.CacheCluster, &factory.PikaCluster)
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
@@ -114,17 +111,17 @@ func DoBuildData(ctx algo.IContext) error {
 		},
 		"user_live_content_profile": func(*performs.Performs) interface{} { //用户关于直播的画像
 			var userLiveContentProfileErr error
-			if userLiveContentProfileMap, userLiveContentProfileErr = userCache.QueryUserLiveContentProfileByIdsMap([]int64{params.UserId}); userLiveContentProfileErr==nil{
+			if userLiveContentProfileMap, userLiveContentProfileErr = userCache.QueryUserLiveContentProfileByIdsMap([]int64{params.UserId}); userLiveContentProfileErr == nil {
 				return len(userLiveContentProfileMap)
-			}else{
+			} else {
 				return userLiveContentProfileErr
 			}
 		},
 		"live_content_profile": func(*performs.Performs) interface{} {
 			var liveContentProfileErr error
-			if liveContentProfileMap, liveContentProfileErr = userCache.QueryLiveContentProfileByIdsMap(liveIds);liveContentProfileErr==nil{
+			if liveContentProfileMap, liveContentProfileErr = userCache.QueryLiveContentProfileByIdsMap(liveIds); liveContentProfileErr == nil {
 				return len(liveContentProfileMap)
-			}else{
+			} else {
 				return liveContentProfileErr
 			}
 		},
@@ -139,12 +136,12 @@ func DoBuildData(ctx algo.IContext) error {
 			liveId := lives[i].Live.UserId
 			id, _ := strconv.ParseInt("88888"+strconv.FormatInt(lives[i].Live.UserId, 10), 10, 64)
 			liveInfo := LiveInfo{
-				UserId:           liveId,
-				LiveCache:        &lives[i],
-				UserCache:        usersMap[liveId],
-				UserItemBehavior: userBehaviorMap[id],
-				LiveContentProfile:   liveContentProfileMap[liveId],
-				LiveProfile:      usersMap2[liveId],
+				UserId:             liveId,
+				LiveCache:          &lives[i],
+				UserCache:          usersMap[liveId],
+				UserItemBehavior:   userBehaviorMap[id],
+				LiveContentProfile: liveContentProfileMap[liveId],
+				LiveProfile:        usersMap2[liveId],
 				LiveData: &LiveData{
 					PreHourIndex: hourRankMap[liveId].Index,
 					PreHourRank:  hourRankMap[liveId].Rank,
@@ -225,13 +222,13 @@ func DoBuildData(ctx algo.IContext) error {
 		}
 
 		userInfo := &UserInfo{
-			UserId:        user.UserId,
-			UserCache:     user,
+			UserId:                 user.UserId,
+			UserCache:              user,
 			UserLiveContentProfile: userLiveContentProfileMap[params.UserId],
-			LiveProfile:   user2,
-			UserConcerns:  concernsSet,
-			UserInterests: interestSet,
-			ConsumeUser:   consumer}
+			LiveProfile:            user2,
+			UserConcerns:           concernsSet,
+			UserInterests:          interestSet,
+			ConsumeUser:            consumer}
 
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(liveIds)

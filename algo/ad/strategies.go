@@ -4,7 +4,6 @@ import (
 	"math"
 	"math/rand"
 	"rela_recommend/algo"
-	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 )
 
@@ -33,11 +32,12 @@ func BaseScoreStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo
 	rankInfo.Score = float32(priceRate * cntRate * clickRate * weightRate)
 	return nil
 }
+
 //广告分发策略
-func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+func BaseFeedPrice(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	request := ctx.GetRequest()
 	//召回的广告数据大于才做分发
-	if request.ClientVersion>= 50802 {
+	if request.ClientVersion >= 50802 {
 		//app := ctx.GetAppInfo()
 		dataLen := ctx.GetDataLength()
 		dataInfo := iDataInfo.(*DataInfo)
@@ -46,10 +46,10 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 		ad_source := sd.AdvertSource
 		//运行相关广告状态直接赋值
 		if ad_source == "own" || ad_source == "partner" {
-			nums:=5
+			nums := 5
 
 			rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
-		} else{
+		} else {
 			//		rand_num := rand.Intn(5) + 1.0
 			//		nums := float32(rand_num) / float32(sd.Id)
 			hisexpores := dataInfo.SearchData.HistoryExposures
@@ -66,14 +66,12 @@ func BaseFeedPrice(ctx algo.IContext,iDataInfo algo.IDataInfo, rankInfo *algo.Ra
 			//log.Infof("sdId===============", sd.Id,ad_source)
 			//log.Infof("click===============", click,ad_source)
 			//log.Infof("hisexpores===============", hisexpores,ad_source)
-			log.Infof("rand_nums===============", ctr, nums,ad_source)
 			rankInfo.AddRecommend("ad_sort.feed", 1.0+float32(nums))
-			}
 		}
+	}
 
 	return nil
 }
-
 
 // 测试用户查看测试内容时置顶
 func TestUserTopStrategyItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {

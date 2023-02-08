@@ -63,11 +63,11 @@ func GetCachedLiveListByTypeClassify(typeId int, classify int) []pika.LiveCache 
 }
 
 // 通过直播分类获取直播开播日志列表
-func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) (map[int64]int ,map[int64]int) {
+func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) (map[int64]int, map[int64]int) {
 	lives := GetCachedLiveListByTypeClassify(typeId, classify)
 	MomScoreMap := make(map[int64]float64, 0)
 	MomRankMap := make(map[int64]int, 0)
-	blindMap :=make(map[int64]int,0)
+	blindMap := make(map[int64]int, 0)
 	for _, live := range lives {
 		if dataStr, ok := live.Data4Api.(string); ok {
 
@@ -76,8 +76,8 @@ func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) (map[int64]
 			if err != nil {
 				log.Errorf("unmarshal live data %+v error: %+v", live.Data4Api, err)
 			}
-			if data.GetLiveType()==4{//心动速配
-				blindMap[live.Live.MomentsID]=1
+			if data.GetLiveType() == 4 { //心动速配
+				blindMap[live.Live.MomentsID] = 1
 			}
 		}
 
@@ -87,7 +87,7 @@ func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) (map[int64]
 	for rank, id := range Moms {
 		MomRankMap[id] = rank + 1
 	}
-	return MomRankMap,blindMap
+	return MomRankMap, blindMap
 }
 
 func convertApiLive2RedisLiveList(lives []api.SimpleChatroom) []pika.LiveCache {
@@ -244,7 +244,7 @@ func refreshLiveMapList(duration time.Duration) {
 			})
 		}
 
-		log.Debugf("algo.task:live.rpc:%s\n", pf.ToString())
+		//log.Debugf("algo.task:live.rpc:%s\n", pf.ToString())
 		pf.ToWriteChan("algo.task", map[string]string{
 			"app": "live.rpc",
 		}, map[string]interface{}{}, *pf.BeginTime)
