@@ -201,6 +201,7 @@ func (self *AbTest) init(settingMap map[string]string) {
 func (self *AbTest) MarshalJSON() ([]byte, error) {
 	type cloneType AbTest
 	clone := cloneType(*self)
+	output := &clone
 	collectLogFields := self.GetStrings(collectLogFieldsKey, "")
 	if len(collectLogFields) > 0 {
 		var collectFactorMap = make(map[string]string)
@@ -209,9 +210,9 @@ func (self *AbTest) MarshalJSON() ([]byte, error) {
 				collectFactorMap[fi] = v
 			}
 		}
-		clone.FactorMap = collectFactorMap
+		output.FactorMap = collectFactorMap
 	}
-	return json.Marshal(clone)
+	return json.Marshal(output)
 }
 
 func (self *AbTest) GetString(key string, defVal string) string {
