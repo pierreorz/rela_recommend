@@ -42,7 +42,7 @@ const (
 	AroundLabel       = 6
 	CityLabel         = 6
 	MultiBeamingLabel = 7
-	BlindDate         =8
+	BlindDate         = 8
 
 	typeRecommend     = 1
 	typeBigVideo      = 32768
@@ -79,13 +79,13 @@ var classifyMap map[int]multiLanguage
 
 // 用户信息
 type UserInfo struct {
-	UserId        int64
-	UserCache     *redis.UserProfile
-	LiveProfile   *redis.LiveProfile
-	UserConcerns  *rutils.SetInt64
-	UserInterests *rutils.SetInt64
-	ConsumeUser   int
-	UserLiveContentProfile *redis.UserLiveContentProfile  //使用者直播画像数据
+	UserId                 int64
+	UserCache              *redis.UserProfile
+	LiveProfile            *redis.LiveProfile
+	UserConcerns           *rutils.SetInt64
+	UserInterests          *rutils.SetInt64
+	ConsumeUser            int
+	UserLiveContentProfile *redis.UserLiveContentProfile //使用者直播画像数据
 
 }
 
@@ -139,15 +139,15 @@ func (ld *LiveData) ToLabelList() []*labelItem {
 
 // 主播信息
 type LiveInfo struct {
-	UserId           int64
-	UserCache        *redis.UserProfile
-	LiveProfile      *redis.LiveProfile
-	LiveCache        *pika.LiveCache
-	LiveData         *LiveData
-	RankInfo         *algo.RankInfo
-	Features         *utils.Features
-	UserItemBehavior *behavior.UserBehavior
-	LiveContentProfile   *redis.LiveContentProfile//主播画像数据
+	UserId             int64
+	UserCache          *redis.UserProfile
+	LiveProfile        *redis.LiveProfile
+	LiveCache          *pika.LiveCache
+	LiveData           *LiveData
+	RankInfo           *algo.RankInfo
+	Features           *utils.Features
+	UserItemBehavior   *behavior.UserBehavior
+	LiveContentProfile *redis.LiveContentProfile //主播画像数据
 }
 
 type newStyle struct {
@@ -256,7 +256,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 		case typeRecommend, typeBigVideo, typeBigMultiAudio, typeGroupVideo:
 			needReturnLabel = true
 		}
-		if sort,ok :=params.Params["sort"];ok&&sort=="hot"{//横幅直播添加标签
+		if sort, ok := params.Params["sort"]; ok && sort == "hot" { //横幅直播添加标签
 			needReturnLabel = true
 		}
 
@@ -269,7 +269,6 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					log.Errorf("unmarshal live data %+v error: %+v", self.LiveCache.Data4Api, err)
 					return nil
 				}
-				log.Warnf("live data err %s", data)
 				if len(data.Label) > 0 && data.LabelLang != nil {
 					self.LiveData.AddLabel(&labelItem{
 						Style: RecommendLabel,
@@ -373,7 +372,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 
 				data.LabelList = self.LiveData.ToLabelList()
 				key := prefix + ":" + strconv.FormatInt(self.UserId, 10) + ":" + strconv.FormatInt(userId, 10)
-				log.Warnf("label list key,%s", key)
+				//log.Warnf("label list key,%s", key)
 				if err := help.SetExStructByCache(factory.CacheCommonRds, key, data.LabelList, LabelExpire); err != nil {
 					log.Warnf("read label list err %s", err)
 				}

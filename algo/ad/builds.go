@@ -37,8 +37,8 @@ func DoBuildData(ctx algo.IContext) error {
 	})
 	//获取用户实时行为
 	var userBehavior *behavior.UserBehavior // 用户实时行为
-	userAdIdFeedMap := map[int64]int64{}        //广告曝光数据
-	userAdIdInitMap := map[int64]int64{}        //广告曝光数据
+	userAdIdFeedMap := map[int64]int64{}    //广告曝光数据
+	userAdIdInitMap := map[int64]int64{}    //广告曝光数据
 	realtimes, realtimeErr := behaviorCache.QueryUserBehaviorMap("ad", []int64{params.UserId})
 	if realtimeErr == nil { // 获取flink数据
 		userBehavior = realtimes[params.UserId]
@@ -71,8 +71,6 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		}
 	}
-	log.Infof("userAdIdFeedMap=================%+v", userAdIdFeedMap)
-	log.Infof("userAdIdInitMap=================%+v", userAdIdInitMap)
 	// 获取search的广告列表
 	var searchResList = []search.SearchADResDataItem{}
 	if abtest.GetBool("icp_switch", false) && (abtest.GetBool("is_icp_user", false) || user.MaybeICPUser(params.Lat, params.Lng)) {
