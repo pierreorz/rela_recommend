@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+const collectLogFieldsKey = "collect_log_fields"
+
 // 测试版本，每个测试版本可以修改多个因子
 type TestingVersion struct {
 	Name       string            `json:"name"`
@@ -191,9 +193,26 @@ func (self *AbTest) init(settingMap map[string]string) {
 	}
 
 	// 记录abtest日志
-	if logJson, logErr := json.Marshal(self); logErr == nil {
+	if logJson, logErr := self.log(); logErr == nil {
 		log.Infof("abtest %s", logJson) // 此日志格式会有实时任务解析，谨慎更改
 	}
+}
+
+func (self *AbTest) log() ([]byte, error) {
+	type cloneType AbTest
+	clone := cloneType(*self)
+	output := &clone
+	collectLogFields := self.GetStrings(collectLogFieldsKey, "")
+	if len(collectLogFields) > 0 {
+		var collectFactorMap = make(map[string]string)
+		for _, fi := range collectLogFields {
+			if v, ok := self.FactorMap[fi]; ok {
+				collectFactorMap[fi] = v
+			}
+		}
+		output.FactorMap = collectFactorMap
+	}
+	return json.Marshal(output)
 }
 
 func (self *AbTest) GetString(key string, defVal string) string {
@@ -250,12 +269,12 @@ func (self *AbTest) GetInt64s(key string, defVals string) []int64 {
 	return res
 }
 
-func (self *AbTest) GetMapInts(key string,defVals string) map[int64]int{
-	strs :=self.GetStrings(key,defVals)
-	res :=make(map[int64]int,0)
-	for _,str :=range strs{
-		if vali,err :=strconv.ParseInt(str,10,64);err == nil{
-			res[vali]=1
+func (self *AbTest) GetMapInts(key string, defVals string) map[int64]int {
+	strs := self.GetStrings(key, defVals)
+	res := make(map[int64]int, 0)
+	for _, str := range strs {
+		if vali, err := strconv.ParseInt(str, 10, 64); err == nil {
+			res[vali] = 1
 		}
 	}
 	return res
@@ -283,13 +302,13 @@ func (self *AbTest) GetFloat64(key string, defVal float64) float64 {
 func (self *AbTest) GetFloat(key string, defVal float32) float32 {
 	return float32(self.GetFloat64(key, float64(defVal)))
 }
-func (self *AbTest) GetTestings(expId string,requestId string) string {
+func (self *AbTest) GetTestings(expId string, requestId string) string {
 	var strMap map[string]string = map[string]string{}
 	for key, val := range self.HitTestingMap {
 		strMap[key] = val.Name
 	}
-	strMap["expId"]=expId
-	strMap["requestId"]=requestId
+	strMap["expId"] = expId
+	strMap["requestId"] = requestId
 	jsonStr, err := json.Marshal(strMap)
 	if err == nil {
 		res := string(jsonStr)
