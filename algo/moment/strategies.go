@@ -230,9 +230,11 @@ func DoTimeWeightLevel(ctx algo.IContext, index int) error {
 func MomLabelAddWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	labelScore := ctx.GetAbTest().GetFloat("label_score", 1.2)
-	if dataInfo.MomentCache.MomentsExt.TagList != "" {
-		rankInfo.AddRecommend("labelMomWeight", labelScore)
+	labelScore := ctx.GetAbTest().GetFloat("label_score", 1.1)
+	if dataInfo.MomentCache!=nil{
+		if dataInfo.MomentCache.MomentsExt.TagList != "" {
+			rankInfo.AddRecommend("labelMomWeight", labelScore)
+		}
 	}
 	return nil
 }
