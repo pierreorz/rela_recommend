@@ -1021,9 +1021,17 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	w3 :=0.0
 	w4 :=0.0
 	w5 :=0.0
+	w6 :=0.0
 	blindWeight :=abtest.GetFloat64("blind_weight",0.2)
 	var res =momLiveSorter{}
 	sortIds :=make(map[int64]int,0)
+	if userInfo.UserCache!=nil{
+		hourInterval := int(ctx.GetCreateTime().Sub(userInfo.UserCache.CreateTime.Time).Hours()) / 24
+		if hourInterval<=1||userInfo.UserCache.Age>=30||!(userInfo.UserCache.InChina()){
+			w6=0.3
+		}
+
+	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -1034,6 +1042,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil&&rankInfo.IsSoftTop ==0 { //非置顶直播日志  //非软置顶直播日志
 			    var mom momLive
 			    mom.momId = dataInfo.MomentCache.Id
+
 				if live := dataInfo.LiveContentProfile; live != nil {//必须有主播相关的画像
 					//新用户不管
 					if dataInfo.MomentCache.MomentsType=="live"{//日志类型得分，视频直播类型占0.65分
@@ -1052,7 +1061,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 						}
 					}
 				}
-				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)
+				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)+0.3*float64(rankInfo.IsBlindMom)/2
 				mom.score=score
 				res=append(res, mom)
 			}

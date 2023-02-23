@@ -79,6 +79,9 @@ func GetCachedLiveMomentListByTypeClassify(typeId int, classify int) (map[int64]
 			if data.GetLiveType() == 4 { //心动速配
 				blindMap[live.Live.MomentsID] = 1
 			}
+			if data.GetLiveType() ==3 {//叽叽喳喳
+				blindMap[live.Live.MomentsID] = 2
+			}
 		}
 
 		MomScoreMap[live.Live.MomentsID] = float64(live.GetBusinessScore())

@@ -171,6 +171,14 @@ func (this *UserCacheModule) QueryUserLiveContentProfileByIdsMap(userIds []int64
 	return resUserContentProfileMap, err
 }
 
+
+func (user *UserProfile) InChina() bool {
+	if user.Location.Lat>=4&&user.Location.Lat<=53&&
+		user.Location.Lon>=74&&user.Location.Lon<=135{
+		return true
+	}
+	return false
+}
 func (user *UserProfile) MaybeICPUser(lat, lng float32) bool {
 	// 特定ICP审核用户
 	if user.UserId == 104208008 {
