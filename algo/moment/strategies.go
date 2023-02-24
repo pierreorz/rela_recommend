@@ -1022,13 +1022,14 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	w4 :=0.0
 	w5 :=0.0
 	w6 :=0.0
+	label :=0
 	blindWeight :=abtest.GetFloat64("blind_weight",0.2)
 	var res =momLiveSorter{}
 	sortIds :=make(map[int64]int,0)
 	if userInfo.UserCache!=nil{
 		hourInterval := int(ctx.GetCreateTime().Sub(userInfo.UserCache.CreateTime.Time).Hours()) / 24
 		if hourInterval<=1||userInfo.UserCache.Age>=30||!(userInfo.UserCache.InChina()){
-			w6=0.3
+			label=1
 		}
 
 	}
@@ -1061,7 +1062,12 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 						}
 					}
 				}
-				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)+w6*float64(rankInfo.IsBlindMom)/2
+				if rankInfo.IsBlindMom==2&&label==1{
+					w6=0.2
+				}else if rankInfo.IsBlindMom==1{
+					w6=0
+				}
+				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)+w6
 				mom.score=score
 				res=append(res, mom)
 			}
