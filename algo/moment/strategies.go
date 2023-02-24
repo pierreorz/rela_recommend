@@ -1034,6 +1034,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 
 	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
+		w6 = 0
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
