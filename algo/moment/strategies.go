@@ -1061,7 +1061,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 						}
 					}
 				}
-				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)+0.3*float64(rankInfo.IsBlindMom)/2
+				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)+w6*float64(rankInfo.IsBlindMom)/2
 				mom.score=score
 				res=append(res, mom)
 			}
