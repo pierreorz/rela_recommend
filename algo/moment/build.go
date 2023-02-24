@@ -850,8 +850,8 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				var isBlindMom =0
 				if blindIdList!=nil{
-					if _,ok :=blindIdList[mom.Moments.Id];ok{
-						isBlindMom=1
+					if val,ok :=blindIdList[mom.Moments.Id];ok{
+						isBlindMom=val
 					}
 				}
 				if concernsSet.Contains(mom.Moments.UserId) {
