@@ -1022,6 +1022,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	w4 :=0.0
 	w5 :=0.0
 	w6 :=0.0
+	w7 :=0.0
 	label :=0
 	blindWeight :=abtest.GetFloat64("blind_weight",0.2)
 	var res =momLiveSorter{}
@@ -1067,8 +1068,9 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 					w6=0.2
 				}else if rankInfo.IsBlindMom==1{
 					w6=0
+					w7=1
 				}
-				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)+w6
+				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)*w7+w6
 				mom.score=score
 				res=append(res, mom)
 			}
