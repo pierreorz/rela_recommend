@@ -1071,6 +1071,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 					w6=0
 					w7=1
 				}
+				log.Warnf("jijizhazha weight is %s,%s",w6,w7)
 				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)*w7+w6
 				mom.score=score
 				res=append(res, mom)
