@@ -342,14 +342,14 @@ func DoBuildData(ctx algo.IContext) error {
 	autoRecList := make([]int64, 0)
 	newIdList := make([]int64, 0)
 	hotIdList := make([]int64, 0)
-	bussinessIdList := make([]int64, 0)
+	businessIdList := make([]int64, 0)
 	tagRecommendIdList := make([]int64, 0)
-	blindIdList :=make(map[int64]int,0)
+	blindIdList := make(map[int64]int, 0)
 	adList := make([]int64, 0)
 	adLocationList := make([]int64, 0)
 	paiRecallList := make([]int64, 0)
 	liveMomentIds := make([]int64, 0)
-	userLiveMoment :=make([]int64,0)
+	userLiveMoment := make([]int64, 0)
 	paiResult := make(map[int64]float64, 0)
 	var concernsSet = &utils.SetInt64{}
 	var recIds []int64
@@ -363,7 +363,7 @@ func DoBuildData(ctx algo.IContext) error {
 	recallLength := abtest.GetInt("recall_length", 300)
 	topScore := abtest.GetFloat64("top_score", 0.02)
 	if abtest.GetBool("rec_liveMoments_switch", false) && custom != "hot" {
-		liveMap,blindIdList = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
+		liveMap, blindIdList = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
 		liveMomentIds = getMapKey(liveMap)
 	}
 	adInfo := abtest.GetInt64("ad_moment_id", 0)
@@ -372,16 +372,16 @@ func DoBuildData(ctx algo.IContext) error {
 		adList = append(adList, adInfo)
 	}
 	//icp白名单及新注册用户
-	var userTest *redis.UserProfile
+	var userCurrent *redis.UserProfile
 	var userTestErr error
-	userTest, userTestErr = userCache.QueryUserById(params.UserId)
+	userCurrent, userTestErr = userCache.QueryUserById(params.UserId)
 	var userBehavior *behavior.UserBehavior // 用户实时行为
 	if userTestErr != nil {
 		log.Warnf("query user icp white err, %s\n", userTestErr)
 		//return userTestErr
 	}
 	icpSwitch := abtest.GetBool("icp_switch", false)
-	mayBeIcpUser := (userTest != nil) && userTest.MaybeICPUser(params.Lat, params.Lng)
+	mayBeIcpUser := (userCurrent != nil) && userCurrent.MaybeICPUser(params.Lat, params.Lng)
 	icpWhite := abtest.GetBool("icp_white", false)
 
 	if icpSwitch && (mayBeIcpUser || icpWhite) {
@@ -412,6 +412,10 @@ func DoBuildData(ctx algo.IContext) error {
 						var userId = params.UserId
 						if custom == "hot" {
 							userId = -999999999
+							go func() {
+								userCurrent.CustomSort = custom
+								_ = userCache.UpdateUser(userCurrent)
+							}()
 						}
 						recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
 						if len(recListKeyFormatter) > 5 && !recallSwitch {
@@ -429,13 +433,13 @@ func DoBuildData(ctx algo.IContext) error {
 					return len(hourRecList)
 				}
 				return nil
-			},"live_mom":func(*performs.Performs) interface{} {
-				if abtest.GetBool("realtime_user_live",false){
-					userLiveMoment,err =momentCache.GetInt64ListOrDefault(params.UserId, -999999999, "realtime_user_live_mom:%d")
+			}, "live_mom": func(*performs.Performs) interface{} {
+				if abtest.GetBool("realtime_user_live", false) {
+					userLiveMoment, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, "realtime_user_live_mom:%d")
 					return len(userLiveMoment)
 				}
 				return nil
-			},"new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
+			}, "new": func(*performs.Performs) interface{} { // 新日志 或 附近日志
 				newMomentLen := abtest.GetInt("new_moment_len", 1000) //不为0即推荐添加实时日志
 				if newMomentLen > 0 {
 					radiusArray := abtest.GetStrings("radius_range", "50km")
@@ -503,14 +507,14 @@ func DoBuildData(ctx algo.IContext) error {
 			}, "bussiness": func(*performs.Performs) interface{} { // 业务推荐id列表
 				var errBussiness error
 				if abtest.GetBool("bussiness_recommend_switched", false) { // 是否开启业务推荐
-					bussinessIdList, errBussiness = momentCache.GetInt64ListOrDefault(params.UserId, -9999999, "bussiness_rec_moment_data:%d")
-					if len(bussinessIdList) > 0 {
-						for _, id := range bussinessIdList {
+					businessIdList, errBussiness = momentCache.GetInt64ListOrDefault(params.UserId, -9999999, "bussiness_rec_moment_data:%d")
+					if len(businessIdList) > 0 {
+						for _, id := range businessIdList {
 							businessMap[id] = 1
 						}
 					}
 					if errBussiness == nil {
-						return len(bussinessIdList)
+						return len(businessIdList)
 					}
 				}
 				return errBussiness
@@ -581,7 +585,7 @@ func DoBuildData(ctx algo.IContext) error {
 	if len(hourRecList) > 500 && len(recIdList) > 200 {
 		recIdList = recIdList[:100]
 	}
-	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, hourRecList, newIdList, recIds, hotIdList,userLiveMoment, liveMomentIds, tagRecommendIdList, autoRecList, adList, bussinessIdList, adLocationList, paiRecallList).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(dataIdList, recIdList, hourRecList, newIdList, recIds, hotIdList, userLiveMoment, liveMomentIds, tagRecommendIdList, autoRecList, adList, businessIdList, adLocationList, paiRecallList).ToList()
 	// 过滤审核
 	var paiErr error
 	var offTime = 0
@@ -794,7 +798,7 @@ func DoBuildData(ctx algo.IContext) error {
 					if !momUser.DataUserCanRecommend() { //私密用户的日志过滤
 						continue
 					}
-					if momUser.IsVipHidingMom()&&app.Name=="moment.near" { //vip隐藏日志过滤--仅在附近日志场景下
+					if momUser.IsVipHidingMom() && app.Name == "moment.near" { //vip隐藏日志过滤--仅在附近日志场景下
 						continue
 					}
 				}
@@ -826,7 +830,7 @@ func DoBuildData(ctx algo.IContext) error {
 				var isTopLiveMom = -1
 				if liveMap != nil {
 					if rank, isOk := liveMap[mom.Moments.Id]; isOk {
-						if params.UserId==-999999999{//对游客过滤所有直播日志
+						if params.UserId == -999999999 { //对游客过滤所有直播日志
 							continue
 						}
 						liveIndex = rank
@@ -848,10 +852,10 @@ func DoBuildData(ctx algo.IContext) error {
 						isBussiness = 1
 					}
 				}
-				var isBlindMom =0
-				if blindIdList!=nil{
-					if val,ok :=blindIdList[mom.Moments.Id];ok{
-						isBlindMom=val
+				var isBlindMom = 0
+				if blindIdList != nil {
+					if val, ok := blindIdList[mom.Moments.Id]; ok {
+						isBlindMom = val
 					}
 				}
 				if concernsSet.Contains(mom.Moments.UserId) {
@@ -882,7 +886,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
 					LiveContentProfile:   liveContentProfileMap[mom.Moments.UserId],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId),IsBlindMom:isBlindMom,RequestId: requestId, OffTime: offTime},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],

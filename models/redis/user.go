@@ -57,7 +57,8 @@ type UserProfile struct {
 	LiveInfo       *liveInfo          `json:"live_info,omitempty"`
 	OnlineHiding   int8               `json:"online_hiding,omitempty"`
 	Hiding         int8               `json:"hiding,omitempty"`
-	Identity       int8               `json:"identity"` //身份认证 -1 未通过，0 未验证，1 审核中，2系统认证通过，3 人工认证通过，4 主播认证通过，5  历史申诉认证通过
+	Identity       int8               `json:"identity"`   //身份认证 -1 未通过，0 未验证，1 审核中，2系统认证通过，3 人工认证通过，4 主播认证通过，5  历史申诉认证通过
+	CustomSort     string             `json:"customSort"` // hot: 按热门排序（即关闭个性化推荐）；其他：按个性化推荐排序
 }
 
 type UserContentProfile struct {
@@ -171,10 +172,9 @@ func (this *UserCacheModule) QueryUserLiveContentProfileByIdsMap(userIds []int64
 	return resUserContentProfileMap, err
 }
 
-
 func (user *UserProfile) InChina() bool {
-	if user.Location.Lat>=4&&user.Location.Lat<=53&&
-		user.Location.Lon>=74&&user.Location.Lon<=135{
+	if user.Location.Lat >= 4 && user.Location.Lat <= 53 &&
+		user.Location.Lon >= 74 && user.Location.Lon <= 135 {
 		return true
 	}
 	return false
@@ -312,6 +312,12 @@ func (self *UserCacheModule) QueryUserById(id int64) (*UserProfile, error) {
 		return &users[0], nil
 	}
 	return nil, errors.New(fmt.Sprintf("not found user[%d]", id))
+}
+
+func (self *UserCacheModule) UpdateUser(user *UserProfile) error {
+	keyFormatter := self.ctx.GetAbTest().GetString("user_cache_key_formatter", "app_user_active_info_search_%d")
+	key := fmt.Sprintf(keyFormatter, user.UserId)
+	return self.SetStruct(key, user, 24*60*60, 60*60*1)
 }
 
 // 读取用户信息
