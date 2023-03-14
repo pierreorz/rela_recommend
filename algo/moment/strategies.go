@@ -11,6 +11,7 @@ import (
 	"rela_recommend/models/redis"
 	rutils "rela_recommend/utils"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -1016,6 +1017,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
 	haveSoft :=0
 	interval :=abtest.GetInt("live_interval_index",7)
+	liveId :=abtest.GetString("live_id_list","101194911,113286647,112451050")
 	w1 :=0.0
 	w2 :=0.0
 	w3 :=0.0
@@ -1023,6 +1025,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 	w5 :=0.0
 	w6 :=0.0
 	w7 :=0.0
+	w8 :=0.0
 	label :=0
 	blindWeight :=abtest.GetFloat64("blind_weight",0.2)
 	var res =momLiveSorter{}
@@ -1071,7 +1074,12 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 					w6=0
 					w7=1
 				}
-				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)*w7+w6
+				if ctx.GetCreateTime().Hour()>=0 && ctx.GetCreateTime().Hour()<=4{
+					if strings.Contains(liveId,strconv.FormatInt(dataInfo.MomentCache.UserId, 10)){
+						w8=0.3
+					}
+				}
+				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)*w7+w6+w8
 				mom.score=score
 				res=append(res, mom)
 			}
