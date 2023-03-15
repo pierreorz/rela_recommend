@@ -107,7 +107,6 @@ func FilterMomDistance(ctx algo.IContext, index int) error {
 	if dataInfo.MomentExtendCache!=nil&&dataInfo.UserCache!=nil{
 		distance := rutils.EarthDistance(float64(ctx.GetRequest().Lng), float64(ctx.GetRequest().Lat), dataInfo.UserCache.Location.Lon, dataInfo.UserCache.Location.Lat)/1000.0
 		if timeLevel<2&&distance>=50{
-			log.Warnf("around distance mom %s",dataInfo.MomentCache.Id)
 			rankInfo.IsTop=-1
 		}//2天内的日志大于50km的过滤掉
 		if timeLevel>=2&&timeLevel<7&&distance>=100{//2-7天内不展示100公里以内的日志
