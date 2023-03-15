@@ -105,7 +105,7 @@ func FilterMomDistance(ctx algo.IContext, index int) error {
 	rankInfo := dataInfo.GetRankInfo()
 	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours())/24
 	if dataInfo.MomentExtendCache!=nil&&dataInfo.UserCache!=nil{
-		distance := rutils.EarthDistance(dataInfo.MomentExtendCache.Lng, dataInfo.MomentExtendCache.Lat, dataInfo.UserCache.Location.Lon, dataInfo.UserCache.Location.Lat)/1000.0
+		distance := rutils.EarthDistance(float64(ctx.GetRequest().Lng), float64(ctx.GetRequest().Lat), dataInfo.UserCache.Location.Lon, dataInfo.UserCache.Location.Lat)/1000.0
 		if timeLevel<2&&distance>=50{
 			rankInfo.IsTop=-1
 		}//2天内的日志大于50km的过滤掉
