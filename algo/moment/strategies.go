@@ -82,6 +82,7 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 2
+
 	if timeLevel <= 12 {
 		if timeLevel >= 0 && timeLevel < 2 { //近4个小时提权权重高1.2
 			rankInfo.AddRecommend("momentNearTimeWeightV2", 1.2)
@@ -91,6 +92,25 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error {
 		}
 		if timeLevel >= 4 {
 			rankInfo.AddRecommend("momentNearTimeWeightV2", 1.01)
+		}
+	}
+	return nil
+}
+
+
+
+//日志提权策略v2
+func FilterMomDistance(ctx algo.IContext, index int) error {
+	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+	rankInfo := dataInfo.GetRankInfo()
+	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours())/24
+	if dataInfo.MomentExtendCache!=nil&&dataInfo.UserCache!=nil{
+		distance := rutils.EarthDistance(float64(ctx.GetRequest().Lng), float64(ctx.GetRequest().Lat), dataInfo.UserCache.Location.Lon, dataInfo.UserCache.Location.Lat)/1000.0
+		if timeLevel<2&&distance>=50{
+			rankInfo.IsTop=-1
+		}//2天内的日志大于50km的过滤掉
+		if timeLevel>=2&&timeLevel<7&&distance>=100{//2-7天内不展示100公里以内的日志
+			rankInfo.IsTop=-1
 		}
 	}
 	return nil
