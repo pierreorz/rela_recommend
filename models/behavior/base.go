@@ -201,13 +201,13 @@ func LabelConvert(label string)  string {
 	if utils.StringContains(label,[]string{"youxi"}){
 		return "youxi"
 	}
-	if utils.StringContains(label,[]string{"shaoshumingzufushi","xiaofu","JKzhifu"}){
+	if utils.StringContains(label,[]string{"shaoshumingzufushi","xiaofu","JKzhifu","qizhi"}){
 		return "shishang"
 	}
 	if utils.StringContains(label,[]string{"meishi"}){
 		return "meishi"
 	}
-	if utils.StringContains(label,[]string{"jiejing","ziranfengjing"}){
+	if utils.StringContains(label,[]string{"jiejing","ziranfengguang"}){
 		return "fengjing"
 	}
 	return ""
