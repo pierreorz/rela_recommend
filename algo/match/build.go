@@ -97,20 +97,22 @@ func DoBuildData(ctx algo.IContext) error {
 		dataList := make([]algo.IDataInfo, 0)
 
 		for dataId, data := range usersMap {
-			// 推荐集加权
-			var recommends = []algo.RecommendItem{}
-			if recMap.Contains(data.UserId) {
-				recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
-			}
+			if data.DataUserCandidateCanRecommend() {
+				// 推荐集加权
+				var recommends = []algo.RecommendItem{}
+				if recMap.Contains(data.UserId) {
+					recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true})
+				}
 
-			info := &DataInfo{
-				DataId:       dataId,
-				UserCache:    data,
-				MatchProfile: matchUserMap[dataId],
-				RankInfo:     &algo.RankInfo{Recommends: recommends},
-				SearchFields: userSearchMap[dataId],
+				info := &DataInfo{
+					DataId:       dataId,
+					UserCache:    data,
+					MatchProfile: matchUserMap[dataId],
+					RankInfo:     &algo.RankInfo{Recommends: recommends},
+					SearchFields: userSearchMap[dataId],
+				}
+				dataList = append(dataList, info)
 			}
-			dataList = append(dataList, info)
 		}
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(dataIds)
