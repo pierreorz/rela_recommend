@@ -570,8 +570,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 							}
 						}
 						if count > 0.0 && score > 0.0 {
-							var finalScore = float32(1.0 + 0.1)
-							rankInfo.AddRecommend("UserPictureTagInteract", finalScore)
+							rankInfo.AddRecommend("UserPictureTagInteract", 1.2)
 							recommend+=1
 						}
 					}
