@@ -551,6 +551,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
 		if userInteract.Count > 0 {
 			pictureTagMap := userInteract.GetTopCountPictureTagsMap(5)
+			log.Warnf("user picture tag map is %s",pictureTagMap)
 			if pictureTagMap != nil && len(pictureTagMap) > 0 {
 				var recommend = 0
 				for index := 0; index < ctx.GetDataLength(); index++ {
