@@ -25,6 +25,9 @@ func (p *JsonTime) UnmarshalJSON(data []byte) error {
 		var err error
 		if strings.HasSuffix(dataStr, "+0000\"") {
 			local, err = time.ParseInLocation("\"2006-01-02T15:04:05.000+0000\"", dataStr, time.Local)
+			if err != nil {
+				local, err = time.ParseInLocation("\"2006-01-02 15:04:05.000+0000\"", dataStr, time.Local)
+			}
 		} else {
 			(&local).UnmarshalJSON(data)
 		}

@@ -19,12 +19,12 @@ func (self *AbTest) GetUserAttr(keys []string) map[string]interface{} {
 		for _, key := range keys {
 			switch key {
 			case "vip_level": // 会员等级
-				if vipRes, err := api.CallUserVipStatusWithCache(self.DataId, 1*60*60); err == nil {
-					res[key] = vipRes.Level
-				} else {
-					res[key] = 0 // 默认0
-					log.Warnf("abtest call user vip err %s", err)
-				}
+				//if vipRes, err := api.CallUserVipStatusWithCache(self.DataId, 1*60*60); err == nil {
+				//	res[key] = vipRes.Level
+				//} else {
+				res[key] = 0 // 默认0 TODO:改为读缓存
+				//	log.Warnf("abtest call user vip err %s", err)
+				//}
 			case "registe_time", "active_time", "age":
 				if userRes, err := api.CallUserInfoWithCache(self.DataId, 3*60*60); err == nil {
 					res["active_time"] = self.CurrentTime.Unix() - userRes.LastUpdateTime
