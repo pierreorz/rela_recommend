@@ -545,7 +545,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	var abtest = ctx.GetAbTest()
-	var max =abtest.GetInt("user_picture_tag_max",2)
+	var max =abtest.GetInt("user_picture_tag_max",3)
 	var userInfo = ctx.GetUserInfo().(*UserInfo)
 	if userInfo.UserBehavior != nil {
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
