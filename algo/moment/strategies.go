@@ -545,7 +545,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	var abtest = ctx.GetAbTest()
-	var max =abtest.GetInt("user_picture_tag_max",2)
+	var max =abtest.GetInt("user_picture_tag_max",3)
 	var userInfo = ctx.GetUserInfo().(*UserInfo)
 	if userInfo.UserBehavior != nil {
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
@@ -570,8 +570,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 							}
 						}
 						if count > 0.0 && score > 0.0 {
-							var finalScore = float32(1.0 + utils.Norm(score/count,0.2))
-							rankInfo.AddRecommend("UserPictureTagInteract", finalScore)
+							rankInfo.AddRecommend("UserPictureTagInteract", 1.2)
 							recommend+=1
 						}
 					}
