@@ -575,7 +575,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 						if count > 0.0 && score > 0.0 {
 							var finalScore = float32(1.0 + utils.Norm(score/count,0.2))
 							rankInfo.AddRecommend("UserPictureTagInteract", finalScore)
-							log.Warnf("picture add weight is success")
+							log.Warnf("picture add weight is success%s",finalScore)
 							recommend+=1
 						}
 					}
