@@ -562,6 +562,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 						var count float64 = 0.0
 						for _, tag := range dataInfo.MomentProfile.ShuMeiLabels {
 							if userTag, ok := pictureTagMap[tag]; ok && userTag != nil {
+								log.Warnf("user picture tag map is %s,%s",userTag,tag)
 								if behavior.LabelConvert(tag) != "" {
 									rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
 									hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
