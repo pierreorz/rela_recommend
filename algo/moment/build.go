@@ -413,8 +413,10 @@ func DoBuildData(ctx algo.IContext) error {
 						if custom == "hot" {
 							userId = -999999999
 							go func() {
-								userCurrent.CustomSort = custom
-								_ = userCache.UpdateUser(userCurrent)
+								if userCurrent!=nil{
+									userCurrent.CustomSort = custom
+									_ = userCache.UpdateUser(userCurrent)
+								}
 							}()
 						}
 						recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
