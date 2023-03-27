@@ -1068,7 +1068,7 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 			if strings.Contains(dataInfo.MomentCache.MomentsType, "live")&&rankInfo.IsSoftTop ==1&&haveSoft==0{
 				haveSoft=1
 			}
-			if rankInfo.IsFollow==1||rankInfo.IsBussiness==1{
+			if rankInfo.IsFollow==1||rankInfo.IsBussiness==1||rankInfo.IsSocial==1{
 				w9=0.2
 			}
 			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil&&rankInfo.IsSoftTop ==0 { //非置顶直播日志  //非软置顶直播日志
