@@ -860,8 +860,9 @@ func DoBuildData(ctx algo.IContext) error {
 						isBlindMom = val
 					}
 				}
-				if concernsSet.Contains(mom.Moments.UserId) {
-					isBussiness = 1
+				var isFollow = 0
+				if concernsSet.Contains(mom.Moments.UserId) {//用户是否关注主播
+					isFollow = 1
 				}
 				if recMap != nil {
 					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
@@ -888,7 +889,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
 					LiveContentProfile:   liveContentProfileMap[mom.Moments.UserId],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness,IsFollow:isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],
