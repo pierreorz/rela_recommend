@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	utils2 "rela_search/utils"
 	"strings"
 	"time"
 
@@ -214,6 +215,17 @@ func (user *UserProfile) IsVipHiding() bool {
 		return true
 	}
 	return false
+}
+
+func (user *UserProfile) Distance(lat, lng float64) float64 {
+	if (user.Location.Lat == 0.) || (user.Location.Lon == 0.) {
+		return math.Inf(1)
+	}
+	return utils2.GeoDistance(user.Location.Lat, user.Location.Lon, lat, lng)
+}
+
+func (user *UserProfile) IsActive(secondSince int64) bool {
+	return time.Now().Unix()-user.LastUpdateTime <= secondSince
 }
 
 func (user *UserProfile) IsVipHidingMom() bool {

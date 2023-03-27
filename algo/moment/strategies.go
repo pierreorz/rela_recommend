@@ -16,17 +16,16 @@ import (
 	"time"
 )
 
-const(
-	Android = "is_android"
-	All = "all"
-	NotVip = "not_vip"
-	IsVip = "is_vip"
-	Ios = "is_ios"
+const (
+	Android     = "is_android"
+	All         = "all"
+	NotVip      = "not_vip"
+	IsVip       = "is_vip"
+	Ios         = "is_ios"
 	FeedRecPage = "moment.recommend"
 )
 
-
-type momLiveSorter   []momLive
+type momLiveSorter []momLive
 type momLive struct {
 	momId int64
 	score float64
@@ -36,9 +35,9 @@ func (a momLiveSorter) Len() int      { return len(a) }
 func (a momLiveSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a momLiveSorter) Less(i, j int) bool { // 按照 score , id 倒序
 	if a[i].score == a[j].score {
-		return a[i].momId>a[j].momId
-	}else{
-		return a[i].score>a[j].score
+		return a[i].momId > a[j].momId
+	} else {
+		return a[i].score > a[j].score
 	}
 }
 
@@ -53,8 +52,6 @@ func DoTimeLevel(ctx algo.IContext, index int) error {
 	}
 	return nil
 }
-
-
 
 // 标签下日志按照7天内日志优先策略
 func MomentLabelDoTimeLevel(ctx algo.IContext, index int) error {
@@ -97,20 +94,18 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error {
 	return nil
 }
 
-
-
 //日志提权策略v2
 func FilterMomDistance(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
-	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours())/24
-	if dataInfo.MomentExtendCache!=nil&&dataInfo.UserCache!=nil{
-		distance := rutils.EarthDistance(float64(ctx.GetRequest().Lng), float64(ctx.GetRequest().Lat), dataInfo.UserCache.Location.Lon, dataInfo.UserCache.Location.Lat)/1000.0
-		if timeLevel<2&&distance>=50{
-			rankInfo.IsTop=-1
-		}//2天内的日志大于50km的过滤掉
-		if timeLevel>=2&&timeLevel<7&&distance>=100{//2-7天内不展示100公里以内的日志
-			rankInfo.IsTop=-1
+	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 24
+	if dataInfo.MomentExtendCache != nil && dataInfo.UserCache != nil {
+		distance := rutils.EarthDistance(float64(ctx.GetRequest().Lng), float64(ctx.GetRequest().Lat), dataInfo.UserCache.Location.Lon, dataInfo.UserCache.Location.Lat) / 1000.0
+		if timeLevel < 2 && distance >= 50 {
+			rankInfo.IsTop = -1
+		} //2天内的日志大于50km的过滤掉
+		if timeLevel >= 2 && timeLevel < 7 && distance >= 100 { //2-7天内不展示100公里以内的日志
+			rankInfo.IsTop = -1
 		}
 	}
 	return nil
@@ -252,7 +247,7 @@ func MomLabelAddWeight(ctx algo.IContext, index int) error {
 	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 	rankInfo := dataInfo.GetRankInfo()
 	labelScore := ctx.GetAbTest().GetFloat("label_score", 1.1)
-	if dataInfo.MomentCache!=nil{
+	if dataInfo.MomentCache != nil {
 		if dataInfo.MomentCache.MomentsExt.TagList != "" {
 			rankInfo.AddRecommend("labelMomWeight", labelScore)
 		}
@@ -427,17 +422,15 @@ func UserLiveWeight(ctx algo.IContext) error {
 	return nil
 }
 
-
-
-func MomentContentStrategy(ctx algo.IContext) error{
-	userInfo :=ctx.GetUserInfo().(*UserInfo)
+func MomentContentStrategy(ctx algo.IContext) error {
+	userInfo := ctx.GetUserInfo().(*UserInfo)
 	abtest := ctx.GetAbTest()
-	var max =abtest.GetInt("offline_tag_max",3)
-	var recommend1 =0
-	var recommend2 =0
-	if userInfo.UserContentProfile!=nil{
-		momContentPref :=userInfo.UserContentProfile.PicturePref
-		for index :=0 ;index< ctx.GetDataLength();index++{
+	var max = abtest.GetInt("offline_tag_max", 3)
+	var recommend1 = 0
+	var recommend2 = 0
+	if userInfo.UserContentProfile != nil {
+		momContentPref := userInfo.UserContentProfile.PicturePref
+		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if dataInfo.MomentContentProfile != nil {
@@ -459,21 +452,21 @@ func MomentContentStrategy(ctx algo.IContext) error{
 							}
 						}
 					}
-					if score>0{
-						rankInfo.AddRecommend("Momcontent",1+0.3*utils.Expit(score))
-						recommend1+=1
+					if score > 0 {
+						rankInfo.AddRecommend("Momcontent", 1+0.3*utils.Expit(score))
+						recommend1 += 1
 					}
-					if personPref>0&&facePref>0{
-						if facePref/personPref>0.95{
-							rankInfo.AddRecommend("faceup",1.2)
-							recommend2+=1
-						}else if facePref/personPref<0.7{
-							rankInfo.AddRecommend("facedown",0.8)
+					if personPref > 0 && facePref > 0 {
+						if facePref/personPref > 0.95 {
+							rankInfo.AddRecommend("faceup", 1.2)
+							recommend2 += 1
+						} else if facePref/personPref < 0.7 {
+							rankInfo.AddRecommend("facedown", 0.8)
 						}
 					}
 				}
 			}
-			if recommend2>=3&&recommend1>=max{
+			if recommend2 >= 3 && recommend1 >= max {
 				break
 			}
 		}
@@ -545,7 +538,7 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 	var err error
 	var currTime = float64(ctx.GetCreateTime().Unix())
 	var abtest = ctx.GetAbTest()
-	var max =abtest.GetInt("user_picture_tag_max",3)
+	var max = abtest.GetInt("user_picture_tag_max", 3)
 	var userInfo = ctx.GetUserInfo().(*UserInfo)
 	if userInfo.UserBehavior != nil {
 		userInteract := userInfo.UserBehavior.GetMomentListInteract()
@@ -571,10 +564,10 @@ func UserPictureInteractStrategyFunc(ctx algo.IContext) error {
 						}
 						if count > 0.0 && score > 0.0 {
 							rankInfo.AddRecommend("UserPictureTagInteract", 1.2)
-							recommend+=1
+							recommend += 1
 						}
 					}
-					if recommend>=max{
+					if recommend >= max {
 						break
 					}
 				}
@@ -612,7 +605,7 @@ func UserMomTagInteractStrategyFunc(ctx algo.IContext) error {
 								}
 							}
 							if count > 0.0 && score > 0.0 {
-								var finalScore = float32(1.0 + utils.Norm(score/count,0.2))
+								var finalScore = float32(1.0 + utils.Norm(score/count, 0.2))
 								rankInfo.AddRecommend("UserMomTagInteract", finalScore)
 								recommend += 1
 							}
@@ -648,13 +641,13 @@ func UserBehaviorInteractStrategyFunc(ctx algo.IContext) error {
 						if userTag, ok := tagMap[tag.Id]; ok && userTag != nil && tag.Id != 23 {
 							rate := math.Max(math.Min(userTag.Count/userInteract.Count, 1.0), 0.0)
 							hour := math.Max(currTime-userTag.LastTime, 0.0) / (60 * 60)
-							score += utils.ExpLogit(rate) *  math.Exp(-hour)
+							score += utils.ExpLogit(rate) * math.Exp(-hour)
 							count += 1.0
 							//log.Debugf("UserBehaviorInteractStrategyFunc:%d,rate:%f,hour:%f,score:%f,count:%f,userTag:%s", tag.Id, rate, hour, score, count,userTag)
 						}
 					}
 					if count > 0.0 && score > 0.0 {
-						var finalScore = float32(1.0 + utils.Norm(score/count,0.2))
+						var finalScore = float32(1.0 + utils.Norm(score/count, 0.2))
 						rankInfo.AddRecommend("UserTagInteract", finalScore)
 					}
 				}
@@ -722,15 +715,15 @@ func increaseEventExpose(ctx algo.IContext) error {
 }
 
 func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
-	var ua = ctx.GetRequest().GetUa()  //ios,android,other
+	var ua = ctx.GetRequest().GetUa() //ios,android,other
 
 	userInfo := ctx.GetUserInfo().(*UserInfo)
-	var isVip=0
-	if userInfo!=nil{
-		isVip=userInfo.UserCache.IsVip
+	var isVip = 0
+	if userInfo != nil {
+		isVip = userInfo.UserCache.IsVip
 	}
-	log.Warnf("vip type %s",ctx.GetRequest().GetUa())
-	log.Warnf("version %s",ctx.GetRequest().GetVersion())
+	log.Warnf("vip type %s", ctx.GetRequest().GetUa())
+	log.Warnf("version %s", ctx.GetRequest().GetVersion())
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
@@ -738,19 +731,19 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
 			if aroundAd := adLocation.MomentAround; aroundAd != nil {
 				var userType = dataInfo.MomentCache.MomentsExt.UserType
 				var jumpType = dataInfo.MomentCache.MomentsExt.JumpType
-				if (userType==IsVip&&isVip==1)||(userType==NotVip&&isVip==0)||(strings.Contains(userType,ua))||(userType==All)||(userType==""){
+				if (userType == IsVip && isVip == 1) || (userType == NotVip && isVip == 0) || (strings.Contains(userType, ua)) || (userType == All) || (userType == "") {
 					userBehavior := dataInfo.UserItemBehavior
 					var count = 0.0
 					if userBehavior != nil {
 						count = userBehavior.GetAroundExposure().Count
 					}
-					log.Warnf("can exposure %s",AdCanExposure(ctx, aroundAd, count,jumpType))
+					log.Warnf("can exposure %s", AdCanExposure(ctx, aroundAd, count, jumpType))
 
-					if AdCanExposure(ctx, aroundAd, count,jumpType) {
-						if aroundAd.Index==0{
-							rankInfo.IsTop=1
-						}else{
-							rankInfo.HopeIndex=aroundAd.Index
+					if AdCanExposure(ctx, aroundAd, count, jumpType) {
+						if aroundAd.Index == 0 {
+							rankInfo.IsTop = 1
+						} else {
+							rankInfo.HopeIndex = aroundAd.Index
 						}
 					}
 				}
@@ -762,8 +755,6 @@ func adLocationAroundExposureThresholdItemFunc(ctx algo.IContext) error {
 
 	return nil
 }
-
-
 
 //func adLocationAroundExposureThresholdFunc(ctx algo.IContext) error {
 //	var adMapIndex = make(map[int64]int, 0)
@@ -826,8 +817,8 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 		if rankInfo.IsSoftTop == 1 {
 			if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.GetRecExposure().Count < 1 {
 				//if !strings.Contains(dataInfo.MomentCache.MomentsType,"live"){//过滤直播日志
-					softTopId = dataInfo.MomentCache.Id
-					isSoftTop = 1
+				softTopId = dataInfo.MomentCache.Id
+				isSoftTop = 1
 				//}
 			}
 		}
@@ -847,13 +838,13 @@ func adLocationRecExposureThresholdFunc(ctx algo.IContext) error {
 			if recAd := adLocation.MomentRecommend; recAd != nil {
 				var userType = dataInfo.MomentCache.MomentsExt.UserType
 				var jumpType = dataInfo.MomentCache.MomentsExt.JumpType
-				if (userType==IsVip&&isVip==1)||(userType==NotVip&&isVip==0)||(strings.Contains(userType,ua))||(userType==All)||(userType==""){
+				if (userType == IsVip && isVip == 1) || (userType == NotVip && isVip == 0) || (strings.Contains(userType, ua)) || (userType == All) || (userType == "") {
 					userBehavior := dataInfo.UserItemBehavior
 					var count = 0.0
 					if userBehavior != nil {
 						count = userBehavior.GetRecExposure().Count
 					}
-					if AdCanExposure(ctx, recAd, count,jumpType) {
+					if AdCanExposure(ctx, recAd, count, jumpType) {
 						if recAd.Index < isTop+isSoftTop {
 							rankInfo.HopeIndex = isSoftTop + isTop
 						} else {
@@ -981,20 +972,20 @@ func adHopeIndexStrategyFunc(ctx algo.IContext) error {
 	return nil
 }
 
-func  LiveMomAddWeightFunc(ctx algo.IContext) error{
+func LiveMomAddWeightFunc(ctx algo.IContext) error {
 	liveArrMap := make(map[int64]int, 0)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-		if strings.Contains(dataInfo.MomentCache.MomentsType, "live"){
-			liveArrMap[dataInfo.DataId]=1
+		if strings.Contains(dataInfo.MomentCache.MomentsType, "live") {
+			liveArrMap[dataInfo.DataId] = 1
 		}
 	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
-			if !strings.Contains(dataInfo.MomentCache.MomentsType, "live"){
-				if _,isOk :=liveArrMap[dataInfo.MomentCache.Id];isOk{
+			if !strings.Contains(dataInfo.MomentCache.MomentsType, "live") {
+				if _, isOk := liveArrMap[dataInfo.MomentCache.Id]; isOk {
 					rankInfo.AddRecommend("liveMomAddWeight", 1.1)
 				}
 			}
@@ -1018,7 +1009,7 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 		}
 	}
 	//对每个数组打散
-	if len(liveArr)>0{
+	if len(liveArr) > 0 {
 		liveArrMap = Shuffle(liveArr)
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
@@ -1031,28 +1022,28 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 	return nil
 }
 
-func liveRecommendStrategyFunc(ctx algo.IContext) error{
+func liveRecommendStrategyFunc(ctx algo.IContext) error {
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	abtest := ctx.GetAbTest()
-	haveSoft :=0
-	interval :=abtest.GetInt("live_interval_index",7)
-	liveId :=abtest.GetString("live_id_list","101194911,113286647,112451050")
-	w1 :=0.0
-	w2 :=0.0
-	w3 :=0.0
-	w4 :=0.0
-	w5 :=0.0
-	w6 :=0.0
-	w7 :=0.0
-	w8 :=0.0
-	label :=0
-	blindWeight :=abtest.GetFloat64("blind_weight",0.2)
-	var res =momLiveSorter{}
-	sortIds :=make(map[int64]int,0)
-	if userInfo.UserCache!=nil{
+	haveSoft := 0
+	interval := abtest.GetInt("live_interval_index", 7)
+	liveId := abtest.GetString("live_id_list", "101194911,113286647,112451050")
+	w1 := 0.0
+	w2 := 0.0
+	w3 := 0.0
+	w4 := 0.0
+	w5 := 0.0
+	w6 := 0.0
+	w7 := 0.0
+	w8 := 0.0
+	label := 0
+	blindWeight := abtest.GetFloat64("blind_weight", 0.2)
+	var res = momLiveSorter{}
+	sortIds := make(map[int64]int, 0)
+	if userInfo.UserCache != nil {
 		hourInterval := int(ctx.GetCreateTime().Sub(userInfo.UserCache.CreateTime.Time).Hours()) / 24
-		if hourInterval<=1||userInfo.UserCache.Age>=30||!(userInfo.UserCache.InChina()){
-			label=1
+		if hourInterval <= 1 || userInfo.UserCache.Age >= 30 || !(userInfo.UserCache.InChina()) {
+			label = 1
 		}
 
 	}
@@ -1063,98 +1054,98 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error{
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
-			if strings.Contains(dataInfo.MomentCache.MomentsType, "live")&&rankInfo.IsSoftTop ==1&&haveSoft==0{
-				haveSoft=1
+			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsSoftTop == 1 && haveSoft == 0 {
+				haveSoft = 1
 			}
-			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil&&rankInfo.IsSoftTop ==0 { //非置顶直播日志  //非软置顶直播日志
-			    var mom momLive
-			    mom.momId = dataInfo.MomentCache.Id
+			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 && dataInfo.MomentCache != nil && rankInfo.IsSoftTop == 0 { //非置顶直播日志  //非软置顶直播日志
+				var mom momLive
+				mom.momId = dataInfo.MomentCache.Id
 
-				if live := dataInfo.LiveContentProfile; live != nil {//必须有主播相关的画像
+				if live := dataInfo.LiveContentProfile; live != nil { //必须有主播相关的画像
 					//新用户不管
-					if dataInfo.MomentCache.MomentsType=="live"{//日志类型得分，视频直播类型占0.65分
-						w1 =0.6
-					}else{
-						w1 =0.4
+					if dataInfo.MomentCache.MomentsType == "live" { //日志类型得分，视频直播类型占0.65分
+						w1 = 0.6
+					} else {
+						w1 = 0.4
 					}
-					w2 =live.LiveContentScore//直播内容得分
-					w3 =live.LiveValueScore //直播价值得分
-					if user :=userInfo.UserLiveContentProfile;user!=nil{
-						if user.WantRole+live.Role==1{//角色属性相关
-							w4 =1
+					w2 = live.LiveContentScore //直播内容得分
+					w3 = live.LiveValueScore   //直播价值得分
+					if user := userInfo.UserLiveContentProfile; user != nil {
+						if user.WantRole+live.Role == 1 { //角色属性相关
+							w4 = 1
 						}
-						if pref,isOk :=user.UserLivePref[dataInfo.MomentCache.UserId];isOk{
-							w5 =pref
+						if pref, isOk := user.UserLivePref[dataInfo.MomentCache.UserId]; isOk {
+							w5 = pref
 						}
 					}
 				}
-				if rankInfo.IsBlindMom==2&&label==1{
-					w6=0.2
-				}else if rankInfo.IsBlindMom==1{
-					w6=0
-					w7=1
+				if rankInfo.IsBlindMom == 2 && label == 1 {
+					w6 = 0.2
+				} else if rankInfo.IsBlindMom == 1 {
+					w6 = 0
+					w7 = 1
 				}
-				if ctx.GetCreateTime().Hour()>=0 && ctx.GetCreateTime().Hour()<=4{
-					if strings.Contains(liveId,strconv.FormatInt(dataInfo.MomentCache.UserId, 10)){
-						w8=0.3
+				if ctx.GetCreateTime().Hour() >= 0 && ctx.GetCreateTime().Hour() <= 4 {
+					if strings.Contains(liveId, strconv.FormatInt(dataInfo.MomentCache.UserId, 10)) {
+						w8 = 0.3
 					}
 				}
-				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)*w7+w6+w8
-				mom.score=score
-				res=append(res, mom)
+				score := utils.Norm(w1, 1)*0.3 + utils.Norm(w2, 1)*0.2 + utils.Norm(w3, 1)*0.1 + utils.Norm(w4, 1)*0.1 + utils.Norm(w5, 1)*0.3 + blindWeight*float64(rankInfo.IsBlindMom)*w7 + w6 + w8
+				mom.score = score
+				res = append(res, mom)
 			}
 		}
 	}
 	sort.Sort(res)
-	for index,mom :=range res{
+	for index, mom := range res {
 		sortIds[mom.momId] = index
 	}
-	for index:=0;index<ctx.GetDataLength();index++{
+	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if sortIndex,ok :=sortIds[dataInfo.DataId];ok{//运营推荐主播每隔5位随机进行展示
-			rankInfo.HopeIndex=(sortIndex+haveSoft)*(interval-1)+GenerateRangeNum(1,interval)
+		if sortIndex, ok := sortIds[dataInfo.DataId]; ok { //运营推荐主播每隔5位随机进行展示
+			rankInfo.HopeIndex = (sortIndex+haveSoft)*(interval-1) + GenerateRangeNum(1, interval)
 		}
 	}
 	return nil
 }
 
-func tagMomStrategyFunc(ctx algo.IContext) error{
-	change :=0
-	for index :=0;index<ctx.GetDataLength();index++{
+func tagMomStrategyFunc(ctx algo.IContext) error {
+	change := 0
+	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
-			if rankInfo.IsTagMom==1{
-				rankInfo.HopeIndex=1
-				change=1
-			}//小时关注标签日志召回
-			if rankInfo.IsTagMom==2{
-				rankInfo.HopeIndex=2+change
-			}//离线关注标签日志召回
+			if rankInfo.IsTagMom == 1 {
+				rankInfo.HopeIndex = 1
+				change = 1
+			} //小时关注标签日志召回
+			if rankInfo.IsTagMom == 2 {
+				rankInfo.HopeIndex = 2 + change
+			} //离线关注标签日志召回
 		}
 	}
 	return nil
 }
 func editRecommendStrategyFunc(ctx algo.IContext) error {
-	recommendArr :=make([]int64,0)
-	recommendArrMap :=make(map[int64]int,0)
-	for index :=0;index<ctx.GetDataLength(); index++{
+	recommendArr := make([]int64, 0)
+	recommendArrMap := make(map[int64]int, 0)
+	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {//没有看过的日志
-			if strings.Contains(rankInfo.ReasonString(),"RECOMMEND")&&! strings.Contains(dataInfo.MomentCache.MomentsType,"live")&&rankInfo.IsSoftTop==0&&rankInfo.IsTop==0{////如果是运营推荐且不为直播日志且非置顶日志且非软置顶日志
-				recommendArr=append(recommendArr,dataInfo.DataId)
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 { //没有看过的日志
+			if strings.Contains(rankInfo.ReasonString(), "RECOMMEND") && !strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsSoftTop == 0 && rankInfo.IsTop == 0 { ////如果是运营推荐且不为直播日志且非置顶日志且非软置顶日志
+				recommendArr = append(recommendArr, dataInfo.DataId)
 			}
 		}
 	}
 	//对每个数组打散
 	recommendArrMap = Shuffle(recommendArr)
-	for index :=0;index<ctx.GetDataLength();index++{
+	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		if sortIndex,ok :=recommendArrMap[dataInfo.DataId];ok{//运营推荐主播每隔5位随机进行展示
-			rankInfo.HopeIndex=sortIndex*5+GenerateRangeNum(1,6)
+		if sortIndex, ok := recommendArrMap[dataInfo.DataId]; ok { //运营推荐主播每隔5位随机进行展示
+			rankInfo.HopeIndex = sortIndex*5 + GenerateRangeNum(1, 6)
 		}
 	}
 	return nil
@@ -1178,7 +1169,7 @@ func topLiveIncreaseExposureFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count <= 1 {
-			if rankInfo.TopLive == 1 && rankInfo.IsTop != 1&&rankInfo.IsSoftTop!=1 {//不可软置顶以及硬置顶
+			if rankInfo.TopLive == 1 && rankInfo.IsTop != 1 && rankInfo.IsSoftTop != 1 { //不可软置顶以及硬置顶
 				rankInfo.HopeIndex = startIndex + interval*liveIndex //位置从1开始，间隔interval
 				liveIndex += 1
 			}
@@ -1221,9 +1212,9 @@ func BussinessExposureFunc(ctx algo.IContext) error {
 }
 func ThemeReplyIndexFunc(ctx algo.IContext) error {
 	rand.Seed(time.Now().UnixNano())
-	var choice = rand.Intn(9)+1
-	var choice1 =[]int64{5,6}
-	var choice2=[]int64{2,3}
+	var choice = rand.Intn(9) + 1
+	var choice1 = []int64{5, 6}
+	var choice2 = []int64{2, 3}
 	var change1 = 0
 	var change2 = 0
 	for index := 0; index < ctx.GetDataLength(); index++ {
@@ -1231,33 +1222,33 @@ func ThemeReplyIndexFunc(ctx algo.IContext) error {
 		rankInfo := dataInfo.GetRankInfo()
 		userItemBehavior := dataInfo.UserItemBehavior
 		if moms := dataInfo.MomentCache; moms != nil {
-			if moms.MomentsType == "themereply" && userItemBehavior == nil&&change1==0{
-				if choice<3{
-					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
-						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
-							rankInfo.HopeIndex=int(RandChoiceOne(choice1))
-							change1+=1
+			if moms.MomentsType == "themereply" && userItemBehavior == nil && change1 == 0 {
+				if choice < 3 {
+					if strings.Contains(rankInfo.RecommendsString(), "RECOMMEND") {
+						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours() < 24 {
+							rankInfo.HopeIndex = int(RandChoiceOne(choice1))
+							change1 += 1
 						}
 					}
-				}else if choice>2&&choice<9{
-					if !strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
-						rankInfo.HopeIndex=int(RandChoiceOne(choice1))
-						change1+=1
+				} else if choice > 2 && choice < 9 {
+					if !strings.Contains(rankInfo.RecommendsString(), "RECOMMEND") {
+						rankInfo.HopeIndex = int(RandChoiceOne(choice1))
+						change1 += 1
 					}
 				}
 			}
-			if moms.MomentsType=="theme" && userItemBehavior==nil &&change2==0{
-				if choice<3{
-					if strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
-						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()<24{
-							rankInfo.HopeIndex=int(RandChoiceOne(choice2))
-							change2+=1
+			if moms.MomentsType == "theme" && userItemBehavior == nil && change2 == 0 {
+				if choice < 3 {
+					if strings.Contains(rankInfo.RecommendsString(), "RECOMMEND") {
+						if ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours() < 24 {
+							rankInfo.HopeIndex = int(RandChoiceOne(choice2))
+							change2 += 1
 						}
 					}
-				}else if choice>2&&choice<9{
-					if !strings.Contains(rankInfo.RecommendsString(),"RECOMMEND"){
-						rankInfo.HopeIndex=int(RandChoiceOne(choice2))
-						change2+=1
+				} else if choice > 2 && choice < 9 {
+					if !strings.Contains(rankInfo.RecommendsString(), "RECOMMEND") {
+						rankInfo.HopeIndex = int(RandChoiceOne(choice2))
+						change2 += 1
 					}
 				}
 			}
@@ -1297,13 +1288,13 @@ func RandChoiceOne(list []int64) int64 {
 	return 0
 }
 
-func Shuffle(list []int64) map[int64]int{
-	result :=make(map[int64]int,0)
+func Shuffle(list []int64) map[int64]int {
+	result := make(map[int64]int, 0)
 	if list != nil && len(list) > 0 {
 		rand.Seed(time.Now().UnixNano())
 		rand.Shuffle(len(list), func(i, j int) { list[i], list[j] = list[j], list[i] })
-		for index,item :=range list{
-			result[item]=index
+		for index, item := range list {
+			result[item] = index
 		}
 	}
 	return result
@@ -1311,7 +1302,7 @@ func Shuffle(list []int64) map[int64]int{
 
 func GenerateRangeNum(min, max int) int {
 	rand.Seed(time.Now().Unix())
-	randNum := rand.Intn(max - min) + min
+	randNum := rand.Intn(max-min) + min
 	return randNum
 }
 
@@ -1320,22 +1311,22 @@ func AddRecommendReasonFunc(ctx algo.IContext) error {
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
-		moms :=dataInfo.MomentExtendCache
-		if rankInfo.IsBussiness==1{
-			rankInfo.AddRecommendWithType("follow",1,algo.TypeYouFollow)
+		moms := dataInfo.MomentExtendCache
+		if rankInfo.IsBussiness == 1 {
+			rankInfo.AddRecommendWithType("follow", 1, algo.TypeYouFollow)
 		}
-		if moms!=nil{
-			lat :=moms.Lat
-			lng :=moms.Lng
-			if rutils.EarthDistance(float64(params.Lng), float64(params.Lat), lng, lat)<=30000{//少于30km即为附近的人标签
-				if params.Lng>0.0&&params.Lat>0.0&&lng>0.0&&lat>0.0{
-					rankInfo.AddRecommendWithType("nearby",1,algo.TypeNearby)
+		if moms != nil {
+			lat := moms.Lat
+			lng := moms.Lng
+			if rutils.EarthDistance(float64(params.Lng), float64(params.Lat), lng, lat) <= 30000 { //少于30km即为附近的人标签
+				if params.Lng > 0.0 && params.Lat > 0.0 && lng > 0.0 && lat > 0.0 {
+					rankInfo.AddRecommendWithType("nearby", 1, algo.TypeNearbyPost)
 				}
 			}
 		}
-		if dataInfo.ItemOfflineBehavior!=nil{
-			if GetMomentLikeNum(dataInfo.ItemOfflineBehavior.PageMap,"moment.recommend:like","moment.friend:like")>300{
-				rankInfo.AddRecommendWithType("hot",1,algo.TypeHot)
+		if dataInfo.ItemOfflineBehavior != nil {
+			if GetMomentLikeNum(dataInfo.ItemOfflineBehavior.PageMap, "moment.recommend:like", "moment.friend:like") > 300 {
+				rankInfo.AddRecommendWithType("hot", 1, algo.TypeHot)
 			}
 		}
 		//if {
@@ -1345,19 +1336,19 @@ func AddRecommendReasonFunc(ctx algo.IContext) error {
 	return nil
 }
 
-func getFeedRecExposure(pageMap map[string]int) int{
-	result :=0
-	if count,ok :=pageMap[FeedRecPage];ok{
+func getFeedRecExposure(pageMap map[string]int) int {
+	result := 0
+	if count, ok := pageMap[FeedRecPage]; ok {
 		result = count
 	}
 	return result
 }
 
-func GetMomentLikeNum(pageMap map[string]int,names ...string) int{
-	result :=0
+func GetMomentLikeNum(pageMap map[string]int, names ...string) int {
+	result := 0
 	for _, name := range names {
-		if count,ok :=pageMap[name];ok{
-			result+=count
+		if count, ok := pageMap[name]; ok {
+			result += count
 		}
 	}
 	return result
