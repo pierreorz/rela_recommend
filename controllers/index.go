@@ -13,7 +13,6 @@ import (
 	_ "rela_recommend/algo/moment"
 	_ "rela_recommend/algo/moment/coarse"
 	_ "rela_recommend/algo/moment_tag"
-	_ "rela_recommend/algo/ntxl"
 	_ "rela_recommend/algo/theme"
 	_ "rela_recommend/algo/user"
 )

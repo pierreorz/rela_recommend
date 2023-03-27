@@ -82,3 +82,20 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: searchStrategyMap,
 	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
 	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: searchRichStrategyMap})
+
+var ntxlBuilderMap = map[string]algo.IBuilder{
+	"base": &algo.BuilderBase{DoBuild: DoBuildNtxlData},
+}
+var ntxlStrategyMap = map[string]algo.IStrategy{}
+var ntxlRichStrategyMap = map[string]algo.IRichStrategy{}
+
+// 女通讯录
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "user.ntxl", Module: "user", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "base", AlgoMap: nil,
+	BuilderKey: "build", BuilderDefault: "base", BuilderMap: ntxlBuilderMap,
+	SorterKey: "sorter", SorterDefault: "origin", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "origin", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: ntxlStrategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: ntxlRichStrategyMap})
