@@ -9,7 +9,7 @@ import (
 	rutils "rela_recommend/utils"
 )
 
-// 使用威尔逊算法估算内容情况：分值大概在0-0.2之间
+// ItemBehaviorWilsonItemFunc 使用威尔逊算法估算内容情况：分值大概在0-0.2之间
 func ItemBehaviorWilsonItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	abtest := ctx.GetAbTest()
 	dataInfo := iDataInfo.(*DataInfo)
@@ -23,8 +23,8 @@ func ItemBehaviorWilsonItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, ran
 	return nil
 }
 
-// 点击过的内容降权。一小时降50%， 4小时降20%， 12小时降低7%，24小时降低4%
-func UserBehaviorClickedDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+// BehaviorClickedDownItemFunc 点击过的内容降权。一小时降50%， 4小时降20%， 12小时降低7%，24小时降低4%
+func BehaviorClickedDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)
 
 	if userBehavior := dataInfo.UserBehavior; userBehavior != nil {
@@ -39,7 +39,7 @@ func UserBehaviorClickedDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo
 	return nil
 }
 
-// 单用户曝光过多降权
+// ExpoTooMuchDownItemFunc 单用户曝光过多降权
 func ExpoTooMuchDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)
 
@@ -101,7 +101,7 @@ func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 	return nil
 }
 
-// 简单的提权策略
+// SimpleUpperItemFunc 简单的提权策略
 func SimpleUpperItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	abtest := ctx.GetAbTest()
 	dataInfo := iDataInfo.(*DataInfo)
@@ -116,7 +116,7 @@ func SimpleUpperItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *
 	return nil
 }
 
-// 对有头像的用户进行提权
+// CoverFaceUpperItem 对有头像的用户进行提权
 func CoverFaceUpperItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	matchUser := iDataInfo.(*DataInfo)
 	if (matchUser.SearchFields != nil) && (matchUser.SearchFields.CoverHasFace) {
@@ -147,5 +147,41 @@ func WeekExposureNoInteractFunc(ctx algo.IContext) error {
 		}
 	}
 
+	return nil
+}
+
+// NtxlActiveUpWeightFunc 女通讯录活跃加权
+func NtxlActiveUpWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+
+	if userProfile := dataInfo.UserCache; userProfile != nil {
+		if userProfile.IsActive(7 * 86400) {
+			ratio := rutils.GaussDecay(float64(userProfile.ActiveInSeconds()), 0, 30*60, 60)
+			rankInfo.AddRecommendWithType("Active", float32(ratio), algo.TypeActive)
+		}
+	}
+	return nil
+}
+
+// NtxNearbyUpWeightFunc 女通讯录距离近加权
+func NtxNearbyUpWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	if currentUser := ctx.GetUserInfo(); currentUser != nil {
+		if currentUserProfile := currentUser.(*UserInfo).UserCache; currentUserProfile != nil {
+			dataInfo := iDataInfo.(*DataInfo)
+			if userProfile := dataInfo.UserCache; userProfile != nil {
+				ratio := rutils.GaussDecay(userProfile.DistanceToOther(currentUserProfile), 0, 3000, 500)
+				rankInfo.AddRecommendWithType("NearbyUser", float32(ratio), algo.TypeNearbyUser)
+			}
+		}
+	}
+	return nil
+}
+
+// NtxOnLiveWeightFunc 女通讯录直播加权
+func NtxOnLiveWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+	if liveProfile := dataInfo.LiveInfo; liveProfile != nil {
+		rankInfo.AddRecommendWithType("OnLiveUser", 1.1, algo.TypeOnLiveUser)
+	}
 	return nil
 }

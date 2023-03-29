@@ -33,7 +33,7 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	// 根据距离排序
 	"distance_sort":        &strategy.BaseRichStrategy{StrategyItemFunc: SortWithDistanceItem},
 	"wilson_behavior":      &strategy.BaseRichStrategy{StrategyItemFunc: ItemBehaviorWilsonItemFunc},
-	"clicked_down":         &strategy.BaseRichStrategy{StrategyItemFunc: UserBehaviorClickedDownItemFunc},
+	"clicked_down":         &strategy.BaseRichStrategy{StrategyItemFunc: BehaviorClickedDownItemFunc},
 	"simple_upper":         &strategy.BaseRichStrategy{StrategyItemFunc: SimpleUpperItemFunc, DefaultWeight: 2},
 	"exposure_increase":    &strategy.BaseRichStrategy{StrategyFunc: strategy.ExposureIncreaseFunc, DefaultWeight: 3},
 	"no_interact_decrease": &strategy.BaseRichStrategy{StrategyFunc: strategy.NoInteractDecreaseFunc, DefaultWeight: 3},
@@ -87,7 +87,11 @@ var ntxlBuilderMap = map[string]algo.IBuilder{
 	"base": &algo.BuilderBase{DoBuild: DoBuildNtxlData},
 }
 var ntxlStrategyMap = map[string]algo.IStrategy{}
-var ntxlRichStrategyMap = map[string]algo.IRichStrategy{}
+var ntxlRichStrategyMap = map[string]algo.IRichStrategy{
+	"on_live": &strategy.BaseRichStrategy{StrategyItemFunc: NtxOnLiveWeightFunc, DefaultWeight: 2},
+	"nearby":  &strategy.BaseRichStrategy{StrategyItemFunc: NtxNearbyUpWeightFunc, DefaultWeight: 3},
+	"active":  &strategy.BaseRichStrategy{StrategyItemFunc: NtxlActiveUpWeightFunc, DefaultWeight: 1},
+}
 
 // 女通讯录
 var _ = algo.AddAppInfo(&algo.AppInfo{

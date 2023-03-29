@@ -5,8 +5,11 @@ import (
 	"rela_recommend/algo/live"
 	"rela_recommend/factory"
 	"rela_recommend/log"
+	"rela_recommend/models/pika"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
+	"rela_recommend/tasks"
+	"rela_recommend/utils"
 
 	// "rela_recommend/algo/utils"
 	"rela_recommend/models/behavior"
@@ -220,25 +223,40 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 	pf := ctx.GetPerforms()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
-	dataIds := make([]int64, 0)
+	nearbyUsers := make([]int64, 0)
 	userSearchMap := make(map[int64]*search.UserResDataItem, 0)
-	pf.Run("search_nearby", func(*performs.Performs) interface{} {
-		var searchErr error
-		dataIds, userSearchMap, searchErr = search.CallNearUserIdList(params.UserId, params.Lat, params.Lng,
-			0, 2000, "")
-		if searchErr != nil {
-			return searchErr
-		} else {
-			return len(dataIds)
-		}
+	liveUsers := make([]int64, 0)
+	liveMap := make(map[int64]*pika.LiveCache, 0)
+	interactUsers := make([]int64, 0)
+	pf.RunsGo("recall_users", map[string]func(*performs.Performs) interface{}{
+		"nearby_users": func(*performs.Performs) interface{} {
+			var searchErr error
+			nearbyUsers, userSearchMap, searchErr = search.CallNearUserList(params.UserId, params.Lat, params.Lng,
+				0, 2000, "", []string{})
+			if searchErr != nil {
+				return searchErr
+			} else {
+				return len(nearbyUsers)
+			}
+		},
+		"live_users": func(*performs.Performs) interface{} {
+			liveUsers, liveMap = tasks.GetAllCachedLiveUsersAndMap()
+			return len(liveMap)
+		},
+		"interact_users": func(*performs.Performs) interface{} {
+			var err error
+			// TODO
+			return err
+		},
 	})
 
-	var user *redis.UserProfile
+	var dataIds = utils.NewSetInt64FromArrays(nearbyUsers, liveUsers, interactUsers).ToList()
+	var currentUserProfile *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
 	pf.RunsGo("caches", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} {
 			var userCacheErr error
-			user, usersMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
+			currentUserProfile, usersMap, userCacheErr = userCache.QueryByUserAndUsersMap(params.UserId, dataIds)
 			if userCacheErr != nil {
 				return userCacheErr
 			}
@@ -247,7 +265,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId:    params.UserId,
-			UserCache: user,
+			UserCache: currentUserProfile,
 		}
 
 		// 组装被曝光者信息
@@ -258,13 +276,12 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			}
 			if data.DataUserCandidateCanRecommend() {
 				info := &DataInfo{
-					DataId:   dataId,
-					RankInfo: &algo.RankInfo{},
+					DataId:    dataId,
+					RankInfo:  &algo.RankInfo{},
+					UserCache: data,
+					LiveInfo:  liveMap[dataId],
 				}
-				if data.IsActive(1800) {
-					info.RankInfo.AddRecommendWithType("active", 1, algo.TypeActive)
-				}
-				if data.Distance(user.Location.Lat, user.Location.Lon) <= 30000 {
+				if data.Distance(currentUserProfile.Location.Lat, currentUserProfile.Location.Lon) <= 30000 {
 					info.RankInfo.AddRecommendWithType("active", 1.5, algo.TypeNearbyUser)
 				}
 				dataList = append(dataList, info)
