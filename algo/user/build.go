@@ -277,12 +277,9 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			if data.DataUserCandidateCanRecommend() {
 				info := &DataInfo{
 					DataId:    dataId,
-					RankInfo:  &algo.RankInfo{},
+					RankInfo:  &algo.RankInfo{Score: 1.},
 					UserCache: data,
 					LiveInfo:  liveMap[dataId],
-				}
-				if data.Distance(currentUserProfile.Location.Lat, currentUserProfile.Location.Lon) <= 30000 {
-					info.RankInfo.AddRecommendWithType("active", 1.5, algo.TypeNearbyUser)
 				}
 				dataList = append(dataList, info)
 			}
