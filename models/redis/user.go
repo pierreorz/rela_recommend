@@ -220,7 +220,7 @@ func (user *UserProfile) ValidLocation() bool {
 	return (user.Location.Lat != 0) && (user.Location.Lon != 0)
 }
 
-func (user *UserProfile) Distance(lat, lng float64) float64 {
+func (user *UserProfile) Distance(lng, lat float64) float64 {
 	if !user.ValidLocation() {
 		return math.Inf(1)
 	}
