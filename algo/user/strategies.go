@@ -166,15 +166,15 @@ func NtxlActiveDecayWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rank
 
 // NtxNearbyDecayWeightFunc 女通讯录距离近加权
 func NtxNearbyDecayWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	currentLat := float64(ctx.GetRequest().Lat)
+	currentLng := float64(ctx.GetRequest().Lng)
 	if currentUser := ctx.GetUserInfo(); currentUser != nil {
-		if currentUserProfile := currentUser.(*UserInfo).UserCache; currentUserProfile != nil {
-			dataInfo := iDataInfo.(*DataInfo)
-			if userProfile := dataInfo.UserCache; userProfile != nil {
-				distance := userProfile.DistanceToOther(currentUserProfile)
-				log.Debugf("current: %+v, data: %+v, distance: %.3f", currentUserProfile, userProfile, distance)
-				ratio := rutils.GaussDecay(distance, 0, 3000, 5000)
-				rankInfo.AddRecommendWithType("NearbyUserDecay", float32(ratio), algo.TypeNearbyUser)
-			}
+		dataInfo := iDataInfo.(*DataInfo)
+		if userProfile := dataInfo.UserCache; userProfile != nil {
+			distance := userProfile.Distance(currentLng, currentLat)
+			log.Debugf("current: %.3f,%.3f, data: %+v, distance: %.3f", currentLng, currentLat, userProfile, distance)
+			ratio := rutils.GaussDecay(distance, 0, 3000, 5000)
+			rankInfo.AddRecommendWithType("NearbyUserDecay", float32(ratio), algo.TypeNearbyUser)
 		}
 	}
 	return nil
