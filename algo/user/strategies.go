@@ -157,7 +157,9 @@ func NtxlActiveDecayWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rank
 	if userProfile := dataInfo.UserCache; userProfile != nil {
 		if userProfile.IsActive(7 * 86400) {
 			ratio := rutils.GaussDecay(float64(userProfile.ActiveInSeconds()), 0, 30*60, 3600)
-			rankInfo.AddRecommendWithType("ActiveDecay", float32(ratio), algo.TypeActive)
+			if ratio > 0 {
+				rankInfo.AddRecommendWithType("ActiveDecay", float32(ratio), algo.TypeActive)
+			}
 		}
 	}
 	return nil
@@ -172,7 +174,9 @@ func NtxNearbyDecayWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankI
 		if userProfile := dataInfo.UserCache; userProfile != nil {
 			distance := userProfile.Distance(currentLng, currentLat)
 			ratio := rutils.GaussDecay(distance, 0, 3000, 5000)
-			rankInfo.AddRecommendWithType("NearbyUserDecay", float32(ratio), algo.TypeNearbyUser)
+			if ratio > 0 {
+				rankInfo.AddRecommendWithType("NearbyUserDecay", float32(ratio), algo.TypeNearbyUser)
+			}
 		}
 	}
 	return nil
