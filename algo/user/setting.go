@@ -89,8 +89,8 @@ var ntxlBuilderMap = map[string]algo.IBuilder{
 var ntxlStrategyMap = map[string]algo.IStrategy{}
 var ntxlRichStrategyMap = map[string]algo.IRichStrategy{
 	"on_live": &strategy.BaseRichStrategy{StrategyItemFunc: NtxOnLiveWeightFunc, DefaultWeight: 2},
-	"nearby":  &strategy.BaseRichStrategy{StrategyItemFunc: NtxNearbyUpWeightFunc, DefaultWeight: 3},
-	"active":  &strategy.BaseRichStrategy{StrategyItemFunc: NtxlActiveUpWeightFunc, DefaultWeight: 1},
+	"nearby":  &strategy.BaseRichStrategy{StrategyItemFunc: NtxNearbyDecayWeightFunc, DefaultWeight: 3},
+	"active":  &strategy.BaseRichStrategy{StrategyItemFunc: NtxlActiveDecayWeightFunc, DefaultWeight: 1},
 }
 
 // 女通讯录

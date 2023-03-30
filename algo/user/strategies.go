@@ -150,27 +150,27 @@ func WeekExposureNoInteractFunc(ctx algo.IContext) error {
 	return nil
 }
 
-// NtxlActiveUpWeightFunc 女通讯录活跃加权
-func NtxlActiveUpWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+// NtxlActiveDecayWeightFunc 女通讯录活跃加权
+func NtxlActiveDecayWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)
 
 	if userProfile := dataInfo.UserCache; userProfile != nil {
 		if userProfile.IsActive(7 * 86400) {
-			ratio := rutils.GaussDecay(float64(userProfile.ActiveInSeconds()), 0, 30*60, 60)
-			rankInfo.AddRecommendWithType("Active", float32(ratio), algo.TypeActive)
+			ratio := rutils.GaussDecay(float64(userProfile.ActiveInSeconds()), 0, 30*60, 3600)
+			rankInfo.AddRecommendWithType("ActiveDecay", float32(ratio), algo.TypeActive)
 		}
 	}
 	return nil
 }
 
-// NtxNearbyUpWeightFunc 女通讯录距离近加权
-func NtxNearbyUpWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+// NtxNearbyDecayWeightFunc 女通讯录距离近加权
+func NtxNearbyDecayWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	if currentUser := ctx.GetUserInfo(); currentUser != nil {
 		if currentUserProfile := currentUser.(*UserInfo).UserCache; currentUserProfile != nil {
 			dataInfo := iDataInfo.(*DataInfo)
 			if userProfile := dataInfo.UserCache; userProfile != nil {
-				ratio := rutils.GaussDecay(userProfile.DistanceToOther(currentUserProfile), 0, 3000, 500)
-				rankInfo.AddRecommendWithType("NearbyUser", float32(ratio), algo.TypeNearbyUser)
+				ratio := rutils.GaussDecay(userProfile.DistanceToOther(currentUserProfile), 0, 3000, 5000)
+				rankInfo.AddRecommendWithType("NearbyUserDecay", float32(ratio), algo.TypeNearbyUser)
 			}
 		}
 	}

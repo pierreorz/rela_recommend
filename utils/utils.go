@@ -26,10 +26,10 @@ import (
 const MAX_INT64 = 9223372036854775807
 
 const (
-	OffTime    = "ER2_L2#EG2#E4"
-	RequestErr = "ER2_L2#EG2#E5"
+	OffTime       = "ER2_L2#EG2#E4"
+	RequestErr    = "ER2_L2#EG2#E5"
 	RecallOffTime = "L7#EG6#E21"
-	RecallOwn = "L7#EG6#E22"
+	RecallOwn     = "L7#EG6#E22"
 )
 
 func FormatKeyInt64(str string, i int64) string {
@@ -45,11 +45,11 @@ func FormatKeyInt64s(keyFormater string, ids []int64) []string {
 	return keys
 }
 
-func ConvertExpId(expId string,recall_expId string) string{
-	result :=""
-	expArr := strings.Split(expId,"_")
-	if len(expArr)==2{
-		return expArr[0]+"_"+recall_expId+"_"+expArr[1]
+func ConvertExpId(expId string, recall_expId string) string {
+	result := ""
+	expArr := strings.Split(expId, "_")
+	if len(expArr) == 2 {
+		return expArr[0] + "_" + recall_expId + "_" + expArr[1]
 	}
 	return result
 }
@@ -313,7 +313,7 @@ func FormatStrToArrString(convertStr, sep string) []string {
 }
 
 func Remove(slice []int64, elems int64) []int64 {
-	for i, _ := range slice {
+	for i := range slice {
 		if slice[i] == elems {
 			slice = append(slice[:i], slice[i+1:]...)
 			return slice
@@ -442,7 +442,7 @@ func GetVersionString(ua string) string {
 
 // 获取版本信息：5.3.6 返回 50306; 5.4 返回 50400
 func GetVersion(ua string) int {
-	var version int = 0
+	var version = 0
 	// theL/5.20.4  matched [[/5.20.4 5 20 4]]
 	if vs := strings.Split(GetVersionString(ua), "."); len(vs) > 0 {
 		// fmt.Printf("\t%s  match: %s \n", ua, strings.Join(vs, ","))
@@ -576,17 +576,15 @@ func MergeMapStringFloat64(maps ...map[string]float64) map[string]float64 {
 	return res
 }
 
-func GaussDecay(x, center, offset, sigma float64) float64 {
+func GaussDecay(x, center, offset, scale float64) float64 {
 	// center 高斯函数中心点
 	// offset 从 center 为中心，为他设置一个偏移量offset覆盖一个范围，在此范围内所有的概率也都是和 center 一样满分
-	// sigma 衰减速率，越大衰减越快，即输出越小
-	if sigma <= 0 {
-		sigma = 0.1
-	}
+	// scale 衰减到0.5时，offset到当前x的差值
 	if math.Abs(x-center) <= offset {
 		x = 0.
 	} else {
 		x = x - center - offset
 	}
+	sigma := -math.Pow(scale, 2) / (2 * math.Log(0.5))
 	return math.Pow(math.E, -math.Pow(x, 2)/(2*math.Pow(sigma, 2)))
 }
