@@ -44,6 +44,7 @@ type responseItem struct {
 	Lat            float64 `json:"lat"`            // 纬度
 	Lng            float64 `json:"lng"`            // 经度
 	LastActiveTime int64   `json:"lastActiveTime"` // 最后活跃时间
+	IsOnLive       bool    `json:"is_on_live"`     // 正在直播
 }
 
 func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
@@ -52,6 +53,9 @@ func (self *DataInfo) GetResponseData(ctx algo.IContext) interface{} {
 		res.Lat = self.UserCache.Location.Lat
 		res.Lng = self.UserCache.Location.Lon
 		res.LastActiveTime = self.UserCache.LastUpdateTime
+	}
+	if self.LiveInfo != nil {
+		res.IsOnLive = true
 	}
 	return res
 }
