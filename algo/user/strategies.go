@@ -155,7 +155,8 @@ func NtxlActiveDecayWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rank
 	dataInfo := iDataInfo.(*DataInfo)
 
 	if userProfile := dataInfo.UserCache; userProfile != nil {
-		if userProfile.IsActive(7 * 86400) {
+		if userProfile.IsActive(1800) {
+			rankInfo.Level = 7
 			ratio := rutils.GaussDecay(float64(userProfile.ActiveInSeconds()), 0, 30*60, 3600)
 			if ratio > 0 {
 				rankInfo.AddRecommendWithType("ActiveDecay", float32(ratio), algo.TypeActive)
