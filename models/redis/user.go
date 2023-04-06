@@ -222,17 +222,17 @@ func (user *UserProfile) ValidLocation() bool {
 
 func (user *UserProfile) Distance(lng, lat float64) float64 {
 	if !user.ValidLocation() {
-		return math.Inf(1)
+		return 6378137.
 	}
 	return utils.EarthDistance(user.Location.Lon, user.Location.Lat, lng, lat)
 }
 
 func (user *UserProfile) DistanceToOther(other *UserProfile) float64 {
 	if !user.ValidLocation() {
-		return math.Inf(1)
+		return 6378137.
 	}
 	if !other.ValidLocation() {
-		return math.Inf(1)
+		return 6378137.
 	}
 	return user.Distance(other.Location.Lon, other.Location.Lat)
 }
