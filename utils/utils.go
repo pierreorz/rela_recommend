@@ -586,5 +586,5 @@ func GaussDecay(x, center, offset, scale float64) float64 {
 		x = x - center - offset
 	}
 	sigma := -math.Pow(scale, 2) / (2 * math.Log(0.5))
-	return math.Pow(math.E, -math.Pow(x, 2)/(2*math.Pow(sigma, 2)))
+	return math.Pow(math.E, -math.Pow(x, 2)/(2*sigma))
 }
