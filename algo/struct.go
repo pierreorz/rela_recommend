@@ -12,8 +12,8 @@ import (
 const (
 	TypeYouFollow = iota // 推荐理由等级，默认情况下值越小越优先展示
 	TypeNearbyUser
-	TypeOnLiveUser
 	TypeActive
+	TypeOnLiveUser
 	TypeNearbyPost
 	TypeHot
 	TypeYouMayLike

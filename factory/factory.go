@@ -219,7 +219,7 @@ func initRpc(cfg *conf.Config) {
 	SearchRpcClient = rpc.NewHttpClient(cfg.Rpc.SearchRpcAddr, time.Millisecond*500)
 	ApiRpcClient = rpc.NewHttpClient(cfg.Rpc.ApiRpcAddr, time.Millisecond*100)
 	ChatRoomRpcClient = rpc.NewHttpClient(cfg.Rpc.ChatRoomRpcAddr, time.Millisecond*2000)
-	AiSearchRpcClient = rpc.NewHttpClient(cfg.Rpc.AiSearchRpcAddr, time.Millisecond*3000)
+	AiSearchRpcClient = rpc.NewHttpClient(cfg.Rpc.AiSearchRpcAddr, time.Millisecond*1000)
 	MomentSearchRpcClient = rpc.NewHttpClient(cfg.Rpc.AiSearchRpcAddr, time.Millisecond*1000)
 	PaiRpcClient = rpc.NewHttpClient(cfg.Rpc.PaiRpcAddr, time.Millisecond*400)
 	PaiRpcRecallClient = rpc.NewHttpClient(cfg.Rpc.PaiRpcRecallAddr, time.Millisecond*150)
