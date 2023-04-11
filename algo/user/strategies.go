@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/algo/base/strategy"
+	"rela_recommend/log"
 	rutils "rela_recommend/utils"
 )
 
@@ -175,6 +176,7 @@ func NtxNearbyDecayWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankI
 		dataInfo := iDataInfo.(*DataInfo)
 		if userProfile := dataInfo.UserCache; userProfile != nil {
 			distance := userProfile.Distance(currentLng, currentLat)
+			log.Debugf("distance %.2f", distance)
 			if distance <= 3000 {
 				rankInfo.AddRecommendWithType("NearbyUser", 1, algo.TypeNearbyUser)
 			}
