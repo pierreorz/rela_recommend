@@ -176,7 +176,7 @@ func NtxNearbyDecayWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankI
 		dataInfo := iDataInfo.(*DataInfo)
 		if userProfile := dataInfo.UserCache; userProfile != nil {
 			distance := userProfile.Distance(currentLng, currentLat)
-			log.Debugf("distance %.2f", distance)
+			log.Debugf("<%d> <%d> distance %.2f", ctx.GetRequest().UserId, dataInfo.DataId, distance)
 			if distance <= 3000 {
 				rankInfo.AddRecommendWithType("NearbyUser", 1, algo.TypeNearbyUser)
 			}
