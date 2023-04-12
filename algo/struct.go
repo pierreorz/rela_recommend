@@ -52,6 +52,30 @@ var allReasonTypes = map[ReasonType]clientReason{
 			En:  "From user you're following",
 		},
 	},
+	TypeVisit: {
+		Type: TypeVisit,
+		Text: &MultiLanguage{
+			Chs: "常看她的主页",
+			Cht: "常看她的主頁",
+			En:  "Frequently visited Her",
+		},
+	},
+	TypeMomentInteract: {
+		Type: TypeYouFollow,
+		Text: &MultiLanguage{
+			Chs: "你们最近经常互动",
+			Cht: "你們最近經常互動",
+			En:  "Frequently Interact",
+		},
+	},
+	TypeWink: {
+		Type: TypeYouFollow,
+		Text: &MultiLanguage{
+			Chs: "你们挤眼过多次",
+			Cht: "你們擠眼過多次",
+			En:  "Frequently Wink",
+		},
+	},
 	TypeNearbyPost: {
 		Type: TypeNearbyPost,
 		Text: &MultiLanguage{
