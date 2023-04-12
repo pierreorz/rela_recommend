@@ -10,12 +10,14 @@ import (
 )
 
 const (
-	TypeYouFollow =iota
-	TypeNearby
+	TypeYouFollow = iota // 推荐理由等级，默认情况下值越小越优先展示
+	TypeNearbyUser
+	TypeActive
+	TypeOnLiveUser
+	TypeNearbyPost
 	TypeHot
 	TypeYouMayLike
-	TypeEmpty  // 推荐理由等级，默认情况下值越小越优先展示
-
+	TypeEmpty
 )
 
 type ReasonType int8
@@ -29,7 +31,6 @@ var allReasonTypes = map[ReasonType]clientReason{
 		Type: TypeYouMayLike,
 		Text: &MultiLanguage{
 			Chs: "你可能感兴趣",
-
 		},
 	},
 	TypeHot: {
@@ -37,7 +38,7 @@ var allReasonTypes = map[ReasonType]clientReason{
 		Text: &MultiLanguage{
 			Chs: "超多点赞",
 			Cht: "超多按贊",
-			En: "From trending posts",
+			En:  "From trending posts",
 		},
 	},
 	TypeYouFollow: {
@@ -45,15 +46,31 @@ var allReasonTypes = map[ReasonType]clientReason{
 		Text: &MultiLanguage{
 			Chs: "你的关注",
 			Cht: "你的關注",
-			En: "From user you're following",
+			En:  "From user you're following",
 		},
 	},
-	TypeNearby: {
-		Type: TypeNearby,
+	TypeNearbyPost: {
+		Type: TypeNearbyPost,
 		Text: &MultiLanguage{
 			Chs: "在你附近",
 			Cht: "在你附近",
-			En: "From nearby posts",
+			En:  "From nearby posts",
+		},
+	},
+	TypeNearbyUser: {
+		Type: TypeNearbyUser,
+		Text: &MultiLanguage{
+			Chs: "她离你很近",
+			Cht: "她離你很近",
+			En:  "Nearby",
+		},
+	},
+	TypeActive: {
+		Type: TypeActive,
+		Text: &MultiLanguage{
+			Chs: "她刚刚活跃过",
+			Cht: "她剛剛活躍過",
+			En:  "Recently Active",
 		},
 	},
 }
@@ -238,11 +255,11 @@ type RankInfo struct {
 	IsBussiness int             //是否是业务日志（用户关注日志、点击头像多次未看过日志）
 	IsBlindMom  int             //是否是多人语音相遇日志
 	IsTagMom    int
-	IsSoftTop   int             //是否软置顶日志   1:是  0：默认
-	ExpId       string          //Pai实验Id
-	RequestId   string          //Pai请求id
-	OffTime     int             //超时标记位
-	IsHourTop   int				//小时top3
+	IsSoftTop   int    //是否软置顶日志   1:是  0：默认
+	ExpId       string //Pai实验Id
+	RequestId   string //Pai请求id
+	OffTime     int    //超时标记位
+	IsHourTop   int    //小时top3
 }
 
 type MultiLanguage struct {
@@ -266,7 +283,7 @@ func (self *RankInfo) GetFeaturesString() string {
 }
 
 func (self *RankInfo) AddRecommend(reason string, score float32) {
-	item := RecommendItem{Reason: reason, Score: score, NeedReturn: false,ClientReason:TypeEmpty}
+	item := RecommendItem{Reason: reason, Score: score, NeedReturn: false, ClientReason: TypeEmpty}
 	self.Recommends = append(self.Recommends, item)
 }
 

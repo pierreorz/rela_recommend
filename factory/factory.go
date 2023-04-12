@@ -68,6 +68,7 @@ var MomentSearchRpcClient *rpc.HttpClient
 var PaiRpcClient *rpc.HttpClient
 var PaiRpcRecallClient *rpc.HttpClient
 var PaiRpcLabelRecClient *rpc.HttpClient
+
 // influxdb
 var InfluxdbClient influxdb2.Client
 
@@ -220,10 +221,10 @@ func initRpc(cfg *conf.Config) {
 	ChatRoomRpcClient = rpc.NewHttpClient(cfg.Rpc.ChatRoomRpcAddr, time.Millisecond*2000)
 	AiSearchRpcClient = rpc.NewHttpClient(cfg.Rpc.AiSearchRpcAddr, time.Millisecond*1000)
 	MomentSearchRpcClient = rpc.NewHttpClient(cfg.Rpc.AiSearchRpcAddr, time.Millisecond*1000)
-	PaiRpcClient =rpc.NewHttpClient(cfg.Rpc.PaiRpcAddr,time.Millisecond*400)
-	PaiRpcRecallClient =rpc.NewHttpClient(cfg.Rpc.PaiRpcRecallAddr,time.Millisecond*150)
+	PaiRpcClient = rpc.NewHttpClient(cfg.Rpc.PaiRpcAddr, time.Millisecond*400)
+	PaiRpcRecallClient = rpc.NewHttpClient(cfg.Rpc.PaiRpcRecallAddr, time.Millisecond*150)
 	LiveRpcClient = rpc.NewHttpClient(cfg.Rpc.LiveRpcAddr, time.Millisecond*2000)
-	PaiRpcLabelRecClient =rpc.NewHttpClient(cfg.Rpc.PaiRpcLabelRecAddr,time.Millisecond*700)
+	PaiRpcLabelRecClient = rpc.NewHttpClient(cfg.Rpc.PaiRpcLabelRecAddr, time.Millisecond*700)
 }
 
 func initSegmenter(cfg *conf.Config) {

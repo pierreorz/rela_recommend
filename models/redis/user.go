@@ -216,6 +216,36 @@ func (user *UserProfile) IsVipHiding() bool {
 	return false
 }
 
+func (user *UserProfile) ValidLocation() bool {
+	return (user.Location.Lat != 0) && (user.Location.Lon != 0)
+}
+
+func (user *UserProfile) Distance(lng, lat float64) float64 {
+	if !user.ValidLocation() {
+		return 6378137.
+	}
+	return utils.EarthDistance(user.Location.Lon, user.Location.Lat, lng, lat)
+}
+
+func (user *UserProfile) DistanceToOther(other *UserProfile) float64 {
+	if !user.ValidLocation() {
+		return 6378137.
+	}
+	if !other.ValidLocation() {
+		return 6378137.
+	}
+	return user.Distance(other.Location.Lon, other.Location.Lat)
+}
+
+// ActiveInSeconds 用户上次活跃距今多少秒
+func (user *UserProfile) ActiveInSeconds() int64 {
+	return time.Now().Unix() - user.LastUpdateTime
+}
+
+func (user *UserProfile) IsActive(secondSince int64) bool {
+	return user.ActiveInSeconds() <= secondSince
+}
+
 func (user *UserProfile) IsVipHidingMom() bool {
 	if user == nil {
 		return false
