@@ -412,3 +412,8 @@ func (this *UserCacheModule) QueryConcernsByUser(userId int64) ([]int64, error) 
 func (this *UserCacheModule) QueryConcernsByUserV1(userId int64) ([]int64, error) {
 	return this.ZmembersInt64List(userId, "user:%d:followers")
 }
+
+
+func (this *UserCacheModule) QuerySocialByUserV1(userId int64) ([]int64, error) {
+	return this.ZmembersInt64List(userId, "user:%d:social")
+}

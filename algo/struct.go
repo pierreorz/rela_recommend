@@ -250,6 +250,8 @@ type RankInfo struct {
 	LiveIndex   int             //热门直播日志的排序
 	TopLive     int             //是否是头部主播的直播日志
 	HopeIndex   int             // 期望排在第几，排序结束后调整
+	IsFollow    int             //是否关注过用户
+	IsSocial    int             //是否有社交关系
 	IsBussiness int             //是否是业务日志（用户关注日志、点击头像多次未看过日志）
 	IsBlindMom  int             //是否是多人语音相遇日志
 	IsTagMom    int

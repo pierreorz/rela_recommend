@@ -1025,22 +1025,23 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 func liveRecommendStrategyFunc(ctx algo.IContext) error {
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	abtest := ctx.GetAbTest()
-	haveSoft := 0
-	interval := abtest.GetInt("live_interval_index", 7)
-	liveId := abtest.GetString("live_id_list", "101194911,113286647,112451050")
-	w1 := 0.0
-	w2 := 0.0
-	w3 := 0.0
-	w4 := 0.0
-	w5 := 0.0
-	w6 := 0.0
-	w7 := 0.0
-	w8 := 0.0
-	label := 0
-	blindWeight := abtest.GetFloat64("blind_weight", 0.2)
-	var res = momLiveSorter{}
-	sortIds := make(map[int64]int, 0)
-	if userInfo.UserCache != nil {
+	haveSoft :=0
+	interval :=abtest.GetInt("live_interval_index",7)
+	liveId :=abtest.GetString("live_id_list","101194911,113286647,112451050")
+	w1 :=0.0
+	w2 :=0.0
+	w3 :=0.0
+	w4 :=0.0
+	w5 :=0.0
+	w6 :=0.0
+	w7 :=0.0
+	w8 :=0.0
+	w9 :=0.0
+	label :=0
+	blindWeight :=abtest.GetFloat64("blind_weight",0.2)
+	var res =momLiveSorter{}
+	sortIds :=make(map[int64]int,0)
+	if userInfo.UserCache!=nil{
 		hourInterval := int(ctx.GetCreateTime().Sub(userInfo.UserCache.CreateTime.Time).Hours()) / 24
 		if hourInterval <= 1 || userInfo.UserCache.Age >= 30 || !(userInfo.UserCache.InChina()) {
 			label = 1
@@ -1051,15 +1052,19 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error {
 		w6 = 0
 		w7 = 0
 		w8 = 0
+		w9 = 0
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
 			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsSoftTop == 1 && haveSoft == 0 {
 				haveSoft = 1
 			}
-			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 && dataInfo.MomentCache != nil && rankInfo.IsSoftTop == 0 { //非置顶直播日志  //非软置顶直播日志
-				var mom momLive
-				mom.momId = dataInfo.MomentCache.Id
+			if rankInfo.IsFollow==1||rankInfo.IsBussiness==1||rankInfo.IsSocial==1{
+				w9=0.2
+			}
+			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 &&dataInfo.MomentCache!=nil&&rankInfo.IsSoftTop ==0 { //非置顶直播日志  //非软置顶直播日志
+			    var mom momLive
+			    mom.momId = dataInfo.MomentCache.Id
 
 				if live := dataInfo.LiveContentProfile; live != nil { //必须有主播相关的画像
 					//新用户不管
@@ -1090,9 +1095,9 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error {
 						w8 = 0.3
 					}
 				}
-				score := utils.Norm(w1, 1)*0.3 + utils.Norm(w2, 1)*0.2 + utils.Norm(w3, 1)*0.1 + utils.Norm(w4, 1)*0.1 + utils.Norm(w5, 1)*0.3 + blindWeight*float64(rankInfo.IsBlindMom)*w7 + w6 + w8
-				mom.score = score
-				res = append(res, mom)
+				score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3+blindWeight*float64(rankInfo.IsBlindMom)*w7+w6+w8+w9
+				mom.score=score
+				res=append(res, mom)
 			}
 		}
 	}

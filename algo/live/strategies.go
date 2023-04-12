@@ -226,7 +226,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 				switch {
 				case distance < 30000:
 					if label==0&&sort!="hot"{
-						rankInfo.HopeIndex = startIndex + intervar*5
+						rankInfo.HopeIndex = startIndex + intervar*3
 						intervar += 1
 						label =1
 					}
@@ -247,7 +247,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 					})
 				case distance >= 30000 && distance < 50000:
 					if label==0&&sort!="hot"{
-						rankInfo.HopeIndex = startIndex + intervar*5
+						rankInfo.HopeIndex = startIndex + intervar*3
 						intervar += 1
 						label =1
 					}
@@ -300,7 +300,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 						level:  level1,
 					})
 					if label==0&&sort!="hot"{
-						rankInfo.HopeIndex = startIndex + intervar*5
+						rankInfo.HopeIndex = startIndex + intervar*3
 						intervar += 1
 					}
 				}

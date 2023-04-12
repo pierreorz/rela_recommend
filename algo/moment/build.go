@@ -352,6 +352,7 @@ func DoBuildData(ctx algo.IContext) error {
 	userLiveMoment := make([]int64, 0)
 	paiResult := make(map[int64]float64, 0)
 	var concernsSet = &utils.SetInt64{}
+	var socialSet = &utils.SetInt64{}
 	var recIds []int64
 	var topMap, recMap, businessMap = map[int64]int{}, map[int64]int{}, map[int64]int{}
 	var liveMap = map[int64]int{}
@@ -707,6 +708,17 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 			return nil
 		},
+		"social": func(*performs.Performs) interface{} { // 获取关注信息
+			if abtest.GetBool("user_social", true) {
+				if social, soErr := redisTheCache.QuerySocialByUserV1(params.UserId); soErr == nil {
+					socialSet = utils.NewSetInt64FromArray(social)
+					return socialSet.Len()
+				} else {
+					return soErr
+				}
+			}
+			return nil
+		},
 		"profile": func(*performs.Performs) interface{} { // 获取用户信息
 			var embeddingCacheErr error
 			momentUserEmbedding, momentUserEmbeddingMap, embeddingCacheErr = userCache.QueryMomentUserProfileByUserAndUsersMap(params.UserId, userIds)
@@ -860,8 +872,13 @@ func DoBuildData(ctx algo.IContext) error {
 						isBlindMom = val
 					}
 				}
-				if concernsSet.Contains(mom.Moments.UserId) {
-					isBussiness = 1
+				var isFollow = 0
+				if concernsSet.Contains(mom.Moments.UserId) {//用户是否关注主播
+					isFollow = 1
+				}
+				var isSocial = 0
+				if socialSet.Contains(mom.Moments.UserId) {//用户是否关注主播
+					isSocial = 1
 				}
 				if recMap != nil {
 					if _, isRecommend := recMap[mom.Moments.Id]; isRecommend {
@@ -888,7 +905,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
 					LiveContentProfile:   liveContentProfileMap[mom.Moments.UserId],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness,IsSocial:isSocial,IsFollow:isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],
