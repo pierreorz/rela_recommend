@@ -265,7 +265,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			if userCacheErr != nil {
 				return userCacheErr
 			}
-			return 1
+			return len(userinfoUserBehavior)
 		},
 		"userinfo_item_behavior": func(*performs.Performs) interface{} {
 			var userCacheErr error
@@ -273,7 +273,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			if userCacheErr != nil {
 				return userCacheErr
 			}
-			return 1
+			return len(userinfoItemBehavior)
 		},
 		"moment_user_behavior": func(*performs.Performs) interface{} {
 			var userCacheErr error
@@ -281,7 +281,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			if userCacheErr != nil {
 				return userCacheErr
 			}
-			return 1
+			return len(momentUserBehavior)
 		},
 		"moment_item_behavior": func(*performs.Performs) interface{} {
 			var userCacheErr error
@@ -289,7 +289,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			if userCacheErr != nil {
 				return userCacheErr
 			}
-			return 1
+			return len(momentItemBehavior)
 		},
 		"message_user_behavior": func(*performs.Performs) interface{} {
 			var userCacheErr error
@@ -297,7 +297,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			if userCacheErr != nil {
 				return userCacheErr
 			}
-			return 1
+			return len(messageUserBehavior)
 		},
 		"message_item_behavior": func(*performs.Performs) interface{} {
 			var userCacheErr error
@@ -305,7 +305,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			if userCacheErr != nil {
 				return userCacheErr
 			}
-			return 1
+			return len(messageItemBehavior)
 		},
 	})
 	pf.Run("build", func(*performs.Performs) interface{} {
