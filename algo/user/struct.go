@@ -31,8 +31,9 @@ type DataInfo struct {
 	RankInfo     *algo.RankInfo
 	SearchFields *search.UserResDataItem
 
-	UserBehavior *behavior.UserBehavior
-	ItemBehavior *behavior.UserBehavior
+	UserItemBehavior     *behavior.UserBehavior
+	BeenUserItemBehavior *behavior.UserBehavior
+	ItemBehavior         *behavior.UserBehavior
 }
 
 func (self *DataInfo) GetDataId() int64 {
@@ -73,5 +74,5 @@ func (self *DataInfo) GetBehavior() *behavior.UserBehavior {
 }
 
 func (self *DataInfo) GetUserBehavior() *behavior.UserBehavior {
-	return self.UserBehavior
+	return self.UserItemBehavior
 }

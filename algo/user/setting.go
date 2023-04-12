@@ -88,9 +88,13 @@ var ntxlBuilderMap = map[string]algo.IBuilder{
 }
 var ntxlStrategyMap = map[string]algo.IStrategy{}
 var ntxlRichStrategyMap = map[string]algo.IRichStrategy{
-	"on_live": &strategy.BaseRichStrategy{StrategyItemFunc: NtxOnLiveWeightFunc, DefaultWeight: 2},
-	"nearby":  &strategy.BaseRichStrategy{StrategyItemFunc: NtxNearbyDecayWeightFunc, DefaultWeight: 3},
-	"active":  &strategy.BaseRichStrategy{StrategyItemFunc: NtxlActiveDecayWeightFunc, DefaultWeight: 1},
+	"on_live":         &strategy.BaseRichStrategy{StrategyItemFunc: NtxOnLiveWeightFunc, DefaultWeight: 2},
+	"nearby":          &strategy.BaseRichStrategy{StrategyItemFunc: NtxNearbyDecayWeightFunc, DefaultWeight: 2},
+	"active":          &strategy.BaseRichStrategy{StrategyItemFunc: NtxlActiveDecayWeightFunc, DefaultWeight: 1},
+	"user_visit":      &strategy.BaseRichStrategy{StrategyItemFunc: NtxlUserPageViewItemFunc, DefaultWeight: 3},
+	"user_wink":       &strategy.BaseRichStrategy{StrategyItemFunc: NtxlUserWinkItemFunc, DefaultWeight: 3},
+	"moment_interact": &strategy.BaseRichStrategy{StrategyItemFunc: NtxlMomentInteractItemFunc, DefaultWeight: 3},
+	"send_message":    &strategy.BaseRichStrategy{StrategyItemFunc: NtxlSendMessageItemFunc, DefaultWeight: 3},
 }
 
 // 女通讯录

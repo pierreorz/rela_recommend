@@ -340,15 +340,15 @@ func GetFeaturesV0(ctx algo.IContext, model algo.IAlgo, idata algo.IDataInfo) *u
 		}
 	}
 	// 该用户对内容实时行为特征
-	if data.UserBehavior != nil {
+	if data.UserItemBehavior != nil {
 		// 点击互动
-		listInteract := data.UserBehavior.GetNearbyListInteract()
+		listInteract := data.UserItemBehavior.GetNearbyListInteract()
 		fs.Add(9010, float32(listInteract.Count))
 		if listInteract.LastTime > 0 {
 			fs.Add(9011, float32(float64(currTime)-listInteract.LastTime))
 		}
 		// 曝光
-		listExposure := data.UserBehavior.GetNearbyListExposure()
+		listExposure := data.UserItemBehavior.GetNearbyListExposure()
 		fs.Add(9012, float32(listExposure.Count))
 		if listExposure.LastTime > 0 {
 			fs.Add(9013, float32(float64(currTime)-listExposure.LastTime))

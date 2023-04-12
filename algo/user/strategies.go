@@ -27,7 +27,7 @@ func ItemBehaviorWilsonItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, ran
 func BehaviorClickedDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)
 
-	if userBehavior := dataInfo.UserBehavior; userBehavior != nil {
+	if userBehavior := dataInfo.UserItemBehavior; userBehavior != nil {
 		interactItem := userBehavior.GetNearbyListInteract()
 		if interactItem.Count > 0 {
 			timeSec := (float64(ctx.GetCreateTime().Unix()) - interactItem.LastTime) / 60.0 / 60.0 // 离最后操作了多少小时
@@ -43,7 +43,7 @@ func BehaviorClickedDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, ra
 func ExpoTooMuchDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)
 
-	if userBehavior := dataInfo.UserBehavior; userBehavior != nil {
+	if userBehavior := dataInfo.UserItemBehavior; userBehavior != nil {
 		exposuresItem := userBehavior.GetNearbyListExposure()
 		expoThreshold := ctx.GetAbTest().GetFloat64("single_expo_threshold", 3.)
 		if exposuresItem.Count >= expoThreshold {
@@ -193,6 +193,83 @@ func NtxOnLiveWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *
 	dataInfo := iDataInfo.(*DataInfo)
 	if liveProfile := dataInfo.LiveInfo; liveProfile != nil {
 		rankInfo.AddRecommendWithType("OnLiveUser", 1.1, algo.TypeOnLiveUser)
+	}
+	return nil
+}
+
+// NtxlUserPageViewItemFunc 主页访问/被访问过
+func NtxlUserPageViewItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+
+	if userItemBehavior := dataInfo.UserItemBehavior; userItemBehavior != nil {
+		interactItem := userItemBehavior.GetUserPageViews()
+		if interactItem.Count > 0 {
+			score := math.Log(interactItem.Count + 1)
+			rankInfo.AddRecommendWithType("view_user_page", float32(score), algo.TypeVisit)
+		}
+	}
+	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
+		interactItem := beenUserItemBehavior.GetUserPageViews()
+		if interactItem.Count > 0 {
+			score := math.Log(interactItem.Count + 1)
+			rankInfo.AddRecommendWithType("been_view_user_page", float32(score), algo.TypeVisit)
+		}
+	}
+	return nil
+}
+
+// NtxlUserWinkItemFunc 主页挤眼/被挤眼
+func NtxlUserWinkItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+
+	if userItemBehavior := dataInfo.UserItemBehavior; userItemBehavior != nil {
+		interactItem := userItemBehavior.GetUserWinks()
+		if interactItem.Count > 0 {
+			score := math.Log(interactItem.Count + 1)
+			rankInfo.AddRecommendWithType("wink_user", float32(score), algo.TypeWink)
+		}
+	}
+	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
+		interactItem := beenUserItemBehavior.GetUserWinks()
+		if interactItem.Count > 0 {
+			score := math.Log(interactItem.Count + 1)
+			rankInfo.AddRecommendWithType("been_wink_user", float32(score), algo.TypeWink)
+		}
+	}
+	return nil
+}
+
+// NtxlMomentInteractItemFunc 日志互动/被互动
+func NtxlMomentInteractItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+
+	if userItemBehavior := dataInfo.UserItemBehavior; userItemBehavior != nil {
+		interactItem := userItemBehavior.GetMomentListInteract()
+		if interactItem.Count > 0 {
+			score := math.Log(interactItem.Count + 1)
+			rankInfo.AddRecommendWithType("moment_interact", float32(score), algo.TypeMomentInteract)
+		}
+	}
+	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
+		interactItem := beenUserItemBehavior.GetMomentListInteract()
+		if interactItem.Count > 0 {
+			score := math.Log(interactItem.Count + 1)
+			rankInfo.AddRecommendWithType("been_moment_interact", float32(score), algo.TypeMomentInteract)
+		}
+	}
+	return nil
+}
+
+// NtxlSendMessageItemFunc 聊天/被聊天降权，女通讯录本身是为了促进聊天，如果双方已经频繁聊天，就没必要在这里曝光了
+func NtxlSendMessageItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+
+	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
+		interactItem := beenUserItemBehavior.GetSendMessages()
+		if interactItem.Count > 0 {
+			decay := rutils.GaussDecay(interactItem.Count, 0., 1, 4)
+			rankInfo.AddRecommend("been_send_msg_decay", float32(decay))
+		}
 	}
 	return nil
 }
