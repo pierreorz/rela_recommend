@@ -230,14 +230,17 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 	liveMap := make(map[int64]*pika.LiveCache, 0)
 	pf.RunsGo("recall_users", map[string]func(*performs.Performs) interface{}{
 		"nearby_users": func(*performs.Performs) interface{} {
-			var searchErr error
-			nearbyUsers, userSearchMap, searchErr = search.CallNearUserList(params.UserId, params.Lat, params.Lng,
-				0, 200, "", []string{})
-			if searchErr != nil {
-				return searchErr
-			} else {
-				return len(nearbyUsers)
+			if ctx.GetAbTest().GetBool("nearby_search_es", true) {
+				var searchErr error
+				nearbyUsers, userSearchMap, searchErr = search.CallNearUserList(params.UserId, params.Lat, params.Lng,
+					0, 200, "", []string{})
+				if searchErr != nil {
+					return searchErr
+				} else {
+					return len(nearbyUsers)
+				}
 			}
+			return 0
 		},
 		"live_users": func(*performs.Performs) interface{} {
 			liveUsers, liveMap = tasks.GetAllCachedLiveUsersAndMap()
