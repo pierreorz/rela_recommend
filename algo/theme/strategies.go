@@ -77,7 +77,7 @@ func UserBehaviorStrategyFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, userb
 			upperRate = -float32(math.Max(listCountScore*listTimeScore, infoCountScore*infoTimeScore))
 
 			if upperRate != 0.0 {
-				rankInfo.AddRecommend("UserBehavior", 1.0+upperRate)
+				rankInfo.AddRecommend("UserItemBehavior", 1.0+upperRate)
 			}
 		}
 	}
@@ -215,6 +215,7 @@ func UserEventThemeWeight(ctx algo.IContext) error {
 	}
 	return nil
 }
+
 //增加广告
 func UserAdTheme(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
@@ -225,13 +226,13 @@ func UserAdTheme(ctx algo.IContext) error {
 		adMap[backtag64] = 1.0
 	}
 	var count int = 0
-	if len(adString) >=1 && len(adMap) > 0 {
+	if len(adString) >= 1 && len(adMap) > 0 {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if _, ok := adMap[dataInfo.DataId]; ok {
-				rankTop:=dataInfo.RankInfo.IsTop
-				if rankTop !=1 {
+				rankTop := dataInfo.RankInfo.IsTop
+				if rankTop != 1 {
 					count += 1
 					rankInfo.HopeIndex = count
 					rankInfo.AddRecommend("adTheme", 1.0)

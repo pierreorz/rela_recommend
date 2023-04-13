@@ -27,17 +27,18 @@ type BehaviorTag struct {
 }
 
 ///    *********picture tags
-type PictureTag struct{
+type PictureTag struct {
 	LastTime float64 `json:"last_time"`
-	Name string `json:"name"`
-	Count float64 `json:"count"`
+	Name     string  `json:"name"`
+	Count    float64 `json:"count"`
 }
 
 type MomTag struct {
 	LastTime float64 `json:"last_time"`
-	Id string `json:"id"`
-	Count float64 `json:"count"`
+	Id       string  `json:"id"`
+	Count    float64 `json:"count"`
 }
+
 func (self *BehaviorTag) Merge(other *BehaviorTag) *BehaviorTag {
 	self.Id = other.Id
 	self.Category = other.Category
@@ -47,23 +48,24 @@ func (self *BehaviorTag) Merge(other *BehaviorTag) *BehaviorTag {
 	return self
 }
 
-func (self *PictureTag) Merge(other *PictureTag) *PictureTag{
-	self.LastTime=math.Max(other.LastTime,self.LastTime)
-	self.Name=other.Name
-	self.Count+=other.Count
+func (self *PictureTag) Merge(other *PictureTag) *PictureTag {
+	self.LastTime = math.Max(other.LastTime, self.LastTime)
+	self.Name = other.Name
+	self.Count += other.Count
 	return self
 }
 
-func (self *MomTag) Merge(other *MomTag) *MomTag{
-	self.LastTime=math.Max(other.LastTime,self.LastTime)
-	self.Id=other.Id
-	self.Count+=other.Count
+func (self *MomTag) Merge(other *MomTag) *MomTag {
+	self.LastTime = math.Max(other.LastTime, self.LastTime)
+	self.Id = other.Id
+	self.Count += other.Count
 	return self
 }
+
 // 排序
 type pictureTagSorter []*PictureTag
 type behaviorTagSorter []*BehaviorTag
-type momTagSorter   []*MomTag
+type momTagSorter []*MomTag
 
 func (a behaviorTagSorter) Len() int      { return len(a) }
 func (a behaviorTagSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
@@ -108,16 +110,16 @@ func (a momTagSorter) Less(i, j int) bool { // 按照 Count , lastTime, Name 倒
 }
 
 type Behavior struct {
-	Count    float64                 `json:"count"`
-	LastTime float64                 `json:"last_time"`
-	LastList []BehaviorItemLog       `json:"last_list"` // 最后操作列表
-	CountMap map[string]*BehaviorTag `json:"count_map"` // 类别对应的标签
-	PictureMap map[string]*PictureTag `json:"picture_map"`
-	MomTagMap map[string]*MomTag   `json:"momTag_map"`
+	Count      float64                 `json:"count"`
+	LastTime   float64                 `json:"last_time"`
+	LastList   []BehaviorItemLog       `json:"last_list"` // 最后操作列表
+	CountMap   map[string]*BehaviorTag `json:"count_map"` // 类别对应的标签
+	PictureMap map[string]*PictureTag  `json:"picture_map"`
+	MomTagMap  map[string]*MomTag      `json:"momTag_map"`
 }
 
 // 获取最后操作dataids列表
-func (self *Behavior) GetLastDataIds() []int64{
+func (self *Behavior) GetLastDataIds() []int64 {
 	ids := utils.SetInt64{}
 	for _, log := range self.LastList {
 		ids.Append(log.DataId)
@@ -133,6 +135,7 @@ func (self *Behavior) GetLastUserIds() []int64 {
 	}
 	return ids.ToList()
 }
+
 //获取最后一次广告曝光数据
 func (self *Behavior) GetLastAdIds() []int64 {
 	ids := utils.SetInt64{}
@@ -157,66 +160,66 @@ func (self *Behavior) GetTopCountTags(category string, n int) []*BehaviorTag {
 	return res
 }
 
-func (self *Behavior)GetTopCountPictureTags(n int)[]*PictureTag{
-	var res =pictureTagSorter{}
-	for key,tag :=range self.PictureMap{
-		if LabelConvert(tag.Name)!=""{
-			res=append(res,self.PictureMap[key])
+func (self *Behavior) GetTopCountPictureTags(n int) []*PictureTag {
+	var res = pictureTagSorter{}
+	for key, tag := range self.PictureMap {
+		if LabelConvert(tag.Name) != "" {
+			res = append(res, self.PictureMap[key])
 		}
 	}
 	sort.Sort(res)
-	if n<len(res){
-		res=res[:n]
+	if n < len(res) {
+		res = res[:n]
 	}
 	return res
 }
 
-func (self *Behavior)GetTopCountMomTags(n int)[]*MomTag{
-	var res =momTagSorter{}
-	for key,tag :=range self.MomTagMap{
-		if len(tag.Id)>0{
-			res=append(res,self.MomTagMap[key])
+func (self *Behavior) GetTopCountMomTags(n int) []*MomTag {
+	var res = momTagSorter{}
+	for key, tag := range self.MomTagMap {
+		if len(tag.Id) > 0 {
+			res = append(res, self.MomTagMap[key])
 		}
 	}
 	sort.Sort(res)
-	if n<len(res){
-		res=res[:n]
+	if n < len(res) {
+		res = res[:n]
 	}
 	return res
 }
 
-func LabelConvert(label string)  string {
-	if utils.StringContains(label,[]string{"burudongwu"}){
+func LabelConvert(label string) string {
+	if utils.StringContains(label, []string{"burudongwu"}) {
 		return "pet"
 	}
-	if utils.StringContains(label,[]string{"dongman"}){
+	if utils.StringContains(label, []string{"dongman"}) {
 		return "dongman"
 	}
-	if utils.StringContains(label,[]string{"biaoqingbao"}){
+	if utils.StringContains(label, []string{"biaoqingbao"}) {
 		return "biaoqingbao"
 	}
-	if utils.StringContains(label,[]string{"jianshen"}){
+	if utils.StringContains(label, []string{"jianshen"}) {
 		return "yundong"
 	}
-	if utils.StringContains(label,[]string{"youxi"}){
+	if utils.StringContains(label, []string{"youxi"}) {
 		return "youxi"
 	}
-	if utils.StringContains(label,[]string{"shaoshumingzufushi","xiaofu","JKzhifu","qizhi"}){
+	if utils.StringContains(label, []string{"shaoshumingzufushi", "xiaofu", "JKzhifu", "qizhi"}) {
 		return "shishang"
 	}
-	if utils.StringContains(label,[]string{"meishi"}){
+	if utils.StringContains(label, []string{"meishi"}) {
 		return "meishi"
 	}
-	if utils.StringContains(label,[]string{"jiejing","ziranfengguang"}){
+	if utils.StringContains(label, []string{"jiejing", "ziranfengguang"}) {
 		return "fengjing"
 	}
 	return ""
 }
-func (self *Behavior) GetTopCountPictureTagsMap(n int) map[string]*PictureTag{
-	tagMap :=map[string]*PictureTag{}
-	tags :=self.GetTopCountPictureTags(n)
-	for i,tag :=range tags {
-		tagMap[tag.Name]=tags[i]
+func (self *Behavior) GetTopCountPictureTagsMap(n int) map[string]*PictureTag {
+	tagMap := map[string]*PictureTag{}
+	tags := self.GetTopCountPictureTags(n)
+	for i, tag := range tags {
+		tagMap[tag.Name] = tags[i]
 	}
 	return tagMap
 }
@@ -230,24 +233,27 @@ func (self *Behavior) GetTopCountTagsMap(category string, n int) map[int64]*Beha
 	return tagMap
 }
 
-func (self *Behavior) GetTopCountMomTagsMap(n int) map[string]*MomTag{
-	tagMap :=map[string]*MomTag{}
-	tags :=self.GetTopCountMomTags(n)
-	for i,tag :=range tags {
-		tagMap[tag.Id]=tags[i]
+func (self *Behavior) GetTopCountMomTagsMap(n int) map[string]*MomTag {
+	tagMap := map[string]*MomTag{}
+	tags := self.GetTopCountMomTags(n)
+	for i, tag := range tags {
+		tagMap[tag.Id] = tags[i]
 	}
 	return tagMap
 }
 
 func (self *Behavior) Merge(other *Behavior) *Behavior {
+	if self == nil {
+		return other
+	}
 	if self.CountMap == nil {
 		self.CountMap = map[string]*BehaviorTag{}
 	}
-	if self.PictureMap==nil{
-		self.PictureMap= map[string]*PictureTag{}
+	if self.PictureMap == nil {
+		self.PictureMap = map[string]*PictureTag{}
 	}
-	if self.MomTagMap==nil{
-		self.MomTagMap=map[string]*MomTag{}
+	if self.MomTagMap == nil {
+		self.MomTagMap = map[string]*MomTag{}
 	}
 	if other != nil {
 		self.Count += other.Count
@@ -260,18 +266,18 @@ func (self *Behavior) Merge(other *Behavior) *Behavior {
 				self.CountMap[categoryName] = other.CountMap[categoryName]
 			}
 		}
-		for label,pictureTag := range other.PictureMap{
-			if current,ok :=self.PictureMap[label];ok{
-				self.PictureMap[label]=current.Merge(pictureTag)
-			}else{
-				self.PictureMap[label]=other.PictureMap[label]
+		for label, pictureTag := range other.PictureMap {
+			if current, ok := self.PictureMap[label]; ok {
+				self.PictureMap[label] = current.Merge(pictureTag)
+			} else {
+				self.PictureMap[label] = other.PictureMap[label]
 			}
 		}
-		for label,momTag := range other.MomTagMap{
-			if current,ok :=self.MomTagMap[label];ok{
-				self.MomTagMap[label]=current.Merge(momTag)
-			}else{
-				self.MomTagMap[label]=other.MomTagMap[label]
+		for label, momTag := range other.MomTagMap {
+			if current, ok := self.MomTagMap[label]; ok {
+				self.MomTagMap[label] = current.Merge(momTag)
+			} else {
+				self.MomTagMap[label] = other.MomTagMap[label]
 			}
 		}
 	}
@@ -286,7 +292,6 @@ func MergeBehaviors(behaviors ...*Behavior) *Behavior {
 	}
 	return res
 }
-
 
 type UserBehavior struct {
 	CacheTime   float64              `json:"cache_time"`   // 缓存时间
@@ -316,6 +321,28 @@ func (self *UserBehavior) Gets(names ...string) *Behavior {
 	return res
 }
 
+func (self *UserBehavior) Merge(other *UserBehavior) *UserBehavior {
+	if self == nil {
+		return other
+	}
+	if self.BehaviorMap == nil {
+		self.BehaviorMap = map[string]*Behavior{}
+	}
+	if other != nil {
+		self.Count += other.Count
+		self.LastTime = math.Max(self.LastTime, other.LastTime)
+		self.CacheTime = math.Max(self.CacheTime, other.CacheTime)
+		for pageName, behaviors := range other.BehaviorMap {
+			if current, ok := self.BehaviorMap[pageName]; ok {
+				self.BehaviorMap[pageName] = current.Merge(behaviors)
+			} else {
+				self.BehaviorMap[pageName] = other.BehaviorMap[pageName]
+			}
+		}
+	}
+	return self
+}
+
 type BehaviorCacheModule struct {
 	redis.CachePikaModule
 	ctx abtest.IAbTestAble
@@ -324,6 +351,14 @@ type BehaviorCacheModule struct {
 // 读取user item相关行为
 func (self *BehaviorCacheModule) QueryUserItemBehaviorMap(module string, userId int64, ids []int64) (map[int64]*UserBehavior, error) {
 	keyFormatter := fmt.Sprintf("behavior:%s:%d:%%d.gz", module, userId)
+	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
+	objs := ress.Interface().(map[int64]*UserBehavior)
+	return objs, err
+}
+
+// QueryBeenUserItemBehaviorMap 读取user item相关别互动行为，
+func (self *BehaviorCacheModule) QueryBeenUserItemBehaviorMap(module string, userId int64, ids []int64) (map[int64]*UserBehavior, error) {
+	keyFormatter := fmt.Sprintf("behavior:%s:%%d:%d.gz", module, userId)
 	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*UserBehavior)
 	return objs, err
@@ -345,8 +380,6 @@ func (self *BehaviorCacheModule) QueryUserBehaviorMap(module string, ids []int64
 	return objs, err
 }
 
-
-
 func NewBehaviorCacheModule(ctx abtest.IAbTestAble) *BehaviorCacheModule {
 	cache := factory.CacheBehaviorRdsBackup
 	cachePika := redis.NewCachePikaModule(ctx, cache)
@@ -355,15 +388,15 @@ func NewBehaviorCacheModule(ctx abtest.IAbTestAble) *BehaviorCacheModule {
 
 // *************************************** 内容行为分数
 type DataBehaviorScore struct {
-	DataId int64   `json:"dataId"` // 数据id
-	Exposure  int   `json:"exposure"`
-	Like       int     `json:"like"`
-	Comment     int     `json:"comment"`
-	LastTime    float64     `json:"lastTime"`
-	FirstTime    float64    `json:"firstTime"`
-	Share       int      `json:"share"`
-	Follow      int      `json:"follow"`
-	Score  float64 `json:"score"`  // 得分
+	DataId    int64   `json:"dataId"` // 数据id
+	Exposure  int     `json:"exposure"`
+	Like      int     `json:"like"`
+	Comment   int     `json:"comment"`
+	LastTime  float64 `json:"lastTime"`
+	FirstTime float64 `json:"firstTime"`
+	Share     int     `json:"share"`
+	Follow    int     `json:"follow"`
+	Score     float64 `json:"score"` // 得分
 }
 
 type DataBehaviorTopList struct {
@@ -373,8 +406,8 @@ type DataBehaviorTopList struct {
 func (self *DataBehaviorTopList) GetTopIdsV2(score float64) []int64 {
 	res := []int64{}
 	for _, topItem := range self.Data {
-		if topItem.Score>score && topItem.Comment<=2{
-			res = append(res,topItem.DataId)
+		if topItem.Score > score && topItem.Comment <= 2 {
+			res = append(res, topItem.DataId)
 		}
 	}
 	return res
@@ -382,14 +415,14 @@ func (self *DataBehaviorTopList) GetTopIdsV2(score float64) []int64 {
 
 func (self *DataBehaviorTopList) GetTopIds(n int) []int64 {
 	res := []int64{}
-	count :=0
+	count := 0
 	for _, topItem := range self.Data {
 		if count >= n {
 			break
 		}
-		if topItem.Comment<2{
+		if topItem.Comment < 2 {
 			res = append(res, topItem.DataId)
-			count +=1
+			count += 1
 		}
 	}
 	return res
@@ -407,20 +440,20 @@ func (self *BehaviorCacheModule) QueryDataBehaviorTop(module string) (*DataBehav
 	}
 }
 
-func (self *BehaviorCacheModule)QueryMateMomUserData (userId []int64) map[int64][]int64 {
+func (self *BehaviorCacheModule) QueryMateMomUserData(userId []int64) map[int64][]int64 {
 	userProfileUserIds := userId
 	userMomMap := make(map[int64][]int64)
 	realtimes, realtimeErr := self.QueryUserBehaviorMap("moment", userProfileUserIds)
 	var userList []int64
 	if realtimeErr == nil {
-		for userId,momProfile:=range realtimes {
+		for userId, momProfile := range realtimes {
 			if momProfile != nil {
-				userList=append(userList,userId)
+				userList = append(userList, userId)
 				countMap := momProfile.BehaviorMap["moment.recommend:exposure"]
 				if countMap != nil {
 					tagMap := countMap.CountMap
-					if tagMap!=nil{
-						for _,v:=range tagMap{
+					if tagMap != nil {
+						for _, v := range tagMap {
 							userMomMap[v.Id] = userList
 						}
 					}

@@ -11,6 +11,9 @@ import (
 
 const (
 	TypeYouFollow = iota // 推荐理由等级，默认情况下值越小越优先展示
+	TypeWink
+	TypeVisit
+	TypeMomentInteract
 	TypeNearbyUser
 	TypeActive
 	TypeOnLiveUser
@@ -47,6 +50,30 @@ var allReasonTypes = map[ReasonType]clientReason{
 			Chs: "你的关注",
 			Cht: "你的關注",
 			En:  "From user you're following",
+		},
+	},
+	TypeVisit: {
+		Type: TypeVisit,
+		Text: &MultiLanguage{
+			Chs: "常看她的主页",
+			Cht: "常看她的主頁",
+			En:  "Frequently visited Her",
+		},
+	},
+	TypeMomentInteract: {
+		Type: TypeYouFollow,
+		Text: &MultiLanguage{
+			Chs: "你们最近经常互动",
+			Cht: "你們最近經常互動",
+			En:  "Frequently Interact",
+		},
+	},
+	TypeWink: {
+		Type: TypeYouFollow,
+		Text: &MultiLanguage{
+			Chs: "你们挤眼过多次",
+			Cht: "你們擠眼過多次",
+			En:  "Frequently Wink",
 		},
 	},
 	TypeNearbyPost: {

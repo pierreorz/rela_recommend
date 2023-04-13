@@ -201,8 +201,8 @@ func DoBuildDataV1(ctx algo.IContext) error {
 					RankInfo:     &algo.RankInfo{},
 					SearchFields: userSearchMap[dataId],
 
-					UserBehavior: userBehaviorMap[dataId],
-					ItemBehavior: itemBehaviorMap[dataId],
+					UserItemBehavior: userBehaviorMap[dataId],
+					ItemBehavior:     itemBehaviorMap[dataId],
 				}
 				dataList = append(dataList, info)
 			}
@@ -222,17 +222,17 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	pf := ctx.GetPerforms()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 
 	nearbyUsers := make([]int64, 0)
 	userSearchMap := make(map[int64]*search.UserResDataItem, 0)
 	liveUsers := make([]int64, 0)
 	liveMap := make(map[int64]*pika.LiveCache, 0)
-	interactUsers := make([]int64, 0)
 	pf.RunsGo("recall_users", map[string]func(*performs.Performs) interface{}{
 		"nearby_users": func(*performs.Performs) interface{} {
 			var searchErr error
 			nearbyUsers, userSearchMap, searchErr = search.CallNearUserList(params.UserId, params.Lat, params.Lng,
-				0, 2000, "", []string{})
+				0, 200, "", []string{})
 			if searchErr != nil {
 				return searchErr
 			} else {
@@ -243,16 +243,13 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			liveUsers, liveMap = tasks.GetAllCachedLiveUsersAndMap()
 			return len(liveMap)
 		},
-		"interact_users": func(*performs.Performs) interface{} {
-			var err error
-			// TODO
-			return err
-		},
 	})
 
-	var dataIds = utils.NewSetInt64FromArrays(nearbyUsers, liveUsers, interactUsers).ToList()
+	var dataIds = utils.NewSetInt64FromArrays(nearbyUsers, liveUsers).ToList()
 	var currentUserProfile *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
+	var userinfoUserBehavior, userinfoItemBehavior, momentUserBehavior, momentItemBehavior, messageUserBehavior,
+		messageItemBehavior map[int64]*behavior.UserBehavior
 	pf.RunsGo("caches", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} {
 			var userCacheErr error
@@ -261,7 +258,56 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 				return userCacheErr
 			}
 			return len(usersMap)
-		}})
+		},
+		"userinfo_user_behavior": func(*performs.Performs) interface{} {
+			var userCacheErr error
+			userinfoUserBehavior, userCacheErr = behaviorCache.QueryUserItemBehaviorMap("userinfo", params.UserId, dataIds)
+			if userCacheErr != nil {
+				return userCacheErr
+			}
+			return len(userinfoUserBehavior)
+		},
+		"userinfo_item_behavior": func(*performs.Performs) interface{} {
+			var userCacheErr error
+			userinfoItemBehavior, userCacheErr = behaviorCache.QueryBeenUserItemBehaviorMap("userinfo", params.UserId, dataIds)
+			if userCacheErr != nil {
+				return userCacheErr
+			}
+			return len(userinfoItemBehavior)
+		},
+		"moment_user_behavior": func(*performs.Performs) interface{} {
+			var userCacheErr error
+			momentUserBehavior, userCacheErr = behaviorCache.QueryUserItemBehaviorMap("moment", params.UserId, dataIds)
+			if userCacheErr != nil {
+				return userCacheErr
+			}
+			return len(momentUserBehavior)
+		},
+		"moment_item_behavior": func(*performs.Performs) interface{} {
+			var userCacheErr error
+			momentItemBehavior, userCacheErr = behaviorCache.QueryBeenUserItemBehaviorMap("moment", params.UserId, dataIds)
+			if userCacheErr != nil {
+				return userCacheErr
+			}
+			return len(momentItemBehavior)
+		},
+		"message_user_behavior": func(*performs.Performs) interface{} {
+			var userCacheErr error
+			messageUserBehavior, userCacheErr = behaviorCache.QueryUserItemBehaviorMap("message", params.UserId, dataIds)
+			if userCacheErr != nil {
+				return userCacheErr
+			}
+			return len(messageUserBehavior)
+		},
+		"message_item_behavior": func(*performs.Performs) interface{} {
+			var userCacheErr error
+			messageItemBehavior, userCacheErr = behaviorCache.QueryBeenUserItemBehaviorMap("message", params.UserId, dataIds)
+			if userCacheErr != nil {
+				return userCacheErr
+			}
+			return len(messageItemBehavior)
+		},
+	})
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId:    params.UserId,
@@ -276,10 +322,12 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			}
 			if data.DataUserCandidateCanRecommend() {
 				info := &DataInfo{
-					DataId:    dataId,
-					RankInfo:  &algo.RankInfo{Score: 1.},
-					UserCache: data,
-					LiveInfo:  liveMap[dataId],
+					DataId:               dataId,
+					RankInfo:             &algo.RankInfo{Score: 1.},
+					UserCache:            data,
+					LiveInfo:             liveMap[dataId],
+					UserItemBehavior:     userinfoUserBehavior[dataId].Merge(momentUserBehavior[dataId]).Merge(messageUserBehavior[dataId]),
+					BeenUserItemBehavior: userinfoItemBehavior[dataId].Merge(momentItemBehavior[dataId]).Merge(messageItemBehavior[dataId]),
 				}
 				dataList = append(dataList, info)
 			}
