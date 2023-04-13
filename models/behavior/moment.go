@@ -38,9 +38,8 @@ package behavior
 
 // 获取总列表曝光
 func (self *UserBehavior) GetMomentListExposure() *Behavior {
-	return self.Gets("moment.friend:exposure", "moment.around:exposure", "moment.recommend:exposure","moment.detail_recommend:exposure","moment.detail:exposure","moment.label:exposure")
+	return self.Gets("moment.friend:exposure", "moment.around:exposure", "moment.recommend:exposure", "moment.detail_recommend:exposure", "moment.detail:exposure", "moment.label:exposure")
 }
-
 
 // 获取总互动行为
 func (self *UserBehavior) GetMomentListInteract() *Behavior {
@@ -50,13 +49,12 @@ func (self *UserBehavior) GetMomentListInteract() *Behavior {
 		"moment.recommend:like", "moment.recommend:comment", "moment.recommend:share", "moment.recommend:follow",
 		"moment.detail:like", "moment.detail:comment", "moment.detail:share", "moment.detail:follow",
 		"moment.detail_recommend:like", "moment.detail_recommend:comment", "moment.detail_recommend:share", "moment.detail_recommend:follow",
-		"moment.label:like", "moment.label:comment", "moment.label:share", "moment.label:follow",
-
+		"moment.label:like", "moment.label:comment", "moment.label:share", "moment.label:follow", "userinfo:comment", "userinfo:like",
 	)
 }
 
 func (self *UserBehavior) GetAroundInteract() *Behavior {
-	return self.Gets("moment.around:like","moment.around:comment")
+	return self.Gets("moment.around:like", "moment.around:comment")
 }
 
 func (self *UserBehavior) GetAroundExposure() *Behavior {
@@ -70,10 +68,11 @@ func (self *UserBehavior) GetRecInteract() *Behavior {
 func (self *UserBehavior) GetRecExposure() *Behavior {
 	return self.Gets("moment.recommend:exposure")
 }
+
 //获取总点击行为
-func (self *UserBehavior) GetMomentListClick() *Behavior{
+func (self *UserBehavior) GetMomentListClick() *Behavior {
 	return self.Gets(
-		"moment.friend:click","moment.around:click","moment.recommend:click","moment.detail:click","moment.detail_recommend:click",
+		"moment.friend:click", "moment.around:click", "moment.recommend:click", "moment.detail:click", "moment.detail_recommend:click",
 	)
 }
 func (self *UserBehavior) GetMomentListRate() float64 {
@@ -87,14 +86,14 @@ func (self *UserBehavior) GetMomentListRate() float64 {
 
 //获取同类型广告"ad.feed,ad.init"
 func (self *UserBehavior) GetAdFeedListExposure() *Behavior {
-	return self.Gets("ad.feed:exposure","ad.feed_recommend:exposure")
+	return self.Gets("ad.feed:exposure", "ad.feed_recommend:exposure")
 }
 
 func (self *UserBehavior) GetAdInitListExposure() *Behavior {
-	return self.Gets("ad.app.init:init","ad.app.init:exposure")
+	return self.Gets("ad.app.init:init", "ad.app.init:exposure")
 }
+
 //获取假装情侣数据message.list:exposure_couple
 func (self *UserBehavior) GetMateListExposure() *Behavior {
 	return self.Gets("message.list:exposure_couple")
 }
-
