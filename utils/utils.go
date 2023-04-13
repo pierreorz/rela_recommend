@@ -237,7 +237,7 @@ func DiscoverUrl(txt string) []string {
 }
 
 func Rand(start, end int) int {
-	if start < end {
+	if start >= end {
 		return 0
 	}
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
