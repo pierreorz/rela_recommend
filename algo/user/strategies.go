@@ -267,7 +267,7 @@ func NtxlSendMessageItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankIn
 	if userItemBehavior := dataInfo.UserItemBehavior; userItemBehavior != nil {
 		interactItem := userItemBehavior.GetSendMessages()
 		if interactItem.Count > 0 {
-			decay := rutils.GaussDecay(interactItem.Count, 0., 1, 4)
+			decay := rutils.GaussDecay(interactItem.Count, 0., 0, 3)
 			rankInfo.AddRecommend("send_msg_decay", float32(decay))
 		}
 	}
@@ -275,7 +275,7 @@ func NtxlSendMessageItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankIn
 	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
 		interactItem := beenUserItemBehavior.GetSendMessages()
 		if interactItem.Count > 0 {
-			decay := rutils.GaussDecay(interactItem.Count, 0., 1, 4)
+			decay := rutils.GaussDecay(interactItem.Count, 0., 0, 3)
 			rankInfo.AddRecommend("been_send_msg_decay", float32(decay))
 		}
 	}
