@@ -264,6 +264,14 @@ func NtxlMomentInteractItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, ran
 func NtxlSendMessageItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)
 
+	if userItemBehavior := dataInfo.UserItemBehavior; userItemBehavior != nil {
+		interactItem := userItemBehavior.GetSendMessages()
+		if interactItem.Count > 0 {
+			decay := rutils.GaussDecay(interactItem.Count, 0., 1, 4)
+			rankInfo.AddRecommend("send_msg_decay", float32(decay))
+		}
+	}
+
 	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
 		interactItem := beenUserItemBehavior.GetSendMessages()
 		if interactItem.Count > 0 {
