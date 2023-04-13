@@ -204,14 +204,14 @@ func NtxlUserPageViewItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankI
 	if userItemBehavior := dataInfo.UserItemBehavior; userItemBehavior != nil {
 		interactItem := userItemBehavior.GetUserPageViews()
 		if interactItem.Count > 0 {
-			score := 1 + math.Log(interactItem.Count+1)
+			score := 1 + math.Log(interactItem.Count/10+1)
 			rankInfo.AddRecommendWithType("view_user_page", float32(score), algo.TypeVisit)
 		}
 	}
 	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
 		interactItem := beenUserItemBehavior.GetUserPageViews()
 		if interactItem.Count > 0 {
-			score := 1 + math.Log(interactItem.Count+1)
+			score := 1 + math.Log(interactItem.Count/10+1)
 			rankInfo.AddRecommendWithType("been_view_user_page", float32(score), algo.TypeVisit)
 		}
 	}
@@ -225,14 +225,14 @@ func NtxlUserWinkItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 	if userItemBehavior := dataInfo.UserItemBehavior; userItemBehavior != nil {
 		interactItem := userItemBehavior.GetUserWinks()
 		if interactItem.Count > 0 {
-			score := 1 + math.Log(interactItem.Count+1)
+			score := 1 + math.Log(interactItem.Count/10+1)
 			rankInfo.AddRecommendWithType("wink_user", float32(score), algo.TypeWink)
 		}
 	}
 	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
 		interactItem := beenUserItemBehavior.GetUserWinks()
 		if interactItem.Count > 0 {
-			score := 1 + math.Log(interactItem.Count+1)
+			score := 1 + math.Log(interactItem.Count/10+1)
 			rankInfo.AddRecommendWithType("been_wink_user", float32(score), algo.TypeWink)
 		}
 	}
@@ -246,14 +246,14 @@ func NtxlMomentInteractItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, ran
 	if userItemBehavior := dataInfo.UserItemBehavior; userItemBehavior != nil {
 		interactItem := userItemBehavior.GetMomentListInteract()
 		if interactItem.Count > 0 {
-			score := 1 + math.Log(interactItem.Count+1)
+			score := 1 + math.Log(interactItem.Count/10+1)
 			rankInfo.AddRecommendWithType("moment_interact", float32(score), algo.TypeMomentInteract)
 		}
 	}
 	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
 		interactItem := beenUserItemBehavior.GetMomentListInteract()
 		if interactItem.Count > 0 {
-			score := 1 + math.Log(interactItem.Count+1)
+			score := 1 + math.Log(interactItem.Count/10+1)
 			rankInfo.AddRecommendWithType("been_moment_interact", float32(score), algo.TypeMomentInteract)
 		}
 	}
