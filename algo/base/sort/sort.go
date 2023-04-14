@@ -27,7 +27,7 @@ func (self SorterBase) Less(i, j int) bool {
 		return ranki.IsTop > rankj.IsTop // IsTop ： 倒序， 是否置顶
 	} else {
 		if ranki.PagedIndex != rankj.PagedIndex { // PagedIndex: 已经被分页展示过的index, 升序排列
-			return ranki.PagedIndex > rankj.PagedIndex
+			return ranki.PagedIndex < rankj.PagedIndex
 		} else {
 			if ranki.Level != rankj.Level {
 				return ranki.Level > rankj.Level // Level : 倒序， 推荐星数
