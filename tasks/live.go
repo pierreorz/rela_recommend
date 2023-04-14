@@ -33,13 +33,18 @@ func GetCachedLiveMap(liveType int) map[int64]*pika.LiveCache {
 	return liveMap
 }
 
-func GetAllCachedLiveUsersAndMap() ([]int64, map[int64]*pika.LiveCache) {
+func GetAllCachedLiveUsersAndMapByRandom(size int) ([]int64, map[int64]*pika.LiveCache) {
 	var liveUsers []int64
 	liveMap := map[int64]*pika.LiveCache{}
 	liveList := GetCachedLiveMapList(-1)
 	for i := range liveList {
-		liveMap[liveList[i].Live.UserId] = &liveList[i]
-		liveUsers = append(liveUsers, liveList[i].Live.UserId)
+		if utils.Rand(0, 10) >= 5 {
+			liveMap[liveList[i].Live.UserId] = &liveList[i]
+			liveUsers = append(liveUsers, liveList[i].Live.UserId)
+		}
+		if len(liveMap) > size {
+			break
+		}
 	}
 	return liveUsers, liveMap
 }

@@ -243,7 +243,8 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			return 0
 		},
 		"live_users": func(*performs.Performs) interface{} {
-			liveUsers, liveMap = tasks.GetAllCachedLiveUsersAndMap()
+			liveListSize := ctx.GetAbTest().GetInt("live_list_size", 5)
+			liveUsers, liveMap = tasks.GetAllCachedLiveUsersAndMapByRandom(liveListSize)
 			return len(liveMap)
 		},
 	})

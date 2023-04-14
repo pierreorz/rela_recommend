@@ -88,6 +88,7 @@ var ntxlBuilderMap = map[string]algo.IBuilder{
 }
 var ntxlStrategyMap = map[string]algo.IStrategy{}
 var ntxlRichStrategyMap = map[string]algo.IRichStrategy{
+	"paged":           &strategy.PagedRichStrategy{DefaultWeight: 1},
 	"on_live":         &strategy.BaseRichStrategy{StrategyItemFunc: NtxOnLiveWeightFunc, DefaultWeight: 2},
 	"nearby":          &strategy.BaseRichStrategy{StrategyItemFunc: NtxNearbyDecayWeightFunc, DefaultWeight: 2},
 	"active":          &strategy.BaseRichStrategy{StrategyItemFunc: NtxlActiveDecayWeightFunc, DefaultWeight: 1},
