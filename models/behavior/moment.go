@@ -69,6 +69,22 @@ func (self *UserBehavior) GetRecExposure() *Behavior {
 	return self.Gets("moment.recommend:exposure")
 }
 
+func(self *UserBehavior) GetMomLiveExposure() *Behavior{
+	return self.Gets("moment.recommend:exposure","moment.around:exposure")
+}
+
+func (self *UserBehavior) GetLiveMomentListRate() float64 {
+	exposure := self.GetMomLiveExposure()
+	interact := self.GetMomLiveClick()
+	if exposure.Count > 0 {
+		return interact.Count / exposure.Count
+	}
+	return 0.0
+}
+
+func(self *UserBehavior) GetMomLiveClick() *Behavior{
+	return self.Gets("moment.recommend:click","moment.around:click","moment.recommend:click_live","moment.around:click_live")
+}
 //获取总点击行为
 func (self *UserBehavior) GetMomentListClick() *Behavior {
 	return self.Gets(

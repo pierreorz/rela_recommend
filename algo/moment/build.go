@@ -686,6 +686,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var userContentProfileMap map[int64]*redis.UserContentProfile
 	var userLiveContentProfileMap map[int64]*redis.UserLiveContentProfile
 	var liveContentProfileMap map[int64]*redis.LiveContentProfile
+	var topLiveScoreMap map[int64]*redis.TopLiveRnk
 	var momentUserEmbeddingMap = map[int64]*redis.MomentUserProfile{}
 	var isVip = 0
 	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
@@ -747,6 +748,11 @@ func DoBuildData(ctx algo.IContext) error {
 			liveContentProfileMap, liveContentProfileErr = userCache.QueryLiveContentProfileByIdsMap(userIds)
 			return liveContentProfileErr
 		},
+		"top_live_rnk":func(*performs.Performs) interface{} {
+			var liveTopRnkErr error
+			topLiveScoreMap,liveTopRnkErr =momentCache.QueryTopLiveMapByIds(userIds)
+			return liveTopRnkErr
+		},
 	})
 
 	preforms.Run("build", func(*performs.Performs) interface{} {
@@ -804,7 +810,10 @@ func DoBuildData(ctx algo.IContext) error {
 			if statusSwitch && mom.Moments.Status != 1 { //状态不为1的过滤
 				continue
 			}
-
+			topLivescore :=0.0
+			if top,ok :=topLiveScoreMap[mom.Moments.UserId];ok{
+				topLivescore = top.Rnk
+			}
 			if mom.Moments.Id > 0 {
 				momUser, _ := usersMap[mom.Moments.UserId]
 				//status=0 禁用用户，status=5 注销用户
@@ -905,7 +914,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
 					LiveContentProfile:   liveContentProfileMap[mom.Moments.UserId],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness,IsSocial:isSocial,IsFollow:isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,LiveScore:topLivescore ,LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness,IsSocial:isSocial,IsFollow:isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],

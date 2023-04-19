@@ -1022,6 +1022,81 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 	return nil
 }
 
+func liveGroupTopRecommendStrategy(ctx algo.IContext) error {     //仅对优秀主播进行曝光
+	abtest := ctx.GetAbTest()
+	var res = momLiveSorter{}
+	interval := abtest.GetInt("live_interval_index", 6)
+	sortIds := make(map[int64]int, 0)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 2 {
+				if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 && dataInfo.MomentCache != nil && rankInfo.IsSoftTop == 0 {
+					if rankInfo.LiveScore>0 {
+						var mom momLive
+						mom.momId = dataInfo.MomentCache.Id
+						mom.score = rankInfo.LiveScore
+						res = append(res, mom)
+
+					}
+
+				} //非置顶直播日志  //非软置顶直播日志
+
+		}
+	}
+	sort.Sort(res)
+	for index, mom := range res {
+		sortIds[mom.momId] = index
+	}
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if sortIndex, ok := sortIds[dataInfo.DataId]; ok { //运营推荐主播每隔5位随机进行展示
+			rankInfo.HopeIndex = (sortIndex)*(interval-1) + GenerateRangeNum(1, interval)
+		}
+	}
+	return nil
+}
+
+
+
+
+
+
+
+func liveGroupRecommendStrategy(ctx algo.IContext) error {     //仅对优秀主播进行曝光
+	abtest := ctx.GetAbTest()
+	var res = momLiveSorter{}
+	interval := abtest.GetInt("live_interval_index", 6)
+	sortIds := make(map[int64]int, 0)
+	ratio := abtest.GetFloat64("live_rec_ratio", 1/350)
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 2 {
+			if dataInfo.ItemBehavior == nil || dataInfo.ItemBehavior.GetLiveMomentListRate() > ratio || dataInfo.ItemBehavior.GetMomLiveExposure().Count < 350 {
+				if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 && dataInfo.MomentCache != nil && rankInfo.IsSoftTop == 0 {
+					var mom momLive
+					mom.momId = dataInfo.MomentCache.Id
+					mom.score = dataInfo.ItemBehavior.GetLiveMomentListRate()
+					res = append(res, mom)
+				} //非置顶直播日志  //非软置顶直播日志
+			}
+		}
+	}
+	sort.Sort(res)
+	for index, mom := range res {
+		sortIds[mom.momId] = index
+	}
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		if sortIndex, ok := sortIds[dataInfo.DataId]; ok { //运营推荐主播每隔5位随机进行展示
+			rankInfo.HopeIndex = (sortIndex)*(interval-1) + GenerateRangeNum(1, interval)
+		}
+	}
+	return nil
+}
 func liveRecommendStrategyFunc(ctx algo.IContext) error {
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	abtest := ctx.GetAbTest()
