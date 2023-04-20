@@ -162,6 +162,11 @@ type MomentContentProfile struct {
 	Id   int64  `json:"moment_id"`
 	Tags string `json:"tags,omitempty"`
 }
+
+type TopLiveRnk struct {
+	UserId int64 `json:"user_id"`
+	Rnk    float64  `json:"score"`
+}
 type MomentsAndExtend struct {
 	Moments        *Moments        `gorm:"column:moments" json:"moments,omitempty"`
 	MomentsExtend  *MomentsExtend  `gorm:"column:moments_extend" json:"momentsExtend,omitempty"`
@@ -322,6 +327,27 @@ func (self *MomentCacheModule) QueryMomentsByIds(ids []int64) ([]MomentsAndExten
 	return objs, err
 }
 
+func (self *MomentCacheModule) QueryTopLiveByIds(ids []int64) ([]TopLiveRnk, error) {
+	keyFormatter := self.ctx.GetAbTest().GetString("moment_cache_key_formatter", "top_live_data_score:%d")
+	ress, err := self.MGetStructs(TopLiveRnk{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs := ress.Interface().([]TopLiveRnk)
+	return objs, err
+}
+
+
+func (self *MomentCacheModule) QueryTopLiveMapByIds(ids []int64) (map[int64]*TopLiveRnk, error) {
+	momsMap := make(map[int64]*TopLiveRnk,0)
+	moms, err := self.QueryTopLiveByIds(ids)
+	if err == nil {
+		for i, mom := range moms {
+				momsMap[mom.UserId] = &moms[i]
+
+		}
+	}
+	return momsMap, err
+}
+
+
 func (self *MomentCacheModule) QueryMomentsMapByIds(ids []int64) (map[int64]MomentsAndExtend, error) {
 	momsMap := map[int64]MomentsAndExtend{}
 	moms, err := self.QueryMomentsByIds(ids)
@@ -349,6 +375,10 @@ func (self *MomentCacheModule) GetInt64ListOrDefault(id int64, defaultId int64, 
 	}
 	return resInt64s, err
 }
+
+
+
+
 
 func (self *MomentCacheModule) QueryTagRecommendsByIds(ids []int64, keyFormatter string) ([]TagRecommend, error) {
 	res, err := self.MGetStructs(TagRecommend{}, ids, keyFormatter, 6*60*60, 1*60*60)

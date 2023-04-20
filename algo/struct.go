@@ -275,6 +275,7 @@ type RankInfo struct {
 	Score       float32         // 最终得分
 	Index       int             // 排在第几
 	LiveIndex   int             //热门直播日志的排序
+	LiveScore   float64             //50分位以上主播排序
 	TopLive     int             //是否是头部主播的直播日志
 	HopeIndex   int             // 期望排在第几，排序结束后调整
 	IsFollow    int             //是否关注过用户

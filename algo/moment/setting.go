@@ -82,6 +82,8 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 	"content_recommend_exposure":&strategy.BaseRichStrategy{StrategyFunc: editRecommendStrategyFunc},
 	"tag_mom_rec":           &strategy.BaseRichStrategy{StrategyFunc: tagMomStrategyFunc},
 	"live_mom_rec":          &strategy.BaseRichStrategy{StrategyFunc: liveRecommendStrategyFunc},
+	"live_group_rec":          &strategy.BaseRichStrategy{StrategyFunc: liveGroupRecommendStrategy},
+	"live_top_rec":          &strategy.BaseRichStrategy{StrategyFunc: liveGroupTopRecommendStrategy},
 	"around_live_exposure":   &strategy.BaseRichStrategy{StrategyFunc: aroundLiveExposureFunc},
 	"live_mom_add_weight":    &strategy.BaseRichStrategy{StrategyFunc: LiveMomAddWeightFunc},
 	"themereply_hope_index": &strategy.BaseRichStrategy{StrategyFunc: ThemeReplyIndexFunc},
