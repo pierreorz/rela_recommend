@@ -811,7 +811,6 @@ func DoBuildData(ctx algo.IContext) error {
 				continue
 			}
 			topLivescore :=0.0
-			log.Warnf("topliveScoreMap%s",topLiveScoreMap)
 			if top,ok :=topLiveScoreMap[mom.Moments.UserId];ok{
 				topLivescore = top.Rnk
 			}
