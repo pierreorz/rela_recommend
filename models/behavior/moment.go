@@ -77,7 +77,7 @@ func (self *UserBehavior) GetLiveMomentListRate() float64 {
 	exposure := self.GetMomLiveExposure()
 	interact := self.GetMomLiveClick()
 	if exposure.Count > 0 {
-		return interact.Count / exposure.Count
+		return (interact.Count+1) / exposure.Count
 	}
 	return 0.0
 }

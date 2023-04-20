@@ -1074,14 +1074,15 @@ func liveGroupRecommendStrategy(ctx algo.IContext) error {     //仅对优秀主
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 2 {
-			log.Warnf("live item behavior%s",dataInfo.ItemBehavior)
-			log.Warnf("live item behavior%s",dataInfo.ItemBehavior.GetLiveMomentListRate())
-			log.Warnf("live item behavior%s",dataInfo.ItemBehavior.GetMomLiveExposure().Count)
 			if dataInfo.ItemBehavior == nil || (dataInfo.ItemBehavior!=nil&&(dataInfo.ItemBehavior.GetLiveMomentListRate() > ratio || dataInfo.ItemBehavior.GetMomLiveExposure().Count < 350)) {
 				if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsTop == 0 && dataInfo.MomentCache != nil && rankInfo.IsSoftTop == 0 {
 					var mom momLive
 					mom.momId = dataInfo.MomentCache.Id
-					mom.score = dataInfo.ItemBehavior.GetLiveMomentListRate()
+					if dataInfo.ItemBehavior!=nil{
+						mom.score = dataInfo.ItemBehavior.GetLiveMomentListRate()
+					} else{
+						mom.score = ratio
+					}
 					res = append(res, mom)
 				} //非置顶直播日志  //非软置顶直播日志
 			}
