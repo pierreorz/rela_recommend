@@ -94,20 +94,36 @@ func DoTimeWeightLevelV2(ctx algo.IContext, index int) error {
 	return nil
 }
 
+
+
+
+
 //日志提权策略v2
-func FilterMomDistance(ctx algo.IContext, index int) error {
-	dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-	rankInfo := dataInfo.GetRankInfo()
-	timeLevel := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours()) / 24
-	if dataInfo.MomentExtendCache != nil && dataInfo.UserCache != nil {
-		distance := rutils.EarthDistance(float64(ctx.GetRequest().Lng), float64(ctx.GetRequest().Lat), dataInfo.UserCache.Location.Lon, dataInfo.UserCache.Location.Lat) / 1000.0
-		if timeLevel < 2 && distance >= 50 {
-			rankInfo.IsTop = -1
-		} //2天内的日志大于50km的过滤掉
-		if timeLevel >= 2 && timeLevel < 7 && distance >= 100 { //2-7天内不展示100公里以内的日志
-			rankInfo.IsTop = -1
+func FilterMomDistance(ctx algo.IContext) error {
+	index_1 := 1
+	index_2 :=1
+	index_3 :=1
+
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+		rankInfo := dataInfo.GetRankInfo()
+		hour :=int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours())
+		if dataInfo.UserItemBehavior==nil ||dataInfo.UserItemBehavior.Count<=1{
+			if hour>24&&hour<72{
+				rankInfo.HopeIndex = 7*(index_1)
+				index_1+=1
+			}
+			if hour >=72&&hour<168{
+				rankInfo.HopeIndex = 40+7*(index_2)
+				index_2+=1
+			}
+			if hour >=168{
+				rankInfo.HopeIndex = 70+7*(index_3)
+				index_3+=1
+			}
 		}
 	}
+
 	return nil
 }
 
@@ -1021,6 +1037,9 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 	}
 	return nil
 }
+
+
+
 
 func liveGroupTopRecommendStrategy(ctx algo.IContext) error {     //仅对优秀主播进行曝光
 	abtest := ctx.GetAbTest()
