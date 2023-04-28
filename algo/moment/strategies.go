@@ -104,28 +104,44 @@ func FilterMomDistance(ctx algo.IContext) error {
 	index_2 :=1
 	index_3 :=1
 
+	change :=0
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo := dataInfo.GetRankInfo()
 		hour :=int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours())
 		if dataInfo.UserItemBehavior==nil ||dataInfo.UserItemBehavior.Count<=1{
-			if hour>24&&hour<72{
-				rankInfo.HopeIndex = 7*(index_1)
-				index_1+=1
-			}
-			if hour >=72&&hour<168{
-				rankInfo.HopeIndex = 40+7*(index_2)
-				index_2+=1
-			}
-			if hour >=168{
-				rankInfo.HopeIndex = 70+7*(index_3)
-				index_3+=1
+			if hour <=24{
+				change =1
 			}
 		}
 	}
-
+	if change == 0 {
+		for index := 0; index < ctx.GetDataLength(); index++ {
+			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			hour := int(ctx.GetCreateTime().Sub(dataInfo.MomentCache.InsertTime).Hours())
+			if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count <= 1 {
+				if hour > 24 && hour < 72 {
+					rankInfo.Level=0
+					rankInfo.HopeIndex = 7 * (index_1)
+					index_1 += 1
+				}
+				if hour >= 72 && hour < 168 {
+					rankInfo.Level=0
+					rankInfo.HopeIndex = 40 + 7*(index_2)
+					index_2 += 1
+				}
+				if hour >= 168 {
+					rankInfo.Level=0
+					rankInfo.HopeIndex = 70 + 7*(index_3)
+					index_3 += 1
+				}
+			}
+		}
+	}
 	return nil
 }
+
+
 
 //优质用户推荐策略
 func BetterUserMomAddWeight(ctx algo.IContext, index int) error {
