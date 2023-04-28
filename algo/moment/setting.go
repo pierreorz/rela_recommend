@@ -22,7 +22,6 @@ var strategyMap = map[string]algo.IStrategy{
 	"sort_by_time":     &algo.StrategyBase{DoSingle: SortByTimeLevel},
 	"time_weight":      &algo.StrategyBase{DoSingle: DoTimeWeightLevel},
 	"time_weight_v2":   &algo.StrategyBase{DoSingle: DoTimeWeightLevelV2},
-	"filter_distance":  &algo.StrategyBase{DoSingle: FilterMomDistance},
 	"tag_pref":         &algo.StrategyBase{DoSingle: DoPrefWeightLevel},
 	"new_user":         &algo.StrategyBase{DoSingle: AroundNewUserAddWeightFunc},
 	"label_mom":        &algo.StrategyBase{DoSingle: MomLabelAddWeight},
@@ -64,6 +63,8 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 
 	"content_weight": &strategy.BaseRichStrategy{
 		StrategyFunc: ContentAddWeight},
+	"filter_distance": &strategy.BaseRichStrategy{
+		StrategyFunc: FilterMomDistance},
 	"categ_weight": &strategy.BaseRichStrategy{
 		StrategyFunc: MomentCategWeight},
 	"user_live_profile": &strategy.BaseRichStrategy{
