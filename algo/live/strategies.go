@@ -116,6 +116,7 @@ func (self *SortHotStrategy)Do (ctx algo.IContext) error{
 		for i := 0; i < ctx.GetDataLength(); i++ {
 			dataInfo := ctx.GetDataByIndex(i)
 			liveinfo := dataInfo.(*LiveInfo)
+			userInfo := ctx.GetUserInfo().(*UserInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if live :=liveinfo.LiveContentProfile;live!=nil{
 				if liveinfo.LiveCache.Live.AudioType==0{//视频类直播{//日志类型得分，视频直播类型占0.65分
@@ -135,6 +136,11 @@ func (self *SortHotStrategy)Do (ctx algo.IContext) error{
 				}
 			}
 			score :=utils.Norm(w1,1) *0.3 + utils.Norm(w2,1)*0.2 +utils.Norm(w3,1)*0.1 +utils.Norm(w4,1)*0.1+utils.Norm(w5,1)*0.3
+			if userInfo.UserConcerns!=nil{
+				if userInfo.UserConcerns.Contains(liveinfo.UserId) {
+					rankInfo.Level=99
+				}
+			}
 			rankInfo.Score = liveinfo.RankInfo.Score*old_score + float32(score)*new_score
 		}
 	}
