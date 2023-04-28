@@ -103,7 +103,6 @@ type SortHotStrategy struct{}
 
 func (self *SortHotStrategy)Do (ctx algo.IContext) error{
 	var err error
-	userInfo := ctx.GetUserInfo().(*UserInfo)
 	new_score := ctx.GetAbTest().GetFloat("new_score_1", 1.0)
 	old_score := 1 - new_score
 	params := ctx.GetRequest()
