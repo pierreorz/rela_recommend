@@ -174,15 +174,19 @@ func (self *Behavior) GetTopCountPictureTags(n int) []*PictureTag {
 	return res
 }
 
-func (self *Behavior) GetInteractUsers() []int64 {
-	lastUsers := make([]int64, 0)
+func (self *Behavior) GetInteractData() ([]int64, []int64, map[int64]int64) {
+	users := make([]int64, 0)
+	data := make([]int64, 0)
+	userDataMap := make(map[int64]int64, 0)
 	if self == nil {
-		return lastUsers
+		return users, data, userDataMap
 	}
 	for _, item := range self.LastList {
-		lastUsers = append(lastUsers, item.UserId)
+		users = append(users, item.UserId)
+		data = append(data, item.DataId)
+		userDataMap[item.UserId] = item.DataId
 	}
-	return lastUsers
+	return users, data, userDataMap
 }
 
 func (self *Behavior) GetTopCountMomTags(n int) []*MomTag {
