@@ -197,6 +197,17 @@ func NtxOnLiveWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *
 	return nil
 }
 
+// NtxNotSingleDecayFunc 女通讯录非单身降权
+func NtxNotSingleDecayFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
+	dataInfo := iDataInfo.(*DataInfo)
+	if userCache := dataInfo.UserCache; userCache != nil {
+		if !userCache.IsSingle() {
+			rankInfo.AddRecommend("NotSingleDecay", 0.7)
+		}
+	}
+	return nil
+}
+
 // NtxlUserPageViewItemFunc 主页访问/被访问过
 func NtxlUserPageViewItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)
@@ -205,14 +216,14 @@ func NtxlUserPageViewItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankI
 		interactItem := userItemBehavior.GetUserPageViews()
 		if interactItem.Count > 0 {
 			score := 1 + math.Log(interactItem.Count/10+1)
-			rankInfo.AddRecommendWithType("view_user_page", float32(score), algo.TypeVisit)
+			rankInfo.AddRecommendWithType("ViewUserPage", float32(score), algo.TypeVisit)
 		}
 	}
 	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
 		interactItem := beenUserItemBehavior.GetUserPageViews()
 		if interactItem.Count > 0 {
 			score := 1 + math.Log(interactItem.Count/10+1)
-			rankInfo.AddRecommendWithType("been_view_user_page", float32(score), algo.TypeVisit)
+			rankInfo.AddRecommendWithType("BeenViewUserPage", float32(score), algo.TypeVisit)
 		}
 	}
 	return nil
@@ -226,14 +237,14 @@ func NtxlUserWinkItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 		interactItem := userItemBehavior.GetUserWinks()
 		if interactItem.Count > 0 {
 			score := 1 + math.Log(interactItem.Count/10+1)
-			rankInfo.AddRecommendWithType("wink_user", float32(score), algo.TypeWink)
+			rankInfo.AddRecommendWithType("WinkUser", float32(score), algo.TypeWink)
 		}
 	}
 	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
 		interactItem := beenUserItemBehavior.GetUserWinks()
 		if interactItem.Count > 0 {
 			score := 1 + math.Log(interactItem.Count/10+1)
-			rankInfo.AddRecommendWithType("been_wink_user", float32(score), algo.TypeWink)
+			rankInfo.AddRecommendWithType("BeenWinkUser", float32(score), algo.TypeWink)
 		}
 	}
 	return nil
@@ -247,14 +258,14 @@ func NtxlMomentInteractItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, ran
 		interactItem := userItemBehavior.GetMomentListInteract()
 		if interactItem.Count > 0 {
 			score := 1 + math.Log(interactItem.Count/10+1)
-			rankInfo.AddRecommendWithType("moment_interact", float32(score), algo.TypeMomentInteract)
+			rankInfo.AddRecommendWithType("MomentInteract", float32(score), algo.TypeMomentInteract)
 		}
 	}
 	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
 		interactItem := beenUserItemBehavior.GetMomentListInteract()
 		if interactItem.Count > 0 {
 			score := 1 + math.Log(interactItem.Count/10+1)
-			rankInfo.AddRecommendWithType("been_moment_interact", float32(score), algo.TypeMomentInteract)
+			rankInfo.AddRecommendWithType("BeenMomentInteract", float32(score), algo.TypeMomentInteract)
 		}
 	}
 	return nil
@@ -268,7 +279,7 @@ func NtxlSendMessageItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankIn
 		interactItem := userItemBehavior.GetSendMessages()
 		if interactItem.Count > 0 {
 			decay := rutils.GaussDecay(interactItem.Count, 0., 0, 3)
-			rankInfo.AddRecommend("send_msg_decay", float32(decay))
+			rankInfo.AddRecommend("SendMsgDecay", float32(decay))
 		}
 	}
 
@@ -276,7 +287,7 @@ func NtxlSendMessageItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankIn
 		interactItem := beenUserItemBehavior.GetSendMessages()
 		if interactItem.Count > 0 {
 			decay := rutils.GaussDecay(interactItem.Count, 0., 0, 3)
-			rankInfo.AddRecommend("been_send_msg_decay", float32(decay))
+			rankInfo.AddRecommend("BeenSendMsgDecay", float32(decay))
 		}
 	}
 	return nil
