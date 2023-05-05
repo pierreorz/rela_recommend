@@ -171,10 +171,12 @@ const internalSearchAuditUrlFormatter = "/search/audit_%s"
 
 type searchMomentAuditResDataItemTopInfo struct {
 	Scenery   string `json:"scenery"` // 场景
-	TopType   string `json:"top_type"`
+	TopType   string `json:"top_type"`  //string `json:"top_type"` // hot: 置顶，recommend: 推荐，soft: 软置顶，recommend_plan: 流量包
 	Weight    int64  `json:"weight"`
 	StartTime int64  `json:"start_time"`
 	EndTime   int64  `json:"end_time"`
+	Packet    int  `json:"packet"`   // 流量包目标流量 多少pv
+	Target    int  `json:"target"`   // 流量包目标用户  1新用户 2推荐流深度用户  3推荐流普通用户
 }
 
 type SearchMomentAuditResDataItem struct {
@@ -190,11 +192,31 @@ func (self *SearchMomentAuditResDataItem) GetCurrentTopType(scenery string) stri
 	for _, top := range self.TopInfo {
 		if top.Scenery == scenery {
 			if top.StartTime < currentTime && currentTime < top.EndTime {
-				return strings.ToUpper(top.TopType) // 返回 TOP, RECOMMEND，SOFT
+				return strings.ToUpper(top.TopType) // 返回 TOP, RECOMMEND，SOFT,
 			}
+			return strings.ToUpper(top.TopType)//RECOMMEND_PLAN
 		}
 	}
 	return ""
+}
+
+//获取当前场景目标流量
+func (self *SearchMomentAuditResDataItem) GetCurrentPacket(scenery string) float64 {
+	for _, top := range self.TopInfo {
+		if top.Scenery == scenery {
+			return float64(top.Packet)
+		}
+	}
+	return 0
+}
+//获取当前目标用户
+func (self *SearchMomentAuditResDataItem) GetCurrentTarget(scenery string) int {
+	for _, top := range self.TopInfo {
+		if top.Scenery == scenery {
+			return top.Target
+		}
+	}
+	return 0
 }
 
 type searchMomentAuditRes struct {

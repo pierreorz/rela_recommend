@@ -687,6 +687,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var userLiveContentProfileMap map[int64]*redis.UserLiveContentProfile
 	var liveContentProfileMap map[int64]*redis.LiveContentProfile
 	var topLiveScoreMap map[int64]*redis.TopLiveRnk
+	var userTypeMap map[int64]*redis.UserType
 	var momentUserEmbeddingMap = map[int64]*redis.MomentUserProfile{}
 	var isVip = 0
 	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
@@ -753,8 +754,17 @@ func DoBuildData(ctx algo.IContext) error {
 			topLiveScoreMap,liveTopRnkErr =momentCache.QueryTopLiveMapByIds(userIds)
 			return liveTopRnkErr
 		},
+		"user_type":func(*performs.Performs) interface{} {
+			var UserTypeErr error
+			userTypeMap,UserTypeErr =momentCache.QueryUserTypeMapByIds([]int64{params.UserId})
+			return UserTypeErr
+		},
 	})
 
+	userType :=0
+	if userObj,ok := userTypeMap[params.UserId];ok{
+		userType=userObj.Type
+	}
 	preforms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId:                 params.UserId,
@@ -814,6 +824,7 @@ func DoBuildData(ctx algo.IContext) error {
 			if top,ok :=topLiveScoreMap[mom.Moments.UserId];ok{
 				topLivescore = top.Rnk
 			}
+
 			if mom.Moments.Id > 0 {
 				momUser, _ := usersMap[mom.Moments.UserId]
 				//status=0 禁用用户，status=5 注销用户
@@ -835,12 +846,19 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				var isSoftTop = 0
+				var packet = 0.0
+				var isTarget =0
 				// 处理推荐
 				var recommends []algo.RecommendItem
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
+					packet = topType.GetCurrentPacket(searchScenery)
+					currTarget :=topType.GetCurrentTarget(searchScenery)
+					if currTarget==3 ||(currTarget==userType&&currTarget>0){
+						isTarget = 1
+					}
 					if topTypeRes == "RECOMMEND" {
 						recommends = append(recommends, algo.RecommendItem{Reason: "RECOMMEND", Score: backendRecommendScore, NeedReturn: true, ClientReason: algo.TypeEmpty})
 					}
@@ -914,7 +932,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
 					LiveContentProfile:   liveContentProfileMap[mom.Moments.UserId],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,LiveScore:topLivescore ,LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness,IsSocial:isSocial,IsFollow:isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,Packet:packet,IsTarget:isTarget,LiveScore:topLivescore ,LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness,IsSocial:isSocial,IsFollow:isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],

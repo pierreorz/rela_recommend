@@ -153,5 +153,22 @@ func ExposureBottomFunc(ctx algo.IContext) error {
 
 
 func FlowPacketFunc(ctx algo.IContext) error{
+	abtest := ctx.GetAbTest()
+	exposureBehaviors :=abtest.GetStrings("exposure_behaviors","moment.recommend:exposure")
+	for index :=0 ; index <ctx.GetDataLength(); index ++{
+		dataInfo := ctx.GetDataByIndex(index)
+		rankInfo := dataInfo.GetRankInfo()
+		if rankInfo.Packet>0 && rankInfo.IsTarget>0{
+			count :=0.0
+			if userItemBehavior := dataInfo.GetUserBehavior(); userItemBehavior != nil {
+				exposures := userItemBehavior.Gets(exposureBehaviors...)
+				count = exposures.Count
 
+			}else{
+				count = 0.0
+			}
+			rankInfo.AddRecommend("recommend_plan",float32(1+0.2*(1-count/rankInfo.Packet)))
+		}
+	}
+	return nil
 }
