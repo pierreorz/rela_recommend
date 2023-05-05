@@ -96,6 +96,7 @@ var ntxlRichStrategyMap = map[string]algo.IRichStrategy{
 	"user_wink":       &strategy.BaseRichStrategy{StrategyItemFunc: NtxlUserWinkItemFunc, DefaultWeight: 3},
 	"moment_interact": &strategy.BaseRichStrategy{StrategyItemFunc: NtxlMomentInteractItemFunc, DefaultWeight: 3},
 	"send_message":    &strategy.BaseRichStrategy{StrategyItemFunc: NtxlSendMessageItemFunc, DefaultWeight: 3},
+	"not_single":      &strategy.BaseRichStrategy{StrategyItemFunc: NtxNotSingleDecayFunc, DefaultWeight: 1},
 }
 
 // 女通讯录

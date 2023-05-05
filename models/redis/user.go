@@ -36,7 +36,7 @@ type UserProfile struct {
 	UserImageCount int                `json:"userImageCount"`
 	WantRole       string             `json:"wantRole"`
 	Status         int                `json:"status"`
-	Affection      int                `json:"affection"`
+	Affection      int                `json:"affection"` /*感情状态 -1表示未设置 0=不想透漏 1=单身 2=约会中 3=稳定关系 4=已婚 5=开放关系 6=交往中 7=等一个人*/
 	Age            int                `json:"age"`
 	Height         int                `json:"height"`
 	Weight         int                `json:"weight"`
@@ -57,6 +57,8 @@ type UserProfile struct {
 	LiveInfo       *liveInfo          `json:"live_info,omitempty"`
 	OnlineHiding   int8               `json:"online_hiding,omitempty"`
 	Hiding         int8               `json:"hiding,omitempty"`
+	BindingType    int64              `json:"bindingType,omitempty"`
+	BindingStatus  int64              `json:"bindingStatus,omitempty"`
 	Identity       int8               `json:"identity"`   //身份认证 -1 未通过，0 未验证，1 审核中，2系统认证通过，3 人工认证通过，4 主播认证通过，5  历史申诉认证通过
 	CustomSort     string             `json:"customSort"` // hot: 按热门排序（即关闭个性化推荐）；其他：按个性化推荐排序
 }
@@ -214,6 +216,25 @@ func (user *UserProfile) IsVipHiding() bool {
 		return true
 	}
 	return false
+}
+
+// IsSingle 是否单身
+func (user *UserProfile) IsSingle() bool {
+	if user == nil {
+		return false
+	}
+
+	singleAff := []int{2, 3, 4, 5, 6}
+	for _, aff := range singleAff {
+		if user.Affection == aff {
+			return false
+		}
+	}
+
+	if user.BindingType == 0 && user.BindingStatus == 1 {
+		return false
+	}
+	return true
 }
 
 func (user *UserProfile) ValidLocation() bool {
@@ -412,7 +433,6 @@ func (this *UserCacheModule) QueryConcernsByUser(userId int64) ([]int64, error) 
 func (this *UserCacheModule) QueryConcernsByUserV1(userId int64) ([]int64, error) {
 	return this.ZmembersInt64List(userId, "user:%d:followers")
 }
-
 
 func (this *UserCacheModule) QuerySocialByUserV1(userId int64) ([]int64, error) {
 	return this.ZmembersInt64List(userId, "user:%d:social")
