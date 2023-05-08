@@ -63,6 +63,8 @@ var richStrategyMap = map[string]algo.IRichStrategy{
 
 	"content_weight": &strategy.BaseRichStrategy{
 		StrategyFunc: ContentAddWeight},
+	"flow_packet": &strategy.BaseRichStrategy{
+		StrategyFunc: strategy.FlowPacketFunc},
 	"filter_distance": &strategy.BaseRichStrategy{
 		StrategyFunc: FilterMomDistance},
 	"categ_weight": &strategy.BaseRichStrategy{
