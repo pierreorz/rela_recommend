@@ -851,7 +851,11 @@ func DoBuildData(ctx algo.IContext) error {
 				// 处理推荐
 				var recommends []algo.RecommendItem
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
+
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
+					if mom.Moments.Id==168352459244110001{
+						log.Warnf("PACKET MOM IS %S",topTypeRes)
+					}
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
 					packet = topType.GetCurrentPacket(searchScenery)
