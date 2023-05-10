@@ -297,7 +297,7 @@ func CallMomentTopMap(userId int64, scenery string) (map[int64]SearchMomentAudit
 	//}
 
 	filters := []string{
-		fmt.Sprintf("{top_info.scenery:%s*{top_info.top_type:recommend_plan|{top_info.start_time:(,now/m]*top_info.end_time:[now/m,)}}", scenery),
+		fmt.Sprintf("top_info.scenery:%s*{top_info.top_type:recommend_plan|{top_info.start_time:(,now/m]*top_info.end_time:[now/m,)}}", scenery),
 	}
 	// 返回运营推荐数据，未审或过审的都可以通过
 	//recommendFilter := fmt.Sprintf("{top_info.scenery:%s*top_info.top_type:top,recommend*top_info.start_time:(,now/m]*top_info.end_time:[now/m,)}", scenery)
