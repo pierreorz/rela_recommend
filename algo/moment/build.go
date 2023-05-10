@@ -610,7 +610,6 @@ func DoBuildData(ctx algo.IContext) error {
 			var searchMomentMapErr error
 			searchMomentMap, searchMomentMapErr = search.CallMomentTopMap(params.UserId,
 				searchScenery)
-			log.Warnf("searchmap is %s",searchMomentMap)
 			if searchMomentMapErr == nil {
 				momentIdSet := utils.SetInt64{}
 				for _, searchRes := range searchMomentMap {
@@ -854,14 +853,11 @@ func DoBuildData(ctx algo.IContext) error {
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
 
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
-					if mom.Moments.Id==168352459244110001{
-						log.Warnf("PACKET MOM IS %S",topTypeRes)
-					}
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
 					packet = topType.GetCurrentPacket(searchScenery)
 					currTarget :=topType.GetCurrentTarget(searchScenery)
-					if currTarget==3 ||(currTarget==userType&&currTarget>0){
+					if currTarget>0 ||(currTarget==userType&&currTarget>0){
 						isTarget = 1
 					}
 					if topTypeRes == "RECOMMEND" {

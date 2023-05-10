@@ -186,7 +186,6 @@ func FlowPacketFunc(ctx algo.IContext) error{
 		dataInfo := ctx.GetDataByIndex(index)
 		rankInfo := dataInfo.GetRankInfo()
 		if rankInfo.Packet>0 && rankInfo.IsTarget>0{
-			log.Warnf("packet mom is %s",rankInfo)
 			count :=0.0
 			var mom momLive
 			if userItemBehavior := dataInfo.GetUserBehavior(); userItemBehavior != nil {
@@ -210,6 +209,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 		rankInfo := dataInfo.GetRankInfo()
 		if sortIndex, ok := sortIds[dataInfo.GetDataId()]; ok {
 			rankInfo.HopeIndex = (sortIndex)*(interval-1) + GenerateRangeNum(1, interval)
+			log.Warnf("packet hope index is %s",rankInfo.HopeIndex)
 		}
 	}
 	return nil
