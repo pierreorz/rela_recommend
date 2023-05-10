@@ -610,6 +610,7 @@ func DoBuildData(ctx algo.IContext) error {
 			var searchMomentMapErr error
 			searchMomentMap, searchMomentMapErr = search.CallMomentTopMap(params.UserId,
 				searchScenery)
+			log.Warnf("searchmap is %s",searchMomentMap)
 			if searchMomentMapErr == nil {
 				momentIdSet := utils.SetInt64{}
 				for _, searchRes := range searchMomentMap {
