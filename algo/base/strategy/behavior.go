@@ -1,10 +1,30 @@
 package strategy
 
 import (
+	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
+	"sort"
+	"time"
 )
 
+
+type momLiveSorter []momLive
+type momLive struct {
+	momId int64
+	score float64
+}
+
+func (a momLiveSorter) Len() int      { return len(a) }
+func (a momLiveSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a momLiveSorter) Less(i, j int) bool { // 按照 score , id 倒序
+	if a[i].score == a[j].score {
+		return a[i].momId > a[j].momId
+	} else {
+		return a[i].score > a[j].score
+	}
+}
 // 数据行为处理策略
 type BaseBehaviorRichStrategy struct {
 	ctx         algo.IContext
@@ -150,16 +170,25 @@ func ExposureBottomFunc(ctx algo.IContext) error {
 	return nil
 }
 
-
+func GenerateRangeNum(min, max int) int {
+	rand.Seed(time.Now().Unix())
+	randNum := rand.Intn(max-min) + min
+	return randNum
+}
 
 func FlowPacketFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
+	var res = momLiveSorter{}
+	sortIds := make(map[int64]int, 0)
+	interval := abtest.GetInt("live_interval_index", 5)
 	exposureBehaviors :=abtest.GetStrings("exposure_behaviors","moment.recommend:exposure")
 	for index :=0 ; index <ctx.GetDataLength(); index ++{
 		dataInfo := ctx.GetDataByIndex(index)
 		rankInfo := dataInfo.GetRankInfo()
 		if rankInfo.Packet>0 && rankInfo.IsTarget>0{
+			log.Warnf("packet mom is %s",rankInfo)
 			count :=0.0
+			var mom momLive
 			if userItemBehavior := dataInfo.GetUserBehavior(); userItemBehavior != nil {
 				exposures := userItemBehavior.Gets(exposureBehaviors...)
 				count = exposures.Count
@@ -167,7 +196,20 @@ func FlowPacketFunc(ctx algo.IContext) error{
 			}else{
 				count = 0.0
 			}
-			rankInfo.AddRecommend("recommend_plan",float32(1+0.2*(1-count/rankInfo.Packet)))
+			mom.momId = dataInfo.GetDataId()
+			mom.score = 1-count/rankInfo.Packet   //得分为推广未完成度
+			res = append(res, mom)
+		}
+	}
+	sort.Sort(res)
+	for index, mom := range res {
+		sortIds[mom.momId] = index
+	}
+	for index := 0; index < ctx.GetDataLength(); index++ {
+		dataInfo := ctx.GetDataByIndex(index)
+		rankInfo := dataInfo.GetRankInfo()
+		if sortIndex, ok := sortIds[dataInfo.GetDataId()]; ok {
+			rankInfo.HopeIndex = (sortIndex)*(interval-1) + GenerateRangeNum(1, interval)
 		}
 	}
 	return nil
