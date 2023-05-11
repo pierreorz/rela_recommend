@@ -258,9 +258,12 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 				}
 				if currentUserBehavior, ok := behaviors[params.UserId]; ok {
 					momentInteractBehaviors = currentUserBehavior.GetMomentListInteract()
+					if momentInteractBehaviors != nil {
+						return momentInteractBehaviors.Count
+					}
 				}
 			}
-			return momentInteractBehaviors.Count
+			return 0
 		},
 		"user_userinfo_behavior": func(*performs.Performs) interface{} {
 			if ctx.GetAbTest().GetBool("ntxl_recall_interact", false) {
@@ -277,10 +280,19 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 					if currentUserBehavior, ok := behaviors[params.UserId]; ok {
 						userInfoMomentInteractBehaviors = userInfoMomentInteractBehaviors.Merge(currentUserBehavior.GetMomentListInteract())
 						userInfoOtherInteractBehaviors = userInfoOtherInteractBehaviors.Merge(currentUserBehavior.GetUserInteracts())
+
+						var cnt float64
+						if userInfoMomentInteractBehaviors != nil {
+							cnt += userInfoMomentInteractBehaviors.Count
+						}
+						if userInfoOtherInteractBehaviors != nil {
+							cnt += userInfoOtherInteractBehaviors.Count
+						}
+						return cnt
 					}
 				}
 			}
-			return userInfoMomentInteractBehaviors.Count + userInfoOtherInteractBehaviors.Count
+			return 0
 		},
 	})
 
