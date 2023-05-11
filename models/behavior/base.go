@@ -398,7 +398,8 @@ type BehaviorCacheModule struct {
 
 // 读取user item相关行为
 func (self *BehaviorCacheModule) QueryUserItemBehaviorMap(module string, userId int64, ids []int64) (map[int64]*UserBehavior, error) {
-	keyFormatter := fmt.Sprintf("behavior:%s:%d:%%d.gz", module, userId)
+	behaviorKeyPrefix := self.ctx.GetAbTest().GetString("behavior_key_prefix", "behavior")
+	keyFormatter := fmt.Sprintf("%s:%s:%d:%%d.gz", behaviorKeyPrefix, module, userId)
 	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*UserBehavior)
 	return objs, err
@@ -406,7 +407,8 @@ func (self *BehaviorCacheModule) QueryUserItemBehaviorMap(module string, userId 
 
 // QueryBeenUserItemBehaviorMap 读取user item相关别互动行为，
 func (self *BehaviorCacheModule) QueryBeenUserItemBehaviorMap(module string, userId int64, ids []int64) (map[int64]*UserBehavior, error) {
-	keyFormatter := fmt.Sprintf("behavior:%s:%%d:%d.gz", module, userId)
+	behaviorKeyPrefix := self.ctx.GetAbTest().GetString("behavior_key_prefix", "behavior")
+	keyFormatter := fmt.Sprintf("%s:%s:%%d:%d.gz", behaviorKeyPrefix, module, userId)
 	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*UserBehavior)
 	return objs, err
@@ -414,7 +416,8 @@ func (self *BehaviorCacheModule) QueryBeenUserItemBehaviorMap(module string, use
 
 // 读取item相关行为
 func (self *BehaviorCacheModule) QueryItemBehaviorMap(module string, ids []int64) (map[int64]*UserBehavior, error) {
-	keyFormatter := fmt.Sprintf("behavior:%s:item:%%d.gz", module)
+	behaviorKeyPrefix := self.ctx.GetAbTest().GetString("behavior_key_prefix", "behavior")
+	keyFormatter := fmt.Sprintf("%s:%s:item:%%d.gz", behaviorKeyPrefix, module)
 	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*UserBehavior)
 	return objs, err
@@ -422,7 +425,8 @@ func (self *BehaviorCacheModule) QueryItemBehaviorMap(module string, ids []int64
 
 // 读取user相关行为
 func (self *BehaviorCacheModule) QueryUserBehaviorMap(module string, ids []int64) (map[int64]*UserBehavior, error) {
-	keyFormatter := fmt.Sprintf("behavior:%s:user:%%d.gz", module)
+	behaviorKeyPrefix := self.ctx.GetAbTest().GetString("behavior_key_prefix", "behavior")
+	keyFormatter := fmt.Sprintf("%s:%s:user:%%d.gz", behaviorKeyPrefix, module)
 	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*UserBehavior)
 	return objs, err
