@@ -167,6 +167,11 @@ type TopLiveRnk struct {
 	UserId int64 `json:"user_id"`
 	Rnk    float64  `json:"score"`
 }
+
+type UserType struct {
+	UserId int64 `json:"user_id"`
+	Type   int `json:"type"`
+}
 type MomentsAndExtend struct {
 	Moments        *Moments        `gorm:"column:moments" json:"moments,omitempty"`
 	MomentsExtend  *MomentsExtend  `gorm:"column:moments_extend" json:"momentsExtend,omitempty"`
@@ -341,6 +346,27 @@ func (self *MomentCacheModule) QueryTopLiveMapByIds(ids []int64) (map[int64]*Top
 	if err == nil {
 		for i, mom := range moms {
 				momsMap[mom.UserId] = &moms[i]
+
+		}
+	}
+	return momsMap, err
+}
+
+
+func (self *MomentCacheModule) QueryUserTypeByIds(ids []int64) ([]UserType, error) {
+	keyFormatter := self.ctx.GetAbTest().GetString("moment_cache_key_formatter", "user_type:%d")
+	ress, err := self.MGetStructs(UserType{}, ids, keyFormatter, 24*60*60, 60*60*1)
+	objs := ress.Interface().([]UserType)
+	return objs, err
+}
+
+
+func (self *MomentCacheModule) QueryUserTypeMapByIds(ids []int64) (map[int64]*UserType, error) {
+	momsMap := make(map[int64]*UserType,0)
+	moms, err := self.QueryUserTypeByIds(ids)
+	if err == nil {
+		for i, mom := range moms {
+			momsMap[mom.UserId] = &moms[i]
 
 		}
 	}

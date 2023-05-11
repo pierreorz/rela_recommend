@@ -288,6 +288,9 @@ type RankInfo struct {
 	RequestId   string //Pai请求id
 	OffTime     int    //超时标记位
 	IsHourTop   int    //小时top3
+	Packet     float64      //流量包
+	IsTarget    int     //是否需要推广
+
 }
 
 type MultiLanguage struct {
