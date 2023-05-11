@@ -9,7 +9,15 @@ import (
 	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
 	"sort"
+	"strings"
 )
+
+// UserEqualsDataPage 部分场景下 user_id == data_id
+var UserEqualsDataPage = []string{
+	"userinfo",    // 其他人的用户主页
+	"around.list", // 附近的人
+	"my.tel",      // 女通讯录
+}
 
 type BehaviorItemLog struct {
 	DataId   int64   `json:"data_id"`
@@ -203,6 +211,30 @@ func (self *Behavior) GetTopCountMomTags(n int) []*MomTag {
 	return res
 }
 
+// FillUserDataID 某些场景下 user_id == data_id，flink那边不会冗余写，需要在这边补齐
+// name 的格式为 "around.list:click" "userinfo:like"
+func (self *Behavior) FillUserDataID(name string) *Behavior {
+	var currentPage string
+	if tuple := strings.Split(name, ":"); len(tuple) == 2 {
+		currentPage = tuple[0]
+	}
+	for _, page := range UserEqualsDataPage {
+		if currentPage == page {
+			for _, item := range self.LastList {
+				if (item.UserId > 0) && (item.UserId != item.DataId) {
+					item.DataId = item.UserId
+				}
+
+				if (item.DataId > 0) && (item.UserId != item.DataId) {
+					item.UserId = item.DataId
+				}
+			}
+			return self
+		}
+	}
+	return self
+}
+
 func LabelConvert(label string) string {
 	if utils.StringContains(label, []string{"burudongwu"}) {
 		return "pet"
@@ -328,6 +360,7 @@ func (self *UserBehavior) Gets(names ...string) *Behavior {
 		var behaviors = []*Behavior{}
 		for _, name := range names {
 			if behavior, ok := self.BehaviorMap[name]; ok && behavior != nil {
+				behavior = behavior.FillUserDataID(name)
 				behaviors = append(behaviors, behavior)
 			}
 		}
