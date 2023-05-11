@@ -201,10 +201,12 @@ func (self *SearchMomentAuditResDataItem) GetCurrentTopType(scenery string) stri
 }
 
 //获取当前场景目标流量
-func (self *SearchMomentAuditResDataItem) GetCurrentPacket(scenery string) float64 {
+func (self *SearchMomentAuditResDataItem) GetCurrentPacket(scenery string,nowTime time.Time) float64 {
 	for _, top := range self.TopInfo {
 		if top.Scenery == scenery {
-			return float64(top.Packet)
+			if nowTime.Unix()-top.StartTime<6*60*60{
+				return float64(top.Packet)
+			}
 		}
 	}
 	return 0

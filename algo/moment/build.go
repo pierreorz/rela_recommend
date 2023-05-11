@@ -855,7 +855,7 @@ func DoBuildData(ctx algo.IContext) error {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
-					packet = topType.GetCurrentPacket(searchScenery)
+					packet = topType.GetCurrentPacket(searchScenery,ctx.GetCreateTime())
 					currTarget :=topType.GetCurrentTarget(searchScenery)
 					if currTarget>0 ||(currTarget==userType&&currTarget>0){
 						isTarget = 1
