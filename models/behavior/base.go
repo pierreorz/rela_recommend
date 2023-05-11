@@ -174,7 +174,7 @@ func (self *Behavior) GetTopCountPictureTags(n int) []*PictureTag {
 	return res
 }
 
-func (self *Behavior) GetInteractData() ([]int64, []int64, map[int64]int64) {
+func (self *Behavior) GetUserIDList() ([]int64, []int64, map[int64]int64) {
 	users := make([]int64, 0)
 	data := make([]int64, 0)
 	userDataMap := make(map[int64]int64, 0)

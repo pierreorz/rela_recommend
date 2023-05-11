@@ -1,7 +1,7 @@
 package behavior
 
 func (self *UserBehavior) GetUserInteracts() *Behavior {
-	return self.Gets("userinfo:exposure_new", "userinfo:wink", "message.im:send_msg")
+	return self.Gets("userinfo:exposure_new", "userinfo:wink")
 }
 
 func (self *UserBehavior) GetUserPageViews() *Behavior {
