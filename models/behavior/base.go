@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/models/redis"
 	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
@@ -361,10 +362,12 @@ func (self *UserBehavior) Gets(names ...string) *Behavior {
 		for _, name := range names {
 			if behavior, ok := self.BehaviorMap[name]; ok && behavior != nil {
 				behavior = behavior.FillUserDataID(name)
+				log.Debugf("ntxl be: %+v", behavior)
 				behaviors = append(behaviors, behavior)
 			}
 		}
 		res = MergeBehaviors(behaviors...)
+		log.Debugf("ntxl res: %+v", res)
 	}
 	return res
 }

@@ -275,6 +275,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 					}
 				}
 
+				// todo: item 要记userID
 				behaviors, userCacheErr = behaviorCache.QueryItemBehaviorMap("userinfo", []int64{params.UserId})
 				if userCacheErr == nil {
 					if currentUserBehavior, ok := behaviors[params.UserId]; ok {
