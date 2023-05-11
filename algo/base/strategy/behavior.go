@@ -179,7 +179,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
 	var res = momLiveSorter{}
 	sortIds := make(map[int64]int, 0)
-	interval := abtest.GetInt("live_interval_index", 5)
+	interval := abtest.GetInt("packet_interval_index", 5)
 	exposureBehaviors :=abtest.GetStrings("exposure_behaviors","moment.recommend:exposure")
 	for index :=0 ; index <ctx.GetDataLength(); index ++{
 		dataInfo := ctx.GetDataByIndex(index)
