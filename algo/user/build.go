@@ -299,6 +299,8 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 	momentInteractUsers, momentDataIDs, momentUserDataMap := momentInteractBehaviors.Merge(userInfoMomentInteractBehaviors).GetUserIDList()
 	userinfoInteractUsers, userinfoDataIDs, _ := userInfoOtherInteractBehaviors.GetUserIDList()
 
+	log.Debugf("ntxl mu: %+v, md: %+v", momentInteractUsers, momentDataIDs)
+	log.Debugf("ntxl uu: %+v, ud: %+v", userinfoInteractUsers, userinfoDataIDs)
 	var dataIds = utils.NewSetInt64FromArrays(nearbyUsers, momentInteractUsers, userinfoInteractUsers).ToList()
 	var currentUserProfile *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
