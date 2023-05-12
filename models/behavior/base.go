@@ -9,7 +9,15 @@ import (
 	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
 	"sort"
+	"strings"
 )
+
+// UserEqualsDataPage 部分场景下 user_id == data_id
+var UserEqualsDataPage = []string{
+	"userinfo",    // 其他人的用户主页
+	"around.list", // 附近的人
+	"my.tel",      // 女通讯录
+}
 
 type BehaviorItemLog struct {
 	DataId   int64   `json:"data_id"`
@@ -112,7 +120,7 @@ func (a momTagSorter) Less(i, j int) bool { // 按照 Count , lastTime, Name 倒
 type Behavior struct {
 	Count      float64                 `json:"count"`
 	LastTime   float64                 `json:"last_time"`
-	LastList   []BehaviorItemLog       `json:"last_list"` // 最后操作列表
+	LastList   []*BehaviorItemLog      `json:"last_list"` // 最后操作列表
 	CountMap   map[string]*BehaviorTag `json:"count_map"` // 类别对应的标签
 	PictureMap map[string]*PictureTag  `json:"picture_map"`
 	MomTagMap  map[string]*MomTag      `json:"momTag_map"`
@@ -174,7 +182,7 @@ func (self *Behavior) GetTopCountPictureTags(n int) []*PictureTag {
 	return res
 }
 
-func (self *Behavior) GetInteractData() ([]int64, []int64, map[int64]int64) {
+func (self *Behavior) GetUserIDList() ([]int64, []int64, map[int64]int64) {
 	users := make([]int64, 0)
 	data := make([]int64, 0)
 	userDataMap := make(map[int64]int64, 0)
@@ -186,6 +194,8 @@ func (self *Behavior) GetInteractData() ([]int64, []int64, map[int64]int64) {
 		data = append(data, item.DataId)
 		userDataMap[item.UserId] = item.DataId
 	}
+	users = utils.NewSetInt64FromArrays(users).ToList() // flink 的 last_list 会重复
+	data = utils.NewSetInt64FromArrays(data).ToList()
 	return users, data, userDataMap
 }
 
@@ -201,6 +211,30 @@ func (self *Behavior) GetTopCountMomTags(n int) []*MomTag {
 		res = res[:n]
 	}
 	return res
+}
+
+// FillUserDataID 某些场景下 user_id == data_id，flink那边不会冗余写，需要在这边补齐
+// name 的格式为 "around.list:click" "userinfo:like"
+func (self *Behavior) FillUserDataID(name string) *Behavior {
+	var currentPage string
+	if tuple := strings.Split(name, ":"); len(tuple) == 2 {
+		currentPage = tuple[0]
+	}
+	for _, page := range UserEqualsDataPage {
+		if currentPage == page {
+			for _, item := range self.LastList {
+				if (item.UserId > 0) && (item.UserId != item.DataId) {
+					item.DataId = item.UserId
+				}
+
+				if (item.DataId > 0) && (item.UserId != item.DataId) {
+					item.UserId = item.DataId
+				}
+			}
+			return self
+		}
+	}
+	return self
 }
 
 func LabelConvert(label string) string {
@@ -328,6 +362,7 @@ func (self *UserBehavior) Gets(names ...string) *Behavior {
 		var behaviors = []*Behavior{}
 		for _, name := range names {
 			if behavior, ok := self.BehaviorMap[name]; ok && behavior != nil {
+				behavior = behavior.FillUserDataID(name)
 				behaviors = append(behaviors, behavior)
 			}
 		}
@@ -365,7 +400,8 @@ type BehaviorCacheModule struct {
 
 // 读取user item相关行为
 func (self *BehaviorCacheModule) QueryUserItemBehaviorMap(module string, userId int64, ids []int64) (map[int64]*UserBehavior, error) {
-	keyFormatter := fmt.Sprintf("behavior:%s:%d:%%d.gz", module, userId)
+	behaviorKeyPrefix := self.ctx.GetAbTest().GetString("behavior_key_prefix", "behavior")
+	keyFormatter := fmt.Sprintf("%s:%s:%d:%%d.gz", behaviorKeyPrefix, module, userId)
 	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*UserBehavior)
 	return objs, err
@@ -373,7 +409,8 @@ func (self *BehaviorCacheModule) QueryUserItemBehaviorMap(module string, userId 
 
 // QueryBeenUserItemBehaviorMap 读取user item相关别互动行为，
 func (self *BehaviorCacheModule) QueryBeenUserItemBehaviorMap(module string, userId int64, ids []int64) (map[int64]*UserBehavior, error) {
-	keyFormatter := fmt.Sprintf("behavior:%s:%%d:%d.gz", module, userId)
+	behaviorKeyPrefix := self.ctx.GetAbTest().GetString("behavior_key_prefix", "behavior")
+	keyFormatter := fmt.Sprintf("%s:%s:%%d:%d.gz", behaviorKeyPrefix, module, userId)
 	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*UserBehavior)
 	return objs, err
@@ -381,7 +418,8 @@ func (self *BehaviorCacheModule) QueryBeenUserItemBehaviorMap(module string, use
 
 // 读取item相关行为
 func (self *BehaviorCacheModule) QueryItemBehaviorMap(module string, ids []int64) (map[int64]*UserBehavior, error) {
-	keyFormatter := fmt.Sprintf("behavior:%s:item:%%d.gz", module)
+	behaviorKeyPrefix := self.ctx.GetAbTest().GetString("behavior_key_prefix", "behavior")
+	keyFormatter := fmt.Sprintf("%s:%s:item:%%d.gz", behaviorKeyPrefix, module)
 	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*UserBehavior)
 	return objs, err
@@ -389,7 +427,8 @@ func (self *BehaviorCacheModule) QueryItemBehaviorMap(module string, ids []int64
 
 // 读取user相关行为
 func (self *BehaviorCacheModule) QueryUserBehaviorMap(module string, ids []int64) (map[int64]*UserBehavior, error) {
-	keyFormatter := fmt.Sprintf("behavior:%s:user:%%d.gz", module)
+	behaviorKeyPrefix := self.ctx.GetAbTest().GetString("behavior_key_prefix", "behavior")
+	keyFormatter := fmt.Sprintf("%s:%s:user:%%d.gz", behaviorKeyPrefix, module)
 	ress, err := self.MGetStructsMap(&UserBehavior{}, ids, keyFormatter, 0, 0)
 	objs := ress.Interface().(map[int64]*UserBehavior)
 	return objs, err

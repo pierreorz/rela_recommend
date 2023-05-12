@@ -228,9 +228,9 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 	userSearchMap := make(map[int64]*search.UserResDataItem, 0)
 	liveUsers := make([]int64, 0)
 	liveMap := make(map[int64]*pika.LiveCache, 0)
-	interactUsers := make([]int64, 0)
-	interactData := make([]int64, 0)
-	interactUserDataMap := make(map[int64]int64, 0)
+	var momentInteractBehaviors *behavior.Behavior         // 日志页面发生的互动行为
+	var userInfoMomentInteractBehaviors *behavior.Behavior // 个人主页发生的日志行为
+	var userInfoOtherInteractBehaviors *behavior.Behavior  // 个人主页发生的其他行为
 	pf.RunsGo("recall_users", map[string]func(*performs.Performs) interface{}{
 		"nearby_users": func(*performs.Performs) interface{} {
 			if ctx.GetAbTest().GetBool("nearby_search_es", true) {
@@ -250,22 +250,59 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 			liveUsers, liveMap = tasks.GetAllCachedLiveUsersAndMapByRandom(liveListSize)
 			return len(liveMap)
 		},
-		"current_user_behavior": func(*performs.Performs) interface{} {
+		"user_moment_behavior": func(*performs.Performs) interface{} {
 			if ctx.GetAbTest().GetBool("ntxl_recall_interact", false) {
 				behaviors, userCacheErr := behaviorCache.QueryUserBehaviorMap("moment", []int64{params.UserId})
 				if userCacheErr != nil {
 					return userCacheErr
 				}
 				if currentUserBehavior, ok := behaviors[params.UserId]; ok {
-					momentInteractBehaviors := currentUserBehavior.GetMomentListInteract()
-					interactUsers, interactData, interactUserDataMap = momentInteractBehaviors.GetInteractData()
+					momentInteractBehaviors = currentUserBehavior.GetMomentListInteract()
+					if momentInteractBehaviors != nil {
+						return momentInteractBehaviors.Count
+					}
 				}
 			}
-			return len(interactUsers)
+			return 0
+		},
+		"user_userinfo_behavior": func(*performs.Performs) interface{} {
+			if ctx.GetAbTest().GetBool("ntxl_recall_interact", false) {
+				behaviors, userCacheErr := behaviorCache.QueryUserBehaviorMap("userinfo", []int64{params.UserId})
+				if userCacheErr == nil {
+					if currentUserBehavior, ok := behaviors[params.UserId]; ok {
+						userInfoMomentInteractBehaviors = currentUserBehavior.GetMomentListInteract()
+						userInfoOtherInteractBehaviors = currentUserBehavior.GetUserInteracts()
+					}
+				}
+
+				// todo: item 要记userID
+				behaviors, userCacheErr = behaviorCache.QueryItemBehaviorMap("userinfo", []int64{params.UserId})
+				if userCacheErr == nil {
+					if currentUserBehavior, ok := behaviors[params.UserId]; ok {
+						userInfoMomentInteractBehaviors = userInfoMomentInteractBehaviors.Merge(currentUserBehavior.GetMomentListInteract())
+						userInfoOtherInteractBehaviors = userInfoOtherInteractBehaviors.Merge(currentUserBehavior.GetUserInteracts())
+
+						var cnt float64
+						if userInfoMomentInteractBehaviors != nil {
+							cnt += userInfoMomentInteractBehaviors.Count
+						}
+						if userInfoOtherInteractBehaviors != nil {
+							cnt += userInfoOtherInteractBehaviors.Count
+						}
+						return cnt
+					}
+				}
+			}
+			return 0
 		},
 	})
 
-	var dataIds = utils.NewSetInt64FromArrays(nearbyUsers, interactUsers).ToList()
+	momentInteractUsers, momentDataIDs, momentUserDataMap := momentInteractBehaviors.Merge(userInfoMomentInteractBehaviors).GetUserIDList()
+	userinfoInteractUsers, userinfoDataIDs, _ := userInfoOtherInteractBehaviors.GetUserIDList()
+
+	//log.Debugf("ntxl mu: %+v, md: %+v", momentInteractUsers, momentDataIDs)
+	//log.Debugf("ntxl uu: %+v, ud: %+v", userinfoInteractUsers, userinfoDataIDs)
+	var dataIds = utils.NewSetInt64FromArrays(nearbyUsers, momentInteractUsers, userinfoInteractUsers).Remove(params.UserId).ToList()
 	var currentUserProfile *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
 	var userinfoUserBehavior, userinfoItemBehavior, momentUserBehavior, momentItemBehavior, messageUserBehavior,
@@ -281,7 +318,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 		},
 		"userinfo_user_behavior": func(*performs.Performs) interface{} {
 			var userCacheErr error
-			userinfoUserBehavior, userCacheErr = behaviorCache.QueryUserItemBehaviorMap("userinfo", params.UserId, dataIds)
+			userinfoUserBehavior, userCacheErr = behaviorCache.QueryUserItemBehaviorMap("userinfo", params.UserId, userinfoDataIDs)
 			if userCacheErr != nil {
 				return userCacheErr
 			}
@@ -289,7 +326,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 		},
 		"userinfo_item_behavior": func(*performs.Performs) interface{} {
 			var userCacheErr error
-			userinfoItemBehavior, userCacheErr = behaviorCache.QueryBeenUserItemBehaviorMap("userinfo", params.UserId, dataIds)
+			userinfoItemBehavior, userCacheErr = behaviorCache.QueryBeenUserItemBehaviorMap("userinfo", params.UserId, userinfoDataIDs)
 			if userCacheErr != nil {
 				return userCacheErr
 			}
@@ -297,7 +334,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 		},
 		"moment_user_behavior": func(*performs.Performs) interface{} {
 			var userCacheErr error
-			momentUserBehavior, userCacheErr = behaviorCache.QueryUserItemBehaviorMap("moment", params.UserId, interactData)
+			momentUserBehavior, userCacheErr = behaviorCache.QueryUserItemBehaviorMap("moment", params.UserId, momentDataIDs)
 			if userCacheErr != nil {
 				return userCacheErr
 			}
@@ -305,7 +342,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 		},
 		"moment_item_behavior": func(*performs.Performs) interface{} {
 			var userCacheErr error
-			momentItemBehavior, userCacheErr = behaviorCache.QueryBeenUserItemBehaviorMap("moment", params.UserId, interactData)
+			momentItemBehavior, userCacheErr = behaviorCache.QueryBeenUserItemBehaviorMap("moment", params.UserId, momentDataIDs)
 			if userCacheErr != nil {
 				return userCacheErr
 			}
@@ -346,8 +383,8 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 					RankInfo:             &algo.RankInfo{Score: 1.},
 					UserCache:            data,
 					LiveInfo:             liveMap[dataId],
-					UserItemBehavior:     userinfoUserBehavior[dataId].Merge(momentUserBehavior[interactUserDataMap[dataId]]).Merge(messageUserBehavior[dataId]),
-					BeenUserItemBehavior: userinfoItemBehavior[dataId].Merge(momentItemBehavior[interactUserDataMap[dataId]]).Merge(messageItemBehavior[dataId]),
+					UserItemBehavior:     userinfoUserBehavior[dataId].Merge(momentUserBehavior[momentUserDataMap[dataId]]).Merge(messageUserBehavior[dataId]),
+					BeenUserItemBehavior: userinfoItemBehavior[dataId].Merge(momentItemBehavior[momentUserDataMap[dataId]]).Merge(messageItemBehavior[dataId]),
 				}
 				dataList = append(dataList, info)
 			}
