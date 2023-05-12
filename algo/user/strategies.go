@@ -179,7 +179,7 @@ func NtxNearbyDecayWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankI
 			if distance <= 3000 {
 				rankInfo.AddRecommendWithType("NearbyUser", 1, algo.TypeNearbyUser)
 			}
-			ratio := rutils.GaussDecay(distance, 0, 500, 5000)
+			ratio := rutils.GaussDecay(distance, 0, 3000, 50000)
 			if ratio > 0 {
 				rankInfo.AddRecommend("DistantDecay", float32(ratio))
 			}
@@ -253,19 +253,20 @@ func NtxlUserWinkItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 // NtxlMomentInteractItemFunc 日志互动/被互动
 func NtxlMomentInteractItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)
+	interactRatio := ctx.GetAbTest().GetFloat("interact_ratio", 1.0)
 
 	if userItemBehavior := dataInfo.UserItemBehavior; userItemBehavior != nil {
 		interactItem := userItemBehavior.GetMomentListInteract()
 		if interactItem.Count > 0 {
 			score := 1 + math.Log(interactItem.Count/3+1)
-			rankInfo.AddRecommendWithType("MomentInteract", float32(score), algo.TypeMomentInteract)
+			rankInfo.AddRecommendWithType("MomentInteract", interactRatio*float32(score), algo.TypeMomentInteract)
 		}
 	}
 	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
 		interactItem := beenUserItemBehavior.GetMomentListInteract()
 		if interactItem.Count > 0 {
 			score := 1 + math.Log(interactItem.Count/3+1)
-			rankInfo.AddRecommendWithType("BeenMomentInteract", float32(score), algo.TypeMomentInteract)
+			rankInfo.AddRecommendWithType("BeenMomentInteract", interactRatio*float32(score), algo.TypeMomentInteract)
 		}
 	}
 	return nil
