@@ -181,7 +181,7 @@ func NtxNearbyDecayWeightFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankI
 			}
 			ratio := rutils.GaussDecay(distance, 0, 500, 5000)
 			if ratio > 0 {
-				rankInfo.AddRecommend("NearbyUserDecay", float32(ratio))
+				rankInfo.AddRecommend("DistantDecay", float32(ratio))
 			}
 		}
 	}

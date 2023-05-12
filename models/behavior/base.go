@@ -194,6 +194,8 @@ func (self *Behavior) GetUserIDList() ([]int64, []int64, map[int64]int64) {
 		data = append(data, item.DataId)
 		userDataMap[item.UserId] = item.DataId
 	}
+	users = utils.NewSetInt64FromArrays(users).ToList() // flink 的 last_list 会重复
+	data = utils.NewSetInt64FromArrays(data).ToList()
 	return users, data, userDataMap
 }
 
