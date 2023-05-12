@@ -253,19 +253,20 @@ func NtxlUserWinkItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 // NtxlMomentInteractItemFunc 日志互动/被互动
 func NtxlMomentInteractItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*DataInfo)
+	interactRatio := ctx.GetAbTest().GetFloat("interact_ratio", 1.0)
 
 	if userItemBehavior := dataInfo.UserItemBehavior; userItemBehavior != nil {
 		interactItem := userItemBehavior.GetMomentListInteract()
 		if interactItem.Count > 0 {
 			score := 1 + math.Log(interactItem.Count/3+1)
-			rankInfo.AddRecommendWithType("MomentInteract", float32(score), algo.TypeMomentInteract)
+			rankInfo.AddRecommendWithType("MomentInteract", interactRatio*float32(score), algo.TypeMomentInteract)
 		}
 	}
 	if beenUserItemBehavior := dataInfo.BeenUserItemBehavior; beenUserItemBehavior != nil {
 		interactItem := beenUserItemBehavior.GetMomentListInteract()
 		if interactItem.Count > 0 {
 			score := 1 + math.Log(interactItem.Count/3+1)
-			rankInfo.AddRecommendWithType("BeenMomentInteract", float32(score), algo.TypeMomentInteract)
+			rankInfo.AddRecommendWithType("BeenMomentInteract", interactRatio*float32(score), algo.TypeMomentInteract)
 		}
 	}
 	return nil
