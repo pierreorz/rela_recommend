@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"rela_recommend/models/redis"
 	"rela_recommend/service/abtest"
 	"rela_recommend/utils"
@@ -121,7 +120,7 @@ func (a momTagSorter) Less(i, j int) bool { // 按照 Count , lastTime, Name 倒
 type Behavior struct {
 	Count      float64                 `json:"count"`
 	LastTime   float64                 `json:"last_time"`
-	LastList   []BehaviorItemLog       `json:"last_list"` // 最后操作列表
+	LastList   []*BehaviorItemLog      `json:"last_list"` // 最后操作列表
 	CountMap   map[string]*BehaviorTag `json:"count_map"` // 类别对应的标签
 	PictureMap map[string]*PictureTag  `json:"picture_map"`
 	MomTagMap  map[string]*MomTag      `json:"momTag_map"`
@@ -362,12 +361,10 @@ func (self *UserBehavior) Gets(names ...string) *Behavior {
 		for _, name := range names {
 			if behavior, ok := self.BehaviorMap[name]; ok && behavior != nil {
 				behavior = behavior.FillUserDataID(name)
-				log.Debugf("ntxl be: %+v", behavior)
 				behaviors = append(behaviors, behavior)
 			}
 		}
 		res = MergeBehaviors(behaviors...)
-		log.Debugf("ntxl res: %+v", res)
 	}
 	return res
 }
