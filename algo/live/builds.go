@@ -112,7 +112,7 @@ func DoBuildData(ctx algo.IContext) error {
 			}
 		},
 		"subscribe_user": func(*performs.Performs) interface{} {
-			if liveConsumer, liveConsumerErr := rdsPikaCache.GetInt64List(params.UserId, "live_user_consumer"); liveConsumerErr == nil {
+			if liveConsumer, liveConsumerErr := rdsPikaCache.GetInt64ListNoFormatter("live_user_consumer"); liveConsumerErr == nil {
 				liveConsumerSet = utils.NewSetInt64FromArray(liveConsumer)
 				return liveConsumerSet.Len()
 			} else {
