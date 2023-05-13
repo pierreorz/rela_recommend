@@ -1031,10 +1031,9 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 	liveArrMap := make(map[int64]int, 0)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
-		rankInfo := dataInfo.GetRankInfo()
 		//没有看过的日志
-		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {
-			if strings.Contains(dataInfo.MomentCache.MomentsType, "live") && rankInfo.IsSoftTop == 0 && rankInfo.IsTop == 0 { ////直播日志且非置顶日志且非软置顶日志
+		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 2 {
+			if strings.Contains(dataInfo.MomentCache.MomentsType, "live")  { ////直播日志且非置顶日志且非软置顶日志
 				liveArr = append(liveArr, dataInfo.DataId)
 			}
 
@@ -1047,7 +1046,7 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if sortIndex, ok := liveArrMap[dataInfo.DataId]; ok { //运营推荐主播每隔5位随机进行展示
-				rankInfo.HopeIndex = sortIndex*6 + GenerateRangeNum(1, 7)
+				rankInfo.HopeIndex = sortIndex*2 + GenerateRangeNum(0, 2)
 			}
 		}
 	}

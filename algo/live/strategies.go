@@ -156,10 +156,10 @@ type NewScoreStrategyV2 struct{}
 func (self *NewScoreStrategyV2) Do(ctx algo.IContext) error {
 	var err error
 	params := ctx.GetRequest()
-
+	userInfo := ctx.GetUserInfo().(*UserInfo)
 	algo_score := ctx.GetAbTest().GetFloat("algo_ratio", 0.3)
 	business_score := 1 - algo_score
-	if sort,ok :=params.Params["sort"];ok&&sort!="hot"{//直播列表逻辑
+	if sort,ok :=params.Params["sort"];ok&&sort!="hot"&&userInfo.IsSubscriber==1{//直播列表逻辑//付费用户才走这个逻辑
 		for i := 0; i < ctx.GetDataLength(); i++ {
 			dataInfo := ctx.GetDataByIndex(i)
 			live := dataInfo.(*LiveInfo)
@@ -421,19 +421,23 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 // 曝光未点击的直播降权 曝光两次未点击降权70%，曝光三次未点击降权50%，曝光四次未点击降权权30%，曝光五次以上未点击降权10%
 func UserBehaviorExposureDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*LiveInfo)
+	userInfo := ctx.GetUserInfo().(*UserInfo)
 	if userBehavior := dataInfo.UserItemBehavior; userBehavior != nil {
-		exposure := userBehavior.GetLiveExposure()
-		if exposure.Count > 0 {
-			if exposure.Count == 2 {
-				rankInfo.AddRecommend("exposureDown", 0.7)
-			} else if exposure.Count == 3 {
-				rankInfo.AddRecommend("exposureDown", 0.5)
-			} else if exposure.Count == 4 {
-				rankInfo.AddRecommend("exposureDown", 0.3)
-			} else if exposure.Count > 4 {
-				rankInfo.AddRecommend("exposureDown", 0.1)
+		if userInfo.IsSubscriber == 0 { //非付费用户
+			exposure := userBehavior.GetLiveExposure()
+			if exposure.Count > 0 {
+				if exposure.Count == 3 {
+					rankInfo.AddRecommend("exposureDown", 0.8)
+				} else if exposure.Count == 4 {
+					rankInfo.AddRecommend("exposureDown", 0.6)
+				} else if exposure.Count == 5 {
+					rankInfo.AddRecommend("exposureDown", 0.4)
+				} else if exposure.Count > 6 {
+					rankInfo.AddRecommend("exposureDown", 0.1)
+				}
 			}
 		}
 	}
+
 	return nil
 }
