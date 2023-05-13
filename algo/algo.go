@@ -2,10 +2,10 @@ package algo
 
 import (
 	"os"
+	"rela_recommend/algo/utils"
 	utils2 "rela_recommend/utils"
 	"strings"
 	"sync"
-	"rela_recommend/algo/utils"
 )
 
 // ************************************************** 算法

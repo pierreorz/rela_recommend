@@ -44,6 +44,8 @@ func DoBuildData(ctx algo.IContext) error {
 	var usersMap2 = map[int64]*redis.LiveProfile{}
 	var concernsSet = &utils.SetInt64{}
 	var consumerSet = &utils.SetInt64{}
+	var liveConsumerSet = &utils.SetInt64{}
+
 	var interestSet = &utils.SetInt64{}
 	var hourRankMap = map[int64]api.AnchorHourRankInfo{}
 	var userBehaviorMap = map[int64]*behavior.UserBehavior{}
@@ -109,6 +111,14 @@ func DoBuildData(ctx algo.IContext) error {
 				return consumerErr
 			}
 		},
+		"subscribe_user": func(*performs.Performs) interface{} {
+			if liveConsumer, liveConsumerErr := rdsPikaCache.GetInt64List(params.UserId, "live_user_consumer"); liveConsumerErr == nil {
+				liveConsumerSet = utils.NewSetInt64FromArray(liveConsumer)
+				return liveConsumerSet.Len()
+			} else {
+				return liveConsumerErr
+			}
+		},
 		"user_live_content_profile": func(*performs.Performs) interface{} { //用户关于直播的画像
 			var userLiveContentProfileErr error
 			if userLiveContentProfileMap, userLiveContentProfileErr = userCache.QueryUserLiveContentProfileByIdsMap([]int64{params.UserId}); userLiveContentProfileErr == nil {
@@ -131,6 +141,10 @@ func DoBuildData(ctx algo.IContext) error {
 		consumer := 0
 		if concernsSet.Contains(1) { //高消费用户
 			consumer = 1
+		}
+		liveConsumer :=0
+		if liveConsumerSet.Contains(user.UserId){
+			liveConsumer = 1//付费用户
 		}
 		for i, _ := range lives {
 			liveId := lives[i].Live.UserId
@@ -228,7 +242,8 @@ func DoBuildData(ctx algo.IContext) error {
 			LiveProfile:            user2,
 			UserConcerns:           concernsSet,
 			UserInterests:          interestSet,
-			ConsumeUser:            consumer}
+			ConsumeUser:            consumer,
+			IsSubscriber:  liveConsumer}
 
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(liveIds)

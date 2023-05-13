@@ -86,6 +86,8 @@ type UserInfo struct {
 	UserInterests          *rutils.SetInt64
 	ConsumeUser            int
 	UserLiveContentProfile *redis.UserLiveContentProfile //使用者直播画像数据
+	IsSubscriber  int   //是否是付费用户
+
 
 }
 
