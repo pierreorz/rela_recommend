@@ -1109,7 +1109,11 @@ func liveGroupRecommendStrategy(ctx algo.IContext) error {     //仅对优秀主
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if rankInfo.Packet > 0 && rankInfo.IsTarget > 0 {
-			plan_num +=1
+			if (dataInfo.ItemBehavior ==nil)||(dataInfo.ItemBehavior.GetMomLiveExposure().Count < rankInfo.Packet) {
+				if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 2{
+					plan_num +=1
+				}
+			}
 		}
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 2 {
 			if dataInfo.ItemBehavior == nil || (dataInfo.ItemBehavior!=nil&&(dataInfo.ItemBehavior.GetLiveMomentListRate() > ratio || dataInfo.ItemBehavior.GetMomLiveExposure().Count < 350)) {
@@ -1174,7 +1178,11 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		rankInfo := dataInfo.GetRankInfo()
 		if rankInfo.Packet > 0 && rankInfo.IsTarget > 0 {
-			plan_num +=1
+			if (dataInfo.ItemBehavior ==nil)||(dataInfo.ItemBehavior.GetMomLiveExposure().Count < rankInfo.Packet) {
+				if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 2{
+					plan_num +=1
+				}
+			}
 		}
 
 		if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 1 {

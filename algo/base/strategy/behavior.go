@@ -201,7 +201,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 			}else{
 				see_num =0
 			}
-			if see_num<=1{
+			if see_num<=1&&count<rankInfo.Packet{
 				mom.momId = dataInfo.GetDataId()
 				mom.score = 1-count/rankInfo.Packet   //得分为推广未完成度
 				res = append(res, mom)
