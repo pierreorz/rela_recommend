@@ -1111,7 +1111,9 @@ func liveGroupRecommendStrategy(ctx algo.IContext) error {     //仅对优秀主
 		if rankInfo.Packet > 0 && rankInfo.IsTarget > 0 {
 			if (dataInfo.ItemBehavior ==nil)||(dataInfo.ItemBehavior.GetMomLiveExposure().Count < rankInfo.Packet) {
 				if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 2{
-					plan_num +=1
+					if strings.Contains(dataInfo.MomentCache.MomentsType, "live"){
+						plan_num +=1
+					}
 				}
 			}
 		}
@@ -1180,7 +1182,9 @@ func liveRecommendStrategyFunc(ctx algo.IContext) error {
 		if rankInfo.Packet > 0 && rankInfo.IsTarget > 0 {
 			if (dataInfo.ItemBehavior ==nil)||(dataInfo.ItemBehavior.GetMomLiveExposure().Count < rankInfo.Packet) {
 				if dataInfo.UserItemBehavior == nil || dataInfo.UserItemBehavior.Count < 2{
-					plan_num +=1
+					if strings.Contains(dataInfo.MomentCache.MomentsType, "live"){
+						plan_num +=1
+					}
 				}
 			}
 		}
