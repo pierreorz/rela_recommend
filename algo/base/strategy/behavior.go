@@ -3,6 +3,7 @@ package strategy
 import (
 	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"sort"
 	"time"
@@ -179,7 +180,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
 	var res = momLiveSorter{}
 	sortIds := make(map[int64]int, 0)
-	interval := abtest.GetInt("packet_interval_index", 5)
+	interval := abtest.GetInt("packet_interval_index", 4)
 	exposureBehaviors :=abtest.GetStrings("exposure_behaviors","moment.recommend:exposure")
 	for index :=0 ; index <ctx.GetDataLength(); index ++{
 		dataInfo := ctx.GetDataByIndex(index)
@@ -187,14 +188,16 @@ func FlowPacketFunc(ctx algo.IContext) error{
 		if rankInfo.Packet>0 && rankInfo.IsTarget>0{
 			count :=0.0
 			var mom momLive
-			if userItemBehavior := dataInfo.GetUserBehavior(); userItemBehavior != nil {
-				exposures := userItemBehavior.Gets(exposureBehaviors...)
+			if itemBehavior := dataInfo.GetBehavior(); itemBehavior != nil {
+				exposures := itemBehavior.Gets(exposureBehaviors...)
 				count = exposures.Count
 
 			}else{
 				count = 0.0
 			}
 			mom.momId = dataInfo.GetDataId()
+			log.Warnf("recommend_plan info %s",rankInfo.Packet)
+			log.Warnf("recommend_plan info %s",count)
 			mom.score = 1-count/rankInfo.Packet   //得分为推广未完成度
 			res = append(res, mom)
 		}
@@ -208,6 +211,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 		rankInfo := dataInfo.GetRankInfo()
 		if sortIndex, ok := sortIds[dataInfo.GetDataId()]; ok {
 			rankInfo.HopeIndex = (sortIndex)*(interval-1) + GenerateRangeNum(1, interval)
+			rankInfo.AddRecommend("recommend_plan",1)
 		}
 	}
 	return nil
