@@ -187,6 +187,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 		rankInfo := dataInfo.GetRankInfo()
 		if rankInfo.Packet>0 && rankInfo.IsTarget>0{
 			count :=0.0
+			see_num :=0.0
 			var mom momLive
 			if itemBehavior := dataInfo.GetBehavior(); itemBehavior != nil {
 				exposures := itemBehavior.Gets(exposureBehaviors...)
@@ -195,11 +196,20 @@ func FlowPacketFunc(ctx algo.IContext) error{
 			}else{
 				count = 0.0
 			}
-			mom.momId = dataInfo.GetDataId()
-			log.Warnf("recommend_plan info %s",rankInfo.Packet)
-			log.Warnf("recommend_plan info %s",count)
-			mom.score = 1-count/rankInfo.Packet   //得分为推广未完成度
-			res = append(res, mom)
+			if userItemBehavior := dataInfo.GetUserBehavior(); userItemBehavior != nil {
+				see := userItemBehavior.Gets(exposureBehaviors...)
+				see_num = see.Count
+			}else{
+				see_num =0
+			}
+
+			if see_num<=1{
+				mom.momId = dataInfo.GetDataId()
+				log.Warnf("recommend_plan info %s",rankInfo.Packet)
+				log.Warnf("recommend_plan info %s",count)
+				mom.score = 1-count/rankInfo.Packet   //得分为推广未完成度
+				res = append(res, mom)
+			}
 		}
 	}
 	sort.Sort(res)
