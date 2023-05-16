@@ -202,7 +202,8 @@ func FlowPacketFunc(ctx algo.IContext) error{
 			}else{
 				see_num =0
 			}
-
+			log.Warnf("recommend_plan info %s",rankInfo.Packet)
+			log.Warnf("recommend_plan info %s",count)
 			if see_num<=1{
 				mom.momId = dataInfo.GetDataId()
 				log.Warnf("recommend_plan info %s",rankInfo.Packet)
