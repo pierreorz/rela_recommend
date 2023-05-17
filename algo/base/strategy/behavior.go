@@ -3,6 +3,7 @@ package strategy
 import (
 	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"sort"
 	"time"
@@ -212,6 +213,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 	for index, mom := range res {
 		sortIds[mom.momId] = index
 	}
+	log.Warnf("sortId is %s",sortIds)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index)
 		rankInfo := dataInfo.GetRankInfo()
