@@ -3,7 +3,6 @@ package strategy
 import (
 	"math/rand"
 	"rela_recommend/algo"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"sort"
 	"time"
@@ -213,13 +212,11 @@ func FlowPacketFunc(ctx algo.IContext) error{
 	for index, mom := range res {
 		sortIds[mom.momId] = index
 	}
-	log.Warnf("sortId is %s",sortIds)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index)
 		rankInfo := dataInfo.GetRankInfo()
 		if sortIndex, ok := sortIds[dataInfo.GetDataId()]; ok {
 			rankInfo.HopeIndex = (sortIndex)*(interval-1) + GenerateRangeNum(1, interval)
-			rankInfo.AddRecommend("recommend_plan",1)
 		}
 	}
 	return nil

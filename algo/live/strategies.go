@@ -214,6 +214,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	var startIndex = 5
 	var intervar = 0
+	var around_num =0
 	params := ctx.GetRequest()
 	topN := abtest.GetInt("per_hour_rank_top_n", 3) // 前n名随机， 分数相同的并列，有可能返回1,2,2,3
 	indexs := []int{}
@@ -233,11 +234,12 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 				distance := rutils.EarthDistance(float64(params.Lng), float64(params.Lat), float64(dataInfo.LiveCache.Lng), float64(dataInfo.LiveCache.Lat))
 				switch {
 				case distance < 30000:
-					if label==0&&sort!="hot"{
-						rankInfo.HopeIndex = startIndex + intervar*3
+					if label==0&&sort!="hot"&&around_num<=0{
+						rankInfo.HopeIndex = startIndex + intervar*5
 						intervar += 1
 						label =1
-					}
+						around_num+=1
+
 					dataInfo.LiveData.AddLabel(&labelItem{
 						Style: AroundLabel,
 						NewStyle:newStyle{
@@ -253,12 +255,14 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 						weight: AroundWeight,
 						level:  level1,
 					})
+					}
 				case distance >= 30000 && distance < 50000:
-					if label==0&&sort!="hot"{
-						rankInfo.HopeIndex = startIndex + intervar*3
+					if label==0&&sort!="hot"&&around_num<=0{
+						rankInfo.HopeIndex = startIndex + intervar*5
 						intervar += 1
 						label =1
-					}
+						around_num+=1
+
 					dataInfo.LiveData.AddLabel(&labelItem{
 						Style: CityLabel,
 						NewStyle:newStyle{
@@ -274,6 +278,7 @@ func HourRankRecommendFunc(ctx algo.IContext) error {
 						weight: CityWeight,
 						level:  level1,
 					})
+					}
 				}
 			}
 			if userInfo.UserConcerns != nil {
