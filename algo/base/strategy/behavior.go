@@ -217,6 +217,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 		rankInfo := dataInfo.GetRankInfo()
 		if sortIndex, ok := sortIds[dataInfo.GetDataId()]; ok {
 			rankInfo.HopeIndex = (sortIndex)*(interval-1) + GenerateRangeNum(1, interval)
+			rankInfo.AddRecommend("recommend_plan",1)
 		}
 	}
 	return nil

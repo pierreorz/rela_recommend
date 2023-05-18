@@ -290,7 +290,6 @@ type RankInfo struct {
 	IsHourTop   int    //小时top3
 	Packet     float64      //流量包
 	IsTarget    int     //是否需要推广
-	MomTime     int      //流量包开始时间
 
 }
 
