@@ -125,6 +125,20 @@ func (ld *LiveData) AddLabel(item *labelItem) {
 		}
 	}
 }
+func (ld *LiveData) RemainClassify() []*labelItem{
+	var labels []*labelItem
+	for _,l :=range[] *labelItem{ld.level1Label, ld.level2Label, ld.level3Label}{
+		if l!=nil{
+			if l.Style==ClassifyLabel&&l.weight==ClassifyLabelWeight{
+				labels = append(labels, l)
+			}
+		}
+		if len(labels) >= 2 {
+			break
+		}
+	}
+	return labels
+}
 
 func (ld *LiveData) ToLabelList() []*labelItem {
 	var labels []*labelItem
@@ -377,6 +391,10 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				//log.Warnf("label list key,%s", key)
 				if err := help.SetExStructByCache(factory.CacheCommonRds, key, data.LabelList, LabelExpire); err != nil {
 					log.Warnf("read label list err %s", err)
+				}
+				params := ctx.GetRequest()
+				if sort,ok :=params.Params["sort"];ok&&sort=="hot"{//横幅直播标签
+					data.LabelList=self.LiveData.RemainClassify()
 				}
 				dataJson, err := json.Marshal(data)
 				if err == nil {
