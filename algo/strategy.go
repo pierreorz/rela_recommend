@@ -88,6 +88,7 @@ func (self *PagerBase) BuildResponse(ctx IContext, minIndex int, maxIndex int) (
 		rankInfo.Index = i
 		returnObjs = append(returnObjs, RecommendResponseItem{
 			DataId:         currData.GetDataId(),
+			PlanId:         rankInfo.PlanId,
 			Data:           currData.GetResponseData(ctx),
 			Index:          rankInfo.Index,
 			Score:          rankInfo.Score,
@@ -131,6 +132,7 @@ func (self *LoggerBase) Do(ctx IContext) error {
 				UserId:          ctx.GetRequest().UserId,
 				Algo:            rankInfo.AlgoName,
 				AlgoScore:       rankInfo.AlgoScore,
+				PlanId:          rankInfo.PlanId,
 				Score:           rankInfo.Score,
 				RecommendScores: rankInfo.RecommendsString(),
 				Features:        rankInfo.GetFeaturesString(),

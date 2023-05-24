@@ -848,6 +848,7 @@ func DoBuildData(ctx algo.IContext) error {
 				var isSoftTop = 0
 				var packet = 0.0
 				var isTarget =0
+				var planId int64
 				// 处理推荐
 				var recommends []algo.RecommendItem
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
@@ -857,6 +858,7 @@ func DoBuildData(ctx algo.IContext) error {
 					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
 					packet = topType.GetCurrentPacket(searchScenery,ctx.GetCreateTime())
 					currTarget :=topType.GetCurrentTarget(searchScenery)
+					planId =topType.GetCurrentPlanId(searchScenery)
 					if currTarget>0 ||(currTarget==userType&&currTarget>0){
 						isTarget = 1
 					}
@@ -933,7 +935,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
 					LiveContentProfile:   liveContentProfileMap[mom.Moments.UserId],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,Packet:packet,IsTarget:isTarget,LiveScore:topLivescore ,LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness,IsSocial:isSocial,IsFollow:isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,Packet:packet,IsTarget:isTarget,LiveScore:topLivescore,PlanId:planId ,LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness,IsSocial:isSocial,IsFollow:isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],

@@ -8,6 +8,7 @@ import (
 //********************************* 服务端日志
 type RecommendLog struct {
 	Module          string
+	PlanId          int64
 	RankId          string
 	Index           int64
 	UserId          int64

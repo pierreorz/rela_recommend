@@ -171,6 +171,7 @@ const internalSearchAuditUrlFormatter = "/search/audit_%s"
 
 type searchMomentAuditResDataItemTopInfo struct {
 	Scenery   string `json:"scenery"` // 场景
+	PlanID    int64  `json:"plan_id"`
 	TopType   string `json:"top_type"`  //string `json:"top_type"` // hot: 置顶，recommend: 推荐，soft: 软置顶，recommend_plan: 流量包
 	Weight    int64  `json:"weight"`
 	StartTime int64  `json:"start_time"`
@@ -200,6 +201,14 @@ func (self *SearchMomentAuditResDataItem) GetCurrentTopType(scenery string) stri
 	return ""
 }
 
+func (self *SearchMomentAuditResDataItem)GetCurrentPlanId(scenery string) int64{
+	for _,top :=range self.TopInfo{
+		if top.Scenery==scenery {
+			return top.PlanID
+		}
+	}
+	return 0
+}
 //获取当前场景目标流量
 func (self *SearchMomentAuditResDataItem) GetCurrentPacket(scenery string,nowTime time.Time) float64 {
 	for _, top := range self.TopInfo {
