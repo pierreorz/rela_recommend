@@ -616,7 +616,6 @@ func DoBuildData(ctx algo.IContext) error {
 					momentIdSet.Append(searchRes.Id)
 				}
 				dataIds = momentIdSet.AppendArray(dataIds).ToList()
-				log.Warnf("searchId is %s",momentIdSet)
 				return len(searchMomentMap)
 			}
 			return searchMomentMapErr
@@ -791,20 +790,11 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 			}
-			if mom.Moments.Id==168482998813900065{
-				log.Warnf("plan Id is%s ",searchMomentMap[mom.Moments.Id])
-			}
 			if mom.Moments == nil || mom.MomentsExtend == nil {
 				continue
 			}
-			if mom.Moments.Id==168482998813900065{
-				log.Warnf("plan Id is%s ",searchMomentMap[mom.Moments.Id])
-			}
 			if mom.Moments != nil && mom.Moments.Secret == 1 && abtest.GetBool("close_secret", false) { //匿名日志且后台开关开启即关闭
 				continue
-			}
-			if mom.Moments.Id==168482998813900065{
-				log.Warnf("plan Id is%s ",searchMomentMap[mom.Moments.Id])
 			}
 
 			//搜索过滤开关(运营推荐不管审核状态)
@@ -862,9 +852,6 @@ func DoBuildData(ctx algo.IContext) error {
 				// 处理推荐
 				var recommends []algo.RecommendItem
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
-					if mom.Moments.Id==168482998813900065{
-						log.Warnf("plan Id is%s ",topType)
-					}
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
