@@ -156,7 +156,6 @@ func ExposureBottomFunc(ctx algo.IContext) error {
 		for index := 0; index < ctx.GetDataLength(); index++ {
 			dataInfo := ctx.GetDataByIndex(index)
 			rankInfo := dataInfo.GetRankInfo()
-
 			if userItemBehavior := dataInfo.GetUserBehavior(); userItemBehavior != nil {
 				actions := userItemBehavior.Gets(interactBehaviors...)
 				exposures := userItemBehavior.Gets(exposureBehaviors...)

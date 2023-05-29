@@ -64,7 +64,7 @@ func (self *DataInfo) GetBehavior() *behavior.UserBehavior {
 }
 
 func (self *DataInfo) GetUserBehavior() *behavior.UserBehavior {
-	return nil
+	return self.UserItemBehavior
 }
 
 func (self *DataInfo) GetUserItemBehavior() *behavior.UserBehavior {
