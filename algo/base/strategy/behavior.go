@@ -3,6 +3,7 @@ package strategy
 import (
 	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"sort"
 	"time"
@@ -201,6 +202,10 @@ func FlowPacketFunc(ctx algo.IContext) error{
 			}else{
 				see_num =0
 			}
+			log.Warnf("see_num is %s",see_num)
+			log.Warnf("id is _num %s",dataInfo.GetDataId())
+			log.Warnf("see_num is %s",see_num)
+
 			if see_num<=1&&count<rankInfo.Packet{
 				mom.momId = dataInfo.GetDataId()
 				mom.score = 1-count/rankInfo.Packet   //得分为推广未完成度
