@@ -19,7 +19,6 @@ type IDataInfo interface {
 	SetRankInfo(*RankInfo)                   // 设置推荐排名信息
 	GetBehavior() *behavior.UserBehavior     // 获取数据的用户行为
 	GetUserBehavior() *behavior.UserBehavior // 获取当前用户对此数据的行为
-	GetUserItemBehavior()  *behavior.UserBehavior // 获取当前用户对此数据的行为
 }
 
 type IContext interface {
