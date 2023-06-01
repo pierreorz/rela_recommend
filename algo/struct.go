@@ -238,7 +238,7 @@ func (self *RecommendRequest) GetVersion() int {
 
 type RecommendResponseItem struct {
 	DataId         int64          `json:"dataId" form:"dataId"`
-	PlanId         int64             `json:"planId" form:"planId"`
+	PlanId         int64             `json:"plan_id" form:"plan_id"`
 	Data           interface{}    `json:"data" form:"data"`
 	Index          int            `json:"index" form:"index"`
 	Reason         string         `json:"reason" form:"reason"`
