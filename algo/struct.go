@@ -238,6 +238,7 @@ func (self *RecommendRequest) GetVersion() int {
 
 type RecommendResponseItem struct {
 	DataId         int64          `json:"dataId" form:"dataId"`
+	PlanId         int64             `json:"plan_id" form:"plan_id"`
 	Data           interface{}    `json:"data" form:"data"`
 	Index          int            `json:"index" form:"index"`
 	Reason         string         `json:"reason" form:"reason"`
@@ -285,6 +286,7 @@ type RankInfo struct {
 	IsTagMom    int
 	IsSoftTop   int    //是否软置顶日志   1:是  0：默认
 	ExpId       string //Pai实验Id
+	PlanId      int64 //推荐接口Id
 	RequestId   string //Pai请求id
 	OffTime     int    //超时标记位
 	IsHourTop   int    //小时top3
