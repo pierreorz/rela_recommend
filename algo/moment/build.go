@@ -856,6 +856,9 @@ func DoBuildData(ctx algo.IContext) error {
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
 					packet = topType.GetCurrentPacket(searchScenery,ctx.GetCreateTime())
+					if packet==0 &&isTop!=0&&isSoftTop!=0{//无流量包功能且非软置顶和硬置顶过滤
+						continue
+					}
 					currTarget :=topType.GetCurrentTarget(searchScenery)
 					planId =topType.GetCurrentPlanId(searchScenery)
 					if currTarget>0 ||(currTarget==userType&&currTarget>0){
