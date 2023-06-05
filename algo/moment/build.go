@@ -856,7 +856,7 @@ func DoBuildData(ctx algo.IContext) error {
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
 					packet = topType.GetCurrentPacket(searchScenery,ctx.GetCreateTime())
-					if packet==0 &&isTop!=0&&isSoftTop!=0{//无流量包功能且非软置顶和硬置顶过滤
+					if packet==0 &&isTop==0&&isSoftTop==0{//无流量包功能且非软置顶和硬置顶过滤
 						continue
 					}
 					currTarget :=topType.GetCurrentTarget(searchScenery)
@@ -872,6 +872,7 @@ func DoBuildData(ctx algo.IContext) error {
 				//if isSoftTop==1{
 				//	log.Warnf("soft top moment%s",mom.Moments.Id)
 				//}
+
 				var liveIndex = 0
 				var isTopLiveMom = -1
 				if liveMap != nil {
