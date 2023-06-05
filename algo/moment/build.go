@@ -859,7 +859,7 @@ func DoBuildData(ctx algo.IContext) error {
 					if mom.Moments.Id==168431651825310098{
 						log.Warnf("packet%s istop%s ,softtop%s",packet,isTop,isSoftTop)
 					}
-					if packet==0 &&isTop!=0&&isSoftTop!=0{//无流量包功能且非软置顶和硬置顶过滤
+					if packet==0 &&isTop==0&&isSoftTop==0{//无流量包功能且非软置顶和硬置顶过滤
 						continue
 					}
 					currTarget :=topType.GetCurrentTarget(searchScenery)
