@@ -43,7 +43,8 @@ func (self *AbTest) GetUserAttr(keys []string) map[string]interface{} {
 			case "lat", "lng":
 				res["lat"] = self.Lat
 				res["lng"] = self.Lng
-
+			case "region":
+				res["region"] = self.SettingMap["region"]
 			}
 		}
 	}
