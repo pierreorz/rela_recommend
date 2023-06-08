@@ -28,8 +28,10 @@ func AbTestHTTP(c *routers.Context) {
 		return
 	}
 
-	params.ParamsMap["from"] = params.From
-	params.ParamsMap["region"] = params.Region
+	if params.ParamsMap != nil {
+		params.ParamsMap["from"] = params.From
+		params.ParamsMap["region"] = params.Region
+	}
 
 	ab := abtest.GetAbTestWithUaLocSetting(params.App, params.UserId, params.Ua, params.Lat, params.Lng, params.ParamsMap)
 	c.JSON(response.FormatResponseV3(ab, nil))
