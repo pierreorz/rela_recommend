@@ -16,6 +16,7 @@ var strategyMap = map[string]algo.IStrategy{
 	"top_recommend_level": &algo.StrategyBase{DoSingle: LiveTopRecommandStrategyFunc},
 	"old_score":           &OldScoreStrategy{},
 	"sort_srta":           &SortHotStrategy{},
+	"region_stra":         &RegionScoreStrategy{},
 	"algo_v2":                &NewScoreStrategyV2{},
 	"algo_score":         &NewLiveStrategy{},
 }
