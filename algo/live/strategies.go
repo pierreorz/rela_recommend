@@ -40,6 +40,10 @@ func LiveExposureFunc(ctx algo.IContext) error {
 	videoList :=make(map[int64]int,0)
 	count :=0
 	params := ctx.GetRequest()
+	region := params.Params["region"]
+	if region!=""{//海外用户直接return
+		return nil
+	}
 	if sort,ok :=params.Params["sort"];ok&&sort!="hot"{
 		if userInfo.ConsumeUser==0{//低消费用户将视频提权
 			for index := 0; index < ctx.GetDataLength(); index++ {
@@ -66,6 +70,45 @@ func LiveExposureFunc(ctx algo.IContext) error {
 	}
 	return nil
 	}
+
+
+// 融合老策略的分数
+type RegionScoreStrategy struct{}
+
+func (self *RegionScoreStrategy) Do(ctx algo.IContext) error {
+	var err error
+	params := ctx.GetRequest()
+	region := params.Params["region"]
+	if region != "" {
+		for i := 0; i < ctx.GetDataLength(); i++ {
+			dataInfo := ctx.GetDataByIndex(i)
+			live := dataInfo.(*LiveInfo)
+			rankInfo := dataInfo.GetRankInfo()
+			score := self.oldScore(live)
+			rankInfo.Score = score
+		}
+	}
+
+	return err
+}
+
+
+
+
+
+func (self *RegionScoreStrategy) scoreFx(score float32) float32 {
+	return (score / 200) / (1 + score/200)
+}
+func (self *RegionScoreStrategy) oldScore(live *LiveInfo) float32 {
+	var score float32 = 0
+	score += self.scoreFx(live.LiveCache.DayIncoming) * 0.35
+	score += self.scoreFx(live.LiveCache.MonthIncoming) * 0.25
+	score += self.scoreFx(live.LiveCache.NowIncoming) * 0.25
+	score += self.scoreFx(float32(live.LiveCache.FansCount)) * 0.10
+	score += self.scoreFx(float32(live.LiveCache.Live.ShareCount)) * 0.10
+	return score
+}
+
 // 融合老策略的分数
 type OldScoreStrategy struct{}
 
@@ -73,6 +116,11 @@ func (self *OldScoreStrategy) Do(ctx algo.IContext) error {
 	var err error
 	new_score := ctx.GetAbTest().GetFloat("new_score", 1.0)
 	old_score := 1 - new_score
+	params := ctx.GetRequest()
+	region := params.Params["region"]
+	if region != ""{
+		return nil
+	}
 	for i := 0; i < ctx.GetDataLength(); i++ {
 		dataInfo := ctx.GetDataByIndex(i)
 		live := dataInfo.(*LiveInfo)
@@ -82,6 +130,7 @@ func (self *OldScoreStrategy) Do(ctx algo.IContext) error {
 	}
 	return err
 }
+
 
 
 
@@ -107,6 +156,10 @@ func (self *SortHotStrategy)Do (ctx algo.IContext) error{
 	old_score := 1 - new_score
 	follow_switch := ctx.GetAbTest().GetBool("follow_switch",false)
 	params := ctx.GetRequest()
+	region := params.Params["region"]
+	if region!=""{//海外用户直接return
+		return nil
+	}
 	w1 :=0.0
 	w2 :=0.0
 	w3 :=0.0
@@ -156,6 +209,10 @@ type NewScoreStrategyV2 struct{}
 func (self *NewScoreStrategyV2) Do(ctx algo.IContext) error {
 	var err error
 	params := ctx.GetRequest()
+	region := params.Params["region"]
+	if region!=""{//海外用户直接return
+		return nil
+	}
 	userInfo := ctx.GetUserInfo().(*UserInfo)
 	algo_score := ctx.GetAbTest().GetFloat("algo_ratio", 0.3)
 	business_score := 1 - algo_score
@@ -353,6 +410,10 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 	var startIndex = 5
 	var intervar = 0
 	params := ctx.GetRequest()
+	region := params.Params["region"]
+	if region!=""{//海外用户直接return
+		return nil
+	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*LiveInfo)
 		userInfo := ctx.GetUserInfo().(*UserInfo)
@@ -427,6 +488,11 @@ func StrategyRecommendFunc(ctx algo.IContext) error {
 func UserBehaviorExposureDownItemFunc(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo *algo.RankInfo) error {
 	dataInfo := iDataInfo.(*LiveInfo)
 	userInfo := ctx.GetUserInfo().(*UserInfo)
+	params := ctx.GetRequest()
+	region := params.Params["region"]
+	if region!=""{//海外用户直接return
+		return nil
+	}
 	if userBehavior := dataInfo.UserItemBehavior; userBehavior != nil {
 		if userInfo.IsSubscriber == 0 { //非付费用户
 			exposure := userBehavior.GetLiveExposure()

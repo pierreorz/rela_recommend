@@ -3,6 +3,7 @@ package live
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
@@ -23,7 +24,11 @@ func DoBuildData(ctx algo.IContext) error {
 	rdsPikaCache := redis.NewLiveCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, &factory.CacheRds)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
+	region :=params.Params["region"]
+	if region!=""{
+		log.Warnf("region is %s",region)
 
+	}
 	var lives []pika.LiveCache
 	var liveIds = []int64{}
 	var liveQueryIds = []int64{}
