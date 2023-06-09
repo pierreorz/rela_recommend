@@ -25,9 +25,10 @@ func DoBuildData(ctx algo.IContext) error {
 	redisTheCache := redis.NewUserCacheModule(ctx, &factory.CacheRds, &factory.CacheRds)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 	region :=params.Params["region"]
-	log.Warnf("region is %s",region)
+	if region!=""{
+		log.Warnf("region is %s",region)
 
-
+	}
 	var lives []pika.LiveCache
 	var liveIds = []int64{}
 	var liveQueryIds = []int64{}
