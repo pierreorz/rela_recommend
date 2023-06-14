@@ -212,6 +212,7 @@ type ILiveRankItemV3 struct {
 	Classify  int            `json:"classify"`  //直播分类
 	Seats     []SeatInfo     `json:"seats"`
 	LabelLang *multiLanguage `json:"labelLang"`
+	redPacketNum  int         `json:"redPacketNum"`
 	LabelList []*labelItem   `json:"label_list"` //排序好的直播标签，见 https://wiki.rela.me/pages/viewpage.action?pageId=30474709
 }
 
