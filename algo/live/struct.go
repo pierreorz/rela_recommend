@@ -230,6 +230,10 @@ func (lrt *ILiveRankItemV3) GetLiveType() int {
 	return 0
 }
 
+func (lrt *ILiveRankItemV3) GetRedNum() int {
+	return lrt.redPacketNum
+}
+
 type SeatInfo struct {
 	MicStatus     string `json:"micStatus"`
 	SeatStatus    string `json:"seatStatus"`
@@ -388,6 +392,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				}
 
 				data.LabelList = self.LiveData.ToLabelList()
+				data.redPacketNum = data.GetRedNum()
 				key := prefix + ":" + strconv.FormatInt(self.UserId, 10) + ":" + strconv.FormatInt(userId, 10)
 				//log.Warnf("label list key,%s", key)
 				if err := help.SetExStructByCache(factory.CacheCommonRds, key, data.LabelList, LabelExpire); err != nil {
