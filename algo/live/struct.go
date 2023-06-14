@@ -286,6 +286,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 
 				var data ILiveRankItemV3
 				err := json.Unmarshal([]byte(dataStr), &data)
+				data.redPacketNum = data.GetRedNum()
 				if err != nil {
 					log.Errorf("unmarshal live data %+v error: %+v", self.LiveCache.Data4Api, err)
 					return nil
@@ -393,7 +394,6 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 				}
 
 				data.LabelList = self.LiveData.ToLabelList()
-				data.redPacketNum = data.GetRedNum()
 				key := prefix + ":" + strconv.FormatInt(self.UserId, 10) + ":" + strconv.FormatInt(userId, 10)
 				//log.Warnf("label list key,%s", key)
 				if err := help.SetExStructByCache(factory.CacheCommonRds, key, data.LabelList, LabelExpire); err != nil {
