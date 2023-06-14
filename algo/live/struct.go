@@ -292,6 +292,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					return nil
 				}
 				log.Warnf("rednum is %s",data.redPacketNum)
+				log.Warnf("rednum is %s",self.LiveCache.Data4Api)
 				if len(data.Label) > 0 && data.LabelLang != nil {
 					self.LiveData.AddLabel(&labelItem{
 						Style: RecommendLabel,
