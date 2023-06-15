@@ -280,19 +280,16 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 		if sort, ok := params.Params["sort"]; ok && sort == "hot" { //横幅直播添加标签
 			needReturnLabel = true
 		}
-
+		log.Warnf("rednum is %s",self.LiveCache.Data4Api.(string))
 		if liveLabelSwitchON && needReturnLabel {
 			if dataStr, ok := self.LiveCache.Data4Api.(string); ok {
 
 				var data ILiveRankItemV3
 				err := json.Unmarshal([]byte(dataStr), &data)
-				data.redPacketNum = data.GetRedNum()
 				if err != nil {
 					log.Errorf("unmarshal live data %+v error: %+v", self.LiveCache.Data4Api, err)
 					return nil
 				}
-				log.Warnf("rednum is %s",data.redPacketNum)
-				log.Warnf("rednum is %s",self.LiveCache.Data4Api)
 				if len(data.Label) > 0 && data.LabelLang != nil {
 					self.LiveData.AddLabel(&labelItem{
 						Style: RecommendLabel,
