@@ -213,7 +213,7 @@ type ILiveRankItemV3 struct {
 	Seats     []SeatInfo     `json:"seats"`
 	LabelLang *multiLanguage `json:"labelLang"`
 	LabelList []*labelItem   `json:"label_list"` //排序好的直播标签，见 https://wiki.rela.me/pages/viewpage.action?pageId=30474709
-	redPacketNum  int         `json:"redPacketNum"`
+	RedPacketNum  int         `json:"redPacketNum"`
 
 }
 
@@ -232,7 +232,7 @@ func (lrt *ILiveRankItemV3) GetLiveType() int {
 }
 
 func (lrt *ILiveRankItemV3) GetRedNum() int {
-	return lrt.redPacketNum
+	return lrt.RedPacketNum
 }
 
 type SeatInfo struct {
