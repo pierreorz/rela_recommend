@@ -849,6 +849,7 @@ func DoBuildData(ctx algo.IContext) error {
 				var packet = 0.0
 				var isTarget =0
 				var planId int64
+				var count =  0.0
 				// 处理推荐
 				var recommends []algo.RecommendItem
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
@@ -861,6 +862,12 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 					currTarget :=topType.GetCurrentTarget(searchScenery)
 					planId =topType.GetCurrentPlanId(searchScenery)
+					if itemBehavior , itemOk := itemBehaviorMap[mom.Moments.Id]; itemOk{
+						 count = itemBehavior.GetRecExposure().Count
+					}
+					if packet==0 || packet<count{//流量包功能过期后planid置为0
+						planId = 0
+					}
 					if currTarget>0 ||(currTarget==userType&&currTarget>0){
 						isTarget = 1
 					}
