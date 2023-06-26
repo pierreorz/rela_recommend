@@ -214,7 +214,9 @@ func (self *SearchMomentAuditResDataItem) GetCurrentPacket(scenery string,nowTim
 	for _, top := range self.TopInfo {
 		if top.Scenery == scenery {
 			if nowTime.Unix()-top.StartTime<6*60*60{//当前时间在开始时间六个小时以内才会进行流量包功能
-				return float64(top.Packet)
+				if self.GetCurrentTopType(scenery)=="RECOMMEND_PLAN"{
+					return float64(top.Packet)
+				}
 			}
 		}
 	}
