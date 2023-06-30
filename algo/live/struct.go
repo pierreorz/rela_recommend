@@ -213,6 +213,8 @@ type ILiveRankItemV3 struct {
 	Seats     []SeatInfo     `json:"seats"`
 	LabelLang *multiLanguage `json:"labelLang"`
 	LabelList []*labelItem   `json:"label_list"` //排序好的直播标签，见 https://wiki.rela.me/pages/viewpage.action?pageId=30474709
+	RedPacketNum  int         `json:"redPacketNum"`
+
 }
 
 func (lrt *ILiveRankItemV3) GetLiveType() int {
@@ -227,6 +229,10 @@ func (lrt *ILiveRankItemV3) GetLiveType() int {
 		return 4
 	}
 	return 0
+}
+
+func (lrt *ILiveRankItemV3) GetRedNum() int {
+	return lrt.RedPacketNum
 }
 
 type SeatInfo struct {
@@ -275,7 +281,6 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 		if sort, ok := params.Params["sort"]; ok && sort == "hot" { //横幅直播添加标签
 			needReturnLabel = true
 		}
-
 		if liveLabelSwitchON && needReturnLabel {
 			if dataStr, ok := self.LiveCache.Data4Api.(string); ok {
 
@@ -285,6 +290,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					log.Errorf("unmarshal live data %+v error: %+v", self.LiveCache.Data4Api, err)
 					return nil
 				}
+
 				if len(data.Label) > 0 && data.LabelLang != nil {
 					self.LiveData.AddLabel(&labelItem{
 						Style: RecommendLabel,
