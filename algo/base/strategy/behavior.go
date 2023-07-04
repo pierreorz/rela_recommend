@@ -10,16 +10,16 @@ import (
 )
 
 
-type momLiveSorter []momLive
-type momLive struct {
+type momPacketSorter []momPacket
+type momPacket struct {
 	momId int64
 	score float64
 	momType   int
 }
 
-func (a momLiveSorter) Len() int      { return len(a) }
-func (a momLiveSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a momLiveSorter) Less(i, j int) bool { // 按照 type 升序排列score降序排列 , id 倒序
+func (a momPacketSorter) Len() int      { return len(a) }
+func (a momPacketSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a momPacketSorter) Less(i, j int) bool { // 按照 type 升序排列score降序排列 , id 倒序
 	if a[i].momType != a[j].momType {
 		return a[i].momType < a[j].momType
 	} else {
@@ -183,7 +183,7 @@ func GenerateRangeNum(min, max int) int {
 
 func FlowPacketFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
-	var res = momLiveSorter{}
+	var res = momPacketSorter{}
 	sortIds := make(map[int64]int, 0)
 	interval := abtest.GetInt("packet_interval_index", 4)
 	exposureBehaviors :=abtest.GetStrings("exposure_behaviors","moment.recommend:exposure")
@@ -194,7 +194,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 			count :=0.0
 			see_num :=0.0
 			momType  := rankInfo.MomType
-			var mom momLive
+			var mom momPacket
 			if itemBehavior := dataInfo.GetBehavior(); itemBehavior != nil {
 				exposures := itemBehavior.Gets(exposureBehaviors...)
 				count = exposures.Count
