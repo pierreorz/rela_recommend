@@ -3,7 +3,6 @@ package strategy
 import (
 	"math/rand"
 	"rela_recommend/algo"
-	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"sort"
 	"time"
@@ -218,7 +217,6 @@ func FlowPacketFunc(ctx algo.IContext) error{
 	}
 	sort.Sort(res)
 	for index, mom := range res {
-		log.Warnf("mom is momType is %s",mom)
 		sortIds[mom.momId] = index
 	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
