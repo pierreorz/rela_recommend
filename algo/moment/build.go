@@ -359,6 +359,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var expId = ""
 	var requestId = ""
 	var recallExpId = ""
+	momsTypeList :=map[string]int{"text":6,"text_image":3,"image":5,"live":1,"theme":7,"themereply":8,"video":4,"voice_live":1,"ad":10,"recommend":9}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	topN := abtest.GetInt("topn", 5)
 	recallLength := abtest.GetInt("recall_length", 300)
@@ -840,10 +841,14 @@ func DoBuildData(ctx algo.IContext) error {
 				// 处理置顶
 
 				var isTop = 0
+				var momType = 0
 				if topMap != nil {
 					if _, isTopOk := topMap[mom.Moments.Id]; isTopOk {
 						isTop = 1
 					}
+				}
+				if momsType, ok := momsTypeList[mom.Moments.MomentsType]; ok {
+					momType = momsType
 				}
 				var isSoftTop = 0
 				var packet = 0.0
@@ -945,7 +950,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
 					LiveContentProfile:   liveContentProfileMap[mom.Moments.UserId],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,Packet:packet,IsTarget:isTarget,LiveScore:topLivescore,PlanId:planId ,LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness,IsSocial:isSocial,IsFollow:isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,MomType:momType,Packet:packet,IsTarget:isTarget,LiveScore:topLivescore,PlanId:planId ,LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness,IsSocial:isSocial,IsFollow:isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],

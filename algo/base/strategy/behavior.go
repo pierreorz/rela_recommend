@@ -9,19 +9,25 @@ import (
 )
 
 
-type momLiveSorter []momLive
-type momLive struct {
+type momPacketSorter []momPacket
+type momPacket struct {
 	momId int64
 	score float64
+	momType   int
 }
 
-func (a momLiveSorter) Len() int      { return len(a) }
-func (a momLiveSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a momLiveSorter) Less(i, j int) bool { // 按照 score , id 倒序
-	if a[i].score == a[j].score {
-		return a[i].momId > a[j].momId
+func (a momPacketSorter) Len() int      { return len(a) }
+func (a momPacketSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a momPacketSorter) Less(i, j int) bool { // 按照 type 升序排列score降序排列 , id 倒序
+	if a[i].momType != a[j].momType {
+		return a[i].momType < a[j].momType
 	} else {
-		return a[i].score > a[j].score
+		if a[i].score != a[j].score {
+			return a[i].score > a[j].score
+		} else {
+			return a[j].momId > a[j].momId
+		}
+
 	}
 }
 // 数据行为处理策略
@@ -176,7 +182,7 @@ func GenerateRangeNum(min, max int) int {
 
 func FlowPacketFunc(ctx algo.IContext) error{
 	abtest := ctx.GetAbTest()
-	var res = momLiveSorter{}
+	var res = momPacketSorter{}
 	sortIds := make(map[int64]int, 0)
 	interval := abtest.GetInt("packet_interval_index", 4)
 	exposureBehaviors :=abtest.GetStrings("exposure_behaviors","moment.recommend:exposure")
@@ -186,7 +192,8 @@ func FlowPacketFunc(ctx algo.IContext) error{
 		if rankInfo.Packet>0 && rankInfo.IsTarget>0{
 			count :=0.0
 			see_num :=0.0
-			var mom momLive
+			momType  := rankInfo.MomType
+			var mom momPacket
 			if itemBehavior := dataInfo.GetBehavior(); itemBehavior != nil {
 				exposures := itemBehavior.Gets(exposureBehaviors...)
 				count = exposures.Count
@@ -202,6 +209,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 			}
 			if see_num<=1&&count<rankInfo.Packet{
 				mom.momId = dataInfo.GetDataId()
+				mom.momType = momType
 				mom.score = 1-count/rankInfo.Packet   //得分为推广未完成度
 				res = append(res, mom)
 			}
