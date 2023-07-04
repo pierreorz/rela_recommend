@@ -3,7 +3,6 @@ package strategy
 import (
 	"math/rand"
 	"rela_recommend/algo"
-	"rela_recommend/algo/moment"
 	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"sort"
