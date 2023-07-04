@@ -359,7 +359,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var expId = ""
 	var requestId = ""
 	var recallExpId = ""
-	momsTypeList :=map[string]int{"text":6,"text_image":3,"image":5,"live":1,"theme":7,"themereply":8,"video":4,"voice_live":2,"ad":10,"recommend":9}
+	momsTypeList :=map[string]int{"text":6,"text_image":3,"image":5,"live":1,"theme":7,"themereply":8,"video":4,"voice_live":1,"ad":10,"recommend":9}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	topN := abtest.GetInt("topn", 5)
 	recallLength := abtest.GetInt("recall_length", 300)
