@@ -292,6 +292,7 @@ type RankInfo struct {
 	IsHourTop   int    //小时top3
 	Packet     float64      //流量包
 	IsTarget    int     //是否需要推广
+	MomType     int     //日志类型
 
 }
 

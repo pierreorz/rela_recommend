@@ -3,6 +3,8 @@ package strategy
 import (
 	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/algo/moment"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"sort"
 	"time"
@@ -13,15 +15,22 @@ type momLiveSorter []momLive
 type momLive struct {
 	momId int64
 	score float64
+	momType   int
 }
 
 func (a momLiveSorter) Len() int      { return len(a) }
 func (a momLiveSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a momLiveSorter) Less(i, j int) bool { // 按照 score , id 倒序
-	if a[i].score == a[j].score {
-		return a[i].momId > a[j].momId
-	} else {
-		return a[i].score > a[j].score
+func (a momLiveSorter) Less(i, j int) bool { // 按照 type 升序排列score降序排列 , id 倒序
+	if a[i].momType!=a[j].momType{
+		return a[i].momType<a[j].momType
+	}else{
+		if a[i].score!=a[j].score{
+			return a[i].score>a[j].score
+		}else{
+			if a[i].momId!=a[j].momId{
+				return a[j].momId>a[j].momId
+			}
+		}
 	}
 }
 // 数据行为处理策略
@@ -186,6 +195,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 		if rankInfo.Packet>0 && rankInfo.IsTarget>0{
 			count :=0.0
 			see_num :=0.0
+			momType  := rankInfo.MomType
 			var mom momLive
 			if itemBehavior := dataInfo.GetBehavior(); itemBehavior != nil {
 				exposures := itemBehavior.Gets(exposureBehaviors...)
@@ -202,6 +212,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 			}
 			if see_num<=1&&count<rankInfo.Packet{
 				mom.momId = dataInfo.GetDataId()
+				mom.momType = momType
 				mom.score = 1-count/rankInfo.Packet   //得分为推广未完成度
 				res = append(res, mom)
 			}
@@ -209,6 +220,7 @@ func FlowPacketFunc(ctx algo.IContext) error{
 	}
 	sort.Sort(res)
 	for index, mom := range res {
+		log.Warnf("mom is momType is %s",mom)
 		sortIds[mom.momId] = index
 	}
 	for index := 0; index < ctx.GetDataLength(); index++ {
