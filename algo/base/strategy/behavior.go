@@ -20,16 +20,15 @@ type momLive struct {
 func (a momLiveSorter) Len() int      { return len(a) }
 func (a momLiveSorter) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a momLiveSorter) Less(i, j int) bool { // 按照 type 升序排列score降序排列 , id 倒序
-	if a[i].momType!=a[j].momType{
-		return a[i].momType<a[j].momType
-	}else{
-		if a[i].score!=a[j].score{
-			return a[i].score>a[j].score
-		}else{
-			if a[i].momId!=a[j].momId{
-				return a[j].momId>a[j].momId
-			}
+	if a[i].momType != a[j].momType {
+		return a[i].momType < a[j].momType
+	} else {
+		if a[i].score != a[j].score {
+			return a[i].score > a[j].score
+		} else {
+			return a[j].momId > a[j].momId
 		}
+
 	}
 }
 // 数据行为处理策略
