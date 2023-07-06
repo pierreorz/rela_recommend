@@ -78,22 +78,14 @@ func SortWithDistanceItem(ctx algo.IContext, iDataInfo algo.IDataInfo, rankInfo 
 			weight := float32(0.25 * (math.Exp(-distance/10000.0) + math.Exp(-distance/100000.0)))
 			rankInfo.AddRecommend("DistanceWeight01", 1.0+weight)
 		} else { // 按照阶段
-			if distance < 1000 {
-				rankInfo.Level = 7
-			} else if distance < 3000 {
-				rankInfo.Level = 6
-			} else if distance < 5000 {
-				rankInfo.Level = 5
-			} else if distance < 10000 {
-				rankInfo.Level = 4
-			} else if distance < 30000 {
-				rankInfo.Level = 3
-			} else if distance < 50000 {
-				rankInfo.Level = 2
-			} else if distance < 100000 {
-				rankInfo.Level = 1
-			} else {
-				rankInfo.Level = 0
+			levels := abtest.GetInt64s("distance_level", "1000,3000,5000,10000,30000,50000,100000")
+			length := len(levels)
+			for idx, lvl := range levels {
+				if distance < float64(lvl) {
+					rankInfo.Level = length - idx
+					break
+				}
+
 			}
 		}
 
