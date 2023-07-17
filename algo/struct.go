@@ -61,7 +61,7 @@ var allReasonTypes = map[ReasonType]clientReason{
 		},
 	},
 	TypeMomentInteract: {
-		Type: TypeYouFollow,
+		Type: TypeMomentInteract,
 		Text: &MultiLanguage{
 			Chs: "你们最近经常互动",
 			Cht: "你們最近經常互動",
@@ -69,7 +69,7 @@ var allReasonTypes = map[ReasonType]clientReason{
 		},
 	},
 	TypeWink: {
-		Type: TypeYouFollow,
+		Type: TypeWink,
 		Text: &MultiLanguage{
 			Chs: "你们挤眼过多次",
 			Cht: "你們擠眼過多次",
@@ -238,7 +238,7 @@ func (self *RecommendRequest) GetVersion() int {
 
 type RecommendResponseItem struct {
 	DataId         int64          `json:"dataId" form:"dataId"`
-	PlanId         int64             `json:"plan_id" form:"plan_id"`
+	PlanId         int64          `json:"plan_id" form:"plan_id"`
 	Data           interface{}    `json:"data" form:"data"`
 	Index          int            `json:"index" form:"index"`
 	Reason         string         `json:"reason" form:"reason"`
@@ -276,7 +276,7 @@ type RankInfo struct {
 	Score       float32         // 最终得分
 	Index       int             // 排在第几
 	LiveIndex   int             //热门直播日志的排序
-	LiveScore   float64             //50分位以上主播排序
+	LiveScore   float64         //50分位以上主播排序
 	TopLive     int             //是否是头部主播的直播日志
 	HopeIndex   int             // 期望排在第几，排序结束后调整
 	IsFollow    int             //是否关注过用户
@@ -284,13 +284,13 @@ type RankInfo struct {
 	IsBussiness int             //是否是业务日志（用户关注日志、点击头像多次未看过日志）
 	IsBlindMom  int             //是否是多人语音相遇日志
 	IsTagMom    int
-	IsSoftTop   int    //是否软置顶日志   1:是  0：默认
-	ExpId       string //Pai实验Id
-	PlanId      int64 //推荐接口Id
-	RequestId   string //Pai请求id
-	OffTime     int    //超时标记位
-	IsHourTop   int    //小时top3
-	Packet     float64      //流量包
+	IsSoftTop   int     //是否软置顶日志   1:是  0：默认
+	ExpId       string  //Pai实验Id
+	PlanId      int64   //推荐接口Id
+	RequestId   string  //Pai请求id
+	OffTime     int     //超时标记位
+	IsHourTop   int     //小时top3
+	Packet      float64 //流量包
 	IsTarget    int     //是否需要推广
 	MomType     int     //日志类型
 
