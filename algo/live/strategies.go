@@ -1,9 +1,11 @@
 package live
 
 import (
+	"encoding/json"
 	"math"
 	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/log"
 	"rela_recommend/algo/utils"
 	rutils "rela_recommend/utils"
 )
@@ -232,11 +234,21 @@ func (self *NewScoreStrategyV2) scoreFx(score float32) float32 {
 }
 func (self *NewScoreStrategyV2) oldScore(live *LiveInfo) float32 {
 	var score float32 = 0
-	score += self.scoreFx(live.LiveCache.DayIncoming) * 0.5                //日收入
+	var redNum =0
+	score += self.scoreFx(live.LiveCache.DayIncoming) * 0.35                //日收入
 	score += self.scoreFx(live.LiveCache.MonthIncoming) * 0.25             //月收入
 	score += self.scoreFx(live.LiveCache.Score) * 0.2                      //当前观看人数
 	score += self.scoreFx(float32(live.LiveCache.FansCount)) * 0.025       //粉丝数
 	score += self.scoreFx(float32(live.LiveCache.Live.ShareCount)) * 0.025 //分享数
+	if dataStr, ok := live.LiveCache.Data4Api.(string); ok {
+		var data ILiveRankItemV3
+		err := json.Unmarshal([]byte(dataStr), &data)
+		if err != nil {
+			log.Errorf("unmarshal live data %+v error: %+v", live.LiveCache.Data4Api, err)
+		}
+		redNum = data.GetRedNum()
+	}
+	score += self.scoreFx(float32(redNum))*0.15   //红宝数
 	return score
 }
 
