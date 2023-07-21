@@ -12,8 +12,8 @@ const internalSearchNearUserListUrlV1 = "/search/nearby_user"
 const internalSearchUserListUrlV1 = "/search/common_user"
 
 type apiSearchStruct struct {
-	MinAge         string `json:"minAge"`
-	MaxAge         string `json:"maxAge"`
+	MinBirthday    string `json:"minBirthday"`
+	MaxBirthday    string `json:"maxBirthday"`
 	RoleName       string `json:"roleName"`
 	Affection      string `json:"affection"`
 	IsVip          string `json:"isVip"`
@@ -77,8 +77,8 @@ func CallNearUserList(userId int64, lat, lng float32, offset, limit int64, filte
 	if apiFilter.Affection != "" { // 感情状态
 		filters = append(filters, fmt.Sprintf("affection:%s", apiFilter.Affection))
 	}
-	if apiFilter.MinAge != "" || apiFilter.MaxAge != "" { // 年龄范围
-		filters = append(filters, fmt.Sprintf("age:[%s,%s]", apiFilter.MinAge, apiFilter.MaxAge))
+	if apiFilter.MinBirthday != "" || apiFilter.MaxBirthday != "" { // 年龄范围
+		filters = append(filters, fmt.Sprintf("birthday:[%s,%s]", apiFilter.MinBirthday, apiFilter.MaxBirthday))
 	}
 	//会员特权
 	if apiFilter.ActiveDuration != "" { // 是否在线
