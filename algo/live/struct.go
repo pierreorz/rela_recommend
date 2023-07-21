@@ -164,7 +164,6 @@ type LiveInfo struct {
 	Features           *utils.Features
 	UserItemBehavior   *behavior.UserBehavior
 	LiveContentProfile *redis.LiveContentProfile //主播画像数据
-	RedNum               int
 }
 
 type newStyle struct {
