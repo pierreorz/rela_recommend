@@ -215,10 +215,10 @@ func (self *NewScoreStrategyV2) Do(ctx algo.IContext) error {
 	if region!=""{//海外用户直接return
 		return nil
 	}
-	userInfo := ctx.GetUserInfo().(*UserInfo)
+	//userInfo := ctx.GetUserInfo().(*UserInfo)
 	algo_score := ctx.GetAbTest().GetFloat("algo_ratio", 0.3)
 	business_score := 1 - algo_score
-	if sort,ok :=params.Params["sort"];ok&&sort!="hot"&&userInfo.IsSubscriber==1{//直播列表逻辑//付费用户才走这个逻辑暂时去掉了
+	if sort,ok :=params.Params["sort"];ok&&sort!="hot"{//直播列表逻辑//付费用户才走这个逻辑暂时去掉了&&userInfo.IsSubscriber==1
 		for i := 0; i < ctx.GetDataLength(); i++ {
 			dataInfo := ctx.GetDataByIndex(i)
 			live := dataInfo.(*LiveInfo)
