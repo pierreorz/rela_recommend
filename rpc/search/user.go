@@ -82,7 +82,8 @@ func CallNearUserList(userId int64, lat, lng float32, offset, limit int64, filte
 		minBirthTS, err1 := time.Parse("2006-01-02", apiFilter.MinBirthday)
 		maxBirthTS, err2 := time.Parse("2006-01-02", apiFilter.MaxBirthday)
 		if err1 == nil && err2 == nil {
-			filters = append(filters, fmt.Sprintf("birthday:[%d,%d]", minBirthTS.UnixMilli(), maxBirthTS.UnixMilli()))
+			filters = append(filters, fmt.Sprintf("birthday:[%d,%d]", minBirthTS.Unix()*1000,
+				maxBirthTS.Unix()*1000))
 		}
 	}
 	//会员特权
