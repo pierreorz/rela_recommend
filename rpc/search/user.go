@@ -6,6 +6,7 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"strings"
+	"time"
 )
 
 const internalSearchNearUserListUrlV1 = "/search/nearby_user"
@@ -78,7 +79,11 @@ func CallNearUserList(userId int64, lat, lng float32, offset, limit int64, filte
 		filters = append(filters, fmt.Sprintf("affection:%s", apiFilter.Affection))
 	}
 	if apiFilter.MinBirthday != "" || apiFilter.MaxBirthday != "" { // 年龄范围
-		filters = append(filters, fmt.Sprintf("birthday:[%s,%s]", apiFilter.MinBirthday, apiFilter.MaxBirthday))
+		minBirthTS, err1 := time.Parse("2006-01-02", apiFilter.MinBirthday)
+		maxBirthTS, err2 := time.Parse("2006-01-02", apiFilter.MaxBirthday)
+		if err1 == nil && err2 == nil {
+			filters = append(filters, fmt.Sprintf("birthday:[%d,%d]", minBirthTS.UnixMilli(), maxBirthTS.UnixMilli()))
+		}
 	}
 	//会员特权
 	if apiFilter.ActiveDuration != "" { // 是否在线
