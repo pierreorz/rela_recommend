@@ -40,6 +40,13 @@ func (self *AbTest) GetUserAttr(keys []string) map[string]interface{} {
 				res[key] = utils.GetPlatformName(self.Ua)
 			case "client_version":
 				res[key] = utils.GetVersion(self.Ua)
+			case "os_type", "brand", "model_type", "net_type", "language":
+				osType, brand, modelType, netType, language := utils.UaAnalysis(self.Ua)
+				res["os_type"] = osType
+				res["brand"] = brand
+				res["model_type"] = modelType
+				res["net_type"] = netType
+				res["language"] = language
 			case "lat", "lng":
 				res["lat"] = self.Lat
 				res["lng"] = self.Lng
