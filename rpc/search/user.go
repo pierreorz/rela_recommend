@@ -6,14 +6,15 @@ import (
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"strings"
+	"time"
 )
 
 const internalSearchNearUserListUrlV1 = "/search/nearby_user"
 const internalSearchUserListUrlV1 = "/search/common_user"
 
 type apiSearchStruct struct {
-	MinAge         string `json:"minAge"`
-	MaxAge         string `json:"maxAge"`
+	MinBirthday    string `json:"minBirthday"`
+	MaxBirthday    string `json:"maxBirthday"`
 	RoleName       string `json:"roleName"`
 	Affection      string `json:"affection"`
 	IsVip          string `json:"isVip"`
@@ -77,8 +78,13 @@ func CallNearUserList(userId int64, lat, lng float32, offset, limit int64, filte
 	if apiFilter.Affection != "" { // 感情状态
 		filters = append(filters, fmt.Sprintf("affection:%s", apiFilter.Affection))
 	}
-	if apiFilter.MinAge != "" || apiFilter.MaxAge != "" { // 年龄范围
-		filters = append(filters, fmt.Sprintf("age:[%s,%s]", apiFilter.MinAge, apiFilter.MaxAge))
+	if apiFilter.MinBirthday != "" || apiFilter.MaxBirthday != "" { // 年龄范围
+		minBirthTS, err1 := time.Parse("2006-01-02", apiFilter.MinBirthday)
+		maxBirthTS, err2 := time.Parse("2006-01-02", apiFilter.MaxBirthday)
+		if err1 == nil && err2 == nil {
+			filters = append(filters, fmt.Sprintf("birthday:[%d,%d]", minBirthTS.Unix()*1000,
+				maxBirthTS.Unix()*1000))
+		}
 	}
 	//会员特权
 	if apiFilter.ActiveDuration != "" { // 是否在线
