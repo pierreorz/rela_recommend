@@ -395,18 +395,18 @@ func GetPlatformName(ua string) string {
 }
 
 func UaAnalysis(ua string) (string, string, string, string, string) {
-	os_type := ""
+	osType := ""
 	brand := ""
-	model_type := ""
-	net := ""
+	modelType := ""
+	netType := ""
 	language := ""
 	ua = strings.ToLower(ua)
 	if GetPlatformName(ua) == "android" {
 		if uaArr := strings.Split(strings.ReplaceAll(ua, ")", ""), "("); len(uaArr) == 2 {
 			if itemArr := strings.Split(uaArr[1], ";"); len(itemArr) == 5 {
-				model_type = strings.ReplaceAll(itemArr[0], " ", "")
-				os_type = strings.ReplaceAll(itemArr[1], " ", "")
-				net = strings.ReplaceAll(itemArr[3], " ", "")
+				modelType = strings.ReplaceAll(itemArr[0], " ", "")
+				osType = strings.ReplaceAll(itemArr[1], " ", "")
+				netType = strings.ReplaceAll(itemArr[3], " ", "")
 				brand = strings.ReplaceAll(itemArr[4], " ", "")
 				language = strings.ReplaceAll(itemArr[2], " ", "")
 			}
@@ -414,15 +414,15 @@ func UaAnalysis(ua string) (string, string, string, string, string) {
 	} else if GetPlatformName(ua) == "ios" {
 		if uaArr := strings.Split(strings.ReplaceAll(ua, ")", ""), "("); len(uaArr) == 2 {
 			if itemArr := strings.Split(uaArr[1], ";"); len(itemArr) == 4 {
-				model_type = strings.ReplaceAll(itemArr[0], " ", "")
-				os_type = strings.ReplaceAll(itemArr[1], " ", "")
-				net = strings.ReplaceAll(itemArr[3], " ", "")
+				modelType = strings.ReplaceAll(itemArr[0], " ", "")
+				osType = strings.ReplaceAll(itemArr[1], " ", "")
+				netType = strings.ReplaceAll(itemArr[3], " ", "")
 				brand = "apple"
 				language = strings.ReplaceAll(itemArr[2], " ", "")
 			}
 		}
 	}
-	return os_type, brand, model_type, net, language
+	return osType, brand, modelType, netType, language
 
 }
 
