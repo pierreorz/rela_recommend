@@ -68,7 +68,7 @@ func DoBuildSearchData(ctx algo.IContext) error {
 			info := &DataInfo{
 				DataId:    userId,
 				UserCache: usersMap[userId],
-				RankInfo:  &algo.RankInfo{},
+				RankInfo:  &algo.RankInfo{Score: 1.0},
 				LiveInfo:  liveMap[userId],
 			}
 			dataList = append(dataList, info)
