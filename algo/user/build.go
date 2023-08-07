@@ -40,6 +40,7 @@ func DoBuildSearchData(ctx algo.IContext) error {
 	// 获取用户信息
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
+	liveMap := make(map[int64]*pika.LiveCache, 0)
 	pf.RunsGo("caches", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} {
 			var userCacheErr error
@@ -48,6 +49,10 @@ func DoBuildSearchData(ctx algo.IContext) error {
 				return userCacheErr
 			}
 			return len(usersMap)
+		},
+		"live_users": func(*performs.Performs) interface{} {
+			liveMap = tasks.GetCachedLiveMap(-1)
+			return len(liveMap)
 		},
 	})
 	// 组装用户信息
@@ -63,7 +68,8 @@ func DoBuildSearchData(ctx algo.IContext) error {
 			info := &DataInfo{
 				DataId:    userId,
 				UserCache: usersMap[userId],
-				RankInfo:  &algo.RankInfo{},
+				RankInfo:  &algo.RankInfo{Score: 1.0},
+				LiveInfo:  liveMap[userId],
 			}
 			dataList = append(dataList, info)
 		}

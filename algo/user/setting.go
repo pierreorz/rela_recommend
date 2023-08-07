@@ -70,7 +70,9 @@ var searchBuilderMap = map[string]algo.IBuilder{
 	"base": &algo.BuilderBase{DoBuild: DoBuildSearchData},
 }
 var searchStrategyMap = map[string]algo.IStrategy{}
-var searchRichStrategyMap = map[string]algo.IRichStrategy{}
+var searchRichStrategyMap = map[string]algo.IRichStrategy{
+	"on_live": &strategy.BaseRichStrategy{StrategyItemFunc: NtxOnLiveWeightFunc, DefaultWeight: 2},
+}
 
 // 用户搜索
 var _ = algo.AddAppInfo(&algo.AppInfo{
