@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
-	"rela_recommend/log"
 	"strings"
 	"time"
 )
@@ -13,14 +12,14 @@ import (
 const internalSearchMateTextListUrl = "/search/mate_text"
 
 type MateTextResDataItem struct {
-	Id     int64         `json:"id"`
-	Text   string        `json:"text"`
-	Weight int           `json:"weight"`
-	TextType int64       `json:"textType" `
-	TagType  int64       `json:"tagType" `
-	UserId int64 		 `json:"userId"`
-	MyAvatar string      `json:"myAvatar"`
-	MatchAvatar string   `json:"matchAvatar" `
+	Id          int64  `json:"id"`
+	Text        string `json:"text"`
+	Weight      int    `json:"weight"`
+	TextType    int64  `json:"textType" `
+	TagType     int64  `json:"tagType" `
+	UserId      int64  `json:"userId"`
+	MyAvatar    string `json:"myAvatar"`
+	MatchAvatar string `json:"matchAvatar" `
 }
 
 type mateTextRes struct {
@@ -42,7 +41,7 @@ type mateSearchRequest struct {
 	ReturnFields  string  `json:"return_fields" form:"return_fields"`
 	Distance      string  `json:"distance" form:"distance"`
 	TextType      string  `json:"textType" form:"textType"`
-	TagType 	  string  `json:"tagType" form:"tagType"`
+	TagType       string  `json:"tagType" form:"tagType"`
 }
 
 func CallMateTextList(request *algo.RecommendRequest, searchLimit int64) ([]MateTextResDataItem, error) {
@@ -58,7 +57,7 @@ func CallMateTextList(request *algo.RecommendRequest, searchLimit int64) ([]Mate
 
 	localHour := localTime.Hour()
 
-	log.Infof("mate local hour: %+v, %d", localTime, localHour)
+	//log.Infof("mate local hour: %+v, %d", localTime, localHour)
 	if localHour >= 0 && localHour <= 2 {
 		localHour += 24 // 22点到凌晨2点会跨天，+24方便比较
 	}
@@ -78,7 +77,7 @@ func CallMateTextList(request *algo.RecommendRequest, searchLimit int64) ([]Mate
 		ReturnFields:  "id,text,Weight,text_type,TagType",
 		Distance:      "50km",
 	}
-	log.Infof("search=================%+v",params)
+	//log.Infof("search=================%+v",params)
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &mateTextRes{}
 		if err = factory.AiSearchRpcClient.SendPOSTJson(internalSearchMateTextListUrl, paramsData, searchRes); err == nil {
@@ -92,11 +91,11 @@ func CallMateTextList(request *algo.RecommendRequest, searchLimit int64) ([]Mate
 }
 
 type SearchType struct {
-	TextType string `json:"textType"`
+	TextType string   `json:"textType"`
 	TagType  []string `json:"tagType"`
 }
 
-func CategMateTextList(request *algo.RecommendRequest, searchLimit int64, TagType string ,TextType []string ) ([]MateTextResDataItem, error) {
+func CategMateTextList(request *algo.RecommendRequest, searchLimit int64, TagType string, TextType []string) ([]MateTextResDataItem, error) {
 	//获取文案的文本类型和文案的状态
 
 	// 增加时间过滤
@@ -114,43 +113,42 @@ func CategMateTextList(request *algo.RecommendRequest, searchLimit int64, TagTyp
 		localHour += 24 // 22点到凌晨2点会跨天，+24方便比较
 	}
 	filters := []string{}
-	timeSenList:=[]string{"start_hour:(,8]*end_hour:[10,)","start_hour:(,12]*end_hour:[14,)","start_hour:(,15]*end_hour:[17,)","start_hour:(,22]*end_hour:[2,)"}
+	timeSenList := []string{"start_hour:(,8]*end_hour:[10,)", "start_hour:(,12]*end_hour:[14,)", "start_hour:(,15]*end_hour:[17,)", "start_hour:(,22]*end_hour:[2,)"}
 	var timeSen string
 	var hotSen string
 	if localHour >= 8 && localHour <= 10 {
-		timeSen=timeSenList[0]+"*text_type:30"
+		timeSen = timeSenList[0] + "*text_type:30"
 	}
 	if localHour >= 12 && localHour <= 14 {
-		timeSen=timeSenList[1]+"*text_type:30"
+		timeSen = timeSenList[1] + "*text_type:30"
 	}
 	if localHour >= 15 && localHour <= 17 {
-		timeSen=timeSenList[2]+"*text_type:30"
+		timeSen = timeSenList[2] + "*text_type:30"
 	}
 	if localHour >= 22 && localHour <= 2 {
-		timeSen=timeSenList[3]+"*text_type:30"
+		timeSen = timeSenList[3] + "*text_type:30"
 	}
 	if localHour >= 20 && localHour <= 23 {
 		hotSen = timeSenList[4] + "*text_type:30"
 	}
-	filters=append(filters,timeSen)
-	if len(hotSen)!=0{
-		filters=append(filters,hotSen)
+	filters = append(filters, timeSen)
+	if len(hotSen) != 0 {
+		filters = append(filters, hotSen)
 	}
 
-	tagLine:=TagType+"*{"+strings.Join(TextType, "|")+"}"
-	filters=append(filters, tagLine)
+	tagLine := TagType + "*{" + strings.Join(TextType, "|") + "}"
+	filters = append(filters, tagLine)
 
 	params := mateSearchRequest{
-		UserID:        request.UserId,
-		Offset:        request.Offset,
-		Limit:         searchLimit,
-		Lng:           request.Lng,
-		Lat:           request.Lat,
-		MobileOS:      request.MobileOS,
-		Filter:        strings.Join(filters, "|"),
-		ReturnFields:  "*",
-		Distance:      "50km",
-
+		UserID:       request.UserId,
+		Offset:       request.Offset,
+		Limit:        searchLimit,
+		Lng:          request.Lng,
+		Lat:          request.Lat,
+		MobileOS:     request.MobileOS,
+		Filter:       strings.Join(filters, "|"),
+		ReturnFields: "*",
+		Distance:     "50km",
 	}
 	if paramsData, err := json.Marshal(params); err == nil {
 		searchRes := &mateTextRes{}
@@ -163,5 +161,3 @@ func CategMateTextList(request *algo.RecommendRequest, searchLimit int64, TagTyp
 		return nil, err
 	}
 }
-
-
