@@ -1029,6 +1029,8 @@ func LiveMomAddWeightFunc(ctx algo.IContext) error {
 func aroundLiveExposureFunc(ctx algo.IContext) error {
 	liveArr := make([]int64, 0)
 	liveArrMap := make(map[int64]int, 0)
+	abtest := ctx.GetAbTest()
+	interval :=abtest.GetInt("around_live_interavl",2)
 	for index := 0; index < ctx.GetDataLength(); index++ {
 		dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 		//没有看过的日志
@@ -1046,7 +1048,7 @@ func aroundLiveExposureFunc(ctx algo.IContext) error {
 			dataInfo := ctx.GetDataByIndex(index).(*DataInfo)
 			rankInfo := dataInfo.GetRankInfo()
 			if sortIndex, ok := liveArrMap[dataInfo.DataId]; ok { //运营推荐主播每隔5位随机进行展示
-				rankInfo.HopeIndex = sortIndex*2 + GenerateRangeNum(0, 2)
+				rankInfo.HopeIndex = sortIndex*interval + GenerateRangeNum(0, interval)
 			}
 		}
 	}
