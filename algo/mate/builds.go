@@ -3,6 +3,7 @@ package mate
 import (
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -217,29 +218,65 @@ func DoBuildData(ctx algo.IContext) error {
 		//兜底只有时间段
 		allSentenceList = append(allSentenceList,searchImageResult...)
 	}
-	//log.Infof("allSentenceList=============%+v", allSentenceList)
+	log.Infof("allSentenceList=============%+v", allSentenceList)
 	pf.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
 			UserId: params.UserId,
 		}
 		// 组装被曝光者信息
-		dataIds := make([]int64, 0)
-		dataList := make([]algo.IDataInfo, 0)
-		for i, baseRes := range allSentenceList {
-			if _, ok := berhaviorMap[baseRes.Id]; !ok {
-				info := &DataInfo{
-					DataId:     baseRes.Id,
-					SearchData: &allSentenceList[i],
-					RankInfo:   &algo.RankInfo{},
+
+		//ABtest测试
+		if abtest.GetBool("meta_list_result",true) {
+			resultNum:=0;
+			resultDataIds:=make([]int64, 0)
+			resultDataList:=make([]algo.IDataInfo, 0)
+			dataIds:=make([]int64, 0)
+			dataList:=make([]algo.IDataInfo, 0)
+			for i, baseRes := range allSentenceList{
+				if resultNum<=10 {
+					if _, ok := berhaviorMap[baseRes.Id]; !ok {
+						info := &DataInfo{
+							DataId:     baseRes.Id,
+							SearchData: &allSentenceList[i],
+							RankInfo:   &algo.RankInfo{},
+						}
+						resultDataIds = append(resultDataIds, baseRes.Id)
+						resultDataList = append(resultDataList, info)
+						resultNum += 1
+					}
 				}
-				dataIds = append(dataIds, baseRes.Id)
-				dataList = append(dataList, info)
 			}
+			//新增方式
+			log.Infof("new_info_test=============")
+			log.Infof("resultDataIds=============%+v", resultDataIds)
+			log.Infof("resultDataList=============%+v", resultDataList)
+			ctx.SetUserInfo(userInfo)
+			ctx.SetDataIds(dataIds)
+			ctx.SetDataList(dataList)
+			return len(dataList)
+		}else {
+			dataIds := make([]int64, 0)
+			dataList := make([]algo.IDataInfo, 0)
+			for i, baseRes := range allSentenceList {
+				if _, ok := berhaviorMap[baseRes.Id]; !ok {
+					info := &DataInfo{
+						DataId:     baseRes.Id,
+						SearchData: &allSentenceList[i],
+						RankInfo:   &algo.RankInfo{},
+					}
+					dataIds = append(dataIds, baseRes.Id)
+					dataList = append(dataList, info)
+				}
+			}
+			//原来数据的
+			log.Infof("info=============")
+			log.Infof("dataIds=============%+v", dataIds)
+			log.Infof("dataList=============%+v", dataList)
+			ctx.SetUserInfo(userInfo)
+			ctx.SetDataIds(dataIds)
+			ctx.SetDataList(dataList)
+			return len(dataList)
 		}
-		ctx.SetUserInfo(userInfo)
-		ctx.SetDataIds(dataIds)
-		ctx.SetDataList(dataList)
-		return len(dataList)
 	})
 	return err
 }
