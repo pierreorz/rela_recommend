@@ -302,7 +302,6 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					log.Errorf("unmarshal live data %+v error: %+v", self.LiveCache.Data4Api, err)
 					return nil
 				}
-				data.GoldPkStatus
 				if len(data.Label) > 0 && data.LabelLang != nil {
 					self.LiveData.AddLabel(&labelItem{
 						Style: RecommendLabel,
