@@ -214,23 +214,35 @@ type ILiveRankItemV3 struct {
 	LabelLang *multiLanguage `json:"labelLang"`
 	LabelList []*labelItem   `json:"label_list"` //排序好的直播标签，见 https://wiki.rela.me/pages/viewpage.action?pageId=30474709
 	RedPacketNum  int         `json:"redPacketNum"`
+	GoldPkStatus int    `json:"goldPkStatus"` //3，4，5 表示在跨房pk
 
 }
 
 func (lrt *ILiveRankItemV3) GetLiveType() int {
-	switch lrt.Status {
-	case LinkMicBusy:
-		return 1
-	case PkBusy, PkSummary:
+	if lrt.GetPkType()==0{
+		switch lrt.Status {
+		case LinkMicBusy:
+			return 1
+		case PkBusy, PkSummary:
+			return 2
+		case MultiVideoFour, MultiVideoNine:
+			return 3
+		case Blind:
+			return 4
+		}
+	}else{
 		return 2
-	case MultiVideoFour, MultiVideoNine:
-		return 3
-	case Blind:
-		return 4
 	}
 	return 0
 }
 
+func (lrt *ILiveRankItemV3) GetPkType() int {
+	switch lrt.GoldPkStatus {
+	case 3, 4, 5:
+		return 1
+	}
+	return 0
+}
 func (lrt *ILiveRankItemV3) GetRedNum() int {
 	return lrt.RedPacketNum
 }
@@ -290,7 +302,6 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 					log.Errorf("unmarshal live data %+v error: %+v", self.LiveCache.Data4Api, err)
 					return nil
 				}
-
 				if len(data.Label) > 0 && data.LabelLang != nil {
 					self.LiveData.AddLabel(&labelItem{
 						Style: RecommendLabel,
@@ -325,6 +336,7 @@ func (self *LiveInfo) GetResponseData(ctx algo.IContext) interface{} {
 						})
 					}
 				}
+
 				switch data.GetLiveType() {
 				case 4:
 					self.LiveData.AddLabel(&labelItem{
