@@ -52,6 +52,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetLiveFeaturesV2},
 	&algo.AlgoBase{AlgoName: "xgb_4.0", FilePath: workDir + "live_2.1.2.dumps.gz",
 		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetLiveFeaturesV2},
+	&algo.AlgoBase{AlgoName: "xgb_5.0", FilePath: workDir + "live_2.1.3.dumps.gz",
+		Model: &utils.XgboostClassifier{}, FeaturesFunc: GetLiveFeaturesV2},
 })
 
 // 推荐栏目
