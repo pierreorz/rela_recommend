@@ -148,6 +148,8 @@ var algosMap = algo.AlgoListInitToMap([]algo.IAlgo{
 		Model: &utils.GradientBoostingLRClassifier{}, FeaturesFunc: GetMomentFeatures},
 	&algo.AlgoBase{AlgoName: "model_around_new_1.2.2", FilePath: workDir + "mods_near_1.2.dumps.gz",
 		Model: &utils.GradientBoostingLRClassifier{}, FeaturesFunc: GetMomentFeatures},
+	&algo.AlgoBase{AlgoName: "model_around_new_1.2.3", FilePath: workDir + "mods_near_1.3.dumps.gz",
+		Model: &utils.GradientBoostingLRClassifier{}, FeaturesFunc: GetMomentFeatures},
 })
 
 // 推荐日志
