@@ -112,7 +112,7 @@ func (this *MataCategTextModule) QueryMatebehaviorMap(userId int64)(BehaviorMate
 
 
 //请求写入pika数据，
-func (this *MataCategTextModule) SetMataUserPikaMap(userId int64,res  []byte,cacheTime2 int)(int,error) {
+func (this *MataCategTextModule) SetMataUserPikaMap(userId int64,res []byte,cacheTime2 int)(int,error) {
 	keyFormatter := fmt.Sprintf("mate_result:pika_user:%d", userId)
 	if res!=nil {
 		err := this.store.SetEx(keyFormatter, res, cacheTime2)
@@ -120,16 +120,18 @@ func (this *MataCategTextModule) SetMataUserPikaMap(userId int64,res  []byte,cac
 			log.Infof("setcache warn: %s\n",err)
 		}
 	}
-	return 0,nil
+	return len(res),nil
 }
 //获取10分钟内pika数据
 func (this *MataCategTextModule) QueryMataUserPikaMap(userId int64)(string,error) {
 	keyFormatter := fmt.Sprintf("mate_result:pika_user:%d", userId)
 	var matePikaString string
+	a, _ :=this.store.Get(keyFormatter)
 
-	matePikaString,err := redis.String(this.Get(keyFormatter))
+	log.Info("",a)
+	matePikaString,err := redis.String(this.store.Get(keyFormatter))
 
-
+	log.Info("get pika matePikaString================",matePikaString)
 	log.Info("get pika err================",err)
 	return matePikaString,err
 }
