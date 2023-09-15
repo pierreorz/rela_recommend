@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"rela_recommend/cache"
 	"rela_recommend/factory"
-	"rela_recommend/help"
-	"rela_recommend/log"
 	"rela_recommend/service/abtest"
 	"strings"
 )
@@ -106,15 +104,3 @@ func (this *UserCacheModule) QueryMatebehaviorMap(userId int64)(BehaviorMate,err
 }
 
 
-
-//请求写入pika数据，
-func (this *UserCacheModule) SetMataUserPikaMap(userId int64,res []byte,cacheTime2 int)(int,error) {
-	keyFormatter := fmt.Sprintf("mate_result:pika_user:%d", userId)
-	if res!=nil {
-		err := help.SetExStructByCache(factory.CacheCluster,keyFormatter,res,600)
-		if err != nil {
-			log.Infof("setcache warn: %s\n",err)
-		}
-	}
-	return len(res),nil
-}

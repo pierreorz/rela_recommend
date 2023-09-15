@@ -1,7 +1,6 @@
 package mate
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"rela_recommend/algo"
@@ -379,15 +378,23 @@ func GetPikaUser(ctx algo.IContext,userid int64) ([]int64,[]algo.IDataInfo, erro
 }
 
 func SetPikaUser(ctx algo.IContext,userid int64,dataIds []int64,dataList []algo.IDataInfo) (int,error){
+	var err error
 	reqMatePika:=MatePika{dataIds,dataList}
-	reqMatePikaString, _ := json.Marshal(reqMatePika)
+	//reqMatePikaString, _ := json.Marshal(reqMatePika)
 
-	mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
-	var cacheTime=10*60
+	//mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	//var cacheTime=10*60
 
-	dataLen,err:=mateCategCache.SetMataUserPikaMap(userid,reqMatePikaString,cacheTime)
+	//dataLen,err:=mateCategCache.SetMataUserPikaMap(userid,reqMatePikaString,cacheTime)
 
-	return dataLen,err
+	keyFormatter := fmt.Sprintf("mate_result:pika_user:%d", userid)
+	if err := help.SetExStructByCache(factory.CacheCluster,keyFormatter,reqMatePika,600); err == nil {
+		log.Debugf("insert mate obj: %+v", reqMatePika)
+	}else {
+		log.Errorf("insert mate obj error: %+v", err)
+	}
+
+	return len(dataIds),err
 }
 
 
