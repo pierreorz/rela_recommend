@@ -1,9 +1,12 @@
 package mate
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -351,6 +354,43 @@ func GetCategoryRandomData(categMap map[int64][]int64 ) map[int64]int64{
 
 	return resultMap
 }
+
+//建立结构pika缓存结构体
+type MatePika struct {
+	DataIds []int64 `json:"dataIds"`
+	DataList []algo.IDataInfo `json:"dataList"`
+}
+
+func GetPikaUser(ctx algo.IContext,userid int64) ([]int64,[]algo.IDataInfo,error){
+	mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+
+	var matePikaString string
+	var matePikaCacheErr error
+	var matePika MatePika
+	if matePikaString,matePikaCacheErr = mateCategCache.QueryMataUserPikaMap(userid); matePikaCacheErr == nil{
+		if err := json.Unmarshal([]byte(matePikaString), &matePika); err != nil {
+			log.Info("mate pika JSON error=========",err)
+		}
+	}
+	dataIds:=matePika.DataIds
+	dataList:=matePika.DataList
+	return dataIds,dataList,matePikaCacheErr
+}
+
+func SetPikaUser(ctx algo.IContext,userid int64,dataIds []int64,dataList []algo.IDataInfo) (int,error){
+	reqMatePika:=MatePika{dataIds,dataList}
+	reqMatePikaString, _ := json.Marshal(reqMatePika)
+
+	mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	var cacheTime=10*60
+
+	dataLen,err:=mateCategCache.SetMataUserPikaMap(userid,reqMatePikaString,cacheTime)
+
+	return dataLen,err
+}
+
+
+
 
 
 //func GetLikeSenten(nums int,textType int64)[]search.MateTextResDataItem {

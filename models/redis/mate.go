@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"rela_recommend/cache"
 	"rela_recommend/factory"
+	"rela_recommend/log"
 	"rela_recommend/service/abtest"
 	"strings"
 )
@@ -36,7 +37,6 @@ type BehaviorMate struct {
 		UserID   int64 `json:"userId"`
 	} `json:"data"`
 }
-
 
 
 type MataCategTextModule struct{
@@ -108,3 +108,23 @@ func (this *MataCategTextModule) QueryMatebehaviorMap(userId int64)(BehaviorMate
 	return behaviorMap,err
 }
 
+
+
+//请求写入pika数据，
+func (this *MataCategTextModule) SetMataUserPikaMap(userId int64,res []byte ,cacheTime2 int)(int,error) {
+	keyFormatter := fmt.Sprintf("mate_result:pika_user:%d", userId)
+	if len(res)>0 {
+		err := this.cache.SetEx(keyFormatter, res, cacheTime2)
+		if err != nil {
+			log.Infof("setcache warn: %s\n",err)
+		}
+	}
+	return len(res),nil
+}
+//获取10分钟内pika数据
+func (this *MataCategTextModule) QueryMataUserPikaMap(userId int64)(string,error) {
+	keyFormatter := fmt.Sprintf("mate_result:pika_user:%d", userId)
+	var matePikaString string
+	err := this.GetSetStruct(keyFormatter,&matePikaString,6*60*60, 1*60*60)
+	return matePikaString,err
+}
