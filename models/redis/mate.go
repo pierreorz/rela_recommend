@@ -114,7 +114,7 @@ func (this *MataCategTextModule) QueryMatebehaviorMap(userId int64)(BehaviorMate
 func (this *MataCategTextModule) SetMataUserPikaMap(userId int64,res []byte ,cacheTime2 int)(int,error) {
 	keyFormatter := fmt.Sprintf("mate_result:pika_user:%d", userId)
 	if len(res)>0 {
-		err := this.cache.SetEx(keyFormatter, res, cacheTime2)
+		err := this.store.SetEx(keyFormatter, res, cacheTime2)
 		if err != nil {
 			log.Infof("setcache warn: %s\n",err)
 		}
