@@ -33,14 +33,14 @@ func DoBuildData(ctx algo.IContext) error {
 
 	resultType:=abtest.GetInt("redis_result_data",0) //默认是走es查询，1为 redis_result
 	dataIds,dataList,matePikaCacheErr = GetPikaUser(ctx,params.UserId)
-	log.Info("matePikaCacheErr============",matePikaCacheErr)
+	//log.Info("matePikaCacheErr============",matePikaCacheErr)
 	if resultType==1 && matePikaCacheErr == nil{
 		userInfo := &UserInfo{
 			UserId: params.UserId,
 		}
-		log.Info("pika data ========================",len(dataIds))
-		log.Infof("pika dataIds =============%+v", dataIds)
-		log.Infof("pika dataList =============%+v", dataList)
+		//log.Info("pika data ========================",len(dataIds))
+		//log.Infof("pika dataIds =============%+v", dataIds)
+		//log.Infof("pika dataList =============%+v", dataList)
 		ctx.SetUserInfo(userInfo)
 		ctx.SetDataIds(dataIds)
 		ctx.SetDataList(dataList)
