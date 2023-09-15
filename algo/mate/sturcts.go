@@ -368,9 +368,9 @@ func GetPikaUser(ctx algo.IContext,userid int64) ([]int64,[]algo.IDataInfo, erro
 	var matePika MatePika
 	key := fmt.Sprintf(keyFormatter, userid)
 	if err = help.GetStructByCache(factory.CacheCluster, key, &matePika); err == nil {
-		log.Debugf("get mate obj: %+v", matePika)
+		log.Debugf("get mate obj %s: %+v", key, matePika)
 	} else {
-		log.Errorf("get mate obj error: %+v", err)
+		log.Errorf("get mate obj %s error: %+v", key, err)
 	}
 	dataList := make([]algo.IDataInfo,0)
 	for _, di := range matePika.DataList {
@@ -388,11 +388,12 @@ func SetPikaUser(ctx algo.IContext,userid int64,dataIds []int64,dataList []DataI
 
 	//dataLen,err:=mateCategCache.SetMataUserPikaMap(userid,reqMatePikaString,cacheTime)
 
-	keyFormatter := fmt.Sprintf("mate_result:pika_user:%d", userid)
-	if err := help.SetExStructByCache(factory.CacheCluster,keyFormatter,reqMatePika,600); err == nil {
-		log.Debugf("insert mate obj: %+v", reqMatePika)
+	keyFormatter := ctx.GetAbTest().GetString("mate_cache_prefix", "mate_result:pika_user:%d")
+	key := fmt.Sprintf(keyFormatter, userid)
+	if err := help.SetExStructByCache(factory.CacheCluster,key,reqMatePika,600); err == nil {
+		log.Debugf("insert mate obj %s: %+v", key,reqMatePika)
 	}else {
-		log.Errorf("insert mate obj error: %+v", err)
+		log.Errorf("insert mate obj %s error: %+v", key,err)
 	}
 
 	return len(dataIds),err
