@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"rela_recommend/algo"
 	"rela_recommend/factory"
+	"rela_recommend/help"
 	"rela_recommend/log"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
@@ -361,21 +362,20 @@ type MatePika struct {
 	DataList []algo.IDataInfo `json:"dataList"`
 }
 
-func GetPikaUser(ctx algo.IContext,userid int64) ([]int64,[]algo.IDataInfo,error){
-	mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+func GetPikaUser(ctx algo.IContext,userid int64) ([]int64,[]algo.IDataInfo, error){
+	var err error
+	keyFormatter := ctx.GetAbTest().GetString("mate_cache_prefix", "mate_result:pika_user:%d")
 
-	var matePikaString string
-	var matePikaCacheErr error
 	var matePika MatePika
-	if matePikaString,matePikaCacheErr = mateCategCache.QueryMataUserPikaMap(userid); matePikaCacheErr == nil{
-		log.Info("matePikaStringr=========",matePikaString)
-		if err := json.Unmarshal([]byte(matePikaString), &matePika); err != nil {
-			log.Info("mate pika JSON error=========",err)
-		}
+	key := fmt.Sprintf(keyFormatter, userid)
+	if err = help.GetStructByCache(factory.CacheCluster, key, &matePika); err == nil {
+		log.Debugf("get mate obj: %+v", matePika)
+	} else {
+		log.Errorf("get mate obj error: %+v", err)
 	}
 	dataIds:=matePika.DataIds
 	dataList:=matePika.DataList
-	return dataIds,dataList,matePikaCacheErr
+	return dataIds,dataList, err
 }
 
 func SetPikaUser(ctx algo.IContext,userid int64,dataIds []int64,dataList []algo.IDataInfo) (int,error){

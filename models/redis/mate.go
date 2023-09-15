@@ -2,7 +2,6 @@ package redis
 
 import (
 	"fmt"
-	"github.com/garyburd/redigo/redis"
 	"rela_recommend/cache"
 	"rela_recommend/factory"
 	"rela_recommend/log"
@@ -40,17 +39,13 @@ type BehaviorMate struct {
 }
 
 
-type MataCategTextModule struct{
-	CachePikaModule
-}
-
 func NewMateCacheModule(cache *cache.Cache, store *cache.Cache) *PretendLoveUserModule {
 	return &PretendLoveUserModule{cacheCluster: *cache, storeCluster: *store}
 }
 
 
-func NewMateCaegtCacheModule(ctx abtest.IAbTestAble,cache *cache.Cache, store *cache.Cache) *MataCategTextModule {
-	return &MataCategTextModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
+func NewMateCaegtCacheModule(ctx abtest.IAbTestAble,cache *cache.Cache, store *cache.Cache) *UserCacheModule {
+	return &UserCacheModule{CachePikaModule{ctx: ctx, cache: *cache, store: *store}}
 }
 
 
@@ -95,14 +90,14 @@ func(this *UserCacheModule) QueryUserBaseMap(userId int64,userIds []int64) (*Use
 	return user,userMap,nil
 }
 //获取文案信息
-func (this *MataCategTextModule) QueryMateUserCategTextList(textType int64,categType int64) (TextTypeCategText,error){
+func (this *UserCacheModule) QueryMateUserCategTextList(textType int64,categType int64) (TextTypeCategText,error){
 	keyFormatter := fmt.Sprintf("mate_text:text_type:%d:categ_type:%d", textType,categType)
 	var categText TextTypeCategText
 	err := this.GetSetStruct(keyFormatter,&categText,6*60*60, 1*60*60)
 	return categText, err
 }
 //获取redis
-func (this *MataCategTextModule) QueryMatebehaviorMap(userId int64)(BehaviorMate,error){
+func (this *UserCacheModule) QueryMatebehaviorMap(userId int64)(BehaviorMate,error){
 	keyFormatter := fmt.Sprintf("mate_behavior:%d", userId)
 	var behaviorMap BehaviorMate
 	err := this.GetSetStruct(keyFormatter,&behaviorMap,6*60*60, 1*60*60)
@@ -112,26 +107,13 @@ func (this *MataCategTextModule) QueryMatebehaviorMap(userId int64)(BehaviorMate
 
 
 //请求写入pika数据，
-func (this *MataCategTextModule) SetMataUserPikaMap(userId int64,res []byte,cacheTime2 int)(int,error) {
+func (this *UserCacheModule) SetMataUserPikaMap(userId int64,res []byte,cacheTime2 int)(int,error) {
 	keyFormatter := fmt.Sprintf("mate_result:pika_user:%d", userId)
 	if res!=nil {
-		err := this.store.SetEx(keyFormatter, res, cacheTime2)
+		err := this.cache.SetEx(keyFormatter, res, cacheTime2)
 		if err != nil {
 			log.Infof("setcache warn: %s\n",err)
 		}
 	}
 	return len(res),nil
-}
-//获取10分钟内pika数据
-func (this *MataCategTextModule) QueryMataUserPikaMap(userId int64)(string,error) {
-	keyFormatter := fmt.Sprintf("mate_result:pika_user:%d", userId)
-	var matePikaString string
-	a, _ :=this.store.Get(keyFormatter)
-
-	log.Info("",a)
-	matePikaString,err := redis.String(this.store.Get(keyFormatter))
-
-	log.Info("get pika matePikaString================",matePikaString)
-	log.Info("get pika err================",err)
-	return matePikaString,err
 }

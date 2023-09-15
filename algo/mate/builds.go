@@ -30,7 +30,10 @@ func DoBuildData(ctx algo.IContext) error {
 	dataList := make([]algo.IDataInfo, 0)
 
 	var matePikaCacheErr error
-	if dataIds,dataList,matePikaCacheErr = GetPikaUser(ctx,params.UserId); matePikaCacheErr == nil{
+
+	resultType:=abtest.GetInt("redis_result_data",0) //默认是走es查询，1为 redis_result
+	dataIds,dataList,matePikaCacheErr = GetPikaUser(ctx,params.UserId)
+	if resultType==1 && matePikaCacheErr == nil{
 		userInfo := &UserInfo{
 			UserId: params.UserId,
 		}
@@ -260,10 +263,13 @@ func DoBuildData(ctx algo.IContext) error {
 			ctx.SetDataIds(dataIds)
 			ctx.SetDataList(dataList)
 			//将请求数据写入pika
-			var dataLen int
-			dataLen,err = SetPikaUser(ctx,params.UserId,dataIds,dataList)
-			log.Info("insert pika =========================",dataLen)
+			if resultType == 1 {
+				var dataLen int
+				dataLen, err = SetPikaUser(ctx, params.UserId, dataIds, dataList)
+				log.Info("insert pika =========================", dataLen)
+			}
 			return len(dataList)
+
 		})
 	}
 	return err
