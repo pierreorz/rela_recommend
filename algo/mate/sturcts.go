@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"rela_recommend/algo"
+	"rela_recommend/factory"
+	"rela_recommend/help"
 	"rela_recommend/models/behavior"
 	"rela_recommend/models/redis"
 	"rela_recommend/rpc/search"
@@ -351,6 +353,53 @@ func GetCategoryRandomData(categMap map[int64][]int64 ) map[int64]int64{
 
 	return resultMap
 }
+
+//建立结构pika缓存结构体
+type MatePika struct {
+	DataIds []int64 `json:"dataIds"`
+	DataList []DataInfo `json:"dataList"`
+}
+
+func GetPikaUser(ctx algo.IContext,userid int64) ([]int64,[]algo.IDataInfo, error){
+	var err error
+	keyFormatter := ctx.GetAbTest().GetString("mate_cache_prefix", "mate_result:pika_user:%d")
+
+	var matePika MatePika
+	key := fmt.Sprintf(keyFormatter, userid)
+	if err = help.GetStructByCache(factory.CacheCluster, key, &matePika); err == nil {
+		//log.Debugf("get mate obj %s: %+v", key, matePika)
+	} else {
+		//log.Errorf("get mate obj %s error: %+v", key, err)
+	}
+	dataList := make([]algo.IDataInfo,0)
+	for _, di := range matePika.DataList {
+		dataList = append(dataList, &di)
+	}
+	return matePika.DataIds,dataList, err
+}
+
+func SetPikaUser(ctx algo.IContext,userid int64,dataIds []int64,dataList []DataInfo) (int,error){
+	var err error
+	reqMatePika:=MatePika{dataIds,dataList}
+
+	//mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
+	//var cacheTime=10*60
+
+	//dataLen,err:=mateCategCache.SetMataUserPikaMap(userid,reqMatePikaString,cacheTime)
+
+	keyFormatter := ctx.GetAbTest().GetString("mate_cache_prefix", "mate_result:pika_user:%d")
+	key := fmt.Sprintf(keyFormatter, userid)
+	if err := help.SetExStructByCache(factory.CacheCluster,key,reqMatePika,600); err == nil {
+		//log.Debugf("insert mate obj %s: %+v", key,reqMatePika)
+	}else {
+		//log.Errorf("insert mate obj %s error: %+v", key,err)
+	}
+
+	return len(dataIds),err
+}
+
+
+
 
 
 //func GetLikeSenten(nums int,textType int64)[]search.MateTextResDataItem {
