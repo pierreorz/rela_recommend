@@ -126,5 +126,6 @@ func (this *MataCategTextModule) QueryMataUserPikaMap(userId int64)([]byte,error
 	keyFormatter := fmt.Sprintf("mate_result:pika_user:%d", userId)
 	var matePikaString []byte
 	err := this.GetSetStruct(keyFormatter,&matePikaString,6*60*60, 1*60*60)
+	log.Info("get pika err================",err)
 	return matePikaString,err
 }
