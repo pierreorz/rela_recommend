@@ -358,7 +358,7 @@ func GetCategoryRandomData(categMap map[int64][]int64 ) map[int64]int64{
 //建立结构pika缓存结构体
 type MatePika struct {
 	DataIds []int64 `json:"dataIds"`
-	DataList []algo.IDataInfo `json:"dataList"`
+	DataList []DataInfo `json:"dataList"`
 }
 
 func GetPikaUser(ctx algo.IContext,userid int64) ([]int64,[]algo.IDataInfo, error){
@@ -372,15 +372,16 @@ func GetPikaUser(ctx algo.IContext,userid int64) ([]int64,[]algo.IDataInfo, erro
 	} else {
 		log.Errorf("get mate obj error: %+v", err)
 	}
-	dataIds:=matePika.DataIds
-	dataList:=matePika.DataList
-	return dataIds,dataList, err
+	dataList := make([]algo.IDataInfo,0)
+	for _, di := range matePika.DataList {
+		dataList = append(dataList, &di)
+	}
+	return matePika.DataIds,dataList, err
 }
 
-func SetPikaUser(ctx algo.IContext,userid int64,dataIds []int64,dataList []algo.IDataInfo) (int,error){
+func SetPikaUser(ctx algo.IContext,userid int64,dataIds []int64,dataList []DataInfo) (int,error){
 	var err error
 	reqMatePika:=MatePika{dataIds,dataList}
-	//reqMatePikaString, _ := json.Marshal(reqMatePika)
 
 	//mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	//var cacheTime=10*60

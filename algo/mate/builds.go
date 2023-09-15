@@ -33,6 +33,7 @@ func DoBuildData(ctx algo.IContext) error {
 
 	resultType:=abtest.GetInt("redis_result_data",0) //默认是走es查询，1为 redis_result
 	dataIds,dataList,matePikaCacheErr = GetPikaUser(ctx,params.UserId)
+	log.Info("matePikaCacheErr============",matePikaCacheErr)
 	if resultType==1 && matePikaCacheErr == nil{
 		userInfo := &UserInfo{
 			UserId: params.UserId,
@@ -248,15 +249,17 @@ func DoBuildData(ctx algo.IContext) error {
 			// 组装被曝光者信息
 			dataIds := make([]int64, 0)
 			dataList := make([]algo.IDataInfo, 0)
+			cacheList := make([]DataInfo, 0)
 			for i, baseRes := range allSentenceList {
 				if _, ok := berhaviorMap[baseRes.Id]; !ok {
-					info := &DataInfo{
+					info := DataInfo{
 						DataId:     baseRes.Id,
 						SearchData: &allSentenceList[i],
 						RankInfo:   &algo.RankInfo{},
 					}
 					dataIds = append(dataIds, baseRes.Id)
-					dataList = append(dataList, info)
+					dataList = append(dataList, &info)
+					cacheList = append(cacheList, info)
 				}
 			}
 			ctx.SetUserInfo(userInfo)
@@ -265,7 +268,7 @@ func DoBuildData(ctx algo.IContext) error {
 			//将请求数据写入pika
 			if resultType == 1 {
 				var dataLen int
-				dataLen, err = SetPikaUser(ctx, params.UserId, dataIds, dataList)
+				dataLen, err = SetPikaUser(ctx, params.UserId, dataIds, cacheList)
 				log.Info("insert pika =========================", dataLen)
 			}
 			return len(dataList)
