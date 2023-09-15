@@ -364,10 +364,10 @@ type MatePika struct {
 func GetPikaUser(ctx algo.IContext,userid int64) ([]int64,[]algo.IDataInfo,error){
 	mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 
-	var matePikaString []byte
+	var matePikaString string
 	var matePikaCacheErr error
 	var matePika MatePika
-	if matePikaCacheErr = mateCategCache.QueryMataUserPikaMap(userid,&matePika); matePikaCacheErr == nil{
+	if matePikaString,matePikaCacheErr = mateCategCache.QueryMataUserPikaMap(userid); matePikaCacheErr == nil{
 		log.Info("matePikaStringr=========",matePikaString)
 		if err := json.Unmarshal([]byte(matePikaString), &matePika); err != nil {
 			log.Info("mate pika JSON error=========",err)
@@ -380,12 +380,12 @@ func GetPikaUser(ctx algo.IContext,userid int64) ([]int64,[]algo.IDataInfo,error
 
 func SetPikaUser(ctx algo.IContext,userid int64,dataIds []int64,dataList []algo.IDataInfo) (int,error){
 	reqMatePika:=MatePika{dataIds,dataList}
-	//reqMatePikaString, _ := json.Marshal(reqMatePika)
+	reqMatePikaString, _ := json.Marshal(reqMatePika)
 
 	mateCategCache := redis.NewMateCaegtCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	var cacheTime=10*60
 
-	dataLen,err:=mateCategCache.SetMataUserPikaMap(userid,reqMatePika,cacheTime)
+	dataLen,err:=mateCategCache.SetMataUserPikaMap(userid,reqMatePikaString,cacheTime)
 
 	return dataLen,err
 }
