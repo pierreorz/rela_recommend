@@ -238,7 +238,7 @@ func (lrt *ILiveRankItemV3) GetLiveType() int {
 
 func (lrt *ILiveRankItemV3) GetPkType() int {
 	switch lrt.GoldPkStatus {
-	case 3, 4, 5:
+	case 4, 5:
 		return 1
 	}
 	return 0
