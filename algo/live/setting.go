@@ -11,6 +11,8 @@ var workDir = algo.GetWorkDir("/algo_files/live/")
 
 var builderMap = map[string]algo.IBuilder{
 	"base": &algo.BuilderBase{DoBuild: DoBuildData},
+	"chat":       &algo.BuilderBase{DoBuild: DoBuildChatData},
+
 }
 var strategyMap = map[string]algo.IStrategy{
 	"top_recommend_level": &algo.StrategyBase{DoSingle: LiveTopRecommandStrategyFunc},
@@ -63,6 +65,18 @@ var _ = algo.AddAppInfo(&algo.AppInfo{
 	Name: "live", Module: "live", Path: workDir,
 	AlgoKey: "model", AlgoDefault: "base", AlgoMap: algosMap,
 	BuilderKey: "build", BuilderDefault: "base", BuilderMap: builderMap,
+	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
+	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
+	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
+	LoggerKeyFormatter: "logger:%s:weight", LoggerMap: loggerMap,
+	RichStrategyKeyFormatter: "rich_strategy:%s:weight", RichStrategyMap: richStrategyMap,
+})
+
+// 语音聊天栏目
+var _ = algo.AddAppInfo(&algo.AppInfo{
+	Name: "live.voice", Module: "live", Path: workDir,
+	AlgoKey: "model", AlgoDefault: "base", AlgoMap: algosMap,
+	BuilderKey: "build", BuilderDefault: "chat", BuilderMap: builderMap,
 	SorterKey: "sorter", SorterDefault: "base", SorterMap: sorterMap,
 	PagerKey: "pager", PagerDefault: "base", PagerMap: pagerMap,
 	StrategyKeyFormatter: "strategy:%s:weight", StrategyMap: strategyMap,
