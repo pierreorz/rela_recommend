@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8aa69415-8f72-4930-be7e-a126494eff48" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/algo/ad/builds.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/ad/setting.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/ad/strategies.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/ad/sturcts.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/label/builds.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/label/features.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/label/settings.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/label/strategies.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/label/struct.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/live/builds.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/live/features.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/live/setting.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/live/strategies.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/live/struct.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/live/task.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/live/task4api.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/match/build.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/match/features.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/match/setting.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/match/strategies.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/match/struct.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/mate/builds.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/mate/setting.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/mate/strategies.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/mate/sturcts.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/moment_tag/build.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/moment_tag/setting.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/moment_tag/struct.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/theme/build.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/theme/build_reply.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/theme/feature.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/theme/setting.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/theme/strategies.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo/theme/struct.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/conf/conf.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/conf/conf.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/conf/conf_pre.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/conf/conf_pro.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/conf/conf_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/conf/conf_test.toml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/live/live.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/match/match.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/segment/segment.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/theme/theme.go" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="GOROOT" url="file:///usr/local/opt/go/libexec" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="false" />
+    <option name="urls">
+      <list>
+        <option value="file://$PROJECT_DIR$/../.." />
+      </list>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedIndex" value="1" />
+  </component>
+  <component name="ProjectId" id="29jDxqQ1I5NQjNHVmMRj0eOorUA" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "RunOnceActivity.go.vendoring.notification.had.been.shown": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/Users/wangfendou",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "go.vgo"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\go\src\rela_recommend\algo_files\live" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="rela_recommend" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="rela_recommend" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="DIRECTORY" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VgoProject">
+    <environment>
+      <map>
+        <entry key="GOPROXY" value="https://goproxy.cn" />
+      </map>
+    </environment>
+    <settings-migrated>true</settings-migrated>
+  </component>
+</project>

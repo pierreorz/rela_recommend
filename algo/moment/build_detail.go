@@ -3,11 +3,11 @@ package moment
 import (
 	"errors"
 	"rela_recommend/algo"
-	"rela_recommend/algo/live"
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/models/pika"
 	"rela_recommend/models/redis"
+	"rela_recommend/tasks"
 	"rela_recommend/utils"
 )
 
@@ -40,7 +40,7 @@ func DoBuildMomentAroundDetailSimData(ctx algo.IContext) error {
 			//判断日志是否是直播日志
 			var lives []pika.LiveCache
 			liveLen := abtest.GetInt("live_moment_len", 3)
-			lives = live.GetCachedLiveListByTypeClassify(-1, -1)
+			lives = tasks.GetCachedLiveListByTypeClassify(-1, -1)
 			dataIdList = ReturnTopnScoreLiveMom(lives, liveLen, params.DataIds[0])
 		} else {
 			recListKeyFormatter := abtest.GetString("around_detail_sim_list_key", "moment.around_sim_momentList:%s")
@@ -175,7 +175,7 @@ func DoBuildMomentRecommendDetailSimData(ctx algo.IContext) error {
 			//判断日志类型
 			var lives []pika.LiveCache
 			liveLen := abtest.GetInt("live_moment_len", 3)
-			lives = live.GetCachedLiveListByTypeClassify(-1, -1)
+			lives = tasks.GetCachedLiveListByTypeClassify(-1, -1)
 			liveIds := ReturnTopnScoreLiveMom(lives, liveLen, moms[0].Moments.UserId)
 			SetData(liveIds, ctx, params.DataIds[0], false)
 

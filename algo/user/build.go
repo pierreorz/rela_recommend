@@ -2,7 +2,6 @@ package user
 
 import (
 	"rela_recommend/algo"
-	"rela_recommend/algo/live"
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/models/pika"
@@ -82,6 +81,7 @@ func DoBuildSearchData(ctx algo.IContext) error {
 }
 
 func DoBuildDataV1(ctx algo.IContext) error {
+
 	var err error
 	abtest := ctx.GetAbTest()
 	app := ctx.GetAppInfo()
@@ -89,7 +89,7 @@ func DoBuildDataV1(ctx algo.IContext) error {
 	params := ctx.GetRequest()
 	userCache := redis.NewUserCacheModule(ctx, &factory.CacheCluster, &factory.PikaCluster)
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
-	liveMap := live.GetCachedLiveMap() // 当前的直播列表
+	liveMap := tasks.GetCachedLiveMap(-1) // 当前的直播列表
 
 	var userCurrent *redis.UserProfile
 	var userCurrentErr error
@@ -231,8 +231,8 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 	behaviorCache := behavior.NewBehaviorCacheModule(ctx)
 
 	nearbyUsers := make([]int64, 0)
-	userSearchMap := make(map[int64]*search.UserResDataItem, 0)
-	liveUsers := make([]int64, 0)
+	//userSearchMap := make(map[int64]*search.UserResDataItem, 0)
+	//liveUsers := make([]int64, 0)
 	liveMap := make(map[int64]*pika.LiveCache, 0)
 	var momentInteractBehaviors *behavior.Behavior         // 日志页面发生的互动行为
 	var userInfoMomentInteractBehaviors *behavior.Behavior // 个人主页发生的日志行为
@@ -241,7 +241,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 		"nearby_users": func(*performs.Performs) interface{} {
 			if ctx.GetAbTest().GetBool("nearby_search_es", true) {
 				var searchErr error
-				nearbyUsers, userSearchMap, searchErr = search.CallNearUserList(params.UserId, params.Lat, params.Lng,
+				nearbyUsers, _, searchErr = search.CallNearUserList(params.UserId, params.Lat, params.Lng,
 					0, 200, "", []string{})
 				if searchErr != nil {
 					return searchErr
@@ -253,7 +253,7 @@ func DoBuildNtxlData(ctx algo.IContext) error {
 		},
 		"live_users": func(*performs.Performs) interface{} {
 			liveListSize := ctx.GetAbTest().GetInt("live_list_size", 5)
-			liveUsers, liveMap = tasks.GetAllCachedLiveUsersAndMapByRandom(liveListSize)
+			_, liveMap = tasks.GetAllCachedLiveUsersAndMapByRandom(liveListSize)
 			return len(liveMap)
 		},
 		"user_moment_behavior": func(*performs.Performs) interface{} {

@@ -5,38 +5,38 @@ port=3200
 #["trace", "debug", "info", "warn", "error", "fatal"]  default: "error"
 log_level = "debug"
 
-#新mongo集群地址 https://docs.mongodb.com/manual/reference/connection-string/
-match_cluster_mongo_addr = "mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]"
+#新mongo集群地址 
+match_cluster_mongo_addr = "127.0.0.1:27017"
 
 #本地cache最大内存  128*1024*1024
 memory_cache_size =  157810688
 
 #rds
 [rds]
-redis_addr = "117.50.7.73:6379"
-redis_live_addr = "17.50.7.73:6379"
-redis_cluster_addr = "117.50.7.73:6379,117.50.7.73:6380,117.50.7.73:6381"
-pika_addr = "117.50.7.73:6379"
-behavior_addr = "117.50.7.73:6379"
-aws_redis_addr = "r-8vbi7gp6pcdyoxisy3.redis.zhangbei.rds.aliyuncs.com:6379"
+redis_addr = "127.0.0.1:6379"
+redis_live_addr = "127.0.0.1:6379"
+redis_cluster_addr = "127.0.0.1:6379"
+pika_addr = "127.0.0.1:6379"
+behavior_addr = "127.0.0.1:6379"
+aws_redis_addr = "127.0.0.1:6379"
 
 #mysql
 [rdb]
-#address = "root:devchj@theL0805@tcp(localhost:3306)/stay?charset=utf8-mb4&loc=Asia/Shanghai"
-master_address = "root:qwe123@tcp(localhost:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
+#address = ""
+master_address = "127.0.0.1:3306"
 
 [cassandra]
 addresses="127.0.0.1"
 
 [influxdb]
-addr = "https://ts-8vb05ke21nkz4t5d3.influxdata.tsdb.aliyuncs.com:8086"
-token = "aiadm:AIadm@2020"
-org = "rela_recommend"
+addr = "http://127.0.0.1:8086"
+token = "XQHRwz4xAsn8fG_QKYbHxEL__5klkKWeh94_8cMRx12PuWn1yuJiHW8ebd3g6qtxrlnsTZ3I_cYyZ2gqecVLag=="
+org = "freechat"
 bucket = "ai"
 
 [rpc]
-search_rpc_addr = "http://127.0.0.1"
+search_rpc_addr = "127.0.0.1"
 api_rpc_addr = "http://127.0.0.1"
-chatroom_rpc_addr = "http://chatroom:7420"
-live_rpc_addr = "http://live:3500"
-ai_search_rpc_addr = "http://relasearch:3100"
+chatroom_rpc_addr = "127.0.0.1"
+live_rpc_addr = "127.0.0.1"
+ai_search_rpc_addr = "127.0.0.1"

@@ -7,7 +7,7 @@ import (
 	"rela_recommend/log"
 
 	"github.com/hashicorp/consul/api"
-	"github.com/hashicorp/consul/watch"
+	"github.com/hashicorp/consul/api/watch"
 )
 
 type appInfo struct {

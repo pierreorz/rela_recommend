@@ -1,9 +1,5 @@
-.DS_Store
-.vscode
-rela_recommend
-*.log
-.idea/
-temp.go
-*.bak
-
-conf/conf.local.toml
+/cassandra
+/influxdb
+/redis
+/mysql
+/mongo

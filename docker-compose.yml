@@ -1,0 +1,81 @@
+version: '3.0'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: docker-mysql
+    restart: always
+    expose:
+      - 3306
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+      - "--lower_case_table_names=1"
+
+    volumes:
+      - "./mysql/db:/var/lib/mysql"
+      - "./mysql/init:/docker-entrypoint-initdb.d/"
+      - "./mysql/conf:/etc/mysql/conf.d"
+      - "./mysql/logs:/logs"
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/log/redis.log:/var/log/redis/redis.log:rw
+      - ./redis/config/redis.conf:/home/redis/redis.conf:rw
+      - ./redis/data:/data:rw
+    restart: always
+    privileged: true
+    command:
+      /bin/sh -c "redis-server /home/redis/redis.conf"
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: always
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    volumes:
+      - "./mongo/data/db:/data/db"
+    command: mongod --dbpath /data/db --oplogSize 128 
+
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    restart: always
+    environment:
+      - INFLUXDB_DB=test
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=admin
+      - TZ=Asia/Shanghai
+    expose:
+      - 8086
+    ports:
+      - 8086:8086
+    volumes:
+      - "./influxdb/data:/var/lib/influxdb"
+
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
+    restart: always
+    ports:
+      - 7000:7000
+      - 9042:9042
+    volumes:
+#      - ./cassandra.conf:/etc/cassandra/cassandra.yaml
+      - ./cassandra:/var/lib/cassandra
+    environment:
+      - CASSANDRA_PASSWORD_SEEDER=no
+      #- CASSANDRA_PASSWORD=cassandra
+

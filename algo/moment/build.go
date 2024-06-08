@@ -3,7 +3,6 @@ package moment
 import (
 	"math/rand"
 	"rela_recommend/algo"
-	"rela_recommend/algo/live"
 	"rela_recommend/factory"
 	"rela_recommend/log"
 	"rela_recommend/models/behavior"
@@ -12,6 +11,7 @@ import (
 	"rela_recommend/rpc/api"
 	"rela_recommend/rpc/search"
 	"rela_recommend/service/performs"
+	"rela_recommend/tasks"
 	"rela_recommend/utils"
 	"strconv"
 	"time"
@@ -230,7 +230,7 @@ func DoBuildLabelData(ctx algo.IContext) error {
 	abtest := ctx.GetAbTest()
 	app := ctx.GetAppInfo()
 	newIdList := make([]int64, 0)
-	labelDataList := make(map[int64]search.LabelResDataItem, 0)
+	//labelDataList := make(map[int64]search.LabelResDataItem, 0)
 	var userIds = make([]int64, 0)
 	var user *redis.UserProfile
 	var usersMap = map[int64]*redis.UserProfile{}
@@ -243,7 +243,7 @@ func DoBuildLabelData(ctx algo.IContext) error {
 	var itemBehaviorMap = map[int64]*behavior.UserBehavior{} // 获取日志行为
 	preforms.RunsGo("data", map[string]func(*performs.Performs) interface{}{
 		"search": func(*performs.Performs) interface{} {
-			newIdList, labelDataList, errSearch = search.CallLabelMomentList(queryInt, 1000)
+			newIdList, _, errSearch = search.CallLabelMomentList(queryInt, 1000)
 			if errSearch != nil { //search的兜底数据
 				newIdList, _ = momentCache.GetInt64ListOrDefault(queryInt, -999999999, "hour_recommend_list:%d")
 				return errSearch
@@ -323,7 +323,7 @@ func DoBuildLabelData(ctx algo.IContext) error {
 }
 
 func DoBuildData(ctx algo.IContext) error {
-	var err error
+	//var err error
 	abtest := ctx.GetAbTest()
 	params := ctx.GetRequest()
 	preforms := ctx.GetPerforms()
@@ -359,13 +359,13 @@ func DoBuildData(ctx algo.IContext) error {
 	var expId = ""
 	var requestId = ""
 	var recallExpId = ""
-	momsTypeList :=map[string]int{"text":6,"text_image":3,"image":5,"live":1,"theme":7,"themereply":8,"video":4,"voice_live":1,"ad":10,"recommend":9}
+	momsTypeList := map[string]int{"text": 6, "text_image": 3, "image": 5, "live": 1, "theme": 7, "themereply": 8, "video": 4, "voice_live": 1, "ad": 10, "recommend": 9}
 	momentTypes := abtest.GetString("moment_types", "text_image,video,text,image,theme,themereply")
 	topN := abtest.GetInt("topn", 5)
 	recallLength := abtest.GetInt("recall_length", 300)
 	topScore := abtest.GetFloat64("top_score", 0.02)
 	if abtest.GetBool("rec_liveMoments_switch", false) && custom != "hot" {
-		liveMap, blindIdList = live.GetCachedLiveMomentListByTypeClassify(-1, -1)
+		//	liveMap, blindIdList = tasks.GetCachedLiveMomentListByTypeClassify(-1, -1)
 		liveMomentIds = getMapKey(liveMap)
 	}
 	adInfo := abtest.GetInt64("ad_moment_id", 0)
@@ -390,7 +390,7 @@ func DoBuildData(ctx algo.IContext) error {
 		recListKeyFormatter := abtest.GetString("icp_recommend_list_key", "icp_recommend_list:%d") // moment_recommend_list:%d
 		//白名单以及杭州新用户默认数据
 		if len(recListKeyFormatter) > 5 {
-			recIdList, err = momentCache.GetInt64ListOrDefault(-10000000, -999999999, recListKeyFormatter) //icp_recommend_list:-10000000
+			recIdList, _ = momentCache.GetInt64ListOrDefault(-10000000, -999999999, recListKeyFormatter) //icp_recommend_list:-10000000
 		}
 		if abtest.GetBool("icp_around_rec", false) {
 			var errSearch error
@@ -415,17 +415,17 @@ func DoBuildData(ctx algo.IContext) error {
 						if custom == "hot" {
 							userId = -999999999
 							go func() {
-								if userCurrent!=nil{
+								if userCurrent != nil {
 									userCurrent.CustomSort = custom
 									_ = userCache.UpdateUser(userCurrent)
 								}
 							}()
 						}
-						recIdList, err = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
+						recIdList, _ = momentCache.GetInt64ListOrDefault(userId, -999999999, recListKeyFormatter)
 						if len(recListKeyFormatter) > 5 && !recallSwitch {
 							recallExpId = utils.RecallOwn
 						} else {
-							paiRecallList, recallExpId, _, err = api.GetRecallResult(params.UserId, recallLength)
+							paiRecallList, recallExpId, _, _ = api.GetRecallResult(params.UserId, recallLength)
 						}
 						return len(recIdList)
 					}
@@ -433,13 +433,13 @@ func DoBuildData(ctx algo.IContext) error {
 				return nil
 			}, "hour": func(*performs.Performs) interface{} {
 				if abtest.GetBool("hour_rec_moment", false) {
-					hourRecList, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, "hour_recommend_list:%d")
+					hourRecList, _ = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, "hour_recommend_list:%d")
 					return len(hourRecList)
 				}
 				return nil
 			}, "live_mom": func(*performs.Performs) interface{} {
 				if abtest.GetBool("realtime_user_live", false) {
-					userLiveMoment, err = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, "realtime_user_live_mom:%d")
+					userLiveMoment, _ = momentCache.GetInt64ListOrDefault(params.UserId, -999999999, "realtime_user_live_mom:%d")
 					return len(userLiveMoment)
 				}
 				return nil
@@ -452,7 +452,7 @@ func DoBuildData(ctx algo.IContext) error {
 					recommended := abtest.GetBool("realtime_mom_switch", false) // 是否过滤推荐审核
 					if abtest.GetBool("near_liveMoments_switch", false) && abtest.GetBool("search_switched_around", true) {
 						var lives []pika.LiveCache
-						lives = live.GetCachedLiveListByTypeClassify(-1, -1)
+						lives = tasks.GetCachedLiveListByTypeClassify(-1, -1)
 						distance := abtest.GetFloat64("live_distance", 50.0)
 						liveMomentIds = ReturnAroundLiveMom(lives, params.Lng, params.Lat, distance)
 					}
@@ -690,7 +690,7 @@ func DoBuildData(ctx algo.IContext) error {
 	var topLiveScoreMap map[int64]*redis.TopLiveRnk
 	var userTypeMap map[int64]*redis.UserType
 	var momentUserEmbeddingMap = map[int64]*redis.MomentUserProfile{}
-	var isVip = 0
+	//var isVip = 0
 	preforms.RunsGo("user", map[string]func(*performs.Performs) interface{}{
 		"user": func(*performs.Performs) interface{} { // 获取用户信息
 			var userErr error
@@ -750,21 +750,21 @@ func DoBuildData(ctx algo.IContext) error {
 			liveContentProfileMap, liveContentProfileErr = userCache.QueryLiveContentProfileByIdsMap(userIds)
 			return liveContentProfileErr
 		},
-		"top_live_rnk":func(*performs.Performs) interface{} {
+		"top_live_rnk": func(*performs.Performs) interface{} {
 			var liveTopRnkErr error
-			topLiveScoreMap,liveTopRnkErr =momentCache.QueryTopLiveMapByIds(userIds)
+			topLiveScoreMap, liveTopRnkErr = momentCache.QueryTopLiveMapByIds(userIds)
 			return liveTopRnkErr
 		},
-		"user_type":func(*performs.Performs) interface{} {
+		"user_type": func(*performs.Performs) interface{} {
 			var UserTypeErr error
-			userTypeMap,UserTypeErr =momentCache.QueryUserTypeMapByIds([]int64{params.UserId})
+			userTypeMap, UserTypeErr = momentCache.QueryUserTypeMapByIds([]int64{params.UserId})
 			return UserTypeErr
 		},
 	})
 
-	userType :=0
-	if userObj,ok := userTypeMap[params.UserId];ok{
-		userType=userObj.Type
+	userType := 0
+	if userObj, ok := userTypeMap[params.UserId]; ok {
+		userType = userObj.Type
 	}
 	preforms.Run("build", func(*performs.Performs) interface{} {
 		userInfo := &UserInfo{
@@ -776,7 +776,7 @@ func DoBuildData(ctx algo.IContext) error {
 			UserLiveContentProfile: userLiveContentProfileMap[params.UserId],
 			UserBehavior:           userBehavior,
 		}
-		isVip = user.IsVip
+		//	isVip = user.IsVip
 		backendRecommendScore := abtest.GetFloat("backend_recommend_score", 1.2)
 		realRecommendScore := abtest.GetFloat("real_recommend_score", 1.1)
 		statusSwitch := abtest.GetBool("mom_status_filter", false)
@@ -821,8 +821,8 @@ func DoBuildData(ctx algo.IContext) error {
 			if statusSwitch && mom.Moments.Status != 1 { //状态不为1的过滤
 				continue
 			}
-			topLivescore :=0.0
-			if top,ok :=topLiveScoreMap[mom.Moments.UserId];ok{
+			topLivescore := 0.0
+			if top, ok := topLiveScoreMap[mom.Moments.UserId]; ok {
 				topLivescore = top.Rnk
 			}
 
@@ -852,28 +852,28 @@ func DoBuildData(ctx algo.IContext) error {
 				}
 				var isSoftTop = 0
 				var packet = 0.0
-				var isTarget =0
+				var isTarget = 0
 				var planId int64
-				var count =  0.0
+				var count = 0.0
 				// 处理推荐
 				var recommends []algo.RecommendItem
 				if topType, topTypeOK := searchMomentMap[mom.Moments.Id]; topTypeOK {
 					topTypeRes := topType.GetCurrentTopType(searchScenery)
 					isTop = utils.GetInt(topTypeRes == "TOP")
 					isSoftTop = utils.GetInt(topTypeRes == "SOFT")
-					packet = topType.GetCurrentPacket(searchScenery,ctx.GetCreateTime())
-					if packet==0 &&isTop==0&&isSoftTop==0{//无流量包功能且非软置顶和硬置顶过滤
+					packet = topType.GetCurrentPacket(searchScenery, ctx.GetCreateTime())
+					if packet == 0 && isTop == 0 && isSoftTop == 0 { //无流量包功能且非软置顶和硬置顶过滤
 						continue
 					}
-					currTarget :=topType.GetCurrentTarget(searchScenery)
-					planId =topType.GetCurrentPlanId(searchScenery)
-					if itemBehavior , itemOk := itemBehaviorMap[mom.Moments.Id]; itemOk{
-						 count = itemBehavior.GetRecExposure().Count
+					currTarget := topType.GetCurrentTarget(searchScenery)
+					planId = topType.GetCurrentPlanId(searchScenery)
+					if itemBehavior, itemOk := itemBehaviorMap[mom.Moments.Id]; itemOk {
+						count = itemBehavior.GetRecExposure().Count
 					}
-					if packet==0 || packet<count{//流量包功能过期后planid置为0
+					if packet == 0 || packet < count { //流量包功能过期后planid置为0
 						planId = 0
 					}
-					if currTarget>0 ||(currTarget==userType&&currTarget>0){
+					if currTarget > 0 || (currTarget == userType && currTarget > 0) {
 						isTarget = 1
 					}
 					if topTypeRes == "RECOMMEND" {
@@ -918,11 +918,11 @@ func DoBuildData(ctx algo.IContext) error {
 					}
 				}
 				var isFollow = 0
-				if concernsSet.Contains(mom.Moments.UserId) {//用户是否关注主播
+				if concernsSet.Contains(mom.Moments.UserId) { //用户是否关注主播
 					isFollow = 1
 				}
 				var isSocial = 0
-				if socialSet.Contains(mom.Moments.UserId) {//用户是否关注主播
+				if socialSet.Contains(mom.Moments.UserId) { //用户是否关注主播
 					isSocial = 1
 				}
 				if recMap != nil {
@@ -950,7 +950,7 @@ func DoBuildData(ctx algo.IContext) error {
 					MomentOfflineProfile: momOfflineProfileMap[mom.Moments.Id],
 					MomentContentProfile: momContentProfileMap[mom.Moments.Id],
 					LiveContentProfile:   liveContentProfileMap[mom.Moments.UserId],
-					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends,MomType:momType,Packet:packet,IsTarget:isTarget,LiveScore:topLivescore,PlanId:planId ,LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness,IsSocial:isSocial,IsFollow:isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
+					RankInfo:             &algo.RankInfo{IsTop: isTop, Recommends: recommends, MomType: momType, Packet: packet, IsTarget: isTarget, LiveScore: topLivescore, PlanId: planId, LiveIndex: liveIndex, TopLive: isTopLiveMom, IsBussiness: isBussiness, IsSocial: isSocial, IsFollow: isFollow, IsSoftTop: isSoftTop, PaiScore: score, ExpId: utils.ConvertExpId(expId, recallExpId), IsBlindMom: isBlindMom, RequestId: requestId, OffTime: offTime},
 					MomentUserProfile:    momentUserEmbeddingMap[mom.Moments.UserId],
 					ItemBehavior:         itemBehaviorMap[mom.Moments.Id],
 					ItemOfflineBehavior:  itemOfflineBehaviorMap[mom.Moments.Id],

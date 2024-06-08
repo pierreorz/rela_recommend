@@ -5,37 +5,36 @@ port = 3200
 #["trace", "debug", "info", "warn", "error", "fatal"]  default: "error"
 log_level = "debug"
 
-#新mongo集群地址 https://docs.mongodb.com/manual/reference/connection-string/
-# match_cluster_mongo_addr = "mongodb://rela_match:2b194ee2b21ab6563a368b50b3a533dd@172.31.27.135:27017,172.31.18.114:27017,172.31.17.245:27017/rela_match?replicaSet=match-mongodb"
-# match_cluster_mongo_addr = "mongodb://172.31.39.24:21000,172.31.40.182:21000,172.31.35.89:21000/rela_match"
-match_cluster_mongo_addr = "mongodb://172.31.40.219:21000,172.31.44.135:21000/rela_match"
+#新mongo集群地址 
+# match_cluster_mongo_addr = ""
+# match_cluster_mongo_addr = ""
+match_cluster_mongo_addr = ""
 
 #本地cache最大内存  128*1024*1024
-memory_cache_size =  157810688
-
+memory_cache_size =  15781
 #rds
 
 [rds]
-redis_addr = "192.168.31.168:6379,192.168.31.169:6379,192.168.31.170:6379"
-# redis_live_addr = "r-8vb6b3c35b002464.redis.zhangbei.rds.aliyuncs.com:6379"
-redis_live_addr = "192.168.31.164:6379"
-redis_cluster_addr = "192.168.31.164:6379"
-common_redis_addr = "192.168.16.27:6379"
-pika_addr = "192.168.31.164:9221"
-behavior_addr = "192.168.31.164:6379"
-aws_redis_addr = "r-8vbi7gp6pcdyoxisy3.redis.zhangbei.rds.aliyuncs.com:6379"
+redis_addr = ""
+# redis_live_addr = ""
+redis_live_addr = ""
+redis_cluster_addr = ""
+common_redis_addr = ""
+pika_addr = ""
+behavior_addr = ""
+aws_redis_addr = ""
 
 #mysql
 [rdb]
-#address = "root:devchj@theL0805@tcp(localhost:3306)/stay?charset=utf8-mb4&loc=Asia/Shanghai"
-master_address = "relaadmindatadb2:a72db4e137e4b399c2ff64cb8f39ceed@tcp(datadb-nx.cnllz645pqtu.rds.cn-northwest-1.amazonaws.com.cn:3306)/stay?charset=utf8mb4&parseTime=true&loc=UTC"
+#address = ""
+master_address = ""
 
 [cassandra]
-addresses="172.31.42.3,172.31.40.149,172.31.38.171"
+addresses=""
 
 [rpc]
-search_rpc_addr = "http://172.16.13.247/v2"
-chatroom_rpc_addr = "http://chatroom:7420"
-live_rpc_addr = "http://live:3500"
-api_rpc_addr = "http://matchinterface:3100"
-ai_search_rpc_addr = "http://relasearch:3100"
+search_rpc_addr = ""
+chatroom_rpc_addr = ""
+live_rpc_addr = ""
+api_rpc_addr = ""
+ai_search_rpc_addr = ""

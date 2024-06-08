@@ -2,23 +2,22 @@ package conf
 
 import (
 	"flag"
-	"github.com/BurntSushi/toml"
 	"io/ioutil"
+
+	"github.com/BurntSushi/toml"
 )
 
 const (
-	DefaultProxyAddr       = "127.0.0.1:80"
-	DefaultMatchAddr       = "127.0.0.1:80"
-	DefaultNsqAddr         = "127.0.0.1:80"
-	DefaultMemoryCacheSize = 1024 * 1024 * 128
-	DefaultLogLevel        = "debug"
-	DefaultLiveRpcAddr     = "http://live:3500"
-	DefaultPaiRpcAddr      ="http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict/rela_rec"
-	DefaultPaiRpcRecallAddr   ="http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict/rela_rec_recall"
-	DefaultPaiRpcLabelRecAddr = "http://34973930.vpc.cn-zhangjiakou.pai-eas.aliyuncs.com/api/predict"
+	DefaultProxyAddr          = "127.0.0.1:80"
+	DefaultMatchAddr          = "127.0.0.1:80"
+	DefaultNsqAddr            = "127.0.0.1:80"
+	DefaultMemoryCacheSize    = 1024 * 1024 * 128
+	DefaultLogLevel           = "debug"
+	DefaultLiveRpcAddr        = "http://live:3500"
+	DefaultPaiRpcAddr         = "127.0.0.1"
+	DefaultPaiRpcRecallAddr   = "127.0.0.1"
+	DefaultPaiRpcLabelRecAddr = "127.0.0.1"
 )
-
-
 
 var (
 	port         = flag.Int("port", 3100, "监听端口")
@@ -56,14 +55,14 @@ type cassandraConfig struct {
 }
 
 type rpcConfig struct {
-	SearchRpcAddr   string `toml:"search_rpc_addr"`
-	ApiRpcAddr      string `toml:"api_rpc_addr"`
-	ChatRoomRpcAddr string `toml:"chatroom_rpc_addr"`
-	LiveRpcAddr     string `toml:"live_rpc_addr"`
+	SearchRpcAddr      string `toml:"search_rpc_addr"`
+	ApiRpcAddr         string `toml:"api_rpc_addr"`
+	ChatRoomRpcAddr    string `toml:"chatroom_rpc_addr"`
+	LiveRpcAddr        string `toml:"live_rpc_addr"`
 	PaiRpcLabelRecAddr string `toml:"pai_rpc_label_rec_addr"`
-	AiSearchRpcAddr string `toml:"ai_search_rpc_addr"`
-	PaiRpcAddr      string `toml:"pai_rpc_addr"`
-	PaiRpcRecallAddr   string  `toml:"pai_rpc_pre_addr"`
+	AiSearchRpcAddr    string `toml:"ai_search_rpc_addr"`
+	PaiRpcAddr         string `toml:"pai_rpc_addr"`
+	PaiRpcRecallAddr   string `toml:"pai_rpc_pre_addr"`
 }
 
 type influxdbConfig struct {
@@ -72,7 +71,6 @@ type influxdbConfig struct {
 	Org    string `toml:"org"`
 	Bucket string `toml:"bucket"`
 }
-
 
 type Config struct {
 	FileName string `toml:"-"`
@@ -145,8 +143,8 @@ func NewConfigDefault() *Config {
 
 	// rpc
 	cfg.Rpc.LiveRpcAddr = DefaultLiveRpcAddr
-	cfg.Rpc.PaiRpcAddr= DefaultPaiRpcAddr
+	cfg.Rpc.PaiRpcAddr = DefaultPaiRpcAddr
 	cfg.Rpc.PaiRpcRecallAddr = DefaultPaiRpcRecallAddr
-	cfg.Rpc.PaiRpcLabelRecAddr=DefaultPaiRpcLabelRecAddr
+	cfg.Rpc.PaiRpcLabelRecAddr = DefaultPaiRpcLabelRecAddr
 	return cfg
 }
