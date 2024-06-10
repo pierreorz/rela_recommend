@@ -236,7 +236,7 @@ func refreshLiveMapList(duration time.Duration) {
 	}
 }
 
-// 启动自动刷新直播列表缓存
-func init() {
-	go refreshLiveMapList(15 * time.Second)
-}
+// // 启动自动刷新直播列表缓存
+// func init() {
+// 	go refreshLiveMapList(15 * time.Second)
+// }

@@ -17,8 +17,6 @@ import (
 	// "time"
 	// "rela_recommend/algo/live"
 
-	"rela_recommend/service/performs"
-
 	_ "net/http/pprof"
 )
 
@@ -70,7 +68,7 @@ func main() {
 	log.Infof("%+v", *cfg)
 
 	factory.Init(cfg)
-	performs.BeginWatching(cfg.Influxdb.Org, cfg.Influxdb.Bucket) // 监听写入influxdb
+	//performs.BeginWatching(cfg.Influxdb.Org, cfg.Influxdb.Bucket) // 监听写入influxdb
 	router := routers.Default()
 	routes.RegisterRouters(router)
 	routes.RegisterHandler(router)

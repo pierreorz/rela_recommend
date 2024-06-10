@@ -3,16 +3,16 @@ package routes
 import (
 	"net/http"
 	"rela_recommend/controllers"
-	"rela_recommend/controllers/config"
+	_ "rela_recommend/controllers/config"
 	"rela_recommend/controllers/moment"
 	"rela_recommend/utils/routers"
 )
 
 func RegisterRouters(router *routers.Routers) {
-	router.POST("/config/abtest", config.AbTestHTTP)
+	//router.POST("/config/abtest", config.AbTestHTTP)
 
 	router.POST("/recommend", controllers.IndexHTTP)
-	router.GET("/recommend/test", controllers.TestHTTP)
+	//router.GET("/recommend/test", controllers.TestHTTP)
 	router.POST("/recommend/momentList", moment.RecommendListHTTP)
 	router.POST("/recommend/coarse/momentList", moment.CoarseRecommendListHTTP)
 
